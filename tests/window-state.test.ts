@@ -5,6 +5,7 @@ import { createRequire } from "node:module";
 import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { resolve } from "node:path";
+import { spawn, type ChildProcess } from "node:child_process";
 
 const screen = { x: 0, y: 0, width: 1920, height: 1080 };
 
@@ -105,6 +106,53 @@ describe("desktop More menu and zoom", () => {
       expect(restored.bounds).toEqual(centeredBounds(restored.area));
     } finally {
       await app.close();
+      await rm(userData, { recursive: true, force: true });
+    }
+  }, 30_000);
+});
+
+describe("single-instance desktop", () => {
+  it("rejects a second launch, restores the primary window, and shows a confirmation", async () => {
+    const userData = await mkdtemp(resolve(tmpdir(), "k-downloader-instance-test-"));
+    const require = createRequire(import.meta.url);
+    const executablePath: string = require("electron");
+    const args = [resolve("dist/electron/main.cjs"), `--user-data-dir=${userData}`];
+    const env = { ...process.env, XDG_CURRENT_DESKTOP: "Test" };
+    const primary = await electron.launch({ executablePath, args, env });
+    let secondary: ChildProcess | undefined;
+    try {
+      const page = await primary.firstWindow();
+      await page.waitForFunction(() => document.documentElement.dataset.mode);
+      await primary.evaluate(({ dialog, BrowserWindow }) => {
+        Reflect.set(globalThis, "singleInstanceNotices", []);
+        dialog.showMessageBox = async (...args: unknown[]) => {
+          Reflect.get(globalThis, "singleInstanceNotices").push(args.at(-1));
+          return { response: 0, checkboxChecked: false };
+        };
+        BrowserWindow.getAllWindows()[0].minimize();
+      });
+      await expect.poll(() => primary.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].isMinimized())).toBe(true);
+      secondary = spawn(executablePath, args, { env, stdio: "ignore" });
+      const exitCode = await new Promise<number | null>((resolve, reject) => {
+        secondary!.once("error", reject);
+        secondary!.once("close", resolve);
+      });
+      expect(exitCode).toBe(0);
+      await expect.poll(() => primary.evaluate(() => Reflect.get(globalThis, "singleInstanceNotices").length)).toBe(1);
+      await expect.poll(() => primary.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].isMinimized())).toBe(false);
+      await expect.poll(() => primary.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].isFocused())).toBe(true);
+      const state = await primary.evaluate(({ BrowserWindow }) => ({
+        windowCount: BrowserWindow.getAllWindows().length,
+        visible: BrowserWindow.getAllWindows()[0].isVisible(),
+        notice: Reflect.get(globalThis, "singleInstanceNotices")[0],
+      }));
+      expect(state.windowCount).toBe(1);
+      expect(state.visible).toBe(true);
+      expect(state.notice.message).toBe("K-Downloader is already running.");
+      expect(state.notice.buttons).toEqual(["Show running app"]);
+    } finally {
+      if (secondary && secondary.exitCode === null) secondary.kill();
+      await primary.close();
       await rm(userData, { recursive: true, force: true });
     }
   }, 30_000);

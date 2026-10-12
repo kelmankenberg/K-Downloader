@@ -38229,42 +38229,230 @@ now Settings needs to have it's own left nav rail. In that should be Appearance 
 
 _**Agent (copilot/auto)**_
 
-<tool-use data-tool-type="generic" data-tool-name="copilot_readFile"><details>
-<summary>Tool use: **copilot_readFile**</summary>
+<think><details><summary>Thought Process</summary>
+I’ll check the current build scripts and packaging status, then write a release guide in `docs`. It will distinguish what can be built today from the Linux installers still planned, and include GitHub release commands.
+
+There’s no installer packaging or release workflow configured yet. I’ll document the current build and a source-only GitHub release process, with validation, versioning, tagging, and draft publishing steps. I’ll also call out why `dist/` alone isn’t a distributable desktop app.
+</details></think>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
 
 Read `package.json`
+
+**Input:**
+
+- endLine: `110`
+- filePath: `/home/kel/dev/K-Downloader/package.json`
+- startLine: `1`
+
+**Result:**
+
+```
+{
+  "name": "k-downloader",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "build:gui": "node scripts/build-gui.mjs",
+    "gui": "npm run build:gui && electron dist/electron/main.cjs",
+    "inspect": "tsx src/cli.ts inspect",
+    "download": "tsx src/cli.ts download",
+    "pretest": "npm run build:gui",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "dompurify": "^3.4.17",
+    "lucide": "^1.55.0",
+    "marked": "^18.1.1",
+    "parse5": "^7.3.0",
+    "playwright": "^1.55.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "electron": "^44.7.0",
+    "esbuild": "^0.28.2",
+    "tsx": "^4.19.0",
+    "typescript": "^5.8.0",
+    "vitest": "^5.0.4"
+  }
+}
+```
 </details></tool-use>
 
 _**Agent (copilot/auto)**_
 
-<tool-use data-tool-type="generic" data-tool-name="copilot_readFile"><details>
-<summary>Tool use: **copilot_readFile**</summary>
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
 
 Read `build-gui.mjs`
+
+**Input:**
+
+- endLine: `110`
+- filePath: `/home/kel/dev/K-Downloader/scripts/build-gui.mjs`
+- startLine: `1`
+
+**Result:**
+
+```
+import { cp, mkdir, readFile, rm } from "node:fs/promises";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { build } from "esbuild";
+
+const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const output = resolve(root, "dist");
+const changelog = await readFile(resolve(root, "changelog.md"), "utf8");
+const manifest = JSON.parse(await readFile(resolve(root, "package.json"), "utf8"));
+if (typeof manifest.version !== "string" || !manifest.version.trim()) throw new Error("package.json must contain a version");
+await rm(output, { recursive: true, force: true });
+await mkdir(resolve(output, "electron"), { recursive: true });
+await mkdir(resolve(output, "gui"), { recursive: true });
+
+await Promise.all([
+  build({
+    entryPoints: [resolve(root, "src/electron/main.ts")],
+    outfile: resolve(output, "electron/main.cjs"),
+    bundle: true,
+    platform: "node",
+    format: "cjs",
+    external: ["electron", "playwright", "parse5"],
+  }),
+  build({
+    entryPoints: [resolve(root, "src/electron/preload.ts")],
+    outfile: resolve(output, "electron/preload.cjs"),
+    bundle: true,
+    platform: "node",
+    format: "cjs",
+    external: ["electron"],
+  }),
+  build({
+    entryPoints: [resolve(root, "src/renderer.ts")],
+    outfile: resolve(output, "gui/renderer.js"),
+    bundle: true,
+    platform: "browser",
+    format: "iife",
+    define: {
+      __CHANGELOG_MARKDOWN__: JSON.stringify(changelog),
+      __APP_VERSION__: JSON.stringify(manifest.version),
+    },
+  }),
+]);
+
+await Promise.all([
+  cp(resolve(root, "gui/index.html"), resolve(output, "gui/index.html")),
+  cp(resolve(root, "gui/styles.css"), resolve(output, "gui/styles.css")),
+]);
+console.log("Built Electron main/preload and local renderer into dist/.");
+```
 </details></tool-use>
 
 _**Agent (copilot/auto)**_
 
-<tool-use data-tool-type="generic" data-tool-name="copilot_findFiles"><details>
-<summary>Tool use: **copilot_findFiles**</summary>
+<tool-use data-tool-type="search" data-tool-name="file_search"><details>
+<summary>Tool use: **file_search**</summary>
 
 Searched for files matching `**/{*release*,*builder*,*.yml,*.yaml}`, no matches
+
+**Input:**
+
+- query: `**/{*release*,*builder*,*.yml,*.yaml}`
+
+**Result:**
+
+```
+No files found
+```
 </details></tool-use>
 
 _**Agent (copilot/auto)**_
 
-<tool-use data-tool-type="generic" data-tool-name="copilot_listDirectory"><details>
-<summary>Tool use: **copilot_listDirectory**</summary>
+<tool-use data-tool-type="generic" data-tool-name="list_dir"><details>
+<summary>Tool use: **list_dir**</summary>
 
 Read `docs`
+
+**Input:**
+
+- path: `/home/kel/dev/K-Downloader/docs`
+
+**Result:**
+
+```
+PROJECT_PLAN.md
+```
 </details></tool-use>
 
 _**Agent (copilot/auto)**_
 
-<tool-use data-tool-type="generic" data-tool-name="copilot_readFile"><details>
-<summary>Tool use: **copilot_readFile**</summary>
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
 
 Read `README.md`
+
+**Input:**
+
+- endLine: `155`
+- filePath: `/home/kel/dev/K-Downloader/README.md`
+- startLine: `1`
+
+**Result:**
+
+````
+# K-Downloader
+
+K-Downloader is a Linux-first KHInsider album downloader. The current slice
+implements public single-album discovery, format preview and policy, sequential
+streaming, and manifest-backed reruns. Multi-album queues, artwork, the GUI,
+optional account features, and packaging are not implemented yet.
+
+## Discovery check
+
+Requirements: Node.js 20 or newer, npm, and a graphical desktop session.
+
+```sh
+npm install
+npx playwright install chromium
+npm run inspect -- 'https://downloads.khinsider.com/game-soundtracks/album/unreal-ii-the-awakening-original-soundtrack'
+```
+
+The command opens a fresh visible Chromium context without a stored browser
+profile, visits the album and track pages sequentially, and prints every
+track's discovered format selection. It does not sign in or download audio.
+Visible mode is currently needed: plain Node fetch and headless Chromium
+received HTTP 403 during feasibility checks, while a fresh visible Chromium
+context succeeded. No attempt is made to imitate a browser or evade a challenge.
+If access is denied or a challenge appears, stop and review the site's permitted
+access methods.
+
+## Download One Album
+
+The CLI previews the selected formats before starting any transfer. The default
+format policy prefers lossless, falling back to MP3 when needed. The default
+destination is `~/Music/K-Downloader`.
+
+```sh
+npm run download -- 'https://downloads.khinsider.com/game-soundtracks/album/unreal-ii-the-awakening-original-soundtrack'
+```
+
+Use `--format lossless-only` to block when a track has no lossless source. Add
+`--skip-unavailable` to explicitly skip those tracks and mark the album
+incomplete. A specific format such as `--format MP3` never silently substitutes
+another format. Use `--output /path/to/music` for another destination.
+
+Multi-disc albums are saved into per-disc folders such as `CD1/` and `CD2/`.
+The GUI offers `CD` and `Disc` folder labels; the CLI accepts
+`--disc-label CD` or `--disc-label Disc` and defaults to `CD`. Singl
+… (output truncated)
+````
 </details></tool-use>
 
 _**Agent (copilot/auto)**_
@@ -38479,6 +38667,21 @@ _**Agent (copilot/auto)**_
 <summary>Tool use: **run_in_terminal**</summary>
 
 Running ` node --input-type=module -e 'import \{ readFileSync, existsSync \} from "node:...`
+
+Validate documentation links and script names and check dependency engine requirements without running release or version commands.
+
+```bash
+node --input-type=module -e 'import { readFileSync, existsSync } from "node:fs"; import { resolve, dirname } from "node:path"; const file = resolve("docs/BUILD_AND_RELEASE.md"); const text = readFileSync(file, "utf8"); const pkg = JSON.parse(readFileSync("package.json", "utf8")); for (const [, link] of text.matchAll(/\]\(([^)]+)\)/g)) { if (!link.includes("://") && !existsSync(resolve(dirname(file), link))) throw new Error(`Missing documentation link: ${link}`); } for (const [, script] of text.matchAll(/npm run ([\w:-]+)/g)) { if (!pkg.scripts[script]) throw new Error(`Unknown script: ${script}`); } console.log("Documentation links and npm scripts verified."); for (const name of ["vitest", "vite", "electron"]) { const dependency = JSON.parse(readFileSync(`node_modules/${name}/package.json`, "utf8")); console.log(`${name}: ${JSON.stringify(dependency.engines ?? {})}`); }'
+```
+
+**Result:**
+
+```
+Documentation links and npm scripts verified.
+vitest: {"node":"^22.12.0 || ^24.0.0 || >=26.0.0"}
+vite: {"node":"^20.19.0 || >=22.12.0"}
+electron: {"node":">= 22.12.0"}
+```
 </details></tool-use>
 
 _**Agent (copilot/auto)**_
@@ -38683,6 +38886,40 @@ support until those packaging and compatibility checks pass.
 ````
 </details></tool-use>
 
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` node --input-type=module -e 'import \{ readFileSync, existsSync \} from "node:...`
+
+Recheck the finished guide's local links, npm commands, and Markdown fences after updating the Node prerequisites.
+
+````bash
+node --input-type=module -e 'import { readFileSync, existsSync } from "node:fs"; import { resolve, dirname } from "node:path"; const file = resolve("docs/BUILD_AND_RELEASE.md"); const text = readFileSync(file, "utf8"); const pkg = JSON.parse(readFileSync("package.json", "utf8")); for (const [, link] of text.matchAll(/\]\(([^)]+)\)/g)) { if (!link.includes("://") && !existsSync(resolve(dirname(file), link))) throw new Error(`Missing link: ${link}`); } for (const [, script] of text.matchAll(/npm run ([\w:-]+)/g)) { if (!pkg.scripts[script]) throw new Error(`Unknown script: ${script}`); } if ((text.match(/^```/gm) ?? []).length % 2 !== 0) throw new Error("Unbalanced Markdown code fences"); console.log("Guide validation passed: local links, npm scripts, and Markdown code fences.");'
+````
+
+**Result:**
+
+```
+Guide validation passed: local links, npm scripts, and Markdown code fences.
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+Created `docs/BUILD_AND_RELEASE.md` with build requirements, validation, versioning, Git tags, and GitHub draft/publish commands.
+
+It distinguishes current source-only releases from installer packaging that isn’t implemented yet. Links and commands were validated; no release was created.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="task" data-tool-name="manage_todo_list"><details>
+<summary>Tool use: **manage_todo_list**</summary>
+
+Created 2 todos
+</details></tool-use>
+
 ---
 
 _**User (2026-10-12 17:56:59Z)**_
@@ -38848,3 +39085,1611 @@ _**Agent (copilot/auto)**_
 
 Read `README.md`
 </details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+I’ll add Electron’s single-instance lock before window creation. If another launch is attempted, the running app will show a confirmation and restore/bring its window forward. I’ll check the startup path and test two launches using an isolated profile.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Read `main.ts`, lines 1 to 80
+
+**Input:**
+
+- endLine: `80`
+- filePath: `/home/kel/dev/K-Downloader/src/electron/main.ts`
+- startLine: `1`
+
+**Result:**
+
+```
+import { app, BrowserWindow, dialog, ipcMain, Menu, nativeTheme, screen } from "electron";
+import { readFileSync, writeFileSync, renameSync } from "node:fs";
+import { centeredBounds, parseWindowState, startupBounds } from "./window-state.js";
+import { monitorCinnamonTheme } from "./system-theme.js";
+import { resolve } from "node:path";
+import { downloadAlbum, type DownloadProgress } from "../downloader.js";
+import { planFormats } from "../formats.js";
+import { inspectAlbum, validateAlbumUrl, type AlbumPage, type DiscoveredTrack } from "../khinsider.js";
+import { defaultOutputRoot } from "../output.js";
+import type { GuiDownloadRequest, GuiFormatPolicy, GuiInspection, GuiInspectionState } from "../gui-types.js";
+
+type CachedInspection = {
+  sourceAlbum: string;
+  album: AlbumPage;
+  tracks: DiscoveredTrack[];
+};
+
+let mainWindow: BrowserWindow | undefined;
+let cinnamonDark: boolean | undefined;
+let stopThemeMonitor: (() => void) | undefined;
+
+function systemThemeIsDark(): boolean {
+  return cinnamonDark ?? nativeTheme.shouldUseDarkColors;
+}
+
+function sendSystemTheme(): void {
+  if (mainWindow && !mainWindow.isDestroyed() && !mainWindow.webContents.isDestroyed()) {
+    mainWindow.webContents.send("appearance:system-theme", systemThemeIsDark());
+  }
+}
+
+const inspections = new Map<number, CachedInspection>();
+const downloads = new Map<number, AbortController>();
+const activeInspections = new Map<number, {
+  controller: AbortController;
+  setBrowserVisible?: (visible: boolean) => Promise<void>;
+  browserVisible: boolean;
+}>();
+
+function assertWindowSender(senderId: number): BrowserWindow {
+  if (!mainWindow || mainWindow.webContents.id !== senderId) throw new Error("Untrusted IPC sender");
+  return mainWindow;
+}
+
+function parseFormatPolicy(policy: unknown): GuiFormatPolicy {
+  if (typeof policy !== "object" || policy === null || !("kind" in policy)) {
+    throw new Error("Invalid format policy");
+  }
+  const value = policy as Record<string, unknown>;
+  const skipUnavailab
+… (output truncated)
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Read `main.ts`, lines 225 to 299
+
+**Input:**
+
+- endLine: `335`
+- filePath: `/home/kel/dev/K-Downloader/src/electron/main.ts`
+- startLine: `225`
+
+**Result:**
+
+```
+    downloads.get(event.sender.id)?.abort();
+  });
+}
+
+async function createWindow(): Promise<void> {
+  const statePath = resolve(app.getPath("userData"), "window-state.json");
+  let savedState;
+  try { savedState = parseWindowState(readFileSync(statePath, "utf8")); } catch {}
+  const displays = [screen.getPrimaryDisplay(), ...screen.getAllDisplays().filter((display) => display.id !== screen.getPrimaryDisplay().id)];
+  const window = new BrowserWindow({
+    frame: false,
+    autoHideMenuBar: true,
+    ...startupBounds(savedState, displays.map((display) => display.workArea)),
+    minWidth: 760,
+    minHeight: 620,
+    backgroundColor: "#101715",
+    title: "K-Downloader",
+    webPreferences: {
+      preload: resolve(__dirname, "preload.cjs"),
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: true,
+    },
+  });
+  mainWindow = window;
+  const senderId = window.webContents.id;
+  window.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
+  window.webContents.on("will-navigate", (event, url) => {
+    if (!url.startsWith("file://")) event.preventDefault();
+  });
+  window.on("maximize", () => sendWindowState(window));
+  window.on("unmaximize", () => sendWindowState(window));
+  window.webContents.on("did-finish-load", () => sendWindowState(window));
+  window.on("close", () => {
+    try {
+      writeFileSync(`${statePath}.tmp`, JSON.stringify({ bounds: window.getNormalBounds(), maximized: window.isMaximized() }), { mode: 0o600 });
+      renameSync(`${statePath}.tmp`, statePath);
+    } catch (error) {
+      console.warn("Could not save window size and position:", error);
+    }
+  });
+  window.on("closed", () => {
+    inspections.delete(senderId);
+    activeInspections.get(senderId)?.controller.abort();
+    activeInspections.delete(senderId);
+    downloads.get(senderId)?.abort();
+    downloads.delete(senderId);
+    if (mainWindow === window) mainWindow = undefined;
+  });
+  await window.loadFile(resolve(__dirname, "../gui/index.html"));
+  if (sav
+… (output truncated)
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Read `window-state.test.ts`
+
+**Input:**
+
+- endLine: `190`
+- filePath: `/home/kel/dev/K-Downloader/tests/window-state.test.ts`
+- startLine: `1`
+
+**Result:**
+
+```
+import { describe, expect, it } from "vitest";
+import { centeredBounds, parseWindowState, startupBounds } from "../src/electron/window-state.js";
+import { _electron as electron } from "playwright";
+import { createRequire } from "node:module";
+import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { resolve } from "node:path";
+
+const screen = { x: 0, y: 0, width: 1920, height: 1080 };
+
+describe("window geometry", () => {
+  it("centers the default development size", () => {
+    expect(centeredBounds(screen)).toEqual({ x: 400, y: 150, width: 1120, height: 780 });
+  });
+  it("rejects malformed state and preserves valid bounds", () => {
+    expect(parseWindowState("bad")).toBeUndefined();
+    expect(parseWindowState('{"bounds":{"x":0}}')).toBeUndefined();
+    const state = { bounds: { x: 50, y: 60, width: 900, height: 700 }, maximized: true };
+    expect(startupBounds(parseWindowState(JSON.stringify(state)), [screen])).toEqual(state.bounds);
+  });
+  it("recenters off-screen state and clamps partly visible windows", () => {
+    expect(startupBounds({ bounds: { x: 3000, y: 2000, width: 900, height: 700 }, maximized: false }, [screen])).toEqual(centeredBounds(screen));
+    expect(startupBounds({ bounds: { x: 1800, y: 900, width: 900, height: 700 }, maximized: false }, [screen])).toEqual({ x: 1020, y: 380, width: 900, height: 700 });
+  });
+});
+
+describe("desktop More menu and zoom", () => {
+  it("renders and resizes the changelog, zooms, and persists window bounds", async () => {
+    const userData = await mkdtemp(resolve(tmpdir(), "k-downloader-window-test-"));
+    const require = createRequire(import.meta.url);
+    const launch = () => electron.launch({
+      executablePath: require("electron"),
+      args: [resolve("dist/electron/main.cjs"), `--user-data-dir=${userData}`],
+      env: { ...process.env, XDG_CURRENT_DESKTOP: "Test" },
+    });
+    let app = await launch();
+    try {
+      let page = await app.firstWindow();
+      pa
+… (output truncated)
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The startup path currently creates a window on every launch. I’ll acquire the lock first so a duplicate process exits before initialization, then notify the primary instance. That instance will restore a minimized window and show a “Show running app” confirmation; if it’s still starting, the notice will wait until its window is ready.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **main.ts**</summary>
+
+@@ lines 1-341 @@
+
+```
+import { app, BrowserWindow, dialog, ipcMain, Menu, nativeTheme, screen } from "electron";
+import { readFileSync, writeFileSync, renameSync } from "node:fs";
+import { centeredBounds, parseWindowState, startupBounds } from "./window-state.js";
+import { monitorCinnamonTheme } from "./system-theme.js";
+import { resolve } from "node:path";
+import { downloadAlbum, type DownloadProgress } from "../downloader.js";
+import { planFormats } from "../formats.js";
+import { inspectAlbum, validateAlbumUrl, type AlbumPage, type DiscoveredTrack } from "../khinsider.js";
+import { defaultOutputRoot } from "../output.js";
+import type { GuiDownloadRequest, GuiFormatPolicy, GuiInspection, GuiInspectionState } from "../gui-types.js";
+
+type CachedInspection = {
+  sourceAlbum: string;
+  album: AlbumPage;
+  tracks: DiscoveredTrack[];
+};
+
+let mainWindow: BrowserWindow | undefined;
+let duplicateLaunchPending = false;
+let instanceNoticeOpen = false;
+let cinnamonDark: boolean | undefined;
+let stopThemeMonitor: (() => void) | undefined;
+
+app.setName("K-Downloader");
+const primaryInstance = app.requestSingleInstanceLock();
+if (!primaryInstance) app.quit();
+else app.on("second-instance", () => {
+  duplicateLaunchPending = true;
+  void notifyExistingInstance();
+});
+
+function bringWindowForward(window: BrowserWindow): void {
+  if (window.isDestroyed()) return;
+  if (window.isMinimized()) window.restore();
+  window.show();
+  window.focus();
+}
+
+async function notifyExistingInstance(): Promise<void> {
+  const window = mainWindow;
+  if (!duplicateLaunchPending || instanceNoticeOpen || !window || window.isDestroyed()) return;
+  duplicateLaunchPending = false;
+  instanceNoticeOpen = true;
+  bringWindowForward(window);
+  try {
+    await dialog.showMessageBox(window, {
+      type: "info",
+      title: "K-Downloader is already running",
+      message: "K-Downloader is already running.",
+      detail: "Only one instance can run. Continue in the existing window.",
+      buttons: ["Show running app"],
+      defaultId: 0,
+      noLink: true,
+    });
+    bringWindowForward(window);
+  } finally {
+    instanceNoticeOpen = false;
+    duplicateLaunchPending = false;
+  }
+}
+
+function systemThemeIsDark(): boolean {
+  return cinnamonDark ?? nativeTheme.shouldUseDarkColors;
+}
+
+function sendSystemTheme(): void {
+  if (mainWindow && !mainWindow.isDestroyed() && !mainWindow.webContents.isDestroyed()) {
+    mainWindow.webContents.send("appearance:system-theme", systemThemeIsDark());
+  }
+}
+
+const inspections = new Map<number, CachedInspection>();
+const downloads = new Map<number, AbortController>();
+const activeInspections = new Map<number, {
+  controller: AbortController;
+  setBrowserVisible?: (visible: boolean) => Promise<void>;
+  browserVisible: boolean;
+}>();
+
+function assertWindowSender(senderId: number): BrowserWindow {
+  if (!mainWindow || mainWindow.webContents.id !== senderId) throw new Error("Untrusted IPC sender");
+  return mainWindow;
+}
+
+function parseFormatPolicy(policy: unknown): GuiFormatPolicy {
+  if (typeof policy !== "object" || policy === null || !("kind" in policy)) {
+    throw new Error("Invalid format policy");
+  }
+  const value = policy as Record<string, unknown>;
+  const skipUnavailable = value.skipUnavailable === true;
+  if (value.kind === "prefer-lossless" && !skipUnavailable) return { kind: "prefer-lossless" };
+  if (value.kind === "lossless-only") return { kind: "lossless-only", skipUnavailable };
+  if (value.kind === "specific" && typeof value.format === "string" && /^[A-Za-z0-9.+-]{1,16}$/.test(value.format)) {
+    return { kind: "specific", format: value.format.toUpperCase(), skipUnavailable };
+  }
+  throw new Error("Invalid format policy");
+}
+
+function serializeInspection(cached: CachedInspection): GuiInspection {
+  return {
+    albumTitle: cached.album.title,
+    trackCount: cached.tracks.length,
+    tracks: cached.tracks.map((track) => ({
+      ...(track.discNumber === undefined ? {} : { discNumber: track.discNumber }),
+      number: track.number,
+      title: track.title,
+      formats: [...new Set(track.audioLinks.map(({ format }) => format))],
+    })),
+  };
+}
+
+function sendProgress(sender: Electron.WebContents, progress: DownloadProgress): void {
+  if (!sender.isDestroyed()) sender.send("album:progress", progress);
+}
+
+function sendInspectionState(sender: Electron.WebContents, state: GuiInspectionState): void {
+  if (!sender.isDestroyed()) sender.send("inspection:state", state);
+}
+
+function sendWindowState(window: BrowserWindow): void {
+  if (!window.webContents.isDestroyed()) {
+    window.webContents.send("window:state", { maximized: window.isMaximized() });
+  }
+}
+
+function registerIpc(): void {
+  ipcMain.handle("window:restore-bounds", (event) => {
+    const window = assertWindowSender(event.sender.id);
+    const area = screen.getDisplayMatching(window.getBounds()).workArea;
+    if (window.isFullScreen()) window.setFullScreen(false);
+    if (window.isMaximized()) window.unmaximize();
+    window.setBounds(centeredBounds(area));
+    sendWindowState(window);
+  });
+
+  ipcMain.handle("window:zoom", (event, direction: unknown) => {
+    const window = assertWindowSender(event.sender.id);
+    if (direction !== "in" && direction !== "out" && direction !== "reset") throw new Error("Invalid zoom command");
+    const current = window.webContents.getZoomFactor();
+    const zoom = direction === "reset" ? 1 : Math.max(.5, Math.min(2, Math.round((current + (direction === "in" ? .1 : -.1)) * 10) / 10));
+    window.webContents.setZoomFactor(zoom);
+    return zoom;
+  });
+  ipcMain.handle("appearance:system-theme", (event) => {
+    assertWindowSender(event.sender.id);
+    return systemThemeIsDark();
+  });
+  ipcMain.handle("window:minimize", (event) => {
+    assertWindowSender(event.sender.id).minimize();
+  });
+
+  ipcMain.handle("window:toggle-maximize", (event) => {
+    const window = assertWindowSender(event.sender.id);
+    if (window.isMaximized()) window.unmaximize();
+    else window.maximize();
+    sendWindowState(window);
+    return window.isMaximized();
+  });
+
+  ipcMain.handle("window:close", (event) => {
+    assertWindowSender(event.sender.id).close();
+  });
+
+  ipcMain.handle("output:default", (event) => {
+    assertWindowSender(event.sender.id);
+    return defaultOutputRoot();
+  });
+
+  ipcMain.handle("output:choose", async (event) => {
+    const window = assertWindowSender(event.sender.id);
+    const result = await dialog.showOpenDialog(window, {
+      title: "Choose download folder",
+      defaultPath: defaultOutputRoot(),
+      properties: ["openDirectory", "createDirectory"],
+    });
+    return result.canceled ? undefined : result.filePaths[0];
+  });
+
+  ipcMain.handle("album:inspect", async (event, input: unknown) => {
+    assertWindowSender(event.sender.id);
+    if (typeof input !== "string" || input.length > 2048) throw new Error("Enter one valid album URL");
+    if (activeInspections.has(event.sender.id)) throw new Error("Album inspection is already active");
+    let sourceAlbum: string;
+    try {
+      sourceAlbum = validateAlbumUrl(input).href;
+    } catch {
+      throw new Error("Paste a valid HTTPS KHInsider album URL.");
+    }
+    const active: {
+      controller: AbortController;
+      setBrowserVisible?: (visible: boolean) => Promise<void>;
+      browserVisible: boolean;
+    } = { controller: new AbortController(), browserVisible: false };
+    inspections.delete(event.sender.id);
+    activeInspections.set(event.sender.id, active);
+    sendInspectionState(event.sender, { active: true, browserReady: false, browserVisible: false });
+    try {
+      const result = await inspectAlbum(sourceAlbum, {
+        signal: active.controller.signal,
+        onBrowserReady: (setBrowserVisible) => {
+          active.setBrowserVisible = setBrowserVisible;
+          sendInspectionState(event.sender, { active: true, browserReady: true, browserVisible: false });
+        },
+      });
+      const cached = { sourceAlbum, album: result.album, tracks: result.tracks };
+      inspections.set(event.sender.id, cached);
+      return serializeInspection(cached);
+    } catch (error) {
+      if (active.controller.signal.aborted) return undefined;
+      throw error;
+    } finally {
+      activeInspections.delete(event.sender.id);
+      sendInspectionState(event.sender, { active: false, browserReady: false, browserVisible: false });
+    }
+  });
+
+  ipcMain.handle("inspection:toggle-browser", async (event) => {
+    assertWindowSender(event.sender.id);
+    const active = activeInspections.get(event.sender.id);
+    if (!active?.setBrowserVisible) throw new Error("Inspection browser is not ready");
+    const browserVisible = !active.browserVisible;
+    await active.setBrowserVisible(browserVisible);
+    active.browserVisible = browserVisible;
+    sendInspectionState(event.sender, { active: true, browserReady: true, browserVisible });
+    return browserVisible;
+  });
+
+  ipcMain.handle("album:download", async (event, request: unknown) => {
+    const window = assertWindowSender(event.sender.id);
+    if (downloads.has(event.sender.id)) throw new Error("A download is already active");
+    if (typeof request !== "object" || request === null || !("outputRoot" in request)) {
+      throw new Error("Invalid download request");
+    }
+    const payload = request as GuiDownloadRequest;
+    if (typeof payload.outputRoot !== "string" || payload.outputRoot.length > 4096 || payload.outputRoot.includes("\0")) {
+      throw new Error("Invalid output folder");
+    }
+    if (payload.discLabel !== "CD" && payload.discLabel !== "Disc") throw new Error("Invalid disc folder label");
+    const cached = inspections.get(event.sender.id);
+    if (!cached) throw new Error("Inspect an album before starting a download");
+    const policy = parseFormatPolicy(payload.policy);
+    const plan = planFormats(cached.tracks, policy);
+    if (plan.blocked) throw new Error("The format preview has unavailable tracks; skip them explicitly or choose another policy");
+
+    const controller = new AbortController();
+    downloads.set(event.sender.id, controller);
+    try {
+      const result = await downloadAlbum({
+        ...cached,
+        outputRoot: resolve(payload.outputRoot),
+        policy,
+        discLabel: payload.discLabel,
+        signal: controller.signal,
+        onProgress: (progress) => sendProgress(window.webContents, progress),
+      });
+      return { state: result.state, directory: result.directory };
+    } finally {
+      downloads.delete(event.sender.id);
+    }
+  });
+
+  ipcMain.handle("album:cancel", (event) => {
+    assertWindowSender(event.sender.id);
+    activeInspections.get(event.sender.id)?.controller.abort();
+    downloads.get(event.sender.id)?.abort();
+  });
+}
+
+async function createWindow(): Promise<void> {
+  const statePath = resolve(app.getPath("userData"), "window-state.json");
+  let savedState;
+  try { savedState = parseWindowState(readFileSync(statePath, "utf8")); } catch {}
+  const displays = [screen.getPrimaryDisplay(), ...screen.getAllDisplays().filter((display) => display.id !== screen.getPrimaryDisplay().id)];
+  const window = new BrowserWindow({
+    frame: false,
+    autoHideMenuBar: true,
+    ...startupBounds(savedState, displays.map((display) => display.workArea)),
+    minWidth: 760,
+    minHeight: 620,
+    backgroundColor: "#101715",
+    title: "K-Downloader",
+    webPreferences: {
+      preload: resolve(__dirname, "preload.cjs"),
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: true,
+    },
+  });
+  mainWindow = window;
+  const senderId = window.webContents.id;
+  window.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
+  window.webContents.on("will-navigate", (event, url) => {
+    if (!url.startsWith("file://")) event.preventDefault();
+  });
+  window.on("maximize", () => sendWindowState(window));
+  window.on("unmaximize", () => sendWindowState(window));
+  window.webContents.on("did-finish-load", () => sendWindowState(window));
+  window.on("close", () => {
+    try {
+      writeFileSync(`${statePath}.tmp`, JSON.stringify({ bounds: window.getNormalBounds(), maximized: window.isMaximized() }), { mode: 0o600 });
+      renameSync(`${statePath}.tmp`, statePath);
+    } catch (error) {
+      console.warn("Could not save window size and position:", error);
+    }
+  });
+  window.on("closed", () => {
+    inspections.delete(senderId);
+    activeInspections.get(senderId)?.controller.abort();
+    activeInspections.delete(senderId);
+    downloads.get(senderId)?.abort();
+    downloads.delete(senderId);
+    if (mainWindow === window) mainWindow = undefined;
+  });
+  await window.loadFile(resolve(__dirname, "../gui/index.html"));
+  if (savedState?.maximized) window.maximize();
+}
+
+app.whenReady().then(async () => {
+  if (!primaryInstance) return;
+  nativeTheme.themeSource = "system";
+  nativeTheme.on("updated", sendSystemTheme);
+  stopThemeMonitor = await monitorCinnamonTheme((dark) => {
+    cinnamonDark = dark;
+    sendSystemTheme();
+  });
+  Menu.setApplicationMenu(null);
+  registerIpc();
+  await createWindow();
+  await notifyExistingInstance();
+  app.on("activate", () => {
+    if (BrowserWindow.getAllWindows().length === 0) void createWindow();
+  });
+});
+
+app.on("will-quit", () => stopThemeMonitor?.());
+
+app.on("window-all-closed", () => {
+  for (const controller of downloads.values()) controller.abort();
+  if (process.platform !== "darwin") app.quit();
+});
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm run build && npm test -- tests/window-state.test.ts`
+
+Type-check the single-instance startup path and verify existing desktop window workflows remain intact.
+
+```bash
+npm run build && npm test -- tests/window-state.test.ts
+```
+
+**Result:**
+
+```
+
+> k-downloader@0.1.0 build
+> tsc --noEmit
+
+
+> k-downloader@0.1.0 pretest
+> npm run build:gui
+
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+
+> k-downloader@0.1.0 test
+> vitest run tests/window-state.test.ts
+
+
+ RUN  v5.0.4 /home/kel/dev/K-Downloader
+
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  13:03:20
+   Duration  3.59s (tests 90%, import 10%)
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The lock compiles, and the existing desktop tests pass. I’ll add a real two-process regression: 
+
+The lock compiles, and the existing desktop tests pass. I’ll add a real two-process regression: launch and minimize the primary app, attempt a second launch with the same profile, and verify the second process exits while the original window is restored and receives the confirmation.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **window-state.test.ts**</summary>
+
+@@ lines 1-160 @@
+
+```
+import { describe, expect, it } from "vitest";
+import { centeredBounds, parseWindowState, startupBounds } from "../src/electron/window-state.js";
+import { _electron as electron } from "playwright";
+import { createRequire } from "node:module";
+import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { resolve } from "node:path";
+import { spawn, type ChildProcess } from "node:child_process";
+
+const screen = { x: 0, y: 0, width: 1920, height: 1080 };
+
+describe("window geometry", () => {
+  it("centers the default development size", () => {
+    expect(centeredBounds(screen)).toEqual({ x: 400, y: 150, width: 1120, height: 780 });
+  });
+  it("rejects malformed state and preserves valid bounds", () => {
+    expect(parseWindowState("bad")).toBeUndefined();
+    expect(parseWindowState('{"bounds":{"x":0}}')).toBeUndefined();
+    const state = { bounds: { x: 50, y: 60, width: 900, height: 700 }, maximized: true };
+    expect(startupBounds(parseWindowState(JSON.stringify(state)), [screen])).toEqual(state.bounds);
+  });
+  it("recenters off-screen state and clamps partly visible windows", () => {
+    expect(startupBounds({ bounds: { x: 3000, y: 2000, width: 900, height: 700 }, maximized: false }, [screen])).toEqual(centeredBounds(screen));
+    expect(startupBounds({ bounds: { x: 1800, y: 900, width: 900, height: 700 }, maximized: false }, [screen])).toEqual({ x: 1020, y: 380, width: 900, height: 700 });
+  });
+});
+
+describe("desktop More menu and zoom", () => {
+  it("renders and resizes the changelog, zooms, and persists window bounds", async () => {
+    const userData = await mkdtemp(resolve(tmpdir(), "k-downloader-window-test-"));
+    const require = createRequire(import.meta.url);
+    const launch = () => electron.launch({
+      executablePath: require("electron"),
+      args: [resolve("dist/electron/main.cjs"), `--user-data-dir=${userData}`],
+      env: { ...process.env, XDG_CURRENT_DESKTOP: "Test" },
+    });
+    let app = await launch();
+    try {
+      let page = await app.firstWindow();
+      page.setDefaultTimeout(5_000);
+      await page.waitForFunction(() => document.documentElement.dataset.mode);
+      await page.getByRole("button", { name: "More options", exact: true }).click();
+      expect((await page.getByRole("menuitem").allTextContents()).map((text) => text.replace(/\s+/g, " ").trim())).toEqual([
+        "Restore Size/Position", "Settings Ctrl+,", "Changelog",
+      ]);
+      const manifest = JSON.parse(await readFile(resolve("package.json"), "utf8"));
+      expect(await page.locator("#menu-app-version").textContent()).toBe(manifest.version);
+      expect(await page.locator(".more-menu-info").innerText()).toContain("K-Downloader");
+      expect(await page.locator(".more-menu-separator").isVisible()).toBe(true);
+      await page.getByRole("menuitem", { name: "Changelog", exact: true }).click();
+      await page.locator("#changelog-drawer").waitFor({ state: "visible" });
+      await page.waitForFunction(() => new DOMMatrixReadOnly(getComputedStyle(document.querySelector("#changelog-drawer")!).transform).m41 === 0);
+      expect(await page.locator("#changelog-content").innerText()).toContain("Persistent window size");
+      await page.getByRole("separator", { name: "Changelog panel width" }).focus();
+      await page.keyboard.press("End");
+      expect(await page.locator("#changelog-drawer").evaluate((element) => element.getBoundingClientRect().width / innerWidth)).toBeCloseTo(.4, 2);
+      const handle = await page.locator("#changelog-resize").boundingBox();
+      if (!handle) throw new Error("Changelog resize handle is not visible");
+      await page.mouse.move(handle.x + handle.width / 2, handle.y + 40);
+      await page.mouse.down();
+      await page.mouse.move(1, handle.y + 40);
+      await page.mouse.up();
+      expect(await page.locator("#changelog-drawer").evaluate((element) => element.getBoundingClientRect().width / innerWidth)).toBeCloseTo(.4, 2);
+      await page.screenshot({ path: "/tmp/k-downloader-changelog.png" });
+      await page.keyboard.press("Escape");
+      expect(await page.locator("#changelog-drawer").getAttribute("data-open")).toBe("false");
+      await page.getByRole("button", { name: "More options", exact: true }).click();
+      await page.getByRole("menuitem", { name: "Changelog", exact: true }).click();
+      await page.getByRole("button", { name: "Close changelog", exact: true }).click();
+      const zoom = () => app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].webContents.getZoomFactor());
+      await page.keyboard.press("Control+Equal");
+      await expect.poll(zoom).toBeCloseTo(1.1);
+      await page.keyboard.press("Control+Minus");
+      await expect.poll(zoom).toBeCloseTo(1);
+      await page.keyboard.down("Control");
+      await page.mouse.wheel(0, -100);
+      await page.keyboard.up("Control");
+      await expect.poll(zoom).toBeCloseTo(1.1);
+      await page.keyboard.press("Control+0");
+      await expect.poll(zoom).toBe(1);
+      const moved = await app.evaluate(({ BrowserWindow }) => {
+        const window = BrowserWindow.getAllWindows()[0];
+        window.setBounds({ x: 80, y: 90, width: 900, height: 700 });
+        return window.getBounds();
+      });
+      const closing = app.waitForEvent("close");
+      await page.getByRole("button", { name: "Close window", exact: true }).click();
+      await closing;
+      expect(JSON.parse(await readFile(resolve(userData, "window-state.json"), "utf8")).bounds).toEqual(moved);
+      app = await launch();
+      page = await app.firstWindow();
+      await page.waitForFunction(() => document.documentElement.dataset.mode);
+      expect(await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].getBounds())).toEqual(moved);
+      await page.keyboard.press("Control+Comma");
+      expect(await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].getBounds())).toEqual(moved);
+      await page.keyboard.press("Escape");
+      await page.getByRole("button", { name: "Maximize window", exact: true }).click();
+      await expect.poll(() => app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].isMaximized())).toBe(true);
+      await page.getByRole("button", { name: "More options", exact: true }).click();
+      await page.getByRole("menuitem", { name: "Restore Size/Position", exact: true }).click();
+      await expect.poll(() => app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].isMaximized())).toBe(false);
+      const restored = await app.evaluate(({ BrowserWindow, screen }) => {
+        const window = BrowserWindow.getAllWindows()[0];
+        return { bounds: window.getBounds(), area: screen.getDisplayMatching(window.getBounds()).workArea };
+      });
+      expect(restored.bounds).toEqual(centeredBounds(restored.area));
+    } finally {
+      await app.close();
+      await rm(userData, { recursive: true, force: true });
+    }
+  }, 30_000);
+});
+
+describe("single-instance desktop", () => {
+  it("rejects a second launch, restores the primary window, and shows a confirmation", async () => {
+    const userData = await mkdtemp(resolve(tmpdir(), "k-downloader-instance-test-"));
+    const require = createRequire(import.meta.url);
+    const executablePath: string = require("electron");
+    const args = [resolve("dist/electron/main.cjs"), `--user-data-dir=${userData}`];
+    const env = { ...process.env, XDG_CURRENT_DESKTOP: "Test" };
+    const primary = await electron.launch({ executablePath, args, env });
+    let secondary: ChildProcess | undefined;
+    try {
+      const page = await primary.firstWindow();
+      await page.waitForFunction(() => document.documentElement.dataset.mode);
+      await primary.evaluate(({ dialog, BrowserWindow }) => {
+        Reflect.set(globalThis, "singleInstanceNotices", []);
+        dialog.showMessageBox = async (...args: unknown[]) => {
+          Reflect.get(globalThis, "singleInstanceNotices").push(args.at(-1));
+          return { response: 0, checkboxChecked: false };
+        };
+        BrowserWindow.getAllWindows()[0].minimize();
+      });
+      await expect.poll(() => primary.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].isMinimized())).toBe(true);
+      secondary = spawn(executablePath, args, { env, stdio: "ignore" });
+      const exitCode = await new Promise<number | null>((resolve, reject) => {
+        secondary!.once("error", reject);
+        secondary!.once("close", resolve);
+      });
+      expect(exitCode).toBe(0);
+      await expect.poll(() => primary.evaluate(() => Reflect.get(globalThis, "singleInstanceNotices").length)).toBe(1);
+      await expect.poll(() => primary.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].isMinimized())).toBe(false);
+      await expect.poll(() => primary.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].isFocused())).toBe(true);
+      const state = await primary.evaluate(({ BrowserWindow }) => ({
+        windowCount: BrowserWindow.getAllWindows().length,
+        visible: BrowserWindow.getAllWindows()[0].isVisible(),
+        notice: Reflect.get(globalThis, "singleInstanceNotices")[0],
+      }));
+      expect(state.windowCount).toBe(1);
+      expect(state.visible).toBe(true);
+      expect(state.notice.message).toBe("K-Downloader is already running.");
+      expect(state.notice.buttons).toEqual(["Show running app"]);
+    } finally {
+      if (secondary && secondary.exitCode === null) secondary.kill();
+      await primary.close();
+      await rm(userData, { recursive: true, force: true });
+    }
+  }, 30_000);
+});
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm test -- tests/window-state.test.ts && npm run build`
+
+Run the real two-process single-instance regression alongside desktop workflows and strict compilation.
+
+```bash
+npm test -- tests/window-state.test.ts && npm run build
+```
+
+**Result:**
+
+```
+
+> k-downloader@0.1.0 pretest
+> npm run build:gui
+
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+
+> k-downloader@0.1.0 test
+> vitest run tests/window-state.test.ts
+
+
+ RUN  v5.0.4 /home/kel/dev/K-Downloader
+
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  13:04:07
+   Duration  5.18s (tests 93%, import 7%, transform 1%)
+
+
+> k-downloader@0.1.0 build
+> tsc --noEmit
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The two-process test passes: the duplicate exits, only one window remains, and the primary is restored and focused with the expected message. I’ll tighten one startup edge case so the dialog waits for the primary window’s content to load, then document the behavior and run the full suite.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **main.ts**</summary>
+
+@@ lines 1-346 @@
+
+```
+import { app, BrowserWindow, dialog, ipcMain, Menu, nativeTheme, screen } from "electron";
+import { readFileSync, writeFileSync, renameSync } from "node:fs";
+import { centeredBounds, parseWindowState, startupBounds } from "./window-state.js";
+import { monitorCinnamonTheme } from "./system-theme.js";
+import { resolve } from "node:path";
+import { downloadAlbum, type DownloadProgress } from "../downloader.js";
+import { planFormats } from "../formats.js";
+import { inspectAlbum, validateAlbumUrl, type AlbumPage, type DiscoveredTrack } from "../khinsider.js";
+import { defaultOutputRoot } from "../output.js";
+import type { GuiDownloadRequest, GuiFormatPolicy, GuiInspection, GuiInspectionState } from "../gui-types.js";
+
+type CachedInspection = {
+  sourceAlbum: string;
+  album: AlbumPage;
+  tracks: DiscoveredTrack[];
+};
+
+let mainWindow: BrowserWindow | undefined;
+let mainWindowReady = false;
+let duplicateLaunchPending = false;
+let instanceNoticeOpen = false;
+let cinnamonDark: boolean | undefined;
+let stopThemeMonitor: (() => void) | undefined;
+
+app.setName("K-Downloader");
+const primaryInstance = app.requestSingleInstanceLock();
+if (!primaryInstance) app.quit();
+else app.on("second-instance", () => {
+  duplicateLaunchPending = true;
+  void notifyExistingInstance();
+});
+
+function bringWindowForward(window: BrowserWindow): void {
+  if (window.isDestroyed()) return;
+  if (window.isMinimized()) window.restore();
+  window.show();
+  window.focus();
+}
+
+async function notifyExistingInstance(): Promise<void> {
+  const window = mainWindow;
+  if (!duplicateLaunchPending || instanceNoticeOpen || !mainWindowReady || !window || window.isDestroyed()) return;
+  duplicateLaunchPending = false;
+  instanceNoticeOpen = true;
+  bringWindowForward(window);
+  try {
+    await dialog.showMessageBox(window, {
+      type: "info",
+      title: "K-Downloader is already running",
+      message: "K-Downloader is already running.",
+      detail: "Only one instance can run. Continue in the existing window.",
+      buttons: ["Show running app"],
+      defaultId: 0,
+      noLink: true,
+    });
+    bringWindowForward(window);
+  } finally {
+    instanceNoticeOpen = false;
+    duplicateLaunchPending = false;
+  }
+}
+
+function systemThemeIsDark(): boolean {
+  return cinnamonDark ?? nativeTheme.shouldUseDarkColors;
+}
+
+function sendSystemTheme(): void {
+  if (mainWindow && !mainWindow.isDestroyed() && !mainWindow.webContents.isDestroyed()) {
+    mainWindow.webContents.send("appearance:system-theme", systemThemeIsDark());
+  }
+}
+
+const inspections = new Map<number, CachedInspection>();
+const downloads = new Map<number, AbortController>();
+const activeInspections = new Map<number, {
+  controller: AbortController;
+  setBrowserVisible?: (visible: boolean) => Promise<void>;
+  browserVisible: boolean;
+}>();
+
+function assertWindowSender(senderId: number): BrowserWindow {
+  if (!mainWindow || mainWindow.webContents.id !== senderId) throw new Error("Untrusted IPC sender");
+  return mainWindow;
+}
+
+function parseFormatPolicy(policy: unknown): GuiFormatPolicy {
+  if (typeof policy !== "object" || policy === null || !("kind" in policy)) {
+    throw new Error("Invalid format policy");
+  }
+  const value = policy as Record<string, unknown>;
+  const skipUnavailable = value.skipUnavailable === true;
+  if (value.kind === "prefer-lossless" && !skipUnavailable) return { kind: "prefer-lossless" };
+  if (value.kind === "lossless-only") return { kind: "lossless-only", skipUnavailable };
+  if (value.kind === "specific" && typeof value.format === "string" && /^[A-Za-z0-9.+-]{1,16}$/.test(value.format)) {
+    return { kind: "specific", format: value.format.toUpperCase(), skipUnavailable };
+  }
+  throw new Error("Invalid format policy");
+}
+
+function serializeInspection(cached: CachedInspection): GuiInspection {
+  return {
+    albumTitle: cached.album.title,
+    trackCount: cached.tracks.length,
+    tracks: cached.tracks.map((track) => ({
+      ...(track.discNumber === undefined ? {} : { discNumber: track.discNumber }),
+      number: track.number,
+      title: track.title,
+      formats: [...new Set(track.audioLinks.map(({ format }) => format))],
+    })),
+  };
+}
+
+function sendProgress(sender: Electron.WebContents, progress: DownloadProgress): void {
+  if (!sender.isDestroyed()) sender.send("album:progress", progress);
+}
+
+function sendInspectionState(sender: Electron.WebContents, state: GuiInspectionState): void {
+  if (!sender.isDestroyed()) sender.send("inspection:state", state);
+}
+
+function sendWindowState(window: BrowserWindow): void {
+  if (!window.webContents.isDestroyed()) {
+    window.webContents.send("window:state", { maximized: window.isMaximized() });
+  }
+}
+
+function registerIpc(): void {
+  ipcMain.handle("window:restore-bounds", (event) => {
+    const window = assertWindowSender(event.sender.id);
+    const area = screen.getDisplayMatching(window.getBounds()).workArea;
+    if (window.isFullScreen()) window.setFullScreen(false);
+    if (window.isMaximized()) window.unmaximize();
+    window.setBounds(centeredBounds(area));
+    sendWindowState(window);
+  });
+
+  ipcMain.handle("window:zoom", (event, direction: unknown) => {
+    const window = assertWindowSender(event.sender.id);
+    if (direction !== "in" && direction !== "out" && direction !== "reset") throw new Error("Invalid zoom command");
+    const current = window.webContents.getZoomFactor();
+    const zoom = direction === "reset" ? 1 : Math.max(.5, Math.min(2, Math.round((current + (direction === "in" ? .1 : -.1)) * 10) / 10));
+    window.webContents.setZoomFactor(zoom);
+    return zoom;
+  });
+  ipcMain.handle("appearance:system-theme", (event) => {
+    assertWindowSender(event.sender.id);
+    return systemThemeIsDark();
+  });
+  ipcMain.handle("window:minimize", (event) => {
+    assertWindowSender(event.sender.id).minimize();
+  });
+
+  ipcMain.handle("window:toggle-maximize", (event) => {
+    const window = assertWindowSender(event.sender.id);
+    if (window.isMaximized()) window.unmaximize();
+    else window.maximize();
+    sendWindowState(window);
+    return window.isMaximized();
+  });
+
+  ipcMain.handle("window:close", (event) => {
+    assertWindowSender(event.sender.id).close();
+  });
+
+  ipcMain.handle("output:default", (event) => {
+    assertWindowSender(event.sender.id);
+    return defaultOutputRoot();
+  });
+
+  ipcMain.handle("output:choose", async (event) => {
+    const window = assertWindowSender(event.sender.id);
+    const result = await dialog.showOpenDialog(window, {
+      title: "Choose download folder",
+      defaultPath: defaultOutputRoot(),
+      properties: ["openDirectory", "createDirectory"],
+    });
+    return result.canceled ? undefined : result.filePaths[0];
+  });
+
+  ipcMain.handle("album:inspect", async (event, input: unknown) => {
+    assertWindowSender(event.sender.id);
+    if (typeof input !== "string" || input.length > 2048) throw new Error("Enter one valid album URL");
+    if (activeInspections.has(event.sender.id)) throw new Error("Album inspection is already active");
+    let sourceAlbum: string;
+    try {
+      sourceAlbum = validateAlbumUrl(input).href;
+    } catch {
+      throw new Error("Paste a valid HTTPS KHInsider album URL.");
+    }
+    const active: {
+      controller: AbortController;
+      setBrowserVisible?: (visible: boolean) => Promise<void>;
+      browserVisible: boolean;
+    } = { controller: new AbortController(), browserVisible: false };
+    inspections.delete(event.sender.id);
+    activeInspections.set(event.sender.id, active);
+    sendInspectionState(event.sender, { active: true, browserReady: false, browserVisible: false });
+    try {
+      const result = await inspectAlbum(sourceAlbum, {
+        signal: active.controller.signal,
+        onBrowserReady: (setBrowserVisible) => {
+          active.setBrowserVisible = setBrowserVisible;
+          sendInspectionState(event.sender, { active: true, browserReady: true, browserVisible: false });
+        },
+      });
+      const cached = { sourceAlbum, album: result.album, tracks: result.tracks };
+      inspections.set(event.sender.id, cached);
+      return serializeInspection(cached);
+    } catch (error) {
+      if (active.controller.signal.aborted) return undefined;
+      throw error;
+    } finally {
+      activeInspections.delete(event.sender.id);
+      sendInspectionState(event.sender, { active: false, browserReady: false, browserVisible: false });
+    }
+  });
+
+  ipcMain.handle("inspection:toggle-browser", async (event) => {
+    assertWindowSender(event.sender.id);
+    const active = activeInspections.get(event.sender.id);
+    if (!active?.setBrowserVisible) throw new Error("Inspection browser is not ready");
+    const browserVisible = !active.browserVisible;
+    await active.setBrowserVisible(browserVisible);
+    active.browserVisible = browserVisible;
+    sendInspectionState(event.sender, { active: true, browserReady: true, browserVisible });
+    return browserVisible;
+  });
+
+  ipcMain.handle("album:download", async (event, request: unknown) => {
+    const window = assertWindowSender(event.sender.id);
+    if (downloads.has(event.sender.id)) throw new Error("A download is already active");
+    if (typeof request !== "object" || request === null || !("outputRoot" in request)) {
+      throw new Error("Invalid download request");
+    }
+    const payload = request as GuiDownloadRequest;
+    if (typeof payload.outputRoot !== "string" || payload.outputRoot.length > 4096 || payload.outputRoot.includes("\0")) {
+      throw new Error("Invalid output folder");
+    }
+    if (payload.discLabel !== "CD" && payload.discLabel !== "Disc") throw new Error("Invalid disc folder label");
+    const cached = inspections.get(event.sender.id);
+    if (!cached) throw new Error("Inspect an album before starting a download");
+    const policy = parseFormatPolicy(payload.policy);
+    const plan = planFormats(cached.tracks, policy);
+    if (plan.blocked) throw new Error("The format preview has unavailable tracks; skip them explicitly or choose another policy");
+
+    const controller = new AbortController();
+    downloads.set(event.sender.id, controller);
+    try {
+      const result = await downloadAlbum({
+        ...cached,
+        outputRoot: resolve(payload.outputRoot),
+        policy,
+        discLabel: payload.discLabel,
+        signal: controller.signal,
+        onProgress: (progress) => sendProgress(window.webContents, progress),
+      });
+      return { state: result.state, directory: result.directory };
+    } finally {
+      downloads.delete(event.sender.id);
+    }
+  });
+
+  ipcMain.handle("album:cancel", (event) => {
+    assertWindowSender(event.sender.id);
+    activeInspections.get(event.sender.id)?.controller.abort();
+    downloads.get(event.sender.id)?.abort();
+  });
+}
+
+async function createWindow(): Promise<void> {
+  const statePath = resolve(app.getPath("userData"), "window-state.json");
+  let savedState;
+  try { savedState = parseWindowState(readFileSync(statePath, "utf8")); } catch {}
+  const displays = [screen.getPrimaryDisplay(), ...screen.getAllDisplays().filter((display) => display.id !== screen.getPrimaryDisplay().id)];
+  const window = new BrowserWindow({
+    frame: false,
+    autoHideMenuBar: true,
+    ...startupBounds(savedState, displays.map((display) => display.workArea)),
+    minWidth: 760,
+    minHeight: 620,
+    backgroundColor: "#101715",
+    title: "K-Downloader",
+    webPreferences: {
+      preload: resolve(__dirname, "preload.cjs"),
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: true,
+    },
+  });
+  mainWindow = window;
+  const senderId = window.webContents.id;
+  window.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
+  window.webContents.on("will-navigate", (event, url) => {
+    if (!url.startsWith("file://")) event.preventDefault();
+  });
+  window.on("maximize", () => sendWindowState(window));
+  window.on("unmaximize", () => sendWindowState(window));
+  window.webContents.on("did-finish-load", () => sendWindowState(window));
+  window.on("close", () => {
+    try {
+      writeFileSync(`${statePath}.tmp`, JSON.stringify({ bounds: window.getNormalBounds(), maximized: window.isMaximized() }), { mode: 0o600 });
+      renameSync(`${statePath}.tmp`, statePath);
+    } catch (error) {
+      console.warn("Could not save window size and position:", error);
+    }
+  });
+  window.on("closed", () => {
+    inspections.delete(senderId);
+    activeInspections.get(senderId)?.controller.abort();
+    activeInspections.delete(senderId);
+    downloads.get(senderId)?.abort();
+    downloads.delete(senderId);
+    if (mainWindow === window) {
+      mainWindow = undefined;
+      mainWindowReady = false;
+    }
+  });
+  await window.loadFile(resolve(__dirname, "../gui/index.html"));
+  if (savedState?.maximized) window.maximize();
+  mainWindowReady = true;
+}
+
+app.whenReady().then(async () => {
+  if (!primaryInstance) return;
+  nativeTheme.themeSource = "system";
+  nativeTheme.on("updated", sendSystemTheme);
+  stopThemeMonitor = await monitorCinnamonTheme((dark) => {
+    cinnamonDark = dark;
+    sendSystemTheme();
+  });
+  Menu.setApplicationMenu(null);
+  registerIpc();
+  await createWindow();
+  await notifyExistingInstance();
+  app.on("activate", () => {
+    if (BrowserWindow.getAllWindows().length === 0) void createWindow();
+  });
+});
+
+app.on("will-quit", () => stopThemeMonitor?.());
+
+app.on("window-all-closed", () => {
+  for (const controller of downloads.values()) controller.abort();
+  if (process.platform !== "darwin") app.quit();
+});
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **README.md**</summary>
+
+@@ lines 1-118 @@
+
+````
+# K-Downloader
+
+K-Downloader is a Linux-first KHInsider album downloader. The current slice
+implements public single-album discovery, format preview and policy, sequential
+streaming, and manifest-backed reruns. Multi-album queues, artwork, the GUI,
+optional account features, and packaging are not implemented yet.
+
+## Discovery check
+
+Requirements: Node.js 20 or newer, npm, and a graphical desktop session.
+
+```sh
+npm install
+npx playwright install chromium
+npm run inspect -- 'https://downloads.khinsider.com/game-soundtracks/album/unreal-ii-the-awakening-original-soundtrack'
+```
+
+The command opens a fresh visible Chromium context without a stored browser
+profile, visits the album and track pages sequentially, and prints every
+track's discovered format selection. It does not sign in or download audio.
+Visible mode is currently needed: plain Node fetch and headless Chromium
+received HTTP 403 during feasibility checks, while a fresh visible Chromium
+context succeeded. No attempt is made to imitate a browser or evade a challenge.
+If access is denied or a challenge appears, stop and review the site's permitted
+access methods.
+
+## Download One Album
+
+The CLI previews the selected formats before starting any transfer. The default
+format policy prefers lossless, falling back to MP3 when needed. The default
+destination is `~/Music/K-Downloader`.
+
+```sh
+npm run download -- 'https://downloads.khinsider.com/game-soundtracks/album/unreal-ii-the-awakening-original-soundtrack'
+```
+
+Use `--format lossless-only` to block when a track has no lossless source. Add
+`--skip-unavailable` to explicitly skip those tracks and mark the album
+incomplete. A specific format such as `--format MP3` never silently substitutes
+another format. Use `--output /path/to/music` for another destination.
+
+Multi-disc albums are saved into per-disc folders such as `CD1/` and `CD2/`.
+The GUI offers `CD` and `Disc` folder labels; the CLI accepts
+`--disc-label CD` or `--disc-label Disc` and defaults to `CD`. Single-disc
+albums keep the flat album folder.
+
+Files are streamed through temporary `.part` files, validated, and moved into
+place without overwriting. A per-album manifest records completion so verified
+files can be skipped on rerun. Transfers are covered by local mocked tests; an
+authorized live audio download has not yet been run.
+
+## Desktop GUI
+
+Requirements: Node.js 20 or newer, npm, and a graphical Linux session.
+
+```sh
+npm install
+npx playwright install chromium
+npm run gui
+```
+
+Only one desktop instance runs per application profile. A second launch exits,
+restores the existing window if minimized, and shows an already-running
+confirmation with **Show running app** to focus that window.
+
+Paste one album URL and choose **Inspect album**. A Chromium inspection window
+starts minimized while an in-progress indicator appears in the app; click that
+indicator to show or hide the browser. Review the per-track format preview, choose the
+destination and format policy, then select **Download**. The default destination
+is `~/Music/K-Downloader`. **Cancel active download** stops the current transfer
+and prevents later tracks from starting.
+
+While inspection is running, the same button becomes **Cancel inspection**.
+It closes the inspection browser and stops scanning track pages, including
+during browser startup. A canceled inspection can be started again.
+
+Open **More > Settings** in the titlebar or press `Ctrl+,`. Under **Appearance**,
+select Light, Dark, or System mode and a Mint, Ocean, Amber, Rose, or Monochrome
+color theme. System follows desktop appearance changes; System + Mint is the
+default. Choices apply immediately and are saved locally across restarts.
+On Cinnamon, System mode follows the GTK theme (for example, Mint-Y versus
+Mint-Y-Dark); other desktops use Electron's native appearance notifications.
+Return with **Back to downloader** or press `Esc`.
+Settings has its own left navigation rail. **Appearance** retains the mode and
+theme controls; **Shortcuts** lists navigation, zoom, and changelog-resize
+commands with their key combinations. Switching pages preserves selections.
+
+**More > Restore Size/Position** restores the development default (1120x780)
+and centers the window on its current monitor. Window size, position, and
+maximized state are saved on close and restored on the next launch, with
+off-screen positions corrected if monitor arrangements change.
+
+**More > Changelog** opens a panel from the right. Drag its left edge to adjust
+the width up to 40% of the window; the focused resize handle also accepts arrow
+keys. Close it with its close button or `Esc`. Content is embedded from the root
+`changelog.md` during `npm run build:gui` (also run by `npm run gui`).
+
+Use `Ctrl+=` or `Ctrl++` to enlarge the UI, `Ctrl+-` to reduce it, and `Ctrl+0`
+to reset to 100%. `Ctrl+mousewheel` also changes scale. Zoom is limited to
+50%-200% and does not change the window's saved geometry.
+
+The GUI uses a context-isolated, sandboxed renderer with a narrow preload API.
+It currently supports one album per run; multi-album queues and packaging are
+not available yet.
+
+## Development
+
+```sh
+npm test
+npm run build
+npm audit
+```
+
+Tests build the GUI first and use the installed Playwright Chromium and Electron
+for local appearance checks. The Electron checks require a graphical session
+and use an isolated profile. No desktop settings, site requests, or audio
+transfers are changed or made by those tests.
+````
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **changelog.md**</summary>
+
+@@ lines 1-49 @@
+
+```
+# Changelog
+
+## Unreleased
+
+### Added
+
+- Single-instance desktop lock with an already-running confirmation and
+	restoration/focus of the existing window on another launch.
+- Settings left navigation rail with Appearance and Shortcuts pages.
+- Grouped shortcut reference with keycaps for navigation, interface zoom,
+  and focused changelog-panel resizing.
+- Public KHInsider album discovery and sequential audio downloads.
+- CLI and desktop GUI with format previews and lossless selection policies.
+- Multi-disc output folders with CD and Disc labels.
+- Manifest-backed reruns and safe, non-overwriting file transfers.
+- Cancel inspection during browser startup, navigation, or track scanning;
+	close the inspection browser and allow a fresh scan without an error.
+- Single animated inspection indicator with a browser visibility toggle.
+- Custom titlebar and More menu.
+- Settings with Light, Dark, and System appearance modes.
+- Mint, Ocean, Amber, Rose, and Monochrome color themes.
+- Cinnamon desktop appearance updates.
+- Persistent window size, position, and maximized state, with off-screen recovery
+	when monitor arrangements change.
+- Restore Size/Position command resets to 1120x780 and centers on the current monitor.
+- Right-side changelog drawer with drag and keyboard resizing up to 40% of the
+	window width, a close button, and Escape support.
+- Build-time changelog loading from the root changelog.md with sanitized Markdown rendering.
+- App title and version in the More menu, with the version read from package.json at build time.
+- Ctrl+0, Ctrl+minus, Ctrl+plus/equal, and Ctrl+mousewheel zoom controls, limited
+	to 50%-200% without changing saved window geometry.
+
+### Changed
+
+- Appearance controls retain their layout and selections when switching Settings pages.
+- Settings content scrolls independently of its navigation rail, header, and statusbar.
+- More menu order: Restore Size/Position, Settings, Changelog, separator, app title/version.
+- Long Discovery Preview lists scroll inside the panel instead of expanding the app.
+- Setup and Settings content scroll independently while the bottom statusbar remains visible.
+
+### Fixed
+
+- Duplicate inspection status rows.
+- Empty preview space after discovery.
+- Statusbar visibility for long track lists.
+- Main-process exception when closing the window.
+- Inspection cancellation no longer produces an inspection-failure error or
+	leaves stale discovery results available for download.
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="task" data-tool-name="manage_todo_list"><details>
+<summary>Tool use: **manage_todo_list**</summary>
+
+Created 3 todos
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm test && npm run build`
+
+Validate startup readiness, the actual duplicate-launch behavior, and all existing app tests before launching the update.
+
+```bash
+npm test && npm run build
+```
+
+**Result:**
+
+```
+
+> k-downloader@0.1.0 pretest
+> npm run build:gui
+
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+
+> k-downloader@0.1.0 test
+> vitest run
+
+
+ RUN  v5.0.4 /home/kel/dev/K-Downloader
+
+
+ Test Files  7 passed (7)
+      Tests  32 passed (32)
+   Start at  13:04:43
+   Duration  5.24s (tests 85%, import 14%)
+
+
+> k-downloader@0.1.0 build
+> tsc --noEmit
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="get_errors"><details>
+<summary>Tool use: **get_errors**</summary>
+
+Checked `main.ts`, `window-state.test.ts`, no problems found
+
+**Input:**
+
+- filePaths:
+
+```
+[
+  "/home/kel/dev/K-Downloader/src/electron/main.ts",
+  "/home/kel/dev/K-Downloader/tests/window-state.test.ts"
+]
+```
+
+
+**Result:**
+
+```
+<errors path="/home/kel/dev/K-Downloader/src/electron/main.ts">
+No errors found
+</errors>
+<errors path="/home/kel/dev/K-Downloader/tests/window-state.test.ts">
+No errors found
+</errors>
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+All 32 tests pass, the TypeScript build is clean, and diagnostics show no errors. I’ll open the updated app now. A second `npm run gui` launch should trigger the confirmation and bring the existing window forward.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm run gui`
+
+Launch the desktop app with single-instance protection and duplicate-launch confirmation.
+
+```bash
+npm run gui
+```
+
+**Result:**
+
+```
+Command is running in terminal with ID=844ca3b5-c730-4a77-8f1b-feb9fffce4cf
+ The command became idle with output:
+kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+
+> k-downloader@0.1.0 gui
+> npm run build:gui && electron dist/electron/main.cjs
+
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+This note is not a signal to end the turn — pick one of the actions below and continue.
+  1. If the command may still be producing output or the shell prompt has not returned, call get_terminal_output with id="844ca3b5-c730-4a77-8f1b-feb9fffce4cf" to continue polling. This is the default and safest action when unsure.
+  2. Only if the output clearly ends with a real non-secret input prompt (Continue? (y/n), Enter selection, etc. — a normal shell prompt like `$` or `#` does NOT count), call the vscode_askQuestions tool to ask the user, then send each answer using send_to_terminal with id="844ca3b5-c730-4a77-8f1b-feb9fffce4cf" (which returns the next few lines of output). Repeat one prompt at a time. NEVER route secret prompts (passwords, passphrases, tokens, API keys, etc.) through vscode_askQuestions — answers to that tool are sent through the model. For secret prompts, tell the user to type the value directly into the terminal and stop.
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+Implemented single-instance protection. A second launch exits, restores the existing window if minimized, and shows an **already running** confirmation with a **Show running app** button.
+
+Verified with two actual Electron processes. All 32 tests and the build pass. The updated GUI is open.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="task" data-tool-name="manage_todo_list"><details>
+<summary>Tool use: **manage_todo_list**</summary>
+
+Completed: *Document app behavior for single-instance lock* (1/2)
+</details></tool-use>
+
+---
+
+_**User (2026-10-12 18:01:44Z)**_
+
+[Terminal aae91859-de8e-4cad-aec5-69980ec997d9 notification: command completed. The terminal has been cleaned up.]
+Terminal output:
+kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+
+> k-downloader@0.1.0 gui
+> npm run build:gui && electron dist/electron/main.cjs
+
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+[97851:1012/125501.518615:ERROR:gpu/command_buffer/service/gpu_persistent_cache.cc:137] Persistent cache error: 1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+---
+
+_**Agent (copilot/auto)**_
+
+The GUI has exited. The log shows the same Electron GPU-cache warning, with no JavaScript exception.
+
+The GUI closed without reported errors. Reopen it with `npm run gui`.
+
+---
+
+_**User (2026-10-12 18:02:37Z)**_
+
+let's ensure that only one instance of the app can run. A message should appear to the user to confirm and to move the app to the front.
+
+---
+
+_**User (2026-10-12 18:06:39Z)**_
+
+[Terminal 844ca3b5-c730-4a77-8f1b-feb9fffce4cf notification: command completed. The terminal has been cleaned up.]
+Terminal output:
+kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+
+> k-downloader@0.1.0 gui
+> npm run build:gui && electron dist/electron/main.cjs
+
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.

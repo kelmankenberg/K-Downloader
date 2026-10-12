@@ -16,8 +16,49 @@ type CachedInspection = {
 };
 
 let mainWindow: BrowserWindow | undefined;
+let mainWindowReady = false;
+let duplicateLaunchPending = false;
+let instanceNoticeOpen = false;
 let cinnamonDark: boolean | undefined;
 let stopThemeMonitor: (() => void) | undefined;
+
+app.setName("K-Downloader");
+const primaryInstance = app.requestSingleInstanceLock();
+if (!primaryInstance) app.quit();
+else app.on("second-instance", () => {
+  duplicateLaunchPending = true;
+  void notifyExistingInstance();
+});
+
+function bringWindowForward(window: BrowserWindow): void {
+  if (window.isDestroyed()) return;
+  if (window.isMinimized()) window.restore();
+  window.show();
+  window.focus();
+}
+
+async function notifyExistingInstance(): Promise<void> {
+  const window = mainWindow;
+  if (!duplicateLaunchPending || instanceNoticeOpen || !mainWindowReady || !window || window.isDestroyed()) return;
+  duplicateLaunchPending = false;
+  instanceNoticeOpen = true;
+  bringWindowForward(window);
+  try {
+    await dialog.showMessageBox(window, {
+      type: "info",
+      title: "K-Downloader is already running",
+      message: "K-Downloader is already running.",
+      detail: "Only one instance can run. Continue in the existing window.",
+      buttons: ["Show running app"],
+      defaultId: 0,
+      noLink: true,
+    });
+    bringWindowForward(window);
+  } finally {
+    instanceNoticeOpen = false;
+    duplicateLaunchPending = false;
+  }
+}
 
 function systemThemeIsDark(): boolean {
   return cinnamonDark ?? nativeTheme.shouldUseDarkColors;
@@ -269,14 +310,18 @@ async function createWindow(): Promise<void> {
     activeInspections.delete(senderId);
     downloads.get(senderId)?.abort();
     downloads.delete(senderId);
-    if (mainWindow === window) mainWindow = undefined;
+    if (mainWindow === window) {
+      mainWindow = undefined;
+      mainWindowReady = false;
+    }
   });
   await window.loadFile(resolve(__dirname, "../gui/index.html"));
   if (savedState?.maximized) window.maximize();
+  mainWindowReady = true;
 }
 
 app.whenReady().then(async () => {
-  app.setName("K-Downloader");
+  if (!primaryInstance) return;
   nativeTheme.themeSource = "system";
   nativeTheme.on("updated", sendSystemTheme);
   stopThemeMonitor = await monitorCinnamonTheme((dark) => {
@@ -286,6 +331,7 @@ app.whenReady().then(async () => {
   Menu.setApplicationMenu(null);
   registerIpc();
   await createWindow();
+  await notifyExistingInstance();
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) void createWindow();
   });

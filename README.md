@@ -59,6 +59,10 @@ npx playwright install chromium
 npm run gui
 ```
 
+Only one desktop instance runs per application profile. A second launch exits,
+restores the existing window if minimized, and shows an already-running
+confirmation with **Show running app** to focus that window.
+
 Paste one album URL and choose **Inspect album**. A Chromium inspection window
 starts minimized while an in-progress indicator appears in the app; click that
 indicator to show or hide the browser. Review the per-track format preview, choose the

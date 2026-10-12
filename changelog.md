@@ -4,6 +4,8 @@
 
 ### Added
 
+- Single-instance desktop lock with an already-running confirmation and
+	restoration/focus of the existing window on another launch.
 - Settings left navigation rail with Appearance and Shortcuts pages.
 - Grouped shortcut reference with keycaps for navigation, interface zoom,
   and focused changelog-panel resizing.
