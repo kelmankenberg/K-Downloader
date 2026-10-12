@@ -16,7 +16,9 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "dompurify": "^3.4.17",
     "lucide": "^1.55.0",
+    "marked": "^18.1.1",
     "parse5": "^7.3.0",
     "playwright": "^1.55.0"
   },

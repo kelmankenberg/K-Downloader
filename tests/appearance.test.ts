@@ -7,6 +7,7 @@ import { createRequire } from "node:module";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { cinnamonThemeIsDark } from "../src/electron/system-theme.js";
+import type { GuiInspectionState } from "../src/gui-types.js";
 
 describe("appearance preferences", () => {
   it("defaults to System and Mint for absent or malformed settings", () => {
@@ -38,7 +39,7 @@ describe("appearance preferences", () => {
 });
 
 describe("appearance controls in Chromium", () => {
-  it("applies every palette, persists preferences, and responds to System mode", async () => {
+  it("applies appearance preferences and keeps statusbars visible with a long preview", async () => {
     const browser = await chromium.launch({ headless: true });
     try {
       const page = await browser.newPage({ viewport: { width: 1120, height: 780 }, colorScheme: "light" });
@@ -46,7 +47,11 @@ describe("appearance controls in Chromium", () => {
       const errors: string[] = [];
       page.on("pageerror", (error) => errors.push(error.message));
       await page.addInitScript(() => {
+        let inspectionListener: ((state: GuiInspectionState) => void) | undefined;
+        let browserVisible = false;
         window.kDownloader = {
+          restoreWindowBounds: async () => {},
+          zoom: async () => 1,
           systemTheme: async () => matchMedia("(prefers-color-scheme: dark)").matches,
           onSystemTheme: (listener) => {
             const media = matchMedia("(prefers-color-scheme: dark)");
@@ -56,14 +61,51 @@ describe("appearance controls in Chromium", () => {
           },
           defaultOutputRoot: async () => "/tmp/K-Downloader",
           chooseOutput: async () => undefined,
-          inspect: async () => ({ albumTitle: "Fixture", trackCount: 0, tracks: [] }),
+          inspect: async () => {
+            let canceled = false;
+            browserVisible = false;
+            inspectionListener?.({ active: true, browserReady: true, browserVisible });
+            try {
+              await new Promise<void>((complete, fail) => {
+                window.addEventListener("finish-inspection", (event) => {
+                  if ((event as CustomEvent).detail === "fail") fail(new Error("Mock inspection failed"));
+                  else {
+                    canceled = (event as CustomEvent).detail === "cancel";
+                    complete();
+                  }
+                }, { once: true });
+              });
+            } finally {
+              inspectionListener?.({ active: false, browserReady: false, browserVisible: false });
+            }
+            if (canceled) return undefined;
+            return {
+            albumTitle: "Large multi-disc fixture",
+            trackCount: 200,
+            tracks: Array.from({ length: 200 }, (_, index) => ({
+              discNumber: Math.floor(index / 100) + 1,
+              number: index % 100 + 1,
+              title: `Track ${index + 1}`,
+              formats: ["MP3", "FLAC"],
+            })),
+            };
+          },
           download: async () => ({ state: "complete", directory: "/tmp" }),
-          cancel: async () => {},
+          cancel: async () => {
+            window.dispatchEvent(new CustomEvent("finish-inspection", { detail: "cancel" }));
+          },
           minimizeWindow: async () => {},
           toggleMaximizeWindow: async () => false,
           closeWindow: async () => {},
-          toggleInspectionBrowser: async () => false,
-          onInspectionState: () => () => {},
+          toggleInspectionBrowser: async () => {
+            browserVisible = !browserVisible;
+            inspectionListener?.({ active: true, browserReady: true, browserVisible });
+            return browserVisible;
+          },
+          onInspectionState: (listener) => {
+            inspectionListener = listener;
+            return () => { inspectionListener = undefined; };
+          },
           onProgress: () => () => {},
           onWindowState: () => () => {},
         };
@@ -115,6 +157,66 @@ describe("appearance controls in Chromium", () => {
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
       await page.keyboard.press("Escape");
       await page.locator("#workspace").waitFor({ state: "visible" });
+      await page.locator("#album-url").fill("https://downloads.khinsider.com/game-soundtracks/album/fixture");
+      await page.getByRole("button", { name: "Inspect album", exact: true }).click();
+      await page.getByRole("button", { name: "Cancel inspection", exact: true }).click();
+      await page.waitForFunction(() => document.querySelector("#status-text")?.textContent === "Inspection canceled");
+      expect(await page.locator("#inspection-indicator").isVisible()).toBe(false);
+      expect(await page.locator(".status-strip").isVisible()).toBe(true);
+      expect(await page.locator("#inspect-button").isEnabled()).toBe(true);
+      expect(await page.locator("#download-button").isEnabled()).toBe(false);
+      expect(await page.locator("#error-text").textContent()).toBe("");
+      await page.getByRole("button", { name: "Inspect album", exact: true }).click();
+      await page.locator("#inspection-indicator").waitFor({ state: "visible" });
+      expect(await page.getByText("Inspection in progress", { exact: true }).count()).toBe(1);
+      expect(await page.locator(".status-strip").isVisible()).toBe(false);
+      expect(await page.locator(".inspection-spinner").evaluate((element) => {
+        const animation = element.getAnimations()[0];
+        return animation?.playState === "running" && animation.effect?.getTiming().iterations === Infinity;
+      })).toBe(true);
+      await page.screenshot({ path: "/tmp/k-downloader-single-inspection-indicator.png" });
+      await page.locator("#inspection-indicator").click();
+      expect(await page.locator("#inspection-indicator-text").textContent()).toBe("Hide browser");
+      await page.locator("#inspection-indicator").click();
+      expect(await page.locator("#inspection-indicator-text").textContent()).toBe("Show browser");
+      await page.evaluate(() => window.dispatchEvent(new CustomEvent("finish-inspection")));
+      await page.waitForFunction(() => document.querySelectorAll("#track-rows tr").length === 200);
+      expect(await page.locator("#inspection-indicator").isVisible()).toBe(false);
+      expect(await page.locator(".status-strip").isVisible()).toBe(true);
+      expect(await page.locator("#status-text").textContent()).toBe("Preview ready");
+      for (const viewport of [{ width: 760, height: 620 }, { width: 1120, height: 780 }]) {
+        await page.setViewportSize(viewport);
+        const measure = () => page.evaluate(() => {
+          const footer = document.querySelector<HTMLElement>(".app-footer")!.getBoundingClientRect();
+          const transfer = document.querySelector<HTMLElement>(".progress-footer")!.getBoundingClientRect();
+          const table = document.querySelector<HTMLElement>(".table-wrap")!;
+          return {
+            footerTop: footer.top,
+            footerBottom: footer.bottom,
+            transferBottom: transfer.bottom,
+            listScrolls: table.scrollHeight > table.clientHeight,
+            pageHeight: document.documentElement.scrollHeight,
+            listScrollTop: table.scrollTop,
+          };
+        });
+        const initial = await measure();
+        expect(initial.footerBottom).toBe(viewport.height);
+        expect(initial.transferBottom).toBeLessThanOrEqual(initial.footerTop);
+        expect(initial.pageHeight).toBe(viewport.height);
+        expect(initial.listScrolls).toBe(true);
+        await page.locator(".table-wrap").evaluate((element) => { element.scrollTop = element.scrollHeight; });
+        const scrolled = await measure();
+        expect(scrolled.listScrollTop).toBeGreaterThan(0);
+        expect(scrolled.footerBottom).toBe(initial.footerBottom);
+        expect(scrolled.transferBottom).toBe(initial.transferBottom);
+        await page.screenshot({ path: `/tmp/k-downloader-long-preview-${viewport.width}.png` });
+      }
+      await page.getByRole("button", { name: "Inspect album", exact: true }).click();
+      await page.locator("#inspection-indicator").waitFor({ state: "visible" });
+      await page.evaluate(() => window.dispatchEvent(new CustomEvent("finish-inspection", { detail: "fail" })));
+      await page.waitForFunction(() => document.querySelector("#status-text")?.textContent === "Inspection failed");
+      expect(await page.locator("#inspection-indicator").isVisible()).toBe(false);
+      expect(await page.locator(".status-strip").isVisible()).toBe(true);
       expect(errors).toEqual([]);
     } finally {
       await browser.close();

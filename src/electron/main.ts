@@ -1,4 +1,6 @@
-import { app, BrowserWindow, dialog, ipcMain, Menu, nativeTheme } from "electron";
+import { app, BrowserWindow, dialog, ipcMain, Menu, nativeTheme, screen } from "electron";
+import { readFileSync, writeFileSync, renameSync } from "node:fs";
+import { centeredBounds, parseWindowState, startupBounds } from "./window-state.js";
 import { monitorCinnamonTheme } from "./system-theme.js";
 import { resolve } from "node:path";
 import { downloadAlbum, type DownloadProgress } from "../downloader.js";
@@ -82,6 +84,23 @@ function sendWindowState(window: BrowserWindow): void {
 }
 
 function registerIpc(): void {
+  ipcMain.handle("window:restore-bounds", (event) => {
+    const window = assertWindowSender(event.sender.id);
+    const area = screen.getDisplayMatching(window.getBounds()).workArea;
+    if (window.isFullScreen()) window.setFullScreen(false);
+    if (window.isMaximized()) window.unmaximize();
+    window.setBounds(centeredBounds(area));
+    sendWindowState(window);
+  });
+
+  ipcMain.handle("window:zoom", (event, direction: unknown) => {
+    const window = assertWindowSender(event.sender.id);
+    if (direction !== "in" && direction !== "out" && direction !== "reset") throw new Error("Invalid zoom command");
+    const current = window.webContents.getZoomFactor();
+    const zoom = direction === "reset" ? 1 : Math.max(.5, Math.min(2, Math.round((current + (direction === "in" ? .1 : -.1)) * 10) / 10));
+    window.webContents.setZoomFactor(zoom);
+    return zoom;
+  });
   ipcMain.handle("appearance:system-theme", (event) => {
     assertWindowSender(event.sender.id);
     return systemThemeIsDark();
@@ -132,6 +151,7 @@ function registerIpc(): void {
       setBrowserVisible?: (visible: boolean) => Promise<void>;
       browserVisible: boolean;
     } = { controller: new AbortController(), browserVisible: false };
+    inspections.delete(event.sender.id);
     activeInspections.set(event.sender.id, active);
     sendInspectionState(event.sender, { active: true, browserReady: false, browserVisible: false });
     try {
@@ -145,6 +165,9 @@ function registerIpc(): void {
       const cached = { sourceAlbum, album: result.album, tracks: result.tracks };
       inspections.set(event.sender.id, cached);
       return serializeInspection(cached);
+    } catch (error) {
+      if (active.controller.signal.aborted) return undefined;
+      throw error;
     } finally {
       activeInspections.delete(event.sender.id);
       sendInspectionState(event.sender, { active: false, browserReady: false, browserVisible: false });
@@ -198,16 +221,20 @@ function registerIpc(): void {
 
   ipcMain.handle("album:cancel", (event) => {
     assertWindowSender(event.sender.id);
+    activeInspections.get(event.sender.id)?.controller.abort();
     downloads.get(event.sender.id)?.abort();
   });
 }
 
 async function createWindow(): Promise<void> {
+  const statePath = resolve(app.getPath("userData"), "window-state.json");
+  let savedState;
+  try { savedState = parseWindowState(readFileSync(statePath, "utf8")); } catch {}
+  const displays = [screen.getPrimaryDisplay(), ...screen.getAllDisplays().filter((display) => display.id !== screen.getPrimaryDisplay().id)];
   const window = new BrowserWindow({
     frame: false,
     autoHideMenuBar: true,
-    width: 1120,
-    height: 780,
+    ...startupBounds(savedState, displays.map((display) => display.workArea)),
     minWidth: 760,
     minHeight: 620,
     backgroundColor: "#101715",
@@ -228,6 +255,14 @@ async function createWindow(): Promise<void> {
   window.on("maximize", () => sendWindowState(window));
   window.on("unmaximize", () => sendWindowState(window));
   window.webContents.on("did-finish-load", () => sendWindowState(window));
+  window.on("close", () => {
+    try {
+      writeFileSync(`${statePath}.tmp`, JSON.stringify({ bounds: window.getNormalBounds(), maximized: window.isMaximized() }), { mode: 0o600 });
+      renameSync(`${statePath}.tmp`, statePath);
+    } catch (error) {
+      console.warn("Could not save window size and position:", error);
+    }
+  });
   window.on("closed", () => {
     inspections.delete(senderId);
     activeInspections.get(senderId)?.controller.abort();
@@ -237,6 +272,7 @@ async function createWindow(): Promise<void> {
     if (mainWindow === window) mainWindow = undefined;
   });
   await window.loadFile(resolve(__dirname, "../gui/index.html"));
+  if (savedState?.maximized) window.maximize();
 }
 
 app.whenReady().then(async () => {

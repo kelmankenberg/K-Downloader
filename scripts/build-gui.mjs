@@ -1,10 +1,13 @@
-import { cp, mkdir, rm } from "node:fs/promises";
+import { cp, mkdir, readFile, rm } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { build } from "esbuild";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const output = resolve(root, "dist");
+const changelog = await readFile(resolve(root, "changelog.md"), "utf8");
+const manifest = JSON.parse(await readFile(resolve(root, "package.json"), "utf8"));
+if (typeof manifest.version !== "string" || !manifest.version.trim()) throw new Error("package.json must contain a version");
 await rm(output, { recursive: true, force: true });
 await mkdir(resolve(output, "electron"), { recursive: true });
 await mkdir(resolve(output, "gui"), { recursive: true });
@@ -32,6 +35,10 @@ await Promise.all([
     bundle: true,
     platform: "browser",
     format: "iife",
+    define: {
+      __CHANGELOG_MARKDOWN__: JSON.stringify(changelog),
+      __APP_VERSION__: JSON.stringify(manifest.version),
+    },
   }),
 ]);
 

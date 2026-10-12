@@ -66,6 +66,10 @@ destination and format policy, then select **Download**. The default destination
 is `~/Music/K-Downloader`. **Cancel active download** stops the current transfer
 and prevents later tracks from starting.
 
+While inspection is running, the same button becomes **Cancel inspection**.
+It closes the inspection browser and stops scanning track pages, including
+during browser startup. A canceled inspection can be started again.
+
 Open **More > Settings** in the titlebar or press `Ctrl+,`. Under **Appearance**,
 select Light, Dark, or System mode and a Mint, Ocean, Amber, Rose, or Monochrome
 color theme. System follows desktop appearance changes; System + Mint is the
@@ -73,6 +77,20 @@ default. Choices apply immediately and are saved locally across restarts.
 On Cinnamon, System mode follows the GTK theme (for example, Mint-Y versus
 Mint-Y-Dark); other desktops use Electron's native appearance notifications.
 Return with **Back to downloader** or press `Esc`.
+
+**More > Restore Size/Position** restores the development default (1120x780)
+and centers the window on its current monitor. Window size, position, and
+maximized state are saved on close and restored on the next launch, with
+off-screen positions corrected if monitor arrangements change.
+
+**More > Changelog** opens a panel from the right. Drag its left edge to adjust
+the width up to 40% of the window; the focused resize handle also accepts arrow
+keys. Close it with its close button or `Esc`. Content is embedded from the root
+`changelog.md` during `npm run build:gui` (also run by `npm run gui`).
+
+Use `Ctrl+=` or `Ctrl++` to enlarge the UI, `Ctrl+-` to reduce it, and `Ctrl+0`
+to reset to 100%. `Ctrl+mousewheel` also changes scale. Zoom is limited to
+50%-200% and does not change the window's saved geometry.
 
 The GUI uses a context-isolated, sandboxed renderer with a narrow preload API.
 It currently supports one album per run; multi-album queues and packaging are

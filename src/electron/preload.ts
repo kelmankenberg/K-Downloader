@@ -2,6 +2,8 @@ import { contextBridge, ipcRenderer } from "electron";
 import type { GuiDownloadRequest, GuiInspectionState, GuiProgress, GuiWindowState, KDownloaderApi } from "../gui-types.js";
 
 const api: KDownloaderApi = {
+  restoreWindowBounds: () => ipcRenderer.invoke("window:restore-bounds"),
+  zoom: (direction) => ipcRenderer.invoke("window:zoom", direction),
   systemTheme: () => ipcRenderer.invoke("appearance:system-theme"),
   onSystemTheme: (listener: (dark: boolean) => void) => {
     const handler = (_event: Electron.IpcRendererEvent, dark: boolean) => listener(dark);

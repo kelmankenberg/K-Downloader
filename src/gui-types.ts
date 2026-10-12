@@ -42,6 +42,8 @@ export type GuiDownloadRequest = {
 };
 
 export type KDownloaderApi = {
+  restoreWindowBounds: () => Promise<void>;
+  zoom: (direction: "in" | "out" | "reset") => Promise<number>;
   systemTheme: () => Promise<boolean>;
   onSystemTheme: (listener: (dark: boolean) => void) => () => void;
   minimizeWindow: () => Promise<void>;
@@ -50,7 +52,7 @@ export type KDownloaderApi = {
   onWindowState: (listener: (state: GuiWindowState) => void) => () => void;
   defaultOutputRoot: () => Promise<string>;
   chooseOutput: () => Promise<string | undefined>;
-  inspect: (albumUrl: string) => Promise<GuiInspection>;
+  inspect: (albumUrl: string) => Promise<GuiInspection | undefined>;
   toggleInspectionBrowser: () => Promise<boolean>;
   onInspectionState: (listener: (state: GuiInspectionState) => void) => () => void;
   download: (request: GuiDownloadRequest) => Promise<{ state: string; directory: string }>;

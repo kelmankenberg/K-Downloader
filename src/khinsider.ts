@@ -1,4 +1,4 @@
-import { chromium } from "playwright";
+import { chromium, type BrowserContext } from "playwright";
 import { parse } from "parse5";
 import { setTimeout as delay } from "node:timers/promises";
 
@@ -163,15 +163,21 @@ export async function inspectAlbum(
   options: InspectionOptions = {},
 ): Promise<{ album: AlbumPage; tracks: DiscoveredTrack[] }> {
   const albumUrl = validateAlbumUrl(input);
+  options.signal?.throwIfAborted();
   const browser = await chromium.launch({ headless: false, args: ["--start-minimized"] });
-  const context = await browser.newContext({ serviceWorkers: "block" });
+  let context: BrowserContext | undefined;
   const controller = new AbortController();
-  const abort = () => controller.abort();
+  const abort = () => {
+    controller.abort();
+    void browser.close().catch(() => undefined);
+  };
   options.signal?.addEventListener("abort", abort, { once: true });
 
   try {
+    options.signal?.throwIfAborted();
+    context = await browser.newContext({ serviceWorkers: "block" });
     const page = await context.newPage();
-    page.on("close", abort);
+    page.on("close", () => controller.abort());
     const cdp = await context.newCDPSession(page);
     const { windowId } = await cdp.send("Browser.getWindowForTarget");
     let browserVisible: boolean | undefined;
@@ -209,10 +215,11 @@ export async function inspectAlbum(
       tracks.push({ ...track, audioLinks: parseTrackPage(await trackResponse.text(), track.pageUrl) });
     }
 
+    options.signal?.throwIfAborted();
     return { album, tracks };
   } finally {
-    await context.close();
-    await browser.close();
     options.signal?.removeEventListener("abort", abort);
+    await context?.close().catch(() => undefined);
+    await browser.close().catch(() => undefined);
   }
 }

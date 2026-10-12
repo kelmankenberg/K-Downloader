@@ -1,11 +1,16 @@
 import type { GuiFormatPolicy, GuiInspection, GuiInspectionState, GuiProgress, GuiTrack } from "./gui-types.js";
-import { ArrowLeft, Copy, createIcons, EllipsisVertical, Minus, Settings, Square, X } from "lucide";
+import { ArrowLeft, Copy, createIcons, EllipsisVertical, LoaderCircle, Minus, Scan, ScrollText, Settings, Square, X } from "lucide";
 import { initializeAppearance } from "./appearance.js";
+import { initializeChangelog } from "./changelog.js";
+
+declare const __APP_VERSION__: string;
+document.querySelector<HTMLElement>("#menu-app-version")!.textContent = __APP_VERSION__;
 
 initializeAppearance();
 
-const windowIcons = { ArrowLeft, Copy, EllipsisVertical, Minus, Settings, Square, X };
+const windowIcons = { ArrowLeft, Copy, EllipsisVertical, LoaderCircle, Minus, Scan, ScrollText, Settings, Square, X };
 createIcons({ icons: windowIcons });
+const changelog = initializeChangelog();
 
 const albumInput = document.querySelector<HTMLTextAreaElement>("#album-url")!;
 const outputInput = document.querySelector<HTMLInputElement>("#output-root")!;
@@ -22,6 +27,7 @@ const albumTitle = document.querySelector<HTMLElement>("#album-title")!;
 const trackCount = document.querySelector<HTMLElement>("#track-count")!;
 const statusText = document.querySelector<HTMLElement>("#status-text")!;
 const statusDot = document.querySelector<HTMLElement>("#status-dot")!;
+const statusStrip = document.querySelector<HTMLElement>(".status-strip")!;
 const inspectionIndicator = document.querySelector<HTMLButtonElement>("#inspection-indicator")!;
 const inspectionIndicatorText = document.querySelector<HTMLElement>("#inspection-indicator-text")!;
 const progress = document.querySelector<HTMLProgressElement>("#download-progress")!;
@@ -36,14 +42,29 @@ const moreMenuWrap = document.querySelector<HTMLElement>("#more-menu-wrap")!;
 const moreButton = document.querySelector<HTMLButtonElement>("#more-button")!;
 const moreMenu = document.querySelector<HTMLElement>("#more-menu")!;
 const settingsMenuItem = document.querySelector<HTMLButtonElement>("#settings-menu-item")!;
+const restoreBoundsMenuItem = document.querySelector<HTMLButtonElement>("#restore-bounds-menu-item")!;
+const changelogMenuItem = document.querySelector<HTMLButtonElement>("#changelog-menu-item")!;
 const workspaceView = document.querySelector<HTMLElement>("#workspace")!;
 const settingsView = document.querySelector<HTMLElement>("#settings-view")!;
 const closeSettingsButton = document.querySelector<HTMLButtonElement>("#close-settings")!;
 
 let inspection: GuiInspection | undefined;
 let busy = false;
+let inspecting = false;
+let inspectionCancelRequested = false;
 let inspectionBrowserVisible = false;
 let settingsOpen = false;
+
+function updateInspectionIndicator(state: GuiInspectionState): void {
+  inspectionBrowserVisible = state.browserVisible;
+  statusStrip.hidden = state.active;
+  inspectionIndicator.hidden = !state.active;
+  inspectionIndicator.disabled = !state.browserReady;
+  inspectionIndicator.setAttribute("aria-pressed", String(state.browserVisible));
+  inspectionIndicatorText.textContent = state.browserReady
+    ? state.browserVisible ? "Hide browser" : "Show browser"
+    : "Starting browser…";
+}
 
 function closeMoreMenu(): void {
   moreMenu.hidden = true;
@@ -160,6 +181,7 @@ function setBusy(value: boolean): void {
   discLabelSelect.disabled = value;
   skipInput.disabled = value || formatSelect.value === "prefer-lossless";
   cancelButton.disabled = !value;
+  cancelButton.textContent = inspecting ? "Cancel inspection" : "Cancel active download";
   if (inspection) renderTracks();
 }
 
@@ -176,22 +198,39 @@ moreButton.addEventListener("click", () => {
   moreButton.setAttribute("aria-expanded", String(!moreMenu.hidden));
 });
 settingsMenuItem.addEventListener("click", () => setSettingsOpen(true));
+restoreBoundsMenuItem.addEventListener("click", () => {
+  closeMoreMenu();
+  void window.kDownloader.restoreWindowBounds();
+});
+changelogMenuItem.addEventListener("click", () => {
+  closeMoreMenu();
+  changelog.open();
+});
 closeSettingsButton.addEventListener("click", () => setSettingsOpen(false));
 document.addEventListener("click", (event) => {
   if (!moreMenuWrap.contains(event.target as Node)) closeMoreMenu();
 });
 document.addEventListener("keydown", (event) => {
-  if ((event.ctrlKey || event.metaKey) && event.key === ",") {
+  if (event.ctrlKey && ["0", "-", "_", "=", "+"].includes(event.key)) {
+    event.preventDefault();
+    const direction = event.key === "0" ? "reset" : ["-", "_"].includes(event.key) ? "out" : "in";
+    void window.kDownloader.zoom(direction);
+  } else if ((event.ctrlKey || event.metaKey) && event.key === ",") {
     event.preventDefault();
     setSettingsOpen(!settingsOpen);
   } else if (event.key === "Escape") {
-    if (settingsOpen) setSettingsOpen(false);
-    else if (!moreMenu.hidden) {
+    if (!moreMenu.hidden) {
       closeMoreMenu();
       moreButton.focus();
-    }
+    } else if (changelog.isOpen()) changelog.close();
+    else if (settingsOpen) setSettingsOpen(false);
   }
 });
+document.addEventListener("wheel", (event) => {
+  if (!event.ctrlKey || event.deltaY === 0) return;
+  event.preventDefault();
+  void window.kDownloader.zoom(event.deltaY < 0 ? "in" : "out");
+}, { passive: false });
 
 inspectButton.addEventListener("click", async () => {
   errorText.textContent = "";
@@ -207,17 +246,29 @@ inspectButton.addEventListener("click", async () => {
   tableBody.replaceChildren();
   trackTable.hidden = true;
   emptyState.hidden = false;
+  inspecting = true;
+  inspectionCancelRequested = false;
   setBusy(true);
-  setStatus("Inspection in progress", "working");
+  updateInspectionIndicator({ active: true, browserReady: false, browserVisible: false });
   try {
     inspection = await window.kDownloader.inspect(albumUrl);
+    if (!inspection) {
+      setStatus("Inspection canceled");
+      return;
+    }
     albumTitle.textContent = inspection.albumTitle;
     updateFormatOptions();
     setStatus("Preview ready", "success");
   } catch (error) {
-    errorText.textContent = error instanceof Error ? error.message : String(error);
-    setStatus("Inspection failed", "error");
+    if (inspectionCancelRequested) setStatus("Inspection canceled");
+    else {
+      errorText.textContent = error instanceof Error ? error.message : String(error);
+      setStatus("Inspection failed", "error");
+    }
   } finally {
+    inspecting = false;
+    inspectionCancelRequested = false;
+    updateInspectionIndicator({ active: false, browserReady: false, browserVisible: false });
     setBusy(false);
     if (inspection) renderTracks();
   }
@@ -234,16 +285,7 @@ inspectionIndicator.addEventListener("click", async () => {
   }
 });
 
-window.kDownloader.onInspectionState((state: GuiInspectionState) => {
-  inspectionBrowserVisible = state.browserVisible;
-  inspectionIndicator.hidden = !state.active;
-  inspectionIndicator.disabled = !state.browserReady;
-  inspectionIndicator.setAttribute("aria-pressed", String(state.browserVisible));
-  inspectionIndicatorText.textContent = state.browserReady
-    ? state.browserVisible ? "Hide browser" : "Show browser"
-    : "Starting browser…";
-  if (state.active) setStatus("Inspection in progress", "working");
-});
+window.kDownloader.onInspectionState(updateInspectionIndicator);
 
 browseButton.addEventListener("click", async () => {
   const selected = await window.kDownloader.chooseOutput();
@@ -284,8 +326,19 @@ downloadButton.addEventListener("click", async () => {
 
 cancelButton.addEventListener("click", async () => {
   cancelButton.disabled = true;
-  await window.kDownloader.cancel();
-  setStatus("Canceling active track…", "working");
+  const cancelingInspection = inspecting;
+  if (cancelingInspection) {
+    inspectionCancelRequested = true;
+    inspectionIndicator.disabled = true;
+    inspectionIndicatorText.textContent = "Canceling…";
+  } else setStatus("Canceling active track…", "working");
+  try {
+    await window.kDownloader.cancel();
+  } catch (error) {
+    errorText.textContent = error instanceof Error ? error.message : String(error);
+    inspectionCancelRequested = false;
+    cancelButton.disabled = !busy;
+  }
 });
 
 window.kDownloader.onProgress((event: GuiProgress) => {

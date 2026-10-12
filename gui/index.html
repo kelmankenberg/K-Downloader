@@ -21,11 +21,21 @@
               <i data-lucide="ellipsis-vertical" aria-hidden="true"></i>
             </button>
             <div id="more-menu" class="more-menu" role="menu" aria-label="More options" hidden>
+              <button id="restore-bounds-menu-item" class="more-menu-item" type="button" role="menuitem">
+                <i data-lucide="scan" aria-hidden="true"></i>
+                <span>Restore Size/Position</span>
+              </button>
               <button id="settings-menu-item" class="more-menu-item" type="button" role="menuitem">
                 <i data-lucide="settings" aria-hidden="true"></i>
                 <span>Settings</span>
                 <kbd>Ctrl+,</kbd>
               </button>
+              <button id="changelog-menu-item" class="more-menu-item" type="button" role="menuitem">
+                <i data-lucide="scroll-text" aria-hidden="true"></i>
+                <span>Changelog</span>
+              </button>
+              <div class="more-menu-separator" role="separator"></div>
+              <div class="more-menu-info"><span>K-Downloader</span><span id="menu-app-version"></span></div>
             </div>
           </div>
           <nav class="window-controls" aria-label="Window controls">
@@ -101,8 +111,8 @@
             <span id="status-text">Paste an album URL to begin</span>
           </div>
           <button id="inspection-indicator" class="inspection-indicator" type="button" hidden disabled aria-pressed="false">
-            <span class="status-dot" data-tone="working"></span>
-            <span>Inspection in progress</span>
+            <i data-lucide="loader-circle" class="inspection-spinner" aria-hidden="true"></i>
+            <span role="status">Inspection in progress</span>
             <span id="inspection-indicator-text" class="inspection-indicator-action">Starting browser…</span>
           </button>
 
@@ -156,6 +166,16 @@
           <p id="appearance-storage-status" class="error-text" role="status"></p>
         </section>
       </section>
+      <aside id="changelog-drawer" class="changelog-drawer" data-open="false" aria-labelledby="changelog-heading" inert>
+        <div id="changelog-resize" class="changelog-resize" role="separator" tabindex="0" aria-label="Changelog panel width" aria-orientation="vertical" aria-valuemin="24" aria-valuemax="40" aria-valuenow="32"></div>
+        <header class="changelog-header">
+          <h2 id="changelog-heading">Changelog</h2>
+          <button id="close-changelog" class="drawer-close-button" type="button" aria-label="Close changelog" title="Close changelog">
+            <i data-lucide="x" aria-hidden="true"></i>
+          </button>
+        </header>
+        <div id="changelog-content" class="changelog-content"></div>
+      </aside>
       <footer class="app-footer"><span>Original audio bytes · no transcoding</span><span>LOCAL SESSION</span></footer>
     </main>
   </body>

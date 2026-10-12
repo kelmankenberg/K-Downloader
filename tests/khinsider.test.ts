@@ -1,7 +1,8 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { describe, expect, it } from "vitest";
-import { parseAlbumPage, parseTrackPage, validateAlbumUrl } from "../src/khinsider.js";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { chromium, type Browser } from "playwright";
+import { inspectAlbum, parseAlbumPage, parseTrackPage, validateAlbumUrl } from "../src/khinsider.js";
 
 const albumUrl = new URL("https://downloads.khinsider.com/game-soundtracks/album/fixture-album");
 const albumHtml = readFileSync(fileURLToPath(new URL("./fixtures/album.html", import.meta.url)), "utf8");
@@ -43,5 +44,64 @@ describe("KHInsider page parsing", () => {
   it("rejects unrelated or insecure album URLs", () => {
     expect(() => validateAlbumUrl("http://downloads.khinsider.com/game-soundtracks/album/test")).toThrow();
     expect(() => validateAlbumUrl("https://example.com/game-soundtracks/album/test")).toThrow();
+  });
+});
+
+describe("inspection cancellation", () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  it("does not launch Chromium when already canceled", async () => {
+    const launch = vi.spyOn(chromium, "launch");
+    const controller = new AbortController();
+    controller.abort();
+    await expect(inspectAlbum(albumUrl.href, { signal: controller.signal })).rejects.toThrow();
+    expect(launch).not.toHaveBeenCalled();
+  });
+
+  it("closes a browser that finishes launching after Cancel was requested", async () => {
+    const controller = new AbortController();
+    let finishLaunch!: (browser: Browser) => void;
+    const browser = { newContext: vi.fn(), close: vi.fn(async () => {}) };
+    vi.spyOn(chromium, "launch").mockImplementation(() => new Promise((resolve) => { finishLaunch = resolve; }));
+    const run = inspectAlbum(albumUrl.href, { signal: controller.signal });
+    const rejection = expect(run).rejects.toThrow();
+    controller.abort();
+    finishLaunch(browser as unknown as Browser);
+    await rejection;
+    expect(browser.newContext).not.toHaveBeenCalled();
+    expect(browser.close).toHaveBeenCalled();
+  });
+
+  it("closes Chromium to interrupt active navigation and never starts track requests", async () => {
+    const controller = new AbortController();
+    let rejectNavigation!: (error: Error) => void;
+    let navigationStarted!: () => void;
+    const started = new Promise<void>((resolve) => { navigationStarted = resolve; });
+    const page = {
+      on: vi.fn(),
+      isClosed: () => false,
+      goto: vi.fn(() => new Promise((_, reject) => {
+        rejectNavigation = reject;
+        navigationStarted();
+      })),
+    };
+    const context = {
+      newPage: async () => page,
+      newCDPSession: async () => ({ send: async () => ({ windowId: 1 }) }),
+      close: vi.fn(async () => {}),
+    };
+    const browser = {
+      newContext: async () => context,
+      close: vi.fn(async () => { rejectNavigation?.(new Error("Browser closed")); }),
+    };
+    vi.spyOn(chromium, "launch").mockResolvedValue(browser as unknown as Browser);
+    const run = inspectAlbum(albumUrl.href, { signal: controller.signal });
+    const rejection = expect(run).rejects.toThrow("Browser closed");
+    await started;
+    controller.abort();
+    await rejection;
+    expect(browser.close).toHaveBeenCalled();
+    expect(context.close).toHaveBeenCalled();
+    expect(page.goto).toHaveBeenCalledTimes(1);
   });
 });
