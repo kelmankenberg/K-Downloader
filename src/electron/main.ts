@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, ipcMain, Menu, nativeTheme, screen } from "electron";
+import { app, BrowserWindow, dialog, ipcMain, Menu, nativeTheme, screen, shell } from "electron";
 import { readFileSync, writeFileSync, renameSync } from "node:fs";
 import { centeredBounds, parseWindowState, startupBounds } from "./window-state.js";
 import { monitorCinnamonTheme } from "./system-theme.js";
@@ -125,6 +125,21 @@ function sendWindowState(window: BrowserWindow): void {
 }
 
 function registerIpc(): void {
+  ipcMain.handle("support:report-issue", async (event) => {
+    const window = assertWindowSender(event.sender.id);
+    const url = "https://github.com/kelmankenberg/K-Downloader/issues/new/choose";
+    try {
+      await shell.openExternal(url);
+    } catch {
+      await dialog.showMessageBox(window, {
+        type: "error",
+        title: "Could not open GitHub",
+        message: "Your browser could not be opened.",
+        detail: `Open this address manually to report an issue:\n${url}`,
+        buttons: ["OK"],
+      });
+    }
+  });
   ipcMain.handle("window:restore-bounds", (event) => {
     const window = assertWindowSender(event.sender.id);
     const area = screen.getDisplayMatching(window.getBounds()).workArea;
@@ -280,6 +295,7 @@ async function createWindow(): Promise<void> {
     minHeight: 620,
     backgroundColor: "#101715",
     title: "K-Downloader",
+    icon: resolve(__dirname, "../assets/k-downloader.png"),
     webPreferences: {
       preload: resolve(__dirname, "preload.cjs"),
       contextIsolation: true,

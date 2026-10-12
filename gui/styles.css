@@ -267,6 +267,19 @@ progress::-webkit-progress-value { background: linear-gradient(90deg, var(--blue
 .changelog-content li { margin: 6px 0; }
 .changelog-content a { color: var(--mint); }
 .changelog-content pre { overflow: auto; }
+.help-actions { flex-shrink: 0; display: flex; justify-content: flex-end; gap: 12px; padding: 12px 18px; border-bottom: 1px solid var(--line); }
+.help-actions button { border: 0; padding: 4px 0; background: transparent; color: var(--mint); font-size: 11px; }
+.help-actions button:hover { text-decoration: underline; }
+.help-content { padding: 0 18px 16px; }
+.help-section { border-bottom: 1px solid var(--line); }
+.help-section summary { cursor: pointer; padding: 14px 0; color: var(--ink); font-size: 12px; font-weight: 700; }
+.help-section summary::marker { color: var(--mint); }
+.help-section summary:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.help-section-body { padding-bottom: 12px; color: var(--muted); }
+.help-section-body strong { color: var(--ink); }
+.help-section-body p { margin: 0 0 12px; }
+.help-section-body ol { padding-left: 20px; }
+.help-section-body code { font-size: 10px; }
 @media (prefers-reduced-motion: reduce) { .changelog-drawer { transition: none; } }
 
 @media (max-width: 720px) {

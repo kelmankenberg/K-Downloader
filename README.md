@@ -95,6 +95,14 @@ the width up to 40% of the window; the focused resize handle also accepts arrow
 keys. Close it with its close button or `Esc`. Content is embedded from the root
 `changelog.md` during `npm run build:gui` (also run by `npm run gui`).
 
+**More > Help**, directly below Changelog, opens a matching right-side panel.
+Expand or collapse individual help sections, or use **Expand all** and
+**Collapse all**. It covers the GUI, CLI, formats, disc folders, cancellation,
+reruns, Settings, shortcuts, window controls, and troubleshooting. Resize its
+left edge up to 40%, and close with its button or `Esc`. Opening Help closes
+Changelog, and vice versa. Help is embedded from [docs/HELP.md](docs/HELP.md)
+during the GUI build and is available offline.
+
 Use `Ctrl+=` or `Ctrl++` to enlarge the UI, `Ctrl+-` to reduce it, and `Ctrl+0`
 to reset to 100%. `Ctrl+mousewheel` also changes scale. Zoom is limited to
 50%-200% and does not change the window's saved geometry.
@@ -102,6 +110,17 @@ to reset to 100%. `Ctrl+mousewheel` also changes scale. Zoom is limited to
 The GUI uses a context-isolated, sandboxed renderer with a narrow preload API.
 It currently supports one album per run; multi-album queues and packaging are
 not available yet.
+
+## Issue Reporting
+
+Use **More > Report an Issue** to open the repository's GitHub issue chooser
+in your default browser. Choose **Bug Report** or **Feature Request**; a GitHub
+account is required. Include the app version from the More menu and relevant
+details. The app never uploads logs automatically. Remove credentials, cookies,
+tokens, signed media URLs, and private paths before submitting or attaching files.
+
+Repository administrators can follow [docs/GITHUB_ISSUES_SETUP.md](docs/GITHUB_ISSUES_SETUP.md)
+to enable Issues and activate the supplied templates on the default branch.
 
 ## Development
 

@@ -4,6 +4,15 @@
 
 ### Added
 
+- Report an Issue menu command opening the fixed GitHub issue chooser in the
+	default browser, with a manual-link fallback if the browser cannot launch.
+- GitHub bug-report and feature-request forms with required details and privacy
+	acknowledgments, plus repository setup instructions.
+- Right-side Help panel under Changelog in the More menu, with expandable
+	feature guidance, bulk expand/collapse controls, resizing, and Escape support.
+- Offline Help content embedded from docs/HELP.md during GUI builds.
+- Mint K app icon matching the titlebar, included in the GUI build and used for
+	the Electron window/taskbar icon.
 - Single-instance desktop lock with an already-running confirmation and
 	restoration/focus of the existing window on another launch.
 - Settings left navigation rail with Appearance and Shortcuts pages.
@@ -34,7 +43,8 @@
 
 - Appearance controls retain their layout and selections when switching Settings pages.
 - Settings content scrolls independently of its navigation rail, header, and statusbar.
-- More menu order: Restore Size/Position, Settings, Changelog, separator, app title/version.
+- More menu order: Restore Size/Position, Settings, Changelog, Help, Report an Issue,
+  separator, app title/version.
 - Long Discovery Preview lists scroll inside the panel instead of expanding the app.
 - Setup and Settings content scroll independently while the bottom statusbar remains visible.
 

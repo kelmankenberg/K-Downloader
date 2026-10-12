@@ -1,16 +1,18 @@
 import type { GuiFormatPolicy, GuiInspection, GuiInspectionState, GuiProgress, GuiTrack } from "./gui-types.js";
-import { ArrowLeft, Copy, createIcons, EllipsisVertical, Keyboard, LoaderCircle, Minus, Palette, Scan, ScrollText, Settings, Square, X } from "lucide";
+import { ArrowLeft, Bug, CircleHelp, Copy, createIcons, EllipsisVertical, Keyboard, LoaderCircle, Minus, Palette, Scan, ScrollText, Settings, Square, X } from "lucide";
 import { initializeAppearance } from "./appearance.js";
 import { initializeChangelog } from "./changelog.js";
+import { initializeHelp } from "./help.js";
 
 declare const __APP_VERSION__: string;
 document.querySelector<HTMLElement>("#menu-app-version")!.textContent = __APP_VERSION__;
 
 initializeAppearance();
 
-const windowIcons = { ArrowLeft, Copy, EllipsisVertical, Keyboard, LoaderCircle, Minus, Palette, Scan, ScrollText, Settings, Square, X };
+const windowIcons = { ArrowLeft, Bug, CircleHelp, Copy, EllipsisVertical, Keyboard, LoaderCircle, Minus, Palette, Scan, ScrollText, Settings, Square, X };
 createIcons({ icons: windowIcons });
 const changelog = initializeChangelog();
+const help = initializeHelp();
 
 const albumInput = document.querySelector<HTMLTextAreaElement>("#album-url")!;
 const outputInput = document.querySelector<HTMLInputElement>("#output-root")!;
@@ -44,6 +46,8 @@ const moreMenu = document.querySelector<HTMLElement>("#more-menu")!;
 const settingsMenuItem = document.querySelector<HTMLButtonElement>("#settings-menu-item")!;
 const restoreBoundsMenuItem = document.querySelector<HTMLButtonElement>("#restore-bounds-menu-item")!;
 const changelogMenuItem = document.querySelector<HTMLButtonElement>("#changelog-menu-item")!;
+const helpMenuItem = document.querySelector<HTMLButtonElement>("#help-menu-item")!;
+const reportIssueMenuItem = document.querySelector<HTMLButtonElement>("#report-issue-menu-item")!;
 const workspaceView = document.querySelector<HTMLElement>("#workspace")!;
 const settingsView = document.querySelector<HTMLElement>("#settings-view")!;
 const closeSettingsButton = document.querySelector<HTMLButtonElement>("#close-settings")!;
@@ -223,7 +227,17 @@ restoreBoundsMenuItem.addEventListener("click", () => {
 });
 changelogMenuItem.addEventListener("click", () => {
   closeMoreMenu();
+  help.close();
   changelog.open();
+});
+helpMenuItem.addEventListener("click", () => {
+  closeMoreMenu();
+  changelog.close();
+  help.open();
+});
+reportIssueMenuItem.addEventListener("click", () => {
+  closeMoreMenu();
+  void window.kDownloader.reportIssue();
 });
 closeSettingsButton.addEventListener("click", () => setSettingsOpen(false));
 document.addEventListener("click", (event) => {
@@ -241,7 +255,8 @@ document.addEventListener("keydown", (event) => {
     if (!moreMenu.hidden) {
       closeMoreMenu();
       moreButton.focus();
-    } else if (changelog.isOpen()) changelog.close();
+    } else if (help.isOpen()) help.close();
+    else if (changelog.isOpen()) changelog.close();
     else if (settingsOpen) setSettingsOpen(false);
   }
 });

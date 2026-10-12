@@ -71,6 +71,11 @@ npm audit
   and copies the local HTML/CSS assets.
 - The GUI build embeds the root [changelog.md](../changelog.md) and the version
   from [package.json](../package.json). Rebuild after changing either file.
+- Help content is embedded from [HELP.md](HELP.md). Its level-two headings
+  become expandable sections in the Help drawer. Rebuild after editing it.
+- The build copies [assets/k-downloader.png](../assets/k-downloader.png) into
+  `dist/assets/`; Electron uses it as the window/taskbar icon. Regenerate the
+  source icon with `node scripts/generate-icon.mjs` if the brand mark changes.
 - `npm audit` reports dependency advisories. Review and resolve release-blocking
   issues; do not blindly apply a forced dependency upgrade.
 
@@ -180,6 +185,9 @@ Before uploading AppImage, `.deb`, or `.rpm` assets, define supported Linux
 versions/architectures and implement a packaging workflow. It must include
 runtime dependencies, browser provisioning, desktop integration, CLI invocation,
 and normal sandbox support. Test the actual artifacts on the declared targets.
+Installer desktop entries must also reference the K-Downloader icon; window
+icon configuration alone does not install a desktop launcher or override every
+Linux desktop's taskbar grouping behavior.
 
 Only then attach validated installers and checksums to a draft, using actual
 artifact paths, for example `gh release upload "$TAG" <artifact-paths>` with

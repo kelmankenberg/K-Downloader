@@ -39,14 +39,47 @@ describe("desktop More menu and zoom", () => {
       let page = await app.firstWindow();
       page.setDefaultTimeout(5_000);
       await page.waitForFunction(() => document.documentElement.dataset.mode);
+      const icon = await app.evaluate(({ nativeImage }) => {
+        const image = nativeImage.createFromPath("dist/assets/k-downloader.png");
+        const bitmap = image.getBitmap();
+        return { empty: image.isEmpty(), size: image.getSize(), firstAlpha: bitmap[3], clippedAlpha: bitmap[bitmap.length - 1] };
+      });
+      expect(icon.empty).toBe(false);
+      expect(icon.size).toEqual({ width: 512, height: 512 });
+      expect(icon.firstAlpha).toBe(255);
+      expect(icon.clippedAlpha).toBe(0);
+      expect(await readFile(resolve("dist/assets/k-downloader.png"))).toEqual(await readFile(resolve("assets/k-downloader.png")));
       await page.getByRole("button", { name: "More options", exact: true }).click();
       expect((await page.getByRole("menuitem").allTextContents()).map((text) => text.replace(/\s+/g, " ").trim())).toEqual([
-        "Restore Size/Position", "Settings Ctrl+,", "Changelog",
+        "Restore Size/Position", "Settings Ctrl+,", "Changelog", "Help", "Report an Issue",
       ]);
       const manifest = JSON.parse(await readFile(resolve("package.json"), "utf8"));
       expect(await page.locator("#menu-app-version").textContent()).toBe(manifest.version);
       expect(await page.locator(".more-menu-info").innerText()).toContain("K-Downloader");
       expect(await page.locator(".more-menu-separator").isVisible()).toBe(true);
+      await app.evaluate(({ shell }) => {
+        Reflect.set(globalThis, "supportUrls", []);
+        shell.openExternal = async (url) => { Reflect.get(globalThis, "supportUrls").push(url); };
+      });
+      await page.getByRole("menuitem", { name: "Report an Issue", exact: true }).click();
+      expect(await app.evaluate(() => Reflect.get(globalThis, "supportUrls"))).toEqual([
+        "https://github.com/kelmankenberg/K-Downloader/issues/new/choose",
+      ]);
+      expect(await page.locator("#more-menu").isVisible()).toBe(false);
+      expect(await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows().length)).toBe(1);
+      await app.evaluate(({ shell, dialog }) => {
+        shell.openExternal = async () => { throw new Error("No browser available"); };
+        dialog.showMessageBox = async (...args: unknown[]) => {
+          Reflect.set(globalThis, "supportError", args.at(-1));
+          return { response: 0, checkboxChecked: false };
+        };
+      });
+      await page.getByRole("button", { name: "More options", exact: true }).click();
+      await page.getByRole("menuitem", { name: "Report an Issue", exact: true }).click();
+      const supportError = await app.evaluate(() => Reflect.get(globalThis, "supportError"));
+      expect(supportError.message).toBe("Your browser could not be opened.");
+      expect(supportError.detail).toContain("https://github.com/kelmankenberg/K-Downloader/issues/new/choose");
+      await page.getByRole("button", { name: "More options", exact: true }).click();
       await page.getByRole("menuitem", { name: "Changelog", exact: true }).click();
       await page.locator("#changelog-drawer").waitFor({ state: "visible" });
       await page.waitForFunction(() => new DOMMatrixReadOnly(getComputedStyle(document.querySelector("#changelog-drawer")!).transform).m41 === 0);
@@ -67,6 +100,58 @@ describe("desktop More menu and zoom", () => {
       await page.getByRole("button", { name: "More options", exact: true }).click();
       await page.getByRole("menuitem", { name: "Changelog", exact: true }).click();
       await page.getByRole("button", { name: "Close changelog", exact: true }).click();
+      await page.keyboard.press("Control+Comma");
+      await page.getByRole("button", { name: "More options", exact: true }).click();
+      await page.getByRole("menuitem", { name: "Help", exact: true }).click();
+      await page.locator("#help-drawer").waitFor({ state: "visible" });
+      await page.waitForFunction(() => new DOMMatrixReadOnly(getComputedStyle(document.querySelector("#help-drawer")!).transform).m41 === 0);
+      expect(await page.locator("#help-content summary").allTextContents()).toEqual([
+        "Getting Started", "Album Inspection", "Audio Formats", "Destination and Disc Folders",
+        "Downloads and Progress", "Canceling and Rerunning", "Settings and Appearance",
+        "Keyboard Shortcuts", "Window Controls and More Menu", "Help and Changelog Panels",
+        "Command-Line Interface", "Reporting Issues", "Troubleshooting and Current Limits",
+      ]);
+      expect(await page.locator("#help-content details[open]").count()).toBe(1);
+      await page.locator("#help-content summary").first().click();
+      expect(await page.locator("#help-content details[open]").count()).toBe(0);
+      await page.locator("#help-content summary").first().focus();
+      await page.keyboard.press("Enter");
+      expect(await page.locator("#help-content details[open]").count()).toBe(1);
+      await page.getByRole("button", { name: "Expand all", exact: true }).click();
+      expect(await page.locator("#help-content details[open]").count()).toBe(13);
+      await page.getByRole("button", { name: "Collapse all", exact: true }).click();
+      expect(await page.locator("#help-content details[open]").count()).toBe(0);
+      await page.getByRole("separator", { name: "Help panel width" }).focus();
+      await page.keyboard.press("End");
+      expect(await page.locator("#help-drawer").evaluate((element) => element.getBoundingClientRect().width / innerWidth)).toBeCloseTo(.4, 2);
+      const helpHandle = await page.locator("#help-resize").boundingBox();
+      if (!helpHandle) throw new Error("Help resize handle is not visible");
+      await page.mouse.move(helpHandle.x + helpHandle.width / 2, helpHandle.y + 50);
+      await page.mouse.down();
+      await page.mouse.move(1, helpHandle.y + 50);
+      await page.mouse.up();
+      expect(await page.locator("#help-drawer").evaluate((element) => element.getBoundingClientRect().width / innerWidth)).toBeCloseTo(.4, 2);
+      await page.locator("#help-content summary").first().click();
+      await page.screenshot({ path: "/tmp/k-downloader-help-1120.png" });
+      await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].setSize(760, 620));
+      await page.screenshot({ path: "/tmp/k-downloader-help-760.png" });
+      expect(await page.locator("#help-content").evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
+      await page.keyboard.press("Escape");
+      expect(await page.locator("#help-drawer").getAttribute("data-open")).toBe("false");
+      expect(await page.locator("#settings-view").isVisible()).toBe(true);
+      await page.getByRole("button", { name: "More options", exact: true }).click();
+      await page.getByRole("menuitem", { name: "Help", exact: true }).click();
+      await page.getByRole("button", { name: "Close help", exact: true }).click();
+      expect(await page.locator("#help-drawer").getAttribute("data-open")).toBe("false");
+      await page.getByRole("button", { name: "More options", exact: true }).click();
+      await page.getByRole("menuitem", { name: "Help", exact: true }).click();
+      await page.getByRole("button", { name: "More options", exact: true }).click();
+      await page.getByRole("menuitem", { name: "Changelog", exact: true }).click();
+      expect(await page.locator("#help-drawer").getAttribute("data-open")).toBe("false");
+      expect(await page.locator("#changelog-drawer").getAttribute("data-open")).toBe("true");
+      await page.keyboard.press("Escape");
+      await page.keyboard.press("Escape");
+      await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].setSize(1120, 780));
       const zoom = () => app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].webContents.getZoomFactor());
       await page.keyboard.press("Control+Equal");
       await expect.poll(zoom).toBeCloseTo(1.1);

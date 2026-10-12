@@ -34,6 +34,14 @@
                 <i data-lucide="scroll-text" aria-hidden="true"></i>
                 <span>Changelog</span>
               </button>
+              <button id="help-menu-item" class="more-menu-item" type="button" role="menuitem">
+                <i data-lucide="circle-help" aria-hidden="true"></i>
+                <span>Help</span>
+              </button>
+              <button id="report-issue-menu-item" class="more-menu-item" type="button" role="menuitem">
+                <i data-lucide="bug" aria-hidden="true"></i>
+                <span>Report an Issue</span>
+              </button>
               <div class="more-menu-separator" role="separator"></div>
               <div class="more-menu-info"><span>K-Downloader</span><span id="menu-app-version"></span></div>
             </div>
@@ -181,7 +189,7 @@
             <h3 id="navigation-shortcuts-heading">Navigation</h3>
             <dl class="shortcut-list">
               <div class="shortcut-row"><dt>Open or close Settings</dt><dd><kbd>Ctrl</kbd><span>+</span><kbd>,</kbd></dd></div>
-              <div class="shortcut-row"><dt>Close the active menu, Changelog, or Settings</dt><dd><kbd>Esc</kbd></dd></div>
+              <div class="shortcut-row"><dt>Close the active menu, Help, Changelog, or Settings</dt><dd><kbd>Esc</kbd></dd></div>
             </dl>
           </section>
           <section class="shortcut-group" aria-labelledby="zoom-shortcuts-heading">
@@ -194,7 +202,7 @@
             </dl>
           </section>
           <section class="shortcut-group" aria-labelledby="changelog-shortcuts-heading">
-            <h3 id="changelog-shortcuts-heading">Changelog Panel</h3>
+            <h3 id="changelog-shortcuts-heading">Help and Changelog Panels</h3>
             <p class="shortcut-context">When the resize handle is focused</p>
             <dl class="shortcut-list">
               <div class="shortcut-row"><dt>Widen panel</dt><dd><kbd>Left Arrow</kbd></dd></div>
@@ -216,6 +224,20 @@
           </button>
         </header>
         <div id="changelog-content" class="changelog-content"></div>
+      </aside>
+      <aside id="help-drawer" class="changelog-drawer help-drawer" data-open="false" aria-labelledby="help-heading" inert>
+        <div id="help-resize" class="changelog-resize" role="separator" tabindex="0" aria-label="Help panel width" aria-orientation="vertical" aria-valuemin="24" aria-valuemax="40" aria-valuenow="32"></div>
+        <header class="changelog-header">
+          <h2 id="help-heading">Help</h2>
+          <button id="close-help" class="drawer-close-button" type="button" aria-label="Close help" title="Close help">
+            <i data-lucide="x" aria-hidden="true"></i>
+          </button>
+        </header>
+        <div class="help-actions">
+          <button id="expand-help" type="button">Expand all</button>
+          <button id="collapse-help" type="button">Collapse all</button>
+        </div>
+        <div id="help-content" class="changelog-content help-content"></div>
       </aside>
       <footer class="app-footer"><span>Original audio bytes · no transcoding</span><span>LOCAL SESSION</span></footer>
     </main>

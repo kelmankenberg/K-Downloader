@@ -50,6 +50,7 @@ describe("appearance controls in Chromium", () => {
         let inspectionListener: ((state: GuiInspectionState) => void) | undefined;
         let browserVisible = false;
         window.kDownloader = {
+          reportIssue: async () => {},
           restoreWindowBounds: async () => {},
           zoom: async () => 1,
           systemTheme: async () => matchMedia("(prefers-color-scheme: dark)").matches,
@@ -122,7 +123,7 @@ describe("appearance controls in Chromium", () => {
       expect(await page.locator("#shortcuts-nav").getAttribute("aria-current")).toBe("page");
       expect(await page.locator(".shortcut-row dt").allTextContents()).toEqual([
         "Open or close Settings",
-        "Close the active menu, Changelog, or Settings",
+        "Close the active menu, Help, Changelog, or Settings",
         "Zoom in", "Zoom out", "Reset to 100%", "Zoom with the mouse",
         "Widen panel", "Narrow panel", "Minimum panel width", "Maximum panel width (40%)",
       ]);
@@ -193,7 +194,7 @@ describe("appearance controls in Chromium", () => {
       expect(await page.locator("#error-text").textContent()).toBe("");
       await page.getByRole("button", { name: "Inspect album", exact: true }).click();
       await page.locator("#inspection-indicator").waitFor({ state: "visible" });
-      expect(await page.getByText("Inspection in progress", { exact: true }).count()).toBe(1);
+      expect(await page.getByText("Inspection in progress", { exact: true }).filter({ visible: true }).count()).toBe(1);
       expect(await page.locator(".status-strip").isVisible()).toBe(false);
       expect(await page.locator(".inspection-spinner").evaluate((element) => {
         const animation = element.getAnimations()[0];
