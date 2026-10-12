@@ -25873,8 +25873,12978 @@ _**Agent (copilot/auto)**_
 Apply Patch
 </details></tool-use>
 
+_**Agent (copilot/auto)**_
+
+I’ll constrain the app to the window height and make the Discovery Preview’s track list scroll within its panel, so the bottom statusbar stays visible as tracks are added. I’ll check the current flex/grid sizing and verify the layout with a long track list.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Read `styles.css`, lines 80 to 228
+
+**Input:**
+
+- endLine: `320`
+- filePath: `/home/kel/dev/K-Downloader/gui/styles.css`
+- startLine: `80`
+
+**Result:**
+
+```
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-width: 720px;
+  min-height: 100vh;
+  background:
+    linear-gradient(115deg, color-mix(in srgb, var(--mint) 5%, transparent), transparent 44%),
+    var(--ground);
+}
+button, input, textarea, select { font: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: .42; }
+
+.app-shell { min-height: 100vh; display: flex; flex-direction: column; }
+.topbar { height: 46px; flex: 0 0 46px; padding: 0 0 0 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); background: var(--panel); -webkit-app-region: drag; user-select: none; }
+.brand-lockup { height: 100%; display: flex; align-items: center; gap: 9px; }
+.app-icon { width: 23px; height: 23px; display: grid; place-items: center; background: var(--mint); color: var(--accent-text); font-size: 15px; font-weight: 800; clip-path: polygon(0 0, 100% 0, 100% 72%, 72% 100%, 0 100%); }
+.brand-name { font-size: 12px; font-weight: 800; }
+.titlebar-actions { height: 100%; display: flex; align-items: stretch; -webkit-app-region: no-drag; }
+.more-menu-wrap { position: relative; height: 100%; }
+.window-controls { height: 100%; display: flex; -webkit-app-region: no-drag; }
+.window-control { width: 46px; height: 100%; display: grid; place-items: center; border: 0; border-radius: 0; color: var(--muted); background: transparent; }
+.window-control:hover { color: var(--ink); background: var(--hover); }
+.window-control.close-control:hover { color: white; background: var(--close-hover); }
+.window-control svg { width: 14px; height: 14px; stroke-width: 1.6; }
+.window-control:focus-visible { outline: 1px solid var(--mint); outline-offset: -3px; }
+.more-menu { position: absolute; z-index: 20; top: calc(100% + 5px); right: 0; width: 224px; padding: 5px; border: 1px solid var(--line); border-radius: 4px; background: var(--panel-raised); box-shadow: 0 12px 28px var(--shadow); }
+.more-menu[hidden] { display: none; }
+… (output truncated)
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The app shell has only a minimum height, so a long table can expand it past the window and push the statusbar out of view. I’ll set a fixed viewport-height shell, keep the footer outside the scrolling area, and let the track list and setup panel scroll independently.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **styles.css**</summary>
+
+@@ lines 1-231 @@
+
+```
+:root {
+  color-scheme: dark;
+  --ink: #e8efec;
+  --muted: #91a09b;
+  --dim: #60716b;
+  --line: #2c3a35;
+  --panel: #17211d;
+  --panel-raised: #1d2a25;
+  --ground: #101715;
+  --mint: #b3f06c;
+  --mint-dark: #83bd42;
+  --coral: #f28568;
+  --blue: #80bac5;
+  --field: #101815;
+  --hover: #293630;
+  --accent-text: #152018;
+  --warning: #d5b675;
+  --close-hover: #c94343;
+  --shadow: rgba(0, 0, 0, .38);
+  font-family: "DejaVu Sans", "Noto Sans", sans-serif;
+  color: var(--ink);
+  background: var(--ground);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+:root[data-mode="light"] {
+  color-scheme: light;
+  --ink: #202b26;
+  --muted: #52635b;
+  --dim: #5d6e66;
+  --line: #ced9d2;
+  --panel: #ffffff;
+  --panel-raised: #eaf0ec;
+  --ground: #f3f6f4;
+  --field: #ffffff;
+  --hover: #dde7e1;
+  --mint: #356a19;
+  --mint-dark: #356a19;
+  --accent-text: #ffffff;
+  --coral: #b33f2c;
+  --blue: #286b79;
+  --warning: #855c10;
+  --shadow: rgba(26, 42, 32, .16);
+}
+
+:root[data-theme="ocean"] { --mint: #76dbd3; --mint-dark: #76dbd3; }
+:root[data-theme="amber"] { --mint: #f0cd72; --mint-dark: #f0cd72; }
+:root[data-theme="rose"] { --mint: #f4a2bd; --mint-dark: #f4a2bd; }
+:root[data-theme="monochrome"] { --mint: #d3d9dd; --mint-dark: #d3d9dd; }
+:root[data-mode="light"][data-theme="ocean"] { --mint: #006c68; --mint-dark: #006c68; }
+:root[data-mode="light"][data-theme="amber"] { --mint: #805c05; --mint-dark: #805c05; }
+:root[data-mode="light"][data-theme="rose"] { --mint: #a03058; --mint-dark: #a03058; }
+:root[data-mode="light"][data-theme="monochrome"] { --mint: #46515a; --mint-dark: #46515a; }
+:root[data-theme="ocean"], :root[data-theme="amber"], :root[data-theme="rose"], :root[data-theme="monochrome"] {
+  --ink: #e9ecee;
+  --muted: #a0a8ad;
+  --dim: #929da4;
+  --line: #363c40;
+  --panel: #1c2023;
+  --panel-raised: #282d31;
+  --ground: #141719;
+  --field: #171b1e;
+  --hover: #353c41;
+  --accent-text: #161c20;
+}
+:root[data-mode="light"][data-theme="ocean"], :root[data-mode="light"][data-theme="amber"], :root[data-mode="light"][data-theme="rose"], :root[data-mode="light"][data-theme="monochrome"] {
+  --ink: #242a2e;
+  --muted: #566169;
+  --dim: #5b6770;
+  --line: #ced5da;
+  --panel: #ffffff;
+  --panel-raised: #edf0f2;
+  --ground: #f5f6f7;
+  --field: #ffffff;
+  --hover: #e0e6ea;
+  --accent-text: #ffffff;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-width: 720px;
+  height: 100vh;
+  overflow: hidden;
+  background:
+    linear-gradient(115deg, color-mix(in srgb, var(--mint) 5%, transparent), transparent 44%),
+    var(--ground);
+}
+button, input, textarea, select { font: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: .42; }
+
+.app-shell { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+.topbar { height: 46px; flex: 0 0 46px; padding: 0 0 0 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); background: var(--panel); -webkit-app-region: drag; user-select: none; }
+.brand-lockup { height: 100%; display: flex; align-items: center; gap: 9px; }
+.app-icon { width: 23px; height: 23px; display: grid; place-items: center; background: var(--mint); color: var(--accent-text); font-size: 15px; font-weight: 800; clip-path: polygon(0 0, 100% 0, 100% 72%, 72% 100%, 0 100%); }
+.brand-name { font-size: 12px; font-weight: 800; }
+.titlebar-actions { height: 100%; display: flex; align-items: stretch; -webkit-app-region: no-drag; }
+.more-menu-wrap { position: relative; height: 100%; }
+.window-controls { height: 100%; display: flex; -webkit-app-region: no-drag; }
+.window-control { width: 46px; height: 100%; display: grid; place-items: center; border: 0; border-radius: 0; color: var(--muted); background: transparent; }
+.window-control:hover { color: var(--ink); background: var(--hover); }
+.window-control.close-control:hover { color: white; background: var(--close-hover); }
+.window-control svg { width: 14px; height: 14px; stroke-width: 1.6; }
+.window-control:focus-visible { outline: 1px solid var(--mint); outline-offset: -3px; }
+.more-menu { position: absolute; z-index: 20; top: calc(100% + 5px); right: 0; width: 224px; padding: 5px; border: 1px solid var(--line); border-radius: 4px; background: var(--panel-raised); box-shadow: 0 12px 28px var(--shadow); }
+.more-menu[hidden] { display: none; }
+.more-menu-item { width: 100%; min-height: 36px; padding: 0 9px; display: flex; align-items: center; gap: 10px; border: 0; border-radius: 2px; color: var(--ink); background: transparent; text-align: left; font-size: 11px; }
+.more-menu-item:hover, .more-menu-item:focus-visible { background: var(--hover); outline: none; }
+.more-menu-item svg { width: 15px; height: 15px; color: var(--muted); stroke-width: 1.7; }
+.more-menu-item kbd { margin-left: auto; color: var(--muted); font-family: "DejaVu Sans Mono", monospace; font-size: 9px; }
+.brand-subtitle, .eyebrow, .section-index, .mode-label, .progress-label, .app-footer { font-family: "DejaVu Sans Mono", monospace; letter-spacing: 0; }
+.brand-subtitle { margin-top: 3px; color: var(--dim); font-size: 9px; }
+.mode-label { display: flex; align-items: center; gap: 9px; color: var(--muted); font-size: 11px; }
+.mode-dot { width: 7px; height: 7px; background: var(--mint); border-radius: 50%; }
+
+.workspace { width: min(1440px, 100%); margin: 0 auto; padding: 28px 32px 24px; flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(300px, 370px) minmax(380px, 1fr); grid-template-rows: minmax(0, 1fr); gap: 18px; overflow: hidden; }
+.workspace[hidden], .settings-view[hidden] { display: none; }
+.settings-view { width: min(1440px, 100%); flex: 1; min-height: 0; margin: 0 auto; padding: 28px 32px 24px; overflow: auto; }
+.settings-header { min-height: 56px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); }
+.settings-header h1 { margin: 0; font-size: 18px; }
+.settings-close-button { min-height: 34px; padding: 0 10px; display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 3px; color: var(--ink); background: var(--panel-raised); font-size: 11px; }
+.settings-close-button:hover { border-color: var(--blue); background: var(--hover); }
+.settings-close-button svg { width: 15px; height: 15px; }
+.control-panel, .results-panel { border: 1px solid var(--line); background: linear-gradient(155deg, var(--panel-raised), var(--panel) 65%); }
+.control-panel { padding: 24px; align-self: start; max-height: 100%; min-height: 0; overflow: auto; }
+.section-heading { display: flex; align-items: baseline; gap: 10px; margin: 0 0 18px; }
+.section-heading h1, .section-heading h2 { margin: 0; font-size: 14px; font-weight: 700; }
+.section-index { color: var(--mint); font-size: 10px; }
+label { display: block; color: var(--ink); font-size: 11px; font-weight: 700; margin: 0 0 8px; }
+textarea, input[type="text"], select { width: 100%; border: 1px solid var(--line); border-radius: 3px; color: var(--ink); background: var(--field); outline: none; }
+textarea { min-height: 88px; resize: vertical; padding: 12px; font-family: "DejaVu Sans Mono", monospace; font-size: 11px; line-height: 1.7; }
+input[type="text"], select { min-height: 38px; padding: 0 10px; font-size: 11px; }
+textarea:focus, input[type="text"]:focus, select:focus { border-color: var(--mint-dark); box-shadow: 0 0 0 2px color-mix(in srgb, var(--mint) 15%, transparent); }
+.microcopy { margin: 7px 0 0; color: var(--dim); font-size: 10px; line-height: 1.5; }
+.destination-heading { margin-top: 25px; }
+.format-heading { margin-top: 25px; }
+.path-control { display: flex; gap: 7px; }
+.path-control input { min-width: 0; font-family: "DejaVu Sans Mono", monospace; font-size: 10px; }
+.icon-button { width: 40px; flex: 0 0 40px; border: 1px solid var(--line); border-radius: 3px; color: var(--mint); background: var(--panel-raised); }
+.icon-button svg, .primary-button svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; vertical-align: middle; }
+.check-row { display: flex; align-items: center; gap: 8px; margin-top: 11px; color: var(--muted); font-size: 10px; font-weight: 500; }
+.check-row input { accent-color: var(--mint-dark); }
+.disc-label-setting { margin-top: 14px; }
+.action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 24px; }
+.primary-button, .secondary-button { min-height: 41px; border-radius: 3px; font-size: 11px; font-weight: 800; }
+.primary-button { display: flex; justify-content: center; align-items: center; gap: 8px; border: 1px solid var(--mint); color: var(--accent-text); background: var(--mint); }
+.primary-button:hover:not(:disabled) { background: color-mix(in srgb, var(--mint) 88%, var(--ink)); }
+.secondary-button { border: 1px solid var(--line); color: var(--ink); background: var(--panel-raised); }
+.secondary-button:hover:not(:disabled) { border-color: var(--blue); }
+.cancel-button { display: block; margin: 10px 0 0 auto; padding: 5px 0; border: 0; color: var(--coral); background: transparent; font-size: 10px; }
+.error-text { min-height: 0; margin: 10px 0 0; color: var(--coral); font-size: 11px; line-height: 1.5; overflow-wrap: anywhere; }
+
+.results-panel { min-width: 0; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+.results-header, .status-strip, .inspection-indicator, .progress-footer { flex-shrink: 0; }
+.results-header { padding: 23px 24px 18px; display: flex; justify-content: space-between; align-items: end; border-bottom: 1px solid var(--line); }
+.eyebrow { color: var(--mint); font-size: 9px; }
+.results-header h2 { margin: 7px 0 0; font-size: 17px; line-height: 1.35; }
+.track-count { padding: 6px 8px; border: 1px solid var(--line); color: var(--muted); font-family: "DM Mono", monospace; font-size: 10px; white-space: nowrap; }
+.status-strip { min-height: 39px; display: flex; align-items: center; gap: 9px; padding: 0 24px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 10px; }
+.status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--dim); }
+.status-dot[data-tone="working"] { background: var(--blue); box-shadow: 0 0 0 4px color-mix(in srgb, var(--blue) 12%, transparent); }
+.status-dot[data-tone="success"] { background: var(--mint); }
+.status-dot[data-tone="error"] { background: var(--coral); }
+.inspection-indicator { width: 100%; min-height: 42px; padding: 0 24px; display: flex; align-items: center; gap: 9px; border: 0; border-bottom: 1px solid var(--line); color: var(--blue); background: color-mix(in srgb, var(--blue) 7%, transparent); text-align: left; font-size: 10px; }
+.inspection-indicator[hidden] { display: none; }
+.inspection-indicator:not(:disabled):hover { background: color-mix(in srgb, var(--blue) 13%, transparent); }
+.inspection-indicator-action { margin-left: auto; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+.empty-state { min-height: 0; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 36px; text-align: center; }
+.empty-state[hidden] { display: none; }
+.empty-glyph { height: 36px; display: flex; align-items: end; gap: 4px; margin-bottom: 18px; }
+.empty-glyph span { width: 5px; height: 16px; background: var(--mint-dark); opacity: .6; }
+.empty-glyph span:nth-child(2) { height: 30px; background: var(--blue); opacity: .8; }
+.empty-glyph span:nth-child(3) { height: 22px; background: var(--coral); opacity: .75; }
+.empty-title { font-size: 13px; font-weight: 700; }
+.empty-note { max-width: 250px; margin-top: 8px; color: var(--dim); font-size: 10px; line-height: 1.6; }
+.table-wrap { min-height: 0; flex: 1; overflow: auto; }
+table { width: 100%; border-collapse: collapse; text-align: left; font-size: 10px; }
+thead { position: sticky; top: 0; z-index: 1; background: var(--panel-raised); }
+th { padding: 10px 9px; color: var(--muted); font-family: "DM Mono", monospace; font-size: 9px; font-weight: 400; }
+td { padding: 9px; border-top: 1px solid var(--line); }
+tbody tr:hover { background: var(--hover); }
+.track-number { width: 42px; color: var(--dim); font-family: "DejaVu Sans Mono", monospace; }
+.track-title { min-width: 120px; font-weight: 700; }
+.track-formats { color: var(--muted); }
+.track-choice { color: var(--mint); font-family: "DejaVu Sans Mono", monospace; }
+.track-state { color: var(--muted); white-space: nowrap; }
+.track-state[data-state="unavailable"] { color: var(--coral); }
+.track-state[data-state="skipped"] { color: var(--warning); }
+.progress-footer { padding: 14px 24px 18px; border-top: 1px solid var(--line); }
+.progress-label { display: flex; justify-content: space-between; gap: 14px; margin-bottom: 9px; color: var(--dim); font-size: 9px; }
+#progress-text { color: var(--muted); text-align: right; overflow-wrap: anywhere; }
+progress { width: 100%; height: 4px; border: 0; border-radius: 0; appearance: none; }
+progress::-webkit-progress-bar { background: var(--line); }
+progress::-webkit-progress-value { background: linear-gradient(90deg, var(--blue), var(--mint)); }
+.app-footer { flex: 0 0 40px; min-height: 40px; padding: 0 32px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--line); color: var(--dim); font-size: 9px; }
+
+.appearance-section { max-width: 660px; padding: 28px 0; }
+.appearance-section h2 { margin: 0 0 24px; font-size: 15px; }
+.appearance-setting { margin: 0 0 28px; padding: 0; border: 0; }
+.appearance-setting legend { margin-bottom: 12px; font-size: 12px; font-weight: 700; }
+.mode-options { display: inline-flex; padding: 3px; border: 1px solid var(--line); border-radius: 4px; background: var(--panel); }
+.mode-options label { position: relative; margin: 0; cursor: pointer; }
+.mode-options input, .theme-options input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.mode-options span { min-width: 92px; min-height: 36px; display: grid; place-items: center; border-radius: 2px; color: var(--muted); }
+.mode-options input:checked + span { background: var(--mint); color: var(--accent-text); }
+.mode-options input:focus-visible + span { outline: 2px solid var(--blue); outline-offset: 2px; }
+.theme-options { display: flex; flex-wrap: wrap; gap: 12px; }
+.theme-options label { position: relative; min-width: 90px; display: flex; align-items: center; gap: 9px; margin: 0; padding: 8px 4px; cursor: pointer; }
+.theme-swatch { flex: 0 0 24px; width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--line); }
+.swatch-mint { background: #b3f06c; }
+.swatch-ocean { background: #76dbd3; }
+.swatch-amber { background: #f0cd72; }
+.swatch-rose { background: #f4a2bd; }
+.swatch-monochrome { background: #d3d9dd; }
+:root[data-mode="light"] .swatch-mint { background: #356a19; }
+:root[data-mode="light"] .swatch-ocean { background: #006c68; }
+:root[data-mode="light"] .swatch-amber { background: #805c05; }
+:root[data-mode="light"] .swatch-rose { background: #a03058; }
+:root[data-mode="light"] .swatch-monochrome { background: #46515a; }
+.theme-options input:checked + .theme-swatch { outline: 2px solid var(--mint); outline-offset: 3px; }
+.theme-options input:focus-visible + .theme-swatch { outline: 2px solid var(--blue); outline-offset: 3px; }
+
+@media (max-width: 920px) {
+  .workspace { grid-template-columns: minmax(260px, 320px) minmax(360px, 1fr); padding: 18px; gap: 12px; }
+  .control-panel { padding: 18px; }
+  .results-header, .status-strip, .progress-footer { padding-left: 16px; padding-right: 16px; }
+  th, td { padding-left: 7px; padding-right: 7px; }
+}
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm run build:gui && node --input-type=module -e 'import \{ chromium \} from "...`
+
+Build and verify a 200-track preview keeps both the transfer footer and bottom statusbar visible at normal and minimum window sizes.
+
+```bash
+npm run build:gui && node --input-type=module -e 'import { chromium } from "playwright"; const browser = await chromium.launch(); try { const page = await browser.newPage(); await page.goto("file:///home/kel/dev/K-Downloader/dist/gui/index.html"); await page.evaluate(() => { document.querySelector("#empty-state").hidden = true; document.querySelector("#track-table").hidden = false; document.querySelector("#track-rows").innerHTML = Array.from({length: 200}, (_, index) => `<tr><td>CD1</td><td>${index + 1}</td><td>Track ${index + 1}</td><td>MP3, FLAC</td><td>FLAC</td><td>Ready</td></tr>`).join(""); }); for (const viewport of [{width:1120,height:780},{width:760,height:620}]) { await page.setViewportSize(viewport); const result = await page.evaluate(() => { const footer = document.querySelector(".app-footer").getBoundingClientRect(); const transfer = document.querySelector(".progress-footer").getBoundingClientRect(); const list = document.querySelector(".table-wrap"); return { viewport: innerHeight, footerBottom: footer.bottom, transferBottom: transfer.bottom, listScrolls: list.scrollHeight > list.clientHeight, pageHeight: document.documentElement.scrollHeight }; }); console.log(JSON.stringify(result)); if (result.footerBottom > viewport.height || result.transferBottom > viewport.height || !result.listScrolls || result.pageHeight > viewport.height) throw new Error("Footer layout regression"); } } finally { await browser.close(); }'
+```
+
+**Result:**
+
+```
+kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run build:gui && node --input-type=modu
+le -e 'import { chromium } from "playwright"; const browser = await chromium.lau
+nch(); try { const page = await browser.newPage(); await page.goto("file:///home
+/kel/dev/K-Downloader/dist/gui/index.html"); await page.evaluate(() => { documen
+t.querySelector("#empty-state").hidden = true; document.querySelector("#track-ta
+ble").hidden = false; document.querySelector("#track-rows").innerHTML = Array.fr
+om({length: 200}, (_, index) => `<tr><td>CD1</td><td>${index + 1}</td><td>Track
+${index + 1}</td><td>MP3, FLAC</td><td>FLAC</td><td>Ready</td></tr>`).join("");
+}); for (const viewport of [{width:1120,height:780},{width:760,height:620}]) { a
+wait page.setViewportSize(viewport); const result = await page.evaluate(() => {
+const footer = document.querySelector(".app-footer").getBoundingClientRect(); co
+nst transfer = document.querySelector(".progress-footer").getBoundingClientRect(
+); const list = document.querySelector(".table-wrap"); return { viewport: innerH
+eight, footerBottom: footer.bottom, transferBottom: transfer.bottom, listScrolls
+: list.scrollHeight > list.clientHeight, pageHeight: document.documentElement.sc
+rollHeight }; }); console.log(JSON.stringify(result)); if (result.footerBottom >
+ viewport.height || result.transferBottom > viewport.height || !result.listScrol
+ls || result.pageHeight > viewport.height) throw new Error("Footer layout regres
+sion"); } } finally { await browser.close(); }'
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+{"viewport":780,"footerBottom":780,"transferBottom":715,"listScrolls":true,"page
+Height":780}
+{"viewport":620,"footerBottom":620,"transferBottom":561,"listScrolls":true,"page
+Height":620}
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The layout check passes with 200 tracks at both 1120×780 and 760×620: the statusbar stays at the window bottom, transfer progress remains visible, and only the track list scrolls. I’ll add this to the existing browser test so it catches future regressions.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Read `appearance.test.ts`, lines 35 to 156
+
+**Input:**
+
+- endLine: `160`
+- filePath: `/home/kel/dev/K-Downloader/tests/appearance.test.ts`
+- startLine: `35`
+
+**Result:**
+
+```
+    expect(cinnamonThemeIsDark("'Adwaita-dark'\n")).toBe(true);
+    expect(cinnamonThemeIsDark("unrecognized output")).toBeUndefined();
+  });
+});
+
+describe("appearance controls in Chromium", () => {
+  it("applies every palette, persists preferences, and responds to System mode", async () => {
+    const browser = await chromium.launch({ headless: true });
+    try {
+      const page = await browser.newPage({ viewport: { width: 1120, height: 780 }, colorScheme: "light" });
+      page.setDefaultTimeout(5_000);
+      const errors: string[] = [];
+      page.on("pageerror", (error) => errors.push(error.message));
+      await page.addInitScript(() => {
+        window.kDownloader = {
+          systemTheme: async () => matchMedia("(prefers-color-scheme: dark)").matches,
+          onSystemTheme: (listener) => {
+            const media = matchMedia("(prefers-color-scheme: dark)");
+            const handler = () => listener(media.matches);
+            media.addEventListener("change", handler);
+            return () => media.removeEventListener("change", handler);
+          },
+          defaultOutputRoot: async () => "/tmp/K-Downloader",
+          chooseOutput: async () => undefined,
+          inspect: async () => ({ albumTitle: "Fixture", trackCount: 0, tracks: [] }),
+          download: async () => ({ state: "complete", directory: "/tmp" }),
+          cancel: async () => {},
+          minimizeWindow: async () => {},
+          toggleMaximizeWindow: async () => false,
+          closeWindow: async () => {},
+          toggleInspectionBrowser: async () => false,
+          onInspectionState: () => () => {},
+          onProgress: () => () => {},
+          onWindowState: () => () => {},
+        };
+      });
+      await page.goto(pathToFileURL(resolve("dist/gui/index.html")).href);
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "light");
+      await page.keyboard.press("Control+Comma");
+      await page.locator("#settings-view").waitFor({ state: "visibl
+… (output truncated)
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **appearance.test.ts**</summary>
+
+@@ lines 1-196 @@
+
+```
+import { describe, expect, it } from "vitest";
+import { appearanceModes, colorThemes, defaultAppearance, parseAppearance, resolvedMode } from "../src/appearance.js";
+import { chromium, _electron as electron } from "playwright";
+import { pathToFileURL } from "node:url";
+import { resolve } from "node:path";
+import { createRequire } from "node:module";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { cinnamonThemeIsDark } from "../src/electron/system-theme.js";
+
+describe("appearance preferences", () => {
+  it("defaults to System and Mint for absent or malformed settings", () => {
+    for (const raw of [null, "broken", "null", "[]", '{"mode":"invalid","theme":"invalid"}']) {
+      expect(parseAppearance(raw)).toEqual(defaultAppearance);
+    }
+  });
+
+  it("round-trips every supported mode and theme", () => {
+    for (const mode of appearanceModes) for (const theme of colorThemes) {
+      expect(parseAppearance(JSON.stringify({ mode, theme }))).toEqual({ mode, theme });
+    }
+  });
+
+  it("follows the system only in System mode", () => {
+    expect(resolvedMode("system", true)).toBe("dark");
+    expect(resolvedMode("system", false)).toBe("light");
+    expect(resolvedMode("light", true)).toBe("light");
+    expect(resolvedMode("dark", false)).toBe("dark");
+  });
+
+  it("recognizes Cinnamon GTK light and dark theme names", () => {
+    expect(cinnamonThemeIsDark("'Mint-Y'\n")).toBe(false);
+    expect(cinnamonThemeIsDark("'Mint-Y-Dark'\n")).toBe(true);
+    expect(cinnamonThemeIsDark("'Mint-Y-Dark-Aqua'\n")).toBe(true);
+    expect(cinnamonThemeIsDark("'Adwaita-dark'\n")).toBe(true);
+    expect(cinnamonThemeIsDark("unrecognized output")).toBeUndefined();
+  });
+});
+
+describe("appearance controls in Chromium", () => {
+  it("applies appearance preferences and keeps statusbars visible with a long preview", async () => {
+    const browser = await chromium.launch({ headless: true });
+    try {
+      const page = await browser.newPage({ viewport: { width: 1120, height: 780 }, colorScheme: "light" });
+      page.setDefaultTimeout(5_000);
+      const errors: string[] = [];
+      page.on("pageerror", (error) => errors.push(error.message));
+      await page.addInitScript(() => {
+        window.kDownloader = {
+          systemTheme: async () => matchMedia("(prefers-color-scheme: dark)").matches,
+          onSystemTheme: (listener) => {
+            const media = matchMedia("(prefers-color-scheme: dark)");
+            const handler = () => listener(media.matches);
+            media.addEventListener("change", handler);
+            return () => media.removeEventListener("change", handler);
+          },
+          defaultOutputRoot: async () => "/tmp/K-Downloader",
+          chooseOutput: async () => undefined,
+          inspect: async () => ({
+            albumTitle: "Large multi-disc fixture",
+            trackCount: 200,
+            tracks: Array.from({ length: 200 }, (_, index) => ({
+              discNumber: Math.floor(index / 100) + 1,
+              number: index % 100 + 1,
+              title: `Track ${index + 1}`,
+              formats: ["MP3", "FLAC"],
+            })),
+          }),
+          download: async () => ({ state: "complete", directory: "/tmp" }),
+          cancel: async () => {},
+          minimizeWindow: async () => {},
+          toggleMaximizeWindow: async () => false,
+          closeWindow: async () => {},
+          toggleInspectionBrowser: async () => false,
+          onInspectionState: () => () => {},
+          onProgress: () => () => {},
+          onWindowState: () => () => {},
+        };
+      });
+      await page.goto(pathToFileURL(resolve("dist/gui/index.html")).href);
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "light");
+      await page.keyboard.press("Control+Comma");
+      await page.locator("#settings-view").waitFor({ state: "visible" });
+      for (const mode of ["light", "dark"] as const) {
+        await page.getByRole("radio", { name: new RegExp(`^${mode}$`, "i") }).check();
+        const accents = new Set<string>();
+        for (const theme of colorThemes) {
+          await page.getByRole("radio", { name: new RegExp(`^${theme}$`, "i") }).check();
+          const palette = await page.evaluate(() => {
+            const styles = getComputedStyle(document.documentElement);
+            return {
+              mode: document.documentElement.dataset.mode,
+              theme: document.documentElement.dataset.theme,
+              accent: styles.getPropertyValue("--mint").trim(),
+              surface: styles.getPropertyValue("--panel").trim(),
+              scheme: styles.colorScheme,
+            };
+          });
+          expect(palette.mode).toBe(mode);
+          expect(palette.theme).toBe(theme);
+          expect(palette.scheme).toBe(mode);
+          expect(palette.surface).not.toBe(palette.accent);
+          accents.add(palette.accent);
+        }
+        expect(accents.size).toBe(5);
+      }
+      await page.reload();
+      await page.waitForFunction(() => document.documentElement.dataset.theme === "monochrome");
+      expect(await page.locator("html").getAttribute("data-mode")).toBe("dark");
+      await page.keyboard.press("Control+Comma");
+      await page.getByRole("radio", { name: "System", exact: true }).check();
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "light");
+      await page.emulateMedia({ colorScheme: "dark" });
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "dark");
+      await page.getByRole("radio", { name: "Light", exact: true }).check();
+      await page.emulateMedia({ colorScheme: "light" });
+      await page.emulateMedia({ colorScheme: "dark" });
+      expect(await page.locator("html").getAttribute("data-mode")).toBe("light");
+      await page.screenshot({ path: "/tmp/k-downloader-appearance-light.png" });
+      await page.setViewportSize({ width: 760, height: 620 });
+      await page.getByRole("radio", { name: "Dark", exact: true }).check();
+      await page.getByRole("radio", { name: "Mint", exact: true }).check();
+      await page.screenshot({ path: "/tmp/k-downloader-appearance-dark.png" });
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      await page.keyboard.press("Escape");
+      await page.locator("#workspace").waitFor({ state: "visible" });
+      await page.locator("#album-url").fill("https://downloads.khinsider.com/game-soundtracks/album/fixture");
+      await page.getByRole("button", { name: "Inspect album", exact: true }).click();
+      await page.waitForFunction(() => document.querySelectorAll("#track-rows tr").length === 200);
+      for (const viewport of [{ width: 760, height: 620 }, { width: 1120, height: 780 }]) {
+        await page.setViewportSize(viewport);
+        const measure = () => page.evaluate(() => {
+          const footer = document.querySelector<HTMLElement>(".app-footer")!.getBoundingClientRect();
+          const transfer = document.querySelector<HTMLElement>(".progress-footer")!.getBoundingClientRect();
+          const table = document.querySelector<HTMLElement>(".table-wrap")!;
+          return {
+            footerTop: footer.top,
+            footerBottom: footer.bottom,
+            transferBottom: transfer.bottom,
+            listScrolls: table.scrollHeight > table.clientHeight,
+            pageHeight: document.documentElement.scrollHeight,
+            listScrollTop: table.scrollTop,
+          };
+        });
+        const initial = await measure();
+        expect(initial.footerBottom).toBe(viewport.height);
+        expect(initial.transferBottom).toBeLessThanOrEqual(initial.footerTop);
+        expect(initial.pageHeight).toBe(viewport.height);
+        expect(initial.listScrolls).toBe(true);
+        await page.locator(".table-wrap").evaluate((element) => { element.scrollTop = element.scrollHeight; });
+        const scrolled = await measure();
+        expect(scrolled.listScrollTop).toBeGreaterThan(0);
+        expect(scrolled.footerBottom).toBe(initial.footerBottom);
+        expect(scrolled.transferBottom).toBe(initial.transferBottom);
+        await page.screenshot({ path: `/tmp/k-downloader-long-preview-${viewport.width}.png` });
+      }
+      expect(errors).toEqual([]);
+    } finally {
+      await browser.close();
+    }
+  }, 30_000);
+});
+
+describe("Electron native theme updates", () => {
+  it("updates System mode through preload but preserves explicit Light and Dark", async () => {
+    const userData = await mkdtemp(resolve(tmpdir(), "k-downloader-theme-test-"));
+    const require = createRequire(import.meta.url);
+    const app = await electron.launch({
+      executablePath: require("electron"),
+      args: [resolve("dist/electron/main.cjs"), `--user-data-dir=${userData}`],
+      env: { ...process.env, XDG_CURRENT_DESKTOP: "Test" },
+    });
+    try {
+      const page = await app.firstWindow();
+      await page.waitForFunction(() => document.documentElement.dataset.mode);
+      await page.keyboard.press("Control+Comma");
+      await page.getByRole("radio", { name: "System", exact: true }).check();
+      await app.evaluate(({ nativeTheme }) => { nativeTheme.themeSource = "dark"; });
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "dark");
+      await app.evaluate(({ nativeTheme }) => { nativeTheme.themeSource = "light"; });
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "light");
+      await page.getByRole("radio", { name: "Dark", exact: true }).check();
+      await app.evaluate(({ nativeTheme }) => { nativeTheme.themeSource = "light"; });
+      expect(await page.locator("html").getAttribute("data-mode")).toBe("dark");
+      await page.getByRole("radio", { name: "Light", exact: true }).check();
+      await app.evaluate(({ nativeTheme }) => { nativeTheme.themeSource = "dark"; });
+      expect(await page.locator("html").getAttribute("data-mode")).toBe("light");
+      await page.getByRole("radio", { name: "System", exact: true }).check();
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "dark");
+    } finally {
+      await app.close();
+      await rm(userData, { recursive: true, force: true });
+    }
+  }, 30_000);
+});
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm test -- tests/appearance.test.ts && npm run build`
+
+Run the scoped real-browser layout regression at minimum/normal sizes and strict compilation.
+
+```bash
+npm test -- tests/appearance.test.ts && npm run build
+```
+
+**Result:**
+
+```
+
+> k-downloader@0.1.0 pretest
+> npm run build:gui
+
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+
+> k-downloader@0.1.0 test
+> vitest run tests/appearance.test.ts
+
+
+ RUN  v5.0.4 /home/kel/dev/K-Downloader
+
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  12:04:15
+   Duration  3.65s (tests 85%, import 14%, transform 1%)
+
+
+> k-downloader@0.1.0 build
+> tsc --noEmit
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **appearance.test.ts**</summary>
+
+@@ lines 1-196 @@
+
+```
+import { describe, expect, it } from "vitest";
+import { appearanceModes, colorThemes, defaultAppearance, parseAppearance, resolvedMode } from "../src/appearance.js";
+import { chromium, _electron as electron } from "playwright";
+import { pathToFileURL } from "node:url";
+import { resolve } from "node:path";
+import { createRequire } from "node:module";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { cinnamonThemeIsDark } from "../src/electron/system-theme.js";
+
+describe("appearance preferences", () => {
+  it("defaults to System and Mint for absent or malformed settings", () => {
+    for (const raw of [null, "broken", "null", "[]", '{"mode":"invalid","theme":"invalid"}']) {
+      expect(parseAppearance(raw)).toEqual(defaultAppearance);
+    }
+  });
+
+  it("round-trips every supported mode and theme", () => {
+    for (const mode of appearanceModes) for (const theme of colorThemes) {
+      expect(parseAppearance(JSON.stringify({ mode, theme }))).toEqual({ mode, theme });
+    }
+  });
+
+  it("follows the system only in System mode", () => {
+    expect(resolvedMode("system", true)).toBe("dark");
+    expect(resolvedMode("system", false)).toBe("light");
+    expect(resolvedMode("light", true)).toBe("light");
+    expect(resolvedMode("dark", false)).toBe("dark");
+  });
+
+  it("recognizes Cinnamon GTK light and dark theme names", () => {
+    expect(cinnamonThemeIsDark("'Mint-Y'\n")).toBe(false);
+    expect(cinnamonThemeIsDark("'Mint-Y-Dark'\n")).toBe(true);
+    expect(cinnamonThemeIsDark("'Mint-Y-Dark-Aqua'\n")).toBe(true);
+    expect(cinnamonThemeIsDark("'Adwaita-dark'\n")).toBe(true);
+    expect(cinnamonThemeIsDark("unrecognized output")).toBeUndefined();
+  });
+});
+
+describe("appearance controls in Chromium", () => {
+  it("applies appearance preferences and keeps statusbars visible with a long preview", async () => {
+    const browser = await chromium.launch({ headless: true });
+    try {
+      const page = await browser.newPage({ viewport: { width: 1120, height: 780 }, colorScheme: "light" });
+      page.setDefaultTimeout(5_000);
+      const errors: string[] = [];
+      page.on("pageerror", (error) => errors.push(error.message));
+      await page.addInitScript(() => {
+        window.kDownloader = {
+          systemTheme: async () => matchMedia("(prefers-color-scheme: dark)").matches,
+          onSystemTheme: (listener) => {
+            const media = matchMedia("(prefers-color-scheme: dark)");
+            const handler = () => listener(media.matches);
+            media.addEventListener("change", handler);
+            return () => media.removeEventListener("change", handler);
+          },
+          defaultOutputRoot: async () => "/tmp/K-Downloader",
+          chooseOutput: async () => undefined,
+          inspect: async () => ({
+            albumTitle: "Large multi-disc fixture",
+            trackCount: 200,
+            tracks: Array.from({ length: 200 }, (_, index) => ({
+              discNumber: Math.floor(index / 100) + 1,
+              number: index % 100 + 1,
+              title: `Track ${index + 1}`,
+              formats: ["MP3", "FLAC"],
+            })),
+          }),
+          download: async () => ({ state: "complete", directory: "/tmp" }),
+          cancel: async () => {},
+          minimizeWindow: async () => {},
+          toggleMaximizeWindow: async () => false,
+          closeWindow: async () => {},
+          toggleInspectionBrowser: async () => false,
+          onInspectionState: () => () => {},
+          onProgress: () => () => {},
+          onWindowState: () => () => {},
+        };
+      });
+      await page.goto(pathToFileURL(resolve("dist/gui/index.html")).href);
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "light");
+      await page.keyboard.press("Control+Comma");
+      await page.locator("#settings-view").waitFor({ state: "visible" });
+      for (const mode of ["light", "dark"] as const) {
+        await page.getByRole("radio", { name: new RegExp(`^${mode}$`, "i") }).check();
+        const accents = new Set<string>();
+        for (const theme of colorThemes) {
+          await page.getByRole("radio", { name: new RegExp(`^${theme}$`, "i") }).check();
+          const palette = await page.evaluate(() => {
+            const styles = getComputedStyle(document.documentElement);
+            return {
+              mode: document.documentElement.dataset.mode,
+              theme: document.documentElement.dataset.theme,
+              accent: styles.getPropertyValue("--mint").trim(),
+              surface: styles.getPropertyValue("--panel").trim(),
+              scheme: styles.colorScheme,
+            };
+          });
+          expect(palette.mode).toBe(mode);
+          expect(palette.theme).toBe(theme);
+          expect(palette.scheme).toBe(mode);
+          expect(palette.surface).not.toBe(palette.accent);
+          accents.add(palette.accent);
+        }
+        expect(accents.size).toBe(5);
+      }
+      await page.reload();
+      await page.waitForFunction(() => document.documentElement.dataset.theme === "monochrome");
+      expect(await page.locator("html").getAttribute("data-mode")).toBe("dark");
+      await page.keyboard.press("Control+Comma");
+      await page.getByRole("radio", { name: "System", exact: true }).check();
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "light");
+      await page.emulateMedia({ colorScheme: "dark" });
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "dark");
+      await page.getByRole("radio", { name: "Light", exact: true }).check();
+      await page.emulateMedia({ colorScheme: "light" });
+      await page.emulateMedia({ colorScheme: "dark" });
+      expect(await page.locator("html").getAttribute("data-mode")).toBe("light");
+      await page.screenshot({ path: "/tmp/k-downloader-appearance-light.png" });
+      await page.setViewportSize({ width: 760, height: 620 });
+      await page.getByRole("radio", { name: "Dark", exact: true }).check();
+      await page.getByRole("radio", { name: "Mint", exact: true }).check();
+      await page.screenshot({ path: "/tmp/k-downloader-appearance-dark.png" });
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      await page.keyboard.press("Escape");
+      await page.locator("#workspace").waitFor({ state: "visible" });
+      await page.locator("#album-url").fill("https://downloads.khinsider.com/game-soundtracks/album/fixture");
+      await page.getByRole("button", { name: "Inspect album", exact: true }).click();
+      await page.waitForFunction(() => document.querySelectorAll("#track-rows tr").length === 200);
+      for (const viewport of [{ width: 760, height: 620 }, { width: 1120, height: 780 }]) {
+        await page.setViewportSize(viewport);
+        const measure = () => page.evaluate(() => {
+          const footer = document.querySelector<HTMLElement>(".app-footer")!.getBoundingClientRect();
+          const transfer = document.querySelector<HTMLElement>(".progress-footer")!.getBoundingClientRect();
+          const table = document.querySelector<HTMLElement>(".table-wrap")!;
+          return {
+            footerTop: footer.top,
+            footerBottom: footer.bottom,
+            transferBottom: transfer.bottom,
+            listScrolls: table.scrollHeight > table.clientHeight,
+            pageHeight: document.documentElement.scrollHeight,
+            listScrollTop: table.scrollTop,
+          };
+        });
+        const initial = await measure();
+        expect(initial.footerBottom).toBe(viewport.height);
+        expect(initial.transferBottom).toBeLessThanOrEqual(initial.footerTop);
+        expect(initial.pageHeight).toBe(viewport.height);
+        expect(initial.listScrolls).toBe(true);
+        await page.locator(".table-wrap").evaluate((element) => { element.scrollTop = element.scrollHeight; });
+        const scrolled = await measure();
+        expect(scrolled.listScrollTop).toBeGreaterThan(0);
+        expect(scrolled.footerBottom).toBe(initial.footerBottom);
+        expect(scrolled.transferBottom).toBe(initial.transferBottom);
+        await page.screenshot({ path: `/tmp/k-downloader-long-preview-${viewport.width}.png` });
+      }
+      expect(errors).toEqual([]);
+    } finally {
+      await browser.close();
+    }
+  }, 30_000);
+});
+
+describe("Electron native theme updates", () => {
+  it("updates System mode through preload but preserves explicit Light and Dark", async () => {
+    const userData = await mkdtemp(resolve(tmpdir(), "k-downloader-theme-test-"));
+    const require = createRequire(import.meta.url);
+    const app = await electron.launch({
+      executablePath: require("electron"),
+      args: [resolve("dist/electron/main.cjs"), `--user-data-dir=${userData}`],
+      env: { ...process.env, XDG_CURRENT_DESKTOP: "Test" },
+    });
+    try {
+      const page = await app.firstWindow();
+      await page.waitForFunction(() => document.documentElement.dataset.mode);
+      await page.keyboard.press("Control+Comma");
+      await page.getByRole("radio", { name: "System", exact: true }).check();
+      await app.evaluate(({ nativeTheme }) => { nativeTheme.themeSource = "dark"; });
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "dark");
+      await app.evaluate(({ nativeTheme }) => { nativeTheme.themeSource = "light"; });
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "light");
+      await page.getByRole("radio", { name: "Dark", exact: true }).check();
+      await app.evaluate(({ nativeTheme }) => { nativeTheme.themeSource = "light"; });
+      expect(await page.locator("html").getAttribute("data-mode")).toBe("dark");
+      await page.getByRole("radio", { name: "Light", exact: true }).check();
+      await app.evaluate(({ nativeTheme }) => { nativeTheme.themeSource = "dark"; });
+      expect(await page.locator("html").getAttribute("data-mode")).toBe("light");
+      await page.getByRole("radio", { name: "System", exact: true }).check();
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "dark");
+    } finally {
+      await app.close();
+      await rm(userData, { recursive: true, force: true });
+    }
+  }, 30_000);
+});
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The regression test passes through the actual renderer, including scrolling to the last track while both footers stay fixed. I’ll check the captured layouts and diagnostics, then restart the GUI with the updated stylesheet.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="get_errors"><details>
+<summary>Tool use: **get_errors**</summary>
+
+Checked `styles.css`, `appearance.test.ts`, no problems found
+
+**Input:**
+
+- filePaths:
+
+```
+[
+  "/home/kel/dev/K-Downloader/gui/styles.css",
+  "/home/kel/dev/K-Downloader/tests/appearance.test.ts"
+]
+```
+
+
+**Result:**
+
+```
+<errors path="/home/kel/dev/K-Downloader/gui/styles.css">
+No errors found
+</errors>
+<errors path="/home/kel/dev/K-Downloader/tests/appearance.test.ts">
+No errors found
+</errors>
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="view_image"><details>
+<summary>Tool use: **view_image**</summary>
+
+Viewed image `k-downloader-long-preview-760.png`
+
+**Input:**
+
+- filePath: `/tmp/k-downloader-long-preview-760.png`
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="view_image"><details>
+<summary>Tool use: **view_image**</summary>
+
+Viewed image `k-downloader-long-preview-1120.png`
+
+**Input:**
+
+- filePath: `/tmp/k-downloader-long-preview-1120.png`
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="task" data-tool-name="manage_todo_list"><details>
+<summary>Tool use: **manage_todo_list**</summary>
+
+Created 4 todos
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+Both layouts keep the statusbar and transfer progress visible, even at the minimum window size. Diagnostics are clean. I’ll relaunch the GUI now; long previews will scroll internally instead of growing the window content.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="kill_terminal"><details>
+<summary>Tool use: **kill_terminal**</summary>
+
+Killed terminal
+
+**Input:**
+
+- id: `5cb5ebe6-0b86-411b-952e-f8fdf4db0fe1`
+
+**Result:**
+
+```
+Successfully killed persistent terminal 5cb5ebe6-0b86-411b-952e-f8fdf4db0fe1. Final output before termination:
+kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+
+> k-downloader@0.1.0 gui
+> npm run build:gui && electron dist/electron/main.cjs
+
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm run gui`
+
+Launch the GUI with viewport-constrained preview scrolling and an always-visible statusbar.
+
+```bash
+npm run gui
+```
+
+**Result:**
+
+```
+Command is running in terminal with ID=6e641198-b75f-40ee-964b-293a46c8fe5e
+ The command became idle with output:
+kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+
+> k-downloader@0.1.0 gui
+> npm run build:gui && electron dist/electron/main.cjs
+
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+This note is not a signal to end the turn — pick one of the actions below and continue.
+  1. If the command may still be producing output or the shell prompt has not returned, call get_terminal_output with id="6e641198-b75f-40ee-964b-293a46c8fe5e" to continue polling. This is the default and safest action when unsure.
+  2. Only if the output clearly ends with a real non-secret input prompt (Continue? (y/n), Enter selection, etc. — a normal shell prompt like `$` or `#` does NOT count), call the vscode_askQuestions tool to ask the user, then send each answer using send_to_terminal with id="6e641198-b75f-40ee-964b-293a46c8fe5e" (which returns the next few lines of output). Repeat one prompt at a time. NEVER route secret prompts (passwords, passphrases, tokens, API keys, etc.) through vscode_askQuestions — answers to that tool are sent through the model. For secret prompts, tell the user to type the value directly into the terminal and stop.
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+Fixed. The Discovery Preview now scrolls internally, keeping both the bottom statusbar and transfer progress visible.
+
+Verified with 200 tracks at normal and minimum window sizes. The regression tests and build pass, and the updated GUI is open.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="task" data-tool-name="manage_todo_list"><details>
+<summary>Tool use: **manage_todo_list**</summary>
+
+Updated todo list
+</details></tool-use>
+
 ---
 
 _**User (2026-10-12 16:42:20Z)**_
 
 the gui does not seem to respect the system color when I switch the OS between light and dark modes
+
+---
+
+_**Agent (copilot/auto)**_
+
+The GUI has closed with no errors reported. Reopen it with `npm run gui`.
+
+---
+
+_**User (2026-10-12 17:03:04Z)**_
+
+let's ensure that the statusbar is always visible when the Discovery Preview grows vertically.
+
+---
+
+_**Agent (copilot/auto)**_
+
+I’ll 
+
+I’ll consolidate inspection status into the clickable browser-toggle row and add a spinner there. I’ll check the status handlers so the normal status row returns when inspection finishes or fails.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="search" data-tool-name="grep_search"><details>
+<summary>Tool use: **grep_search**</summary>
+
+Searched for regex `setStatus|onInspectionState|inspectionIndicator|status-strip` (`**/src/renderer.ts`), 21 results
+
+**Input:**
+
+- includePattern: `src/renderer.ts`
+- isRegexp: `true`
+- query: `setStatus|onInspectionState|inspectionIndicator|status-strip`
+
+**Result:**
+
+```
+Found 21 matches in 1 file for "setStatus|onInspectionState|inspectionIndicator|status-strip"
+
+src/renderer.ts
+25:const inspectionIndicator = document.querySelector<HTMLButtonElement>("#inspection-indicator")!;
+26:const inspectionIndicatorText = document.querySelector<HTMLElement>("#inspection-indicator-text")!;
+82:function setStatus(label: string, tone: "idle" | "working" | "success" | "error" = "idle"): void {
+201:    setStatus("Album URL required", "error");
+211:  setStatus("Inspection in progress", "working");
+216:    setStatus("Preview ready", "success");
+219:    setStatus("Inspection failed", "error");
+226:inspectionIndicator.addEventListener("click", async () => {
+227:  if (inspectionIndicator.disabled) return;
+230:    inspectionIndicator.setAttribute("aria-pressed", String(inspectionBrowserVisible));
+231:    inspectionIndicatorText.textContent = inspectionBrowserVisible ? "Hide browser" : "Show browser";
+237:window.kDownloader.onInspectionState((state: GuiInspectionState) => {
+239:  inspectionIndicator.hidden = !state.active;
+240:  inspectionIndicator.disabled = !state.browserReady;
+241:  inspectionIndicator.setAttribute("aria-pressed", String(state.browserVisible));
+242:  inspectionIndicatorText.textContent = state.browserReady
+245:  if (state.active) setStatus("Inspection in progress", "working");
+266:  setStatus("Downloading", "working");
+276:    setStatus(result.state === "complete" ? "Download complete" : result.state, result.state === "complete" ? "success" : "error");
+279:    setStatus("Download failed", "error");
+288:  setStatus("Canceling active track…", "working");
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="search" data-tool-name="grep_search"><details>
+<summary>Tool use: **grep_search**</summary>
+
+Searched for regex `status-strip|inspection-indicator|status-dot` (`**/gui/styles.css`), 11 results
+
+**Input:**
+
+- includePattern: `gui/styles.css`
+- isRegexp: `true`
+- query: `status-strip|inspection-indicator|status-dot`
+
+**Result:**
+
+```
+Found 11 matches in 1 file for "status-strip|inspection-indicator|status-dot"
+
+gui/styles.css
+156:.results-header, .status-strip, .inspection-indicator, .progress-footer { flex-shrink: 0; }
+161:.status-strip { min-height: 39px; display: flex; align-items: center; gap: 9px; padding: 0 24px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 10px; }
+162:.status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--dim); }
+163:.status-dot[data-tone="working"] { background: var(--blue); box-shadow: 0 0 0 4px color-mix(in srgb, var(--blue) 12%, transparent); }
+164:.status-dot[data-tone="success"] { background: var(--mint); }
+165:.status-dot[data-tone="error"] { background: var(--coral); }
+166:.inspection-indicator { width: 100%; min-height: 42px; padding: 0 24px; display: flex; align-items: center; gap: 9px; border: 0; border-bottom: 1px solid var(--line); color: var(--blue); background: color-mix(in srgb, var(--blue) 7%, transparent); text-align: left; font-size: 10px; }
+167:.inspection-indicator[hidden] { display: none; }
+168:.inspection-indicator:not(:disabled):hover { background: color-mix(in srgb, var(--blue) 13%, transparent); }
+169:.inspection-indicator-action { margin-left: auto; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+228:  .results-header, .status-strip, .progress-footer { padding-left: 16px; padding-right: 16px; }
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Read `index.html`, lines 94 to 128
+
+**Input:**
+
+- endLine: `128`
+- filePath: `/home/kel/dev/K-Downloader/gui/index.html`
+- startLine: `94`
+
+**Result:**
+
+```
+              <h2 id="album-title">No album inspected</h2>
+            </div>
+            <div class="track-count" id="track-count">Waiting</div>
+          </div>
+
+          <div class="status-strip">
+            <span id="status-dot" class="status-dot" data-tone="idle"></span>
+            <span id="status-text">Paste an album URL to begin</span>
+          </div>
+          <button id="inspection-indicator" class="inspection-indicator" type="button" hidden disabled aria-pressed="false">
+            <span class="status-dot" data-tone="working"></span>
+            <span>Inspection in progress</span>
+            <span id="inspection-indicator-text" class="inspection-indicator-action">Starting browser…</span>
+          </button>
+
+          <div id="empty-state" class="empty-state">
+            <div class="empty-glyph" aria-hidden="true"><span></span><span></span><span></span></div>
+            <div class="empty-title">Ready for an album</div>
+            <div class="empty-note">Track formats and fallback choices appear here before transfer.</div>
+          </div>
+
+          <div class="table-wrap">
+            <table id="track-table" hidden>
+              <thead><tr><th>Disc</th><th>#</th><th>Track</th><th>Available</th><th>Selected</th><th>Status</th></tr></thead>
+              <tbody id="track-rows"></tbody>
+            </table>
+          </div>
+
+          <footer class="progress-footer">
+            <div class="progress-label"><span>TRANSFER</span><span id="progress-text">No active transfer</span></div>
+            <progress id="download-progress" value="0" max="1"></progress>
+          </footer>
+        </section>
+      </section>
+      <section id="settings-view" class="settings-view" aria-labelledby="settings-heading" hidden>
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Read `appearance.test.ts`, lines 40 to 115
+
+**Input:**
+
+- endLine: `115`
+- filePath: `/home/kel/dev/K-Downloader/tests/appearance.test.ts`
+- startLine: `40`
+
+**Result:**
+
+```
+describe("appearance controls in Chromium", () => {
+  it("applies appearance preferences and keeps statusbars visible with a long preview", async () => {
+    const browser = await chromium.launch({ headless: true });
+    try {
+      const page = await browser.newPage({ viewport: { width: 1120, height: 780 }, colorScheme: "light" });
+      page.setDefaultTimeout(5_000);
+      const errors: string[] = [];
+      page.on("pageerror", (error) => errors.push(error.message));
+      await page.addInitScript(() => {
+        window.kDownloader = {
+          systemTheme: async () => matchMedia("(prefers-color-scheme: dark)").matches,
+          onSystemTheme: (listener) => {
+            const media = matchMedia("(prefers-color-scheme: dark)");
+            const handler = () => listener(media.matches);
+            media.addEventListener("change", handler);
+            return () => media.removeEventListener("change", handler);
+          },
+          defaultOutputRoot: async () => "/tmp/K-Downloader",
+          chooseOutput: async () => undefined,
+          inspect: async () => ({
+            albumTitle: "Large multi-disc fixture",
+            trackCount: 200,
+            tracks: Array.from({ length: 200 }, (_, index) => ({
+              discNumber: Math.floor(index / 100) + 1,
+              number: index % 100 + 1,
+              title: `Track ${index + 1}`,
+              formats: ["MP3", "FLAC"],
+            })),
+          }),
+          download: async () => ({ state: "complete", directory: "/tmp" }),
+          cancel: async () => {},
+          minimizeWindow: async () => {},
+          toggleMaximizeWindow: async () => false,
+          closeWindow: async () => {},
+          toggleInspectionBrowser: async () => false,
+          onInspectionState: () => () => {},
+          onProgress: () => () => {},
+          onWindowState: () => () => {},
+        };
+      });
+      await page.goto(pathToFileURL(resolve("dist/gui/index.html")).href);
+      await page.waitForFunction(() => document
+… (output truncated)
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+Both the normal status strip and browser-toggle row currently show the same message. I’ll hide the normal strip during inspection, keep the toggle row visible from startup through completion, and add a Lucide spinner. A browser regression test will check for one visible message, active animation, and correct cleanup.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **renderer.ts**</summary>
+
+@@ lines 1-308 @@
+
+```
+import type { GuiFormatPolicy, GuiInspection, GuiInspectionState, GuiProgress, GuiTrack } from "./gui-types.js";
+import { ArrowLeft, Copy, createIcons, EllipsisVertical, LoaderCircle, Minus, Settings, Square, X } from "lucide";
+import { initializeAppearance } from "./appearance.js";
+
+initializeAppearance();
+
+const windowIcons = { ArrowLeft, Copy, EllipsisVertical, LoaderCircle, Minus, Settings, Square, X };
+createIcons({ icons: windowIcons });
+
+const albumInput = document.querySelector<HTMLTextAreaElement>("#album-url")!;
+const outputInput = document.querySelector<HTMLInputElement>("#output-root")!;
+const formatSelect = document.querySelector<HTMLSelectElement>("#format-policy")!;
+const discLabelSelect = document.querySelector<HTMLSelectElement>("#disc-label")!;
+const discLabelSetting = document.querySelector<HTMLElement>("#disc-label-setting")!;
+const skipInput = document.querySelector<HTMLInputElement>("#skip-unavailable")!;
+const inspectButton = document.querySelector<HTMLButtonElement>("#inspect-button")!;
+const downloadButton = document.querySelector<HTMLButtonElement>("#download-button")!;
+const cancelButton = document.querySelector<HTMLButtonElement>("#cancel-button")!;
+const browseButton = document.querySelector<HTMLButtonElement>("#browse-button")!;
+const tableBody = document.querySelector<HTMLTableSectionElement>("#track-rows")!;
+const albumTitle = document.querySelector<HTMLElement>("#album-title")!;
+const trackCount = document.querySelector<HTMLElement>("#track-count")!;
+const statusText = document.querySelector<HTMLElement>("#status-text")!;
+const statusDot = document.querySelector<HTMLElement>("#status-dot")!;
+const statusStrip = document.querySelector<HTMLElement>(".status-strip")!;
+const inspectionIndicator = document.querySelector<HTMLButtonElement>("#inspection-indicator")!;
+const inspectionIndicatorText = document.querySelector<HTMLElement>("#inspection-indicator-text")!;
+const progress = document.querySelector<HTMLProgressElement>("#download-progress")!;
+const progressText = document.querySelector<HTMLElement>("#progress-text")!;
+const emptyState = document.querySelector<HTMLElement>("#empty-state")!;
+const trackTable = document.querySelector<HTMLTableElement>("#track-table")!;
+const errorText = document.querySelector<HTMLElement>("#error-text")!;
+const minimizeWindowButton = document.querySelector<HTMLButtonElement>("#minimize-window")!;
+const maximizeWindowButton = document.querySelector<HTMLButtonElement>("#maximize-window")!;
+const closeWindowButton = document.querySelector<HTMLButtonElement>("#close-window")!;
+const moreMenuWrap = document.querySelector<HTMLElement>("#more-menu-wrap")!;
+const moreButton = document.querySelector<HTMLButtonElement>("#more-button")!;
+const moreMenu = document.querySelector<HTMLElement>("#more-menu")!;
+const settingsMenuItem = document.querySelector<HTMLButtonElement>("#settings-menu-item")!;
+const workspaceView = document.querySelector<HTMLElement>("#workspace")!;
+const settingsView = document.querySelector<HTMLElement>("#settings-view")!;
+const closeSettingsButton = document.querySelector<HTMLButtonElement>("#close-settings")!;
+
+let inspection: GuiInspection | undefined;
+let busy = false;
+let inspectionBrowserVisible = false;
+let settingsOpen = false;
+
+function updateInspectionIndicator(state: GuiInspectionState): void {
+  inspectionBrowserVisible = state.browserVisible;
+  statusStrip.hidden = state.active;
+  inspectionIndicator.hidden = !state.active;
+  inspectionIndicator.disabled = !state.browserReady;
+  inspectionIndicator.setAttribute("aria-pressed", String(state.browserVisible));
+  inspectionIndicatorText.textContent = state.browserReady
+    ? state.browserVisible ? "Hide browser" : "Show browser"
+    : "Starting browser…";
+}
+
+function closeMoreMenu(): void {
+  moreMenu.hidden = true;
+  moreButton.setAttribute("aria-expanded", "false");
+}
+
+function setSettingsOpen(open: boolean): void {
+  settingsOpen = open;
+  workspaceView.hidden = open;
+  settingsView.hidden = !open;
+  closeMoreMenu();
+  if (open) closeSettingsButton.focus();
+  else albumInput.focus();
+}
+
+function updateMaximizeButton(maximized: boolean): void {
+  const label = maximized ? "Restore window" : "Maximize window";
+  maximizeWindowButton.setAttribute("aria-label", label);
+  maximizeWindowButton.title = label;
+  maximizeWindowButton.innerHTML = `<i data-lucide="${maximized ? "copy" : "square"}" aria-hidden="true"></i>`;
+  createIcons({ icons: windowIcons });
+}
+
+function isValidAlbumUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" &&
+      url.hostname.toLowerCase() === "downloads.khinsider.com" &&
+      url.pathname.startsWith("/game-soundtracks/album/") &&
+      !url.username && !url.password;
+  } catch {
+    return false;
+  }
+}
+
+function setStatus(label: string, tone: "idle" | "working" | "success" | "error" = "idle"): void {
+  statusText.textContent = label;
+  statusDot.dataset.tone = tone;
+}
+
+function selectedFormat(track: GuiTrack): { format?: string; state: string; fallback: boolean } {
+  const value = formatSelect.value;
+  if (value === "prefer-lossless") {
+    const lossless = ["FLAC", "ALAC", "WAV"].find((format) => track.formats.includes(format));
+    if (lossless) return { format: lossless, state: "Ready", fallback: false };
+    const lossy = track.formats.find((format) => format === "MP3") ?? track.formats[0];
+    return lossy
+      ? { format: lossy, state: "Ready", fallback: true }
+      : { state: "Unavailable", fallback: false };
+  }
+  const requested = value === "lossless-only" ? ["FLAC", "ALAC", "WAV"].find((format) => track.formats.includes(format)) : value.slice("format:".length);
+  if (requested && track.formats.includes(requested)) return { format: requested, state: "Ready", fallback: false };
+  return skipInput.checked
+    ? { state: "Skipped", fallback: false }
+    : { state: "Unavailable", fallback: false };
+}
+
+function renderTracks(): void {
+  if (!inspection) return;
+  const rows = inspection.tracks.map((track) => {
+    const selected = selectedFormat(track);
+    const row = document.createElement("tr");
+    row.innerHTML = `<td class="track-disc"></td><td class="track-number"></td><td class="track-title"></td><td class="track-formats"></td><td class="track-choice"></td><td class="track-state"></td>`;
+    row.querySelector(".track-disc")!.textContent = track.discNumber === undefined ? "-" : `${discLabelSelect.value}${track.discNumber}`;
+    row.querySelector(".track-number")!.textContent = String(track.number).padStart(2, "0");
+    row.querySelector(".track-title")!.textContent = track.title;
+    row.querySelector(".track-formats")!.textContent = track.formats.join(", ") || "None found";
+    row.querySelector(".track-choice")!.textContent = selected.format ?? "-";
+    const state = row.querySelector<HTMLElement>(".track-state")!;
+    state.textContent = selected.state;
+    state.dataset.state = selected.state.toLowerCase();
+    if (selected.fallback) state.textContent += " · fallback";
+    return row;
+  });
+  tableBody.replaceChildren(...rows);
+  const blocked = inspection.tracks.some((track) => selectedFormat(track).state === "Unavailable");
+  downloadButton.disabled = busy || blocked;
+  trackCount.textContent = `${inspection.trackCount} tracks`;
+  emptyState.hidden = true;
+  trackTable.hidden = false;
+}
+
+function currentPolicy(): GuiFormatPolicy {
+  if (formatSelect.value === "prefer-lossless") return { kind: "prefer-lossless" };
+  if (formatSelect.value === "lossless-only") return { kind: "lossless-only", skipUnavailable: skipInput.checked };
+  return { kind: "specific", format: formatSelect.value.slice("format:".length), skipUnavailable: skipInput.checked };
+}
+
+function updateFormatOptions(): void {
+  if (!inspection) return;
+  const formats = [...new Set(inspection.tracks.flatMap((track) => track.formats))].sort();
+  const discs = [...new Set(inspection.tracks.flatMap((track) => track.discNumber === undefined ? [] : [track.discNumber]))];
+  discLabelSetting.hidden = discs.length < 2;
+  const previous = formatSelect.value;
+  formatSelect.querySelectorAll("option[data-discovered]").forEach((option) => option.remove());
+  for (const format of formats) {
+    const option = document.createElement("option");
+    option.value = `format:${format}`;
+    option.textContent = `Specific format: ${format}`;
+    option.dataset.discovered = "true";
+    formatSelect.append(option);
+  }
+  if ([...formatSelect.options].some((option) => option.value === previous)) formatSelect.value = previous;
+  renderTracks();
+}
+
+function setBusy(value: boolean): void {
+  busy = value;
+  inspectButton.disabled = value;
+  browseButton.disabled = value;
+  albumInput.disabled = value;
+  outputInput.disabled = value;
+  formatSelect.disabled = value;
+  discLabelSelect.disabled = value;
+  skipInput.disabled = value || formatSelect.value === "prefer-lossless";
+  cancelButton.disabled = !value;
+  if (inspection) renderTracks();
+}
+
+minimizeWindowButton.addEventListener("click", () => { void window.kDownloader.minimizeWindow(); });
+maximizeWindowButton.addEventListener("click", async () => {
+  const maximized = await window.kDownloader.toggleMaximizeWindow();
+  updateMaximizeButton(maximized);
+});
+closeWindowButton.addEventListener("click", () => { void window.kDownloader.closeWindow(); });
+window.kDownloader.onWindowState(({ maximized }) => updateMaximizeButton(maximized));
+
+moreButton.addEventListener("click", () => {
+  moreMenu.hidden = !moreMenu.hidden;
+  moreButton.setAttribute("aria-expanded", String(!moreMenu.hidden));
+});
+settingsMenuItem.addEventListener("click", () => setSettingsOpen(true));
+closeSettingsButton.addEventListener("click", () => setSettingsOpen(false));
+document.addEventListener("click", (event) => {
+  if (!moreMenuWrap.contains(event.target as Node)) closeMoreMenu();
+});
+document.addEventListener("keydown", (event) => {
+  if ((event.ctrlKey || event.metaKey) && event.key === ",") {
+    event.preventDefault();
+    setSettingsOpen(!settingsOpen);
+  } else if (event.key === "Escape") {
+    if (settingsOpen) setSettingsOpen(false);
+    else if (!moreMenu.hidden) {
+      closeMoreMenu();
+      moreButton.focus();
+    }
+  }
+});
+
+inspectButton.addEventListener("click", async () => {
+  errorText.textContent = "";
+  const albumUrl = albumInput.value.trim();
+  if (!isValidAlbumUrl(albumUrl)) {
+    errorText.textContent = "Paste a valid HTTPS KHInsider album URL.";
+    setStatus("Album URL required", "error");
+    albumInput.focus();
+    return;
+  }
+  inspection = undefined;
+  downloadButton.disabled = true;
+  tableBody.replaceChildren();
+  trackTable.hidden = true;
+  emptyState.hidden = false;
+  setBusy(true);
+  updateInspectionIndicator({ active: true, browserReady: false, browserVisible: false });
+  try {
+    inspection = await window.kDownloader.inspect(albumUrl);
+    albumTitle.textContent = inspection.albumTitle;
+    updateFormatOptions();
+    setStatus("Preview ready", "success");
+  } catch (error) {
+    errorText.textContent = error instanceof Error ? error.message : String(error);
+    setStatus("Inspection failed", "error");
+  } finally {
+    updateInspectionIndicator({ active: false, browserReady: false, browserVisible: false });
+    setBusy(false);
+    if (inspection) renderTracks();
+  }
+});
+
+inspectionIndicator.addEventListener("click", async () => {
+  if (inspectionIndicator.disabled) return;
+  try {
+    inspectionBrowserVisible = await window.kDownloader.toggleInspectionBrowser();
+    inspectionIndicator.setAttribute("aria-pressed", String(inspectionBrowserVisible));
+    inspectionIndicatorText.textContent = inspectionBrowserVisible ? "Hide browser" : "Show browser";
+  } catch (error) {
+    errorText.textContent = error instanceof Error ? error.message : String(error);
+  }
+});
+
+window.kDownloader.onInspectionState(updateInspectionIndicator);
+
+browseButton.addEventListener("click", async () => {
+  const selected = await window.kDownloader.chooseOutput();
+  if (selected) outputInput.value = selected;
+});
+
+formatSelect.addEventListener("change", () => {
+  skipInput.disabled = busy || formatSelect.value === "prefer-lossless";
+  renderTracks();
+});
+discLabelSelect.addEventListener("change", renderTracks);
+skipInput.addEventListener("change", renderTracks);
+
+downloadButton.addEventListener("click", async () => {
+  if (!inspection) return;
+  errorText.textContent = "";
+  progress.value = 0;
+  progressText.textContent = "Preparing album";
+  setBusy(true);
+  setStatus("Downloading", "working");
+  try {
+    const result = await window.kDownloader.download({
+      policy: currentPolicy(),
+      outputRoot: outputInput.value,
+      discLabel: discLabelSelect.value === "Disc" ? "Disc" : "CD",
+    });
+    progress.value = inspection.trackCount;
+    progress.max = inspection.trackCount;
+    progressText.textContent = `${result.state} · ${result.directory}`;
+    setStatus(result.state === "complete" ? "Download complete" : result.state, result.state === "complete" ? "success" : "error");
+  } catch (error) {
+    errorText.textContent = error instanceof Error ? error.message : String(error);
+    setStatus("Download failed", "error");
+  } finally {
+    setBusy(false);
+  }
+});
+
+cancelButton.addEventListener("click", async () => {
+  cancelButton.disabled = true;
+  await window.kDownloader.cancel();
+  setStatus("Canceling active track…", "working");
+});
+
+window.kDownloader.onProgress((event: GuiProgress) => {
+  progress.max = event.totalTracks;
+  progress.value = event.completedTracks;
+  progressText.textContent = event.stage === "track-start"
+    ? `Downloading ${String(event.number).padStart(2, "0")} · ${event.title}`
+    : event.stage === "track-complete"
+      ? `Completed ${event.completedTracks} of ${event.totalTracks} tracks`
+      : event.stage === "track-failed"
+        ? `Failed ${String(event.number).padStart(2, "0")} · ${event.title}`
+        : "Canceled";
+});
+
+void window.kDownloader.defaultOutputRoot().then((value) => { outputInput.value = value; });
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **index.html**</summary>
+
+@@ lines 1-163 @@
+
+```
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'" />
+    <title>K-Downloader</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script defer src="./renderer.js"></script>
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <div class="brand-lockup">
+          <div class="app-icon" aria-hidden="true">K</div>
+          <div class="brand-name">K-Downloader</div>
+        </div>
+        <div class="titlebar-actions">
+          <div id="more-menu-wrap" class="more-menu-wrap">
+            <button id="more-button" class="window-control more-button" type="button" aria-label="More options" title="More options" aria-haspopup="menu" aria-expanded="false">
+              <i data-lucide="ellipsis-vertical" aria-hidden="true"></i>
+            </button>
+            <div id="more-menu" class="more-menu" role="menu" aria-label="More options" hidden>
+              <button id="settings-menu-item" class="more-menu-item" type="button" role="menuitem">
+                <i data-lucide="settings" aria-hidden="true"></i>
+                <span>Settings</span>
+                <kbd>Ctrl+,</kbd>
+              </button>
+            </div>
+          </div>
+          <nav class="window-controls" aria-label="Window controls">
+          <button id="minimize-window" class="window-control" type="button" aria-label="Minimize window" title="Minimize">
+            <i data-lucide="minus" aria-hidden="true"></i>
+          </button>
+          <button id="maximize-window" class="window-control" type="button" aria-label="Maximize window" title="Maximize">
+            <i data-lucide="square" aria-hidden="true"></i>
+          </button>
+          <button id="close-window" class="window-control close-control" type="button" aria-label="Close window" title="Close">
+            <i data-lucide="x" aria-hidden="true"></i>
+          </button>
+          </nav>
+        </div>
+      </header>
+
+      <section id="workspace" class="workspace">
+        <aside class="control-panel" aria-label="Download setup">
+          <div class="section-heading"><span class="section-index">01</span><h1>Album source</h1></div>
+          <label for="album-url">KHInsider album URL</label>
+          <textarea id="album-url" rows="3" spellcheck="false" placeholder="https://downloads.khinsider.com/game-soundtracks/album/…"></textarea>
+          <div class="microcopy">Inspection opens a separate visible Chromium window. No login is used.</div>
+
+          <div class="section-heading destination-heading"><span class="section-index">02</span><h2>Destination</h2></div>
+          <label for="output-root">Save album under</label>
+          <div class="path-control">
+            <input id="output-root" type="text" spellcheck="false" />
+            <button id="browse-button" class="icon-button" type="button" aria-label="Choose download folder" title="Choose download folder">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 6.5h6l2 2H20a1 1 0 0 1 1 1v8.8a1.7 1.7 0 0 1-1.7 1.7H4.7A1.7 1.7 0 0 1 3 18.3V7a.5.5 0 0 1 .5-.5Z"/><path d="M12 12v5m-2.5-2.5h5"/></svg>
+            </button>
+          </div>
+
+          <div class="section-heading format-heading"><span class="section-index">03</span><h2>Format policy</h2></div>
+          <label for="format-policy">Choose source audio</label>
+          <select id="format-policy">
+            <option value="prefer-lossless">Prefer lossless</option>
+            <option value="lossless-only">Lossless only</option>
+          </select>
+          <label class="check-row" for="skip-unavailable">
+            <input id="skip-unavailable" type="checkbox" disabled />
+            <span>Skip tracks without the selected format</span>
+          </label>
+          <div id="disc-label-setting" class="disc-label-setting" hidden>
+            <label for="disc-label">Disc folder label</label>
+            <select id="disc-label">
+              <option value="CD">CD1, CD2, …</option>
+              <option value="Disc">Disc1, Disc2, …</option>
+            </select>
+          </div>
+
+          <div class="action-row">
+            <button id="inspect-button" class="secondary-button" type="button">Inspect album</button>
+            <button id="download-button" class="primary-button" type="button" disabled>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v11m0 0 4-4m-4 4-4-4M5 17v3h14v-3"/></svg>
+              Download
+            </button>
+          </div>
+          <button id="cancel-button" class="cancel-button" type="button" disabled>Cancel active download</button>
+          <p id="error-text" class="error-text" role="alert"></p>
+        </aside>
+
+        <section class="results-panel" aria-label="Album preview and progress">
+          <div class="results-header">
+            <div>
+              <div class="eyebrow">DISCOVERY PREVIEW</div>
+              <h2 id="album-title">No album inspected</h2>
+            </div>
+            <div class="track-count" id="track-count">Waiting</div>
+          </div>
+
+          <div class="status-strip">
+            <span id="status-dot" class="status-dot" data-tone="idle"></span>
+            <span id="status-text">Paste an album URL to begin</span>
+          </div>
+          <button id="inspection-indicator" class="inspection-indicator" type="button" hidden disabled aria-pressed="false">
+            <i data-lucide="loader-circle" class="inspection-spinner" aria-hidden="true"></i>
+            <span role="status">Inspection in progress</span>
+            <span id="inspection-indicator-text" class="inspection-indicator-action">Starting browser…</span>
+          </button>
+
+          <div id="empty-state" class="empty-state">
+            <div class="empty-glyph" aria-hidden="true"><span></span><span></span><span></span></div>
+            <div class="empty-title">Ready for an album</div>
+            <div class="empty-note">Track formats and fallback choices appear here before transfer.</div>
+          </div>
+
+          <div class="table-wrap">
+            <table id="track-table" hidden>
+              <thead><tr><th>Disc</th><th>#</th><th>Track</th><th>Available</th><th>Selected</th><th>Status</th></tr></thead>
+              <tbody id="track-rows"></tbody>
+            </table>
+          </div>
+
+          <footer class="progress-footer">
+            <div class="progress-label"><span>TRANSFER</span><span id="progress-text">No active transfer</span></div>
+            <progress id="download-progress" value="0" max="1"></progress>
+          </footer>
+        </section>
+      </section>
+      <section id="settings-view" class="settings-view" aria-labelledby="settings-heading" hidden>
+        <header class="settings-header">
+          <h1 id="settings-heading">Settings</h1>
+          <button id="close-settings" class="settings-close-button" type="button">
+            <i data-lucide="arrow-left" aria-hidden="true"></i>
+            <span>Back to downloader</span>
+          </button>
+        </header>
+        <section class="appearance-section" aria-labelledby="appearance-heading">
+          <h2 id="appearance-heading">Appearance</h2>
+          <fieldset class="appearance-setting">
+            <legend>Mode</legend>
+            <div class="mode-options">
+              <label><input type="radio" name="appearance-mode" value="light" /><span>Light</span></label>
+              <label><input type="radio" name="appearance-mode" value="dark" /><span>Dark</span></label>
+              <label><input type="radio" name="appearance-mode" value="system" checked /><span>System</span></label>
+            </div>
+          </fieldset>
+          <fieldset class="appearance-setting">
+            <legend>Color theme</legend>
+            <div class="theme-options">
+              <label><input type="radio" name="color-theme" value="mint" checked /><span class="theme-swatch swatch-mint"></span><span>Mint</span></label>
+              <label><input type="radio" name="color-theme" value="ocean" /><span class="theme-swatch swatch-ocean"></span><span>Ocean</span></label>
+              <label><input type="radio" name="color-theme" value="amber" /><span class="theme-swatch swatch-amber"></span><span>Amber</span></label>
+              <label><input type="radio" name="color-theme" value="rose" /><span class="theme-swatch swatch-rose"></span><span>Rose</span></label>
+              <label><input type="radio" name="color-theme" value="monochrome" /><span class="theme-swatch swatch-monochrome"></span><span>Monochrome</span></label>
+            </div>
+          </fieldset>
+          <p id="appearance-storage-status" class="error-text" role="status"></p>
+        </section>
+      </section>
+      <footer class="app-footer"><span>Original audio bytes · no transcoding</span><span>LOCAL SESSION</span></footer>
+    </main>
+  </body>
+</html>
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **styles.css**</summary>
+
+@@ lines 1-236 @@
+
+```
+:root {
+  color-scheme: dark;
+  --ink: #e8efec;
+  --muted: #91a09b;
+  --dim: #60716b;
+  --line: #2c3a35;
+  --panel: #17211d;
+  --panel-raised: #1d2a25;
+  --ground: #101715;
+  --mint: #b3f06c;
+  --mint-dark: #83bd42;
+  --coral: #f28568;
+  --blue: #80bac5;
+  --field: #101815;
+  --hover: #293630;
+  --accent-text: #152018;
+  --warning: #d5b675;
+  --close-hover: #c94343;
+  --shadow: rgba(0, 0, 0, .38);
+  font-family: "DejaVu Sans", "Noto Sans", sans-serif;
+  color: var(--ink);
+  background: var(--ground);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+:root[data-mode="light"] {
+  color-scheme: light;
+  --ink: #202b26;
+  --muted: #52635b;
+  --dim: #5d6e66;
+  --line: #ced9d2;
+  --panel: #ffffff;
+  --panel-raised: #eaf0ec;
+  --ground: #f3f6f4;
+  --field: #ffffff;
+  --hover: #dde7e1;
+  --mint: #356a19;
+  --mint-dark: #356a19;
+  --accent-text: #ffffff;
+  --coral: #b33f2c;
+  --blue: #286b79;
+  --warning: #855c10;
+  --shadow: rgba(26, 42, 32, .16);
+}
+
+:root[data-theme="ocean"] { --mint: #76dbd3; --mint-dark: #76dbd3; }
+:root[data-theme="amber"] { --mint: #f0cd72; --mint-dark: #f0cd72; }
+:root[data-theme="rose"] { --mint: #f4a2bd; --mint-dark: #f4a2bd; }
+:root[data-theme="monochrome"] { --mint: #d3d9dd; --mint-dark: #d3d9dd; }
+:root[data-mode="light"][data-theme="ocean"] { --mint: #006c68; --mint-dark: #006c68; }
+:root[data-mode="light"][data-theme="amber"] { --mint: #805c05; --mint-dark: #805c05; }
+:root[data-mode="light"][data-theme="rose"] { --mint: #a03058; --mint-dark: #a03058; }
+:root[data-mode="light"][data-theme="monochrome"] { --mint: #46515a; --mint-dark: #46515a; }
+:root[data-theme="ocean"], :root[data-theme="amber"], :root[data-theme="rose"], :root[data-theme="monochrome"] {
+  --ink: #e9ecee;
+  --muted: #a0a8ad;
+  --dim: #929da4;
+  --line: #363c40;
+  --panel: #1c2023;
+  --panel-raised: #282d31;
+  --ground: #141719;
+  --field: #171b1e;
+  --hover: #353c41;
+  --accent-text: #161c20;
+}
+:root[data-mode="light"][data-theme="ocean"], :root[data-mode="light"][data-theme="amber"], :root[data-mode="light"][data-theme="rose"], :root[data-mode="light"][data-theme="monochrome"] {
+  --ink: #242a2e;
+  --muted: #566169;
+  --dim: #5b6770;
+  --line: #ced5da;
+  --panel: #ffffff;
+  --panel-raised: #edf0f2;
+  --ground: #f5f6f7;
+  --field: #ffffff;
+  --hover: #e0e6ea;
+  --accent-text: #ffffff;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-width: 720px;
+  height: 100vh;
+  overflow: hidden;
+  background:
+    linear-gradient(115deg, color-mix(in srgb, var(--mint) 5%, transparent), transparent 44%),
+    var(--ground);
+}
+button, input, textarea, select { font: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: .42; }
+
+.app-shell { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+.topbar { height: 46px; flex: 0 0 46px; padding: 0 0 0 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); background: var(--panel); -webkit-app-region: drag; user-select: none; }
+.brand-lockup { height: 100%; display: flex; align-items: center; gap: 9px; }
+.app-icon { width: 23px; height: 23px; display: grid; place-items: center; background: var(--mint); color: var(--accent-text); font-size: 15px; font-weight: 800; clip-path: polygon(0 0, 100% 0, 100% 72%, 72% 100%, 0 100%); }
+.brand-name { font-size: 12px; font-weight: 800; }
+.titlebar-actions { height: 100%; display: flex; align-items: stretch; -webkit-app-region: no-drag; }
+.more-menu-wrap { position: relative; height: 100%; }
+.window-controls { height: 100%; display: flex; -webkit-app-region: no-drag; }
+.window-control { width: 46px; height: 100%; display: grid; place-items: center; border: 0; border-radius: 0; color: var(--muted); background: transparent; }
+.window-control:hover { color: var(--ink); background: var(--hover); }
+.window-control.close-control:hover { color: white; background: var(--close-hover); }
+.window-control svg { width: 14px; height: 14px; stroke-width: 1.6; }
+.window-control:focus-visible { outline: 1px solid var(--mint); outline-offset: -3px; }
+.more-menu { position: absolute; z-index: 20; top: calc(100% + 5px); right: 0; width: 224px; padding: 5px; border: 1px solid var(--line); border-radius: 4px; background: var(--panel-raised); box-shadow: 0 12px 28px var(--shadow); }
+.more-menu[hidden] { display: none; }
+.more-menu-item { width: 100%; min-height: 36px; padding: 0 9px; display: flex; align-items: center; gap: 10px; border: 0; border-radius: 2px; color: var(--ink); background: transparent; text-align: left; font-size: 11px; }
+.more-menu-item:hover, .more-menu-item:focus-visible { background: var(--hover); outline: none; }
+.more-menu-item svg { width: 15px; height: 15px; color: var(--muted); stroke-width: 1.7; }
+.more-menu-item kbd { margin-left: auto; color: var(--muted); font-family: "DejaVu Sans Mono", monospace; font-size: 9px; }
+.brand-subtitle, .eyebrow, .section-index, .mode-label, .progress-label, .app-footer { font-family: "DejaVu Sans Mono", monospace; letter-spacing: 0; }
+.brand-subtitle { margin-top: 3px; color: var(--dim); font-size: 9px; }
+.mode-label { display: flex; align-items: center; gap: 9px; color: var(--muted); font-size: 11px; }
+.mode-dot { width: 7px; height: 7px; background: var(--mint); border-radius: 50%; }
+
+.workspace { width: min(1440px, 100%); margin: 0 auto; padding: 28px 32px 24px; flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(300px, 370px) minmax(380px, 1fr); grid-template-rows: minmax(0, 1fr); gap: 18px; overflow: hidden; }
+.workspace[hidden], .settings-view[hidden] { display: none; }
+.settings-view { width: min(1440px, 100%); flex: 1; min-height: 0; margin: 0 auto; padding: 28px 32px 24px; overflow: auto; }
+.settings-header { min-height: 56px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); }
+.settings-header h1 { margin: 0; font-size: 18px; }
+.settings-close-button { min-height: 34px; padding: 0 10px; display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 3px; color: var(--ink); background: var(--panel-raised); font-size: 11px; }
+.settings-close-button:hover { border-color: var(--blue); background: var(--hover); }
+.settings-close-button svg { width: 15px; height: 15px; }
+.control-panel, .results-panel { border: 1px solid var(--line); background: linear-gradient(155deg, var(--panel-raised), var(--panel) 65%); }
+.control-panel { padding: 24px; align-self: start; max-height: 100%; min-height: 0; overflow: auto; }
+.section-heading { display: flex; align-items: baseline; gap: 10px; margin: 0 0 18px; }
+.section-heading h1, .section-heading h2 { margin: 0; font-size: 14px; font-weight: 700; }
+.section-index { color: var(--mint); font-size: 10px; }
+label { display: block; color: var(--ink); font-size: 11px; font-weight: 700; margin: 0 0 8px; }
+textarea, input[type="text"], select { width: 100%; border: 1px solid var(--line); border-radius: 3px; color: var(--ink); background: var(--field); outline: none; }
+textarea { min-height: 88px; resize: vertical; padding: 12px; font-family: "DejaVu Sans Mono", monospace; font-size: 11px; line-height: 1.7; }
+input[type="text"], select { min-height: 38px; padding: 0 10px; font-size: 11px; }
+textarea:focus, input[type="text"]:focus, select:focus { border-color: var(--mint-dark); box-shadow: 0 0 0 2px color-mix(in srgb, var(--mint) 15%, transparent); }
+.microcopy { margin: 7px 0 0; color: var(--dim); font-size: 10px; line-height: 1.5; }
+.destination-heading { margin-top: 25px; }
+.format-heading { margin-top: 25px; }
+.path-control { display: flex; gap: 7px; }
+.path-control input { min-width: 0; font-family: "DejaVu Sans Mono", monospace; font-size: 10px; }
+.icon-button { width: 40px; flex: 0 0 40px; border: 1px solid var(--line); border-radius: 3px; color: var(--mint); background: var(--panel-raised); }
+.icon-button svg, .primary-button svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; vertical-align: middle; }
+.check-row { display: flex; align-items: center; gap: 8px; margin-top: 11px; color: var(--muted); font-size: 10px; font-weight: 500; }
+.check-row input { accent-color: var(--mint-dark); }
+.disc-label-setting { margin-top: 14px; }
+.action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 24px; }
+.primary-button, .secondary-button { min-height: 41px; border-radius: 3px; font-size: 11px; font-weight: 800; }
+.primary-button { display: flex; justify-content: center; align-items: center; gap: 8px; border: 1px solid var(--mint); color: var(--accent-text); background: var(--mint); }
+.primary-button:hover:not(:disabled) { background: color-mix(in srgb, var(--mint) 88%, var(--ink)); }
+.secondary-button { border: 1px solid var(--line); color: var(--ink); background: var(--panel-raised); }
+.secondary-button:hover:not(:disabled) { border-color: var(--blue); }
+.cancel-button { display: block; margin: 10px 0 0 auto; padding: 5px 0; border: 0; color: var(--coral); background: transparent; font-size: 10px; }
+.error-text { min-height: 0; margin: 10px 0 0; color: var(--coral); font-size: 11px; line-height: 1.5; overflow-wrap: anywhere; }
+
+.results-panel { min-width: 0; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+.results-header, .status-strip, .inspection-indicator, .progress-footer { flex-shrink: 0; }
+.results-header { padding: 23px 24px 18px; display: flex; justify-content: space-between; align-items: end; border-bottom: 1px solid var(--line); }
+.eyebrow { color: var(--mint); font-size: 9px; }
+.results-header h2 { margin: 7px 0 0; font-size: 17px; line-height: 1.35; }
+.track-count { padding: 6px 8px; border: 1px solid var(--line); color: var(--muted); font-family: "DM Mono", monospace; font-size: 10px; white-space: nowrap; }
+.status-strip { min-height: 39px; display: flex; align-items: center; gap: 9px; padding: 0 24px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 10px; }
+.status-strip[hidden] { display: none; }
+.status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--dim); }
+.status-dot[data-tone="working"] { background: var(--blue); box-shadow: 0 0 0 4px color-mix(in srgb, var(--blue) 12%, transparent); }
+.status-dot[data-tone="success"] { background: var(--mint); }
+.status-dot[data-tone="error"] { background: var(--coral); }
+.inspection-indicator { width: 100%; min-height: 42px; padding: 0 24px; display: flex; align-items: center; gap: 9px; border: 0; border-bottom: 1px solid var(--line); color: var(--blue); background: color-mix(in srgb, var(--blue) 7%, transparent); text-align: left; font-size: 10px; }
+.inspection-indicator[hidden] { display: none; }
+.inspection-indicator:disabled { opacity: 1; }
+.inspection-spinner { width: 14px; height: 14px; flex: 0 0 14px; animation: inspection-spin .9s linear infinite; }
+@keyframes inspection-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .inspection-spinner { animation: none; } }
+.inspection-indicator:not(:disabled):hover { background: color-mix(in srgb, var(--blue) 13%, transparent); }
+.inspection-indicator-action { margin-left: auto; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+.empty-state { min-height: 0; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 36px; text-align: center; }
+.empty-state[hidden] { display: none; }
+.empty-glyph { height: 36px; display: flex; align-items: end; gap: 4px; margin-bottom: 18px; }
+.empty-glyph span { width: 5px; height: 16px; background: var(--mint-dark); opacity: .6; }
+.empty-glyph span:nth-child(2) { height: 30px; background: var(--blue); opacity: .8; }
+.empty-glyph span:nth-child(3) { height: 22px; background: var(--coral); opacity: .75; }
+.empty-title { font-size: 13px; font-weight: 700; }
+.empty-note { max-width: 250px; margin-top: 8px; color: var(--dim); font-size: 10px; line-height: 1.6; }
+.table-wrap { min-height: 0; flex: 1; overflow: auto; }
+table { width: 100%; border-collapse: collapse; text-align: left; font-size: 10px; }
+thead { position: sticky; top: 0; z-index: 1; background: var(--panel-raised); }
+th { padding: 10px 9px; color: var(--muted); font-family: "DM Mono", monospace; font-size: 9px; font-weight: 400; }
+td { padding: 9px; border-top: 1px solid var(--line); }
+tbody tr:hover { background: var(--hover); }
+.track-number { width: 42px; color: var(--dim); font-family: "DejaVu Sans Mono", monospace; }
+.track-title { min-width: 120px; font-weight: 700; }
+.track-formats { color: var(--muted); }
+.track-choice { color: var(--mint); font-family: "DejaVu Sans Mono", monospace; }
+.track-state { color: var(--muted); white-space: nowrap; }
+.track-state[data-state="unavailable"] { color: var(--coral); }
+.track-state[data-state="skipped"] { color: var(--warning); }
+.progress-footer { padding: 14px 24px 18px; border-top: 1px solid var(--line); }
+.progress-label { display: flex; justify-content: space-between; gap: 14px; margin-bottom: 9px; color: var(--dim); font-size: 9px; }
+#progress-text { color: var(--muted); text-align: right; overflow-wrap: anywhere; }
+progress { width: 100%; height: 4px; border: 0; border-radius: 0; appearance: none; }
+progress::-webkit-progress-bar { background: var(--line); }
+progress::-webkit-progress-value { background: linear-gradient(90deg, var(--blue), var(--mint)); }
+.app-footer { flex: 0 0 40px; min-height: 40px; padding: 0 32px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--line); color: var(--dim); font-size: 9px; }
+
+.appearance-section { max-width: 660px; padding: 28px 0; }
+.appearance-section h2 { margin: 0 0 24px; font-size: 15px; }
+.appearance-setting { margin: 0 0 28px; padding: 0; border: 0; }
+.appearance-setting legend { margin-bottom: 12px; font-size: 12px; font-weight: 700; }
+.mode-options { display: inline-flex; padding: 3px; border: 1px solid var(--line); border-radius: 4px; background: var(--panel); }
+.mode-options label { position: relative; margin: 0; cursor: pointer; }
+.mode-options input, .theme-options input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.mode-options span { min-width: 92px; min-height: 36px; display: grid; place-items: center; border-radius: 2px; color: var(--muted); }
+.mode-options input:checked + span { background: var(--mint); color: var(--accent-text); }
+.mode-options input:focus-visible + span { outline: 2px solid var(--blue); outline-offset: 2px; }
+.theme-options { display: flex; flex-wrap: wrap; gap: 12px; }
+.theme-options label { position: relative; min-width: 90px; display: flex; align-items: center; gap: 9px; margin: 0; padding: 8px 4px; cursor: pointer; }
+.theme-swatch { flex: 0 0 24px; width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--line); }
+.swatch-mint { background: #b3f06c; }
+.swatch-ocean { background: #76dbd3; }
+.swatch-amber { background: #f0cd72; }
+.swatch-rose { background: #f4a2bd; }
+.swatch-monochrome { background: #d3d9dd; }
+:root[data-mode="light"] .swatch-mint { background: #356a19; }
+:root[data-mode="light"] .swatch-ocean { background: #006c68; }
+:root[data-mode="light"] .swatch-amber { background: #805c05; }
+:root[data-mode="light"] .swatch-rose { background: #a03058; }
+:root[data-mode="light"] .swatch-monochrome { background: #46515a; }
+.theme-options input:checked + .theme-swatch { outline: 2px solid var(--mint); outline-offset: 3px; }
+.theme-options input:focus-visible + .theme-swatch { outline: 2px solid var(--blue); outline-offset: 3px; }
+
+@media (max-width: 920px) {
+  .workspace { grid-template-columns: minmax(260px, 320px) minmax(360px, 1fr); padding: 18px; gap: 12px; }
+  .control-panel { padding: 18px; }
+  .results-header, .status-strip, .progress-footer { padding-left: 16px; padding-right: 16px; }
+  th, td { padding-left: 7px; padding-right: 7px; }
+}
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm run build && npm test -- tests/appearance.test.ts`
+
+Type-check the consolidated indicator and validate existing real-browser renderer behavior after adding the Lucide spinner.
+
+```bash
+npm run build && npm test -- tests/appearance.test.ts
+```
+
+**Result:**
+
+```
+
+> k-downloader@0.1.0 build
+> tsc --noEmit
+
+
+> k-downloader@0.1.0 pretest
+> npm run build:gui
+
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+
+> k-downloader@0.1.0 test
+> vitest run tests/appearance.test.ts
+
+
+ RUN  v5.0.4 /home/kel/dev/K-Downloader
+
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  12:09:38
+   Duration  3.16s (tests 88%, import 11%)
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The build and existing renderer checks pass. I’ll now make the inspection mock pause while the test checks the single visible row, spinner, and browser toggle, then complete and fail it to verify that the normal status row returns in both cases.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **appearance.test.ts**</summary>
+
+@@ lines 1-242 @@
+
+```
+import { describe, expect, it } from "vitest";
+import { appearanceModes, colorThemes, defaultAppearance, parseAppearance, resolvedMode } from "../src/appearance.js";
+import { chromium, _electron as electron } from "playwright";
+import { pathToFileURL } from "node:url";
+import { resolve } from "node:path";
+import { createRequire } from "node:module";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { cinnamonThemeIsDark } from "../src/electron/system-theme.js";
+import type { GuiInspectionState } from "../src/gui-types.js";
+
+describe("appearance preferences", () => {
+  it("defaults to System and Mint for absent or malformed settings", () => {
+    for (const raw of [null, "broken", "null", "[]", '{"mode":"invalid","theme":"invalid"}']) {
+      expect(parseAppearance(raw)).toEqual(defaultAppearance);
+    }
+  });
+
+  it("round-trips every supported mode and theme", () => {
+    for (const mode of appearanceModes) for (const theme of colorThemes) {
+      expect(parseAppearance(JSON.stringify({ mode, theme }))).toEqual({ mode, theme });
+    }
+  });
+
+  it("follows the system only in System mode", () => {
+    expect(resolvedMode("system", true)).toBe("dark");
+    expect(resolvedMode("system", false)).toBe("light");
+    expect(resolvedMode("light", true)).toBe("light");
+    expect(resolvedMode("dark", false)).toBe("dark");
+  });
+
+  it("recognizes Cinnamon GTK light and dark theme names", () => {
+    expect(cinnamonThemeIsDark("'Mint-Y'\n")).toBe(false);
+    expect(cinnamonThemeIsDark("'Mint-Y-Dark'\n")).toBe(true);
+    expect(cinnamonThemeIsDark("'Mint-Y-Dark-Aqua'\n")).toBe(true);
+    expect(cinnamonThemeIsDark("'Adwaita-dark'\n")).toBe(true);
+    expect(cinnamonThemeIsDark("unrecognized output")).toBeUndefined();
+  });
+});
+
+describe("appearance controls in Chromium", () => {
+  it("applies appearance preferences and keeps statusbars visible with a long preview", async () => {
+    const browser = await chromium.launch({ headless: true });
+    try {
+      const page = await browser.newPage({ viewport: { width: 1120, height: 780 }, colorScheme: "light" });
+      page.setDefaultTimeout(5_000);
+      const errors: string[] = [];
+      page.on("pageerror", (error) => errors.push(error.message));
+      await page.addInitScript(() => {
+        let inspectionListener: ((state: GuiInspectionState) => void) | undefined;
+        let browserVisible = false;
+        window.kDownloader = {
+          systemTheme: async () => matchMedia("(prefers-color-scheme: dark)").matches,
+          onSystemTheme: (listener) => {
+            const media = matchMedia("(prefers-color-scheme: dark)");
+            const handler = () => listener(media.matches);
+            media.addEventListener("change", handler);
+            return () => media.removeEventListener("change", handler);
+          },
+          defaultOutputRoot: async () => "/tmp/K-Downloader",
+          chooseOutput: async () => undefined,
+          inspect: async () => {
+            browserVisible = false;
+            inspectionListener?.({ active: true, browserReady: true, browserVisible });
+            try {
+              await new Promise<void>((complete, fail) => {
+                window.addEventListener("finish-inspection", (event) => {
+                  if ((event as CustomEvent).detail === "fail") fail(new Error("Mock inspection failed"));
+                  else complete();
+                }, { once: true });
+              });
+            } finally {
+              inspectionListener?.({ active: false, browserReady: false, browserVisible: false });
+            }
+            return {
+            albumTitle: "Large multi-disc fixture",
+            trackCount: 200,
+            tracks: Array.from({ length: 200 }, (_, index) => ({
+              discNumber: Math.floor(index / 100) + 1,
+              number: index % 100 + 1,
+              title: `Track ${index + 1}`,
+              formats: ["MP3", "FLAC"],
+            })),
+            };
+          },
+          download: async () => ({ state: "complete", directory: "/tmp" }),
+          cancel: async () => {},
+          minimizeWindow: async () => {},
+          toggleMaximizeWindow: async () => false,
+          closeWindow: async () => {},
+          toggleInspectionBrowser: async () => {
+            browserVisible = !browserVisible;
+            inspectionListener?.({ active: true, browserReady: true, browserVisible });
+            return browserVisible;
+          },
+          onInspectionState: (listener) => {
+            inspectionListener = listener;
+            return () => { inspectionListener = undefined; };
+          },
+          onProgress: () => () => {},
+          onWindowState: () => () => {},
+        };
+      });
+      await page.goto(pathToFileURL(resolve("dist/gui/index.html")).href);
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "light");
+      await page.keyboard.press("Control+Comma");
+      await page.locator("#settings-view").waitFor({ state: "visible" });
+      for (const mode of ["light", "dark"] as const) {
+        await page.getByRole("radio", { name: new RegExp(`^${mode}$`, "i") }).check();
+        const accents = new Set<string>();
+        for (const theme of colorThemes) {
+          await page.getByRole("radio", { name: new RegExp(`^${theme}$`, "i") }).check();
+          const palette = await page.evaluate(() => {
+            const styles = getComputedStyle(document.documentElement);
+            return {
+              mode: document.documentElement.dataset.mode,
+              theme: document.documentElement.dataset.theme,
+              accent: styles.getPropertyValue("--mint").trim(),
+              surface: styles.getPropertyValue("--panel").trim(),
+              scheme: styles.colorScheme,
+            };
+          });
+          expect(palette.mode).toBe(mode);
+          expect(palette.theme).toBe(theme);
+          expect(palette.scheme).toBe(mode);
+          expect(palette.surface).not.toBe(palette.accent);
+          accents.add(palette.accent);
+        }
+        expect(accents.size).toBe(5);
+      }
+      await page.reload();
+      await page.waitForFunction(() => document.documentElement.dataset.theme === "monochrome");
+      expect(await page.locator("html").getAttribute("data-mode")).toBe("dark");
+      await page.keyboard.press("Control+Comma");
+      await page.getByRole("radio", { name: "System", exact: true }).check();
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "light");
+      await page.emulateMedia({ colorScheme: "dark" });
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "dark");
+      await page.getByRole("radio", { name: "Light", exact: true }).check();
+      await page.emulateMedia({ colorScheme: "light" });
+      await page.emulateMedia({ colorScheme: "dark" });
+      expect(await page.locator("html").getAttribute("data-mode")).toBe("light");
+      await page.screenshot({ path: "/tmp/k-downloader-appearance-light.png" });
+      await page.setViewportSize({ width: 760, height: 620 });
+      await page.getByRole("radio", { name: "Dark", exact: true }).check();
+      await page.getByRole("radio", { name: "Mint", exact: true }).check();
+      await page.screenshot({ path: "/tmp/k-downloader-appearance-dark.png" });
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      await page.keyboard.press("Escape");
+      await page.locator("#workspace").waitFor({ state: "visible" });
+      await page.locator("#album-url").fill("https://downloads.khinsider.com/game-soundtracks/album/fixture");
+      await page.getByRole("button", { name: "Inspect album", exact: true }).click();
+      await page.locator("#inspection-indicator").waitFor({ state: "visible" });
+      expect(await page.getByText("Inspection in progress", { exact: true }).count()).toBe(1);
+      expect(await page.locator(".status-strip").isVisible()).toBe(false);
+      expect(await page.locator(".inspection-spinner").evaluate((element) => {
+        const animation = element.getAnimations()[0];
+        return animation?.playState === "running" && animation.effect?.getTiming().iterations === Infinity;
+      })).toBe(true);
+      await page.screenshot({ path: "/tmp/k-downloader-single-inspection-indicator.png" });
+      await page.locator("#inspection-indicator").click();
+      expect(await page.locator("#inspection-indicator-text").textContent()).toBe("Hide browser");
+      await page.locator("#inspection-indicator").click();
+      expect(await page.locator("#inspection-indicator-text").textContent()).toBe("Show browser");
+      await page.evaluate(() => window.dispatchEvent(new CustomEvent("finish-inspection")));
+      await page.waitForFunction(() => document.querySelectorAll("#track-rows tr").length === 200);
+      expect(await page.locator("#inspection-indicator").isVisible()).toBe(false);
+      expect(await page.locator(".status-strip").isVisible()).toBe(true);
+      expect(await page.locator("#status-text").textContent()).toBe("Preview ready");
+      for (const viewport of [{ width: 760, height: 620 }, { width: 1120, height: 780 }]) {
+        await page.setViewportSize(viewport);
+        const measure = () => page.evaluate(() => {
+          const footer = document.querySelector<HTMLElement>(".app-footer")!.getBoundingClientRect();
+          const transfer = document.querySelector<HTMLElement>(".progress-footer")!.getBoundingClientRect();
+          const table = document.querySelector<HTMLElement>(".table-wrap")!;
+          return {
+            footerTop: footer.top,
+            footerBottom: footer.bottom,
+            transferBottom: transfer.bottom,
+            listScrolls: table.scrollHeight > table.clientHeight,
+            pageHeight: document.documentElement.scrollHeight,
+            listScrollTop: table.scrollTop,
+          };
+        });
+        const initial = await measure();
+        expect(initial.footerBottom).toBe(viewport.height);
+        expect(initial.transferBottom).toBeLessThanOrEqual(initial.footerTop);
+        expect(initial.pageHeight).toBe(viewport.height);
+        expect(initial.listScrolls).toBe(true);
+        await page.locator(".table-wrap").evaluate((element) => { element.scrollTop = element.scrollHeight; });
+        const scrolled = await measure();
+        expect(scrolled.listScrollTop).toBeGreaterThan(0);
+        expect(scrolled.footerBottom).toBe(initial.footerBottom);
+        expect(scrolled.transferBottom).toBe(initial.transferBottom);
+        await page.screenshot({ path: `/tmp/k-downloader-long-preview-${viewport.width}.png` });
+      }
+      await page.getByRole("button", { name: "Inspect album", exact: true }).click();
+      await page.locator("#inspection-indicator").waitFor({ state: "visible" });
+      await page.evaluate(() => window.dispatchEvent(new CustomEvent("finish-inspection", { detail: "fail" })));
+      await page.waitForFunction(() => document.querySelector("#status-text")?.textContent === "Inspection failed");
+      expect(await page.locator("#inspection-indicator").isVisible()).toBe(false);
+      expect(await page.locator(".status-strip").isVisible()).toBe(true);
+      expect(errors).toEqual([]);
+    } finally {
+      await browser.close();
+    }
+  }, 30_000);
+});
+
+describe("Electron native theme updates", () => {
+  it("updates System mode through preload but preserves explicit Light and Dark", async () => {
+    const userData = await mkdtemp(resolve(tmpdir(), "k-downloader-theme-test-"));
+    const require = createRequire(import.meta.url);
+    const app = await electron.launch({
+      executablePath: require("electron"),
+      args: [resolve("dist/electron/main.cjs"), `--user-data-dir=${userData}`],
+      env: { ...process.env, XDG_CURRENT_DESKTOP: "Test" },
+    });
+    try {
+      const page = await app.firstWindow();
+      await page.waitForFunction(() => document.documentElement.dataset.mode);
+      await page.keyboard.press("Control+Comma");
+      await page.getByRole("radio", { name: "System", exact: true }).check();
+      await app.evaluate(({ nativeTheme }) => { nativeTheme.themeSource = "dark"; });
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "dark");
+      await app.evaluate(({ nativeTheme }) => { nativeTheme.themeSource = "light"; });
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "light");
+      await page.getByRole("radio", { name: "Dark", exact: true }).check();
+      await app.evaluate(({ nativeTheme }) => { nativeTheme.themeSource = "light"; });
+      expect(await page.locator("html").getAttribute("data-mode")).toBe("dark");
+      await page.getByRole("radio", { name: "Light", exact: true }).check();
+      await app.evaluate(({ nativeTheme }) => { nativeTheme.themeSource = "dark"; });
+      expect(await page.locator("html").getAttribute("data-mode")).toBe("light");
+      await page.getByRole("radio", { name: "System", exact: true }).check();
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "dark");
+    } finally {
+      await app.close();
+      await rm(userData, { recursive: true, force: true });
+    }
+  }, 30_000);
+});
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm test -- tests/appearance.test.ts && npm run build`
+
+Run the browser regression for one animated inspection row and success/failure cleanup, then type-check the app.
+
+```bash
+npm test -- tests/appearance.test.ts && npm run build
+```
+
+**Result:**
+
+```
+
+> k-downloader@0.1.0 pretest
+> npm run build:gui
+
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+
+> k-downloader@0.1.0 test
+> vitest run tests/appearance.test.ts
+
+
+ RUN  v5.0.4 /home/kel/dev/K-Downloader
+
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  12:10:11
+   Duration  3.28s (tests 88%, import 11%, transform 1%)
+
+
+> k-downloader@0.1.0 build
+> tsc --noEmit
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The regression passes: one inspection message, a running spinner, a working Show/Hide toggle, and restored status after success or failure. I’ll check the screenshot and diagnostics, then launch the updated GUI.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="get_errors"><details>
+<summary>Tool use: **get_errors**</summary>
+
+Checked `renderer.ts`, `styles.css`, `appearance.test.ts`, no problems found
+
+**Input:**
+
+- filePaths:
+
+```
+[
+  "/home/kel/dev/K-Downloader/src/renderer.ts",
+  "/home/kel/dev/K-Downloader/gui/styles.css",
+  "/home/kel/dev/K-Downloader/tests/appearance.test.ts"
+]
+```
+
+
+**Result:**
+
+```
+<errors path="/home/kel/dev/K-Downloader/src/renderer.ts">
+No errors found
+</errors>
+<errors path="/home/kel/dev/K-Downloader/gui/styles.css">
+No errors found
+</errors>
+<errors path="/home/kel/dev/K-Downloader/tests/appearance.test.ts">
+No errors found
+</errors>
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="view_image"><details>
+<summary>Tool use: **view_image**</summary>
+
+Viewed image `k-downloader-single-inspection-indicator.png`
+
+**Input:**
+
+- filePath: `/tmp/k-downloader-single-inspection-indicator.png`
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="task" data-tool-name="manage_todo_list"><details>
+<summary>Tool use: **manage_todo_list**</summary>
+
+Created 2 todos
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The screenshot confirms a single compact inspection row with the spinner and browser toggle, and diagnostics are clean. I’ll open the rebuilt GUI now.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm run gui`
+
+Launch the GUI with the consolidated animated inspection indicator.
+
+```bash
+npm run gui
+```
+
+**Result:**
+
+```
+Command is running in terminal with ID=c5ba0ef2-4939-4535-ba4c-b870247e55f9
+ The command became idle with output:
+kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+
+> k-downloader@0.1.0 gui
+> npm run build:gui && electron dist/electron/main.cjs
+
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+This note is not a signal to end the turn — pick one of the actions below and continue.
+  1. If the command may still be producing output or the shell prompt has not returned, call get_terminal_output with id="c5ba0ef2-4939-4535-ba4c-b870247e55f9" to continue polling. This is the default and safest action when unsure.
+  2. Only if the output clearly ends with a real non-secret input prompt (Continue? (y/n), Enter selection, etc. — a normal shell prompt like `$` or `#` does NOT count), call the vscode_askQuestions tool to ask the user, then send each answer using send_to_terminal with id="c5ba0ef2-4939-4535-ba4c-b870247e55f9" (which returns the next few lines of output). Repeat one prompt at a time. NEVER route secret prompts (passwords, passphrases, tokens, API keys, etc.) through vscode_askQuestions — answers to that tool are sent through the model. For secret prompts, tell the user to type the value directly into the terminal and stop.
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+Fixed: inspection now shows one row with an animated Lucide spinner and the Show/Hide browser toggle. The normal status row returns when inspection completes or fails.
+
+Browser regression tests and build pass. The updated GUI is open.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="task" data-tool-name="manage_todo_list"><details>
+<summary>Tool use: **manage_todo_list**</summary>
+
+Completed: *Consolidate inspection status and add spinner* (1/2)
+</details></tool-use>
+
+---
+
+_**User (2026-10-12 17:05:47Z)**_
+
+[Terminal 6e641198-b75f-40ee-964b-293a46c8fe5e notification: command completed. The terminal has been cleaned up.]
+Terminal output:
+kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+
+> k-downloader@0.1.0 gui
+> npm run build:gui && electron dist/electron/main.cjs
+
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+---
+
+_**User (2026-10-12 17:08:55Z)**_
+
+I'm not sure why there are two rows indicating 'Inspection in progress'. We only need one. Also, during inspection there should also be an animated indicator with it.
+
+---
+
+_**Agent (copilot/auto)**_
+
+I’ll wire Cancel into the active inspection so it closes the discovery browser and stops visiting track pages. I’ll also distinguish a canceled scan from an inspection failure in the UI and test that a new scan can start 
+
+I’ll wire Cancel into the active inspection so it closes the discovery browser and stops visiting track pages. I’ll also distinguish a canceled scan from an inspection failure in the UI and test that a new scan can start afterward.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Read `khinsider.ts`, lines 155 to 218
+
+**Input:**
+
+- endLine: `260`
+- filePath: `/home/kel/dev/K-Downloader/src/khinsider.ts`
+- startLine: `155`
+
+**Result:**
+
+```
+    links.push({ format, url });
+  }
+
+  return links;
+}
+
+export async function inspectAlbum(
+  input: string,
+  options: InspectionOptions = {},
+): Promise<{ album: AlbumPage; tracks: DiscoveredTrack[] }> {
+  const albumUrl = validateAlbumUrl(input);
+  const browser = await chromium.launch({ headless: false, args: ["--start-minimized"] });
+  const context = await browser.newContext({ serviceWorkers: "block" });
+  const controller = new AbortController();
+  const abort = () => controller.abort();
+  options.signal?.addEventListener("abort", abort, { once: true });
+
+  try {
+    const page = await context.newPage();
+    page.on("close", abort);
+    const cdp = await context.newCDPSession(page);
+    const { windowId } = await cdp.send("Browser.getWindowForTarget");
+    let browserVisible: boolean | undefined;
+    const setBrowserVisible = async (visible: boolean): Promise<void> => {
+      if (page.isClosed()) throw new Error("Inspection browser has been closed");
+      if (browserVisible === visible) return;
+      await cdp.send("Browser.setWindowBounds", {
+        windowId,
+        bounds: { windowState: visible ? "normal" : "minimized" },
+      });
+      browserVisible = visible;
+    };
+    await setBrowserVisible(false);
+    options.onBrowserReady?.(setBrowserVisible);
+
+    const albumResponse = await page.goto(albumUrl.href, { waitUntil: "domcontentloaded", timeout: 30_000 });
+    if (!albumResponse || !albumResponse.ok()) {
+      throw new Error(`Album page request failed with HTTP ${albumResponse?.status() ?? "no response"}`);
+    }
+
+    const album = parseAlbumPage(await albumResponse.text(), albumUrl);
+    if (album.advertisedTrackCount !== undefined && album.tracks.length !== album.advertisedTrackCount) {
+      throw new Error(`Album advertises ${album.advertisedTrackCount} tracks but ${album.tracks.length} track links were found`);
+    }
+    if (album.tracks.length === 0) throw new Error("No numbered track-page links were found");
+
+    const tracks: DiscoveredT
+… (output truncated)
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Read `main.ts`, lines 110 to 220
+
+**Input:**
+
+- endLine: `220`
+- filePath: `/home/kel/dev/K-Downloader/src/electron/main.ts`
+- startLine: `110`
+
+**Result:**
+
+```
+  ipcMain.handle("output:choose", async (event) => {
+    const window = assertWindowSender(event.sender.id);
+    const result = await dialog.showOpenDialog(window, {
+      title: "Choose download folder",
+      defaultPath: defaultOutputRoot(),
+      properties: ["openDirectory", "createDirectory"],
+    });
+    return result.canceled ? undefined : result.filePaths[0];
+  });
+
+  ipcMain.handle("album:inspect", async (event, input: unknown) => {
+    assertWindowSender(event.sender.id);
+    if (typeof input !== "string" || input.length > 2048) throw new Error("Enter one valid album URL");
+    if (activeInspections.has(event.sender.id)) throw new Error("Album inspection is already active");
+    let sourceAlbum: string;
+    try {
+      sourceAlbum = validateAlbumUrl(input).href;
+    } catch {
+      throw new Error("Paste a valid HTTPS KHInsider album URL.");
+    }
+    const active: {
+      controller: AbortController;
+      setBrowserVisible?: (visible: boolean) => Promise<void>;
+      browserVisible: boolean;
+    } = { controller: new AbortController(), browserVisible: false };
+    activeInspections.set(event.sender.id, active);
+    sendInspectionState(event.sender, { active: true, browserReady: false, browserVisible: false });
+    try {
+      const result = await inspectAlbum(sourceAlbum, {
+        signal: active.controller.signal,
+        onBrowserReady: (setBrowserVisible) => {
+          active.setBrowserVisible = setBrowserVisible;
+          sendInspectionState(event.sender, { active: true, browserReady: true, browserVisible: false });
+        },
+      });
+      const cached = { sourceAlbum, album: result.album, tracks: result.tracks };
+      inspections.set(event.sender.id, cached);
+      return serializeInspection(cached);
+    } finally {
+      activeInspections.delete(event.sender.id);
+      sendInspectionState(event.sender, { active: false, browserReady: false, browserVisible: false });
+    }
+  });
+
+  ipcMain.handle("inspection:toggle-browser", async (event) => {
+… (output truncated)
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Read `renderer.ts`, lines 40 to 105
+
+**Input:**
+
+- endLine: `105`
+- filePath: `/home/kel/dev/K-Downloader/src/renderer.ts`
+- startLine: `40`
+
+**Result:**
+
+```
+const workspaceView = document.querySelector<HTMLElement>("#workspace")!;
+const settingsView = document.querySelector<HTMLElement>("#settings-view")!;
+const closeSettingsButton = document.querySelector<HTMLButtonElement>("#close-settings")!;
+
+let inspection: GuiInspection | undefined;
+let busy = false;
+let inspectionBrowserVisible = false;
+let settingsOpen = false;
+
+function updateInspectionIndicator(state: GuiInspectionState): void {
+  inspectionBrowserVisible = state.browserVisible;
+  statusStrip.hidden = state.active;
+  inspectionIndicator.hidden = !state.active;
+  inspectionIndicator.disabled = !state.browserReady;
+  inspectionIndicator.setAttribute("aria-pressed", String(state.browserVisible));
+  inspectionIndicatorText.textContent = state.browserReady
+    ? state.browserVisible ? "Hide browser" : "Show browser"
+    : "Starting browser…";
+}
+
+function closeMoreMenu(): void {
+  moreMenu.hidden = true;
+  moreButton.setAttribute("aria-expanded", "false");
+}
+
+function setSettingsOpen(open: boolean): void {
+  settingsOpen = open;
+  workspaceView.hidden = open;
+  settingsView.hidden = !open;
+  closeMoreMenu();
+  if (open) closeSettingsButton.focus();
+  else albumInput.focus();
+}
+
+function updateMaximizeButton(maximized: boolean): void {
+  const label = maximized ? "Restore window" : "Maximize window";
+  maximizeWindowButton.setAttribute("aria-label", label);
+  maximizeWindowButton.title = label;
+  maximizeWindowButton.innerHTML = `<i data-lucide="${maximized ? "copy" : "square"}" aria-hidden="true"></i>`;
+  createIcons({ icons: windowIcons });
+}
+
+function isValidAlbumUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" &&
+      url.hostname.toLowerCase() === "downloads.khinsider.com" &&
+      url.pathname.startsWith("/game-soundtracks/album/") &&
+      !url.username && !url.password;
+  } catch {
+    return false;
+  }
+}
+
+function setStatus(label: string, tone: "idle" | "working" | "success" | "error" = "idle"): void
+… (output truncated)
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Read `renderer.ts`, lines 150 to 307
+
+**Input:**
+
+- endLine: `360`
+- filePath: `/home/kel/dev/K-Downloader/src/renderer.ts`
+- startLine: `150`
+
+**Result:**
+
+```
+  const discs = [...new Set(inspection.tracks.flatMap((track) => track.discNumber === undefined ? [] : [track.discNumber]))];
+  discLabelSetting.hidden = discs.length < 2;
+  const previous = formatSelect.value;
+  formatSelect.querySelectorAll("option[data-discovered]").forEach((option) => option.remove());
+  for (const format of formats) {
+    const option = document.createElement("option");
+    option.value = `format:${format}`;
+    option.textContent = `Specific format: ${format}`;
+    option.dataset.discovered = "true";
+    formatSelect.append(option);
+  }
+  if ([...formatSelect.options].some((option) => option.value === previous)) formatSelect.value = previous;
+  renderTracks();
+}
+
+function setBusy(value: boolean): void {
+  busy = value;
+  inspectButton.disabled = value;
+  browseButton.disabled = value;
+  albumInput.disabled = value;
+  outputInput.disabled = value;
+  formatSelect.disabled = value;
+  discLabelSelect.disabled = value;
+  skipInput.disabled = value || formatSelect.value === "prefer-lossless";
+  cancelButton.disabled = !value;
+  if (inspection) renderTracks();
+}
+
+minimizeWindowButton.addEventListener("click", () => { void window.kDownloader.minimizeWindow(); });
+maximizeWindowButton.addEventListener("click", async () => {
+  const maximized = await window.kDownloader.toggleMaximizeWindow();
+  updateMaximizeButton(maximized);
+});
+closeWindowButton.addEventListener("click", () => { void window.kDownloader.closeWindow(); });
+window.kDownloader.onWindowState(({ maximized }) => updateMaximizeButton(maximized));
+
+moreButton.addEventListener("click", () => {
+  moreMenu.hidden = !moreMenu.hidden;
+  moreButton.setAttribute("aria-expanded", String(!moreMenu.hidden));
+});
+settingsMenuItem.addEventListener("click", () => setSettingsOpen(true));
+closeSettingsButton.addEventListener("click", () => setSettingsOpen(false));
+document.addEventListener("click", (event) => {
+  if (!moreMenuWrap.contains(event.target as Node)) closeMoreMenu();
+});
+document.addEventListene
+… (output truncated)
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Read `appearance.test.ts`, lines 40 to 241
+
+**Input:**
+
+- endLine: `250`
+- filePath: `/home/kel/dev/K-Downloader/tests/appearance.test.ts`
+- startLine: `40`
+
+**Result:**
+
+```
+
+describe("appearance controls in Chromium", () => {
+  it("applies appearance preferences and keeps statusbars visible with a long preview", async () => {
+    const browser = await chromium.launch({ headless: true });
+    try {
+      const page = await browser.newPage({ viewport: { width: 1120, height: 780 }, colorScheme: "light" });
+      page.setDefaultTimeout(5_000);
+      const errors: string[] = [];
+      page.on("pageerror", (error) => errors.push(error.message));
+      await page.addInitScript(() => {
+        let inspectionListener: ((state: GuiInspectionState) => void) | undefined;
+        let browserVisible = false;
+        window.kDownloader = {
+          systemTheme: async () => matchMedia("(prefers-color-scheme: dark)").matches,
+          onSystemTheme: (listener) => {
+            const media = matchMedia("(prefers-color-scheme: dark)");
+            const handler = () => listener(media.matches);
+            media.addEventListener("change", handler);
+            return () => media.removeEventListener("change", handler);
+          },
+          defaultOutputRoot: async () => "/tmp/K-Downloader",
+          chooseOutput: async () => undefined,
+          inspect: async () => {
+            browserVisible = false;
+            inspectionListener?.({ active: true, browserReady: true, browserVisible });
+            try {
+              await new Promise<void>((complete, fail) => {
+                window.addEventListener("finish-inspection", (event) => {
+                  if ((event as CustomEvent).detail === "fail") fail(new Error("Mock inspection failed"));
+                  else complete();
+                }, { once: true });
+              });
+            } finally {
+              inspectionListener?.({ active: false, browserReady: false, browserVisible: false });
+            }
+            return {
+            albumTitle: "Large multi-disc fixture",
+            trackCount: 200,
+            tracks: Array.from({ length: 200 }, (_, index) => ({
+              discNumb
+… (output truncated)
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+Cancel currently aborts downloads only. Inspection already receives a signal, but it doesn’t close an in-flight browser navigation when that signal fires. I’ll connect those paths, use the existing button as **Cancel inspection** during a scan, and show “Inspection canceled” without treating it as an error.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **khinsider.ts**</summary>
+
+@@ lines 1-226 @@
+
+```
+import { chromium, type BrowserContext } from "playwright";
+import { parse } from "parse5";
+import { setTimeout as delay } from "node:timers/promises";
+
+const SITE_HOST = "downloads.khinsider.com";
+const AUDIO_EXTENSIONS = new Set(["mp3", "flac", "ogg", "opus", "m4a", "aac", "wav", "wma", "alac"]);
+
+export type TrackLink = {
+  discNumber?: number;
+  number: number;
+  title: string;
+  pageUrl: URL;
+};
+
+export type AudioLink = {
+  format: string;
+  url: URL;
+};
+
+export type AlbumPage = {
+  title: string;
+  advertisedTrackCount?: number;
+  tracks: TrackLink[];
+};
+
+export type DiscoveredTrack = TrackLink & {
+  audioLinks: AudioLink[];
+};
+
+export type InspectionOptions = {
+  signal?: AbortSignal;
+  onBrowserReady?: (setVisible: (visible: boolean) => Promise<void>) => void;
+};
+
+function* walk(node: any): Generator<any> {
+  yield node;
+  for (const child of node.childNodes ?? []) yield* walk(child);
+}
+
+function textContent(node: any): string {
+  if (node.nodeName === "#text") return node.value;
+  return (node.childNodes ?? []).map(textContent).join(" ").replace(/\s+/g, " ").trim();
+}
+
+function href(node: any, baseUrl: URL): URL | undefined {
+  const value = node.attrs?.find((attribute: any) => attribute.name === "href")?.value;
+  if (!value) return undefined;
+  try {
+    const url = new URL(value, baseUrl);
+    if (url.protocol !== "https:" || url.username || url.password) return undefined;
+    return url;
+  } catch {
+    return undefined;
+  }
+}
+
+function numberedTrack(
+  row: any,
+  albumUrl: URL,
+  columns: { disc: number; track: number },
+): TrackLink | undefined {
+  const cells = (row.childNodes ?? []).filter((node: any) => node.tagName === "td" || node.tagName === "th");
+  const cellNumber = (index: number): number | undefined => {
+    if (index < 0 || index >= cells.length) return undefined;
+    const value = textContent(cells[index]);
+    return /^\s*\d+\.?\s*$/.test(value) ? Number.parseInt(value, 10) : undefined;
+  };
+  const discNumber = cellNumber(columns.disc);
+  const number = cellNumber(columns.track);
+  if (number === undefined) return undefined;
+
+  const anchors = [...walk(row)].filter((node) => node.tagName === "a");
+  for (const anchor of anchors) {
+    const pageUrl = href(anchor, albumUrl);
+    if (
+      !pageUrl ||
+      pageUrl.hostname.toLowerCase() !== SITE_HOST ||
+      !pageUrl.pathname.startsWith(`${albumUrl.pathname.replace(/\/$/, "")}/`)
+    ) continue;
+
+    const title = textContent(anchor);
+    if (!title) continue;
+    return { ...(discNumber === undefined ? {} : { discNumber }), number, title, pageUrl };
+  }
+  return undefined;
+}
+
+export function validateAlbumUrl(input: string): URL {
+  const url = new URL(input);
+  if (
+    url.protocol !== "https:" ||
+    url.hostname.toLowerCase() !== SITE_HOST ||
+    url.username ||
+    url.password ||
+    !url.pathname.startsWith("/game-soundtracks/album/")
+  ) {
+    throw new Error(`Expected an HTTPS KHInsider album URL on ${SITE_HOST}`);
+  }
+  url.hash = "";
+  return url;
+}
+
+export function parseAlbumPage(html: string, albumUrl: URL): AlbumPage {
+  const document = parse(html);
+  const text = textContent(document);
+  const advertisedMatch = text.match(/Number of Files:\s*(\d+)/i);
+  const pageTitle = [...walk(document)].find((node) => node.tagName === "title");
+  const titleMatch = pageTitle && textContent(pageTitle).match(
+    /^(.*?)\s+(?:MP3|FLAC|OGG|OPUS|M4A|AAC|WAV|WMA|ALAC)\s+-\s+Download Soundtracks/i,
+  );
+  const heading = [...walk(document)].find((node) => node.tagName === "h2" || node.tagName === "h1");
+  const rows = [...walk(document)].filter((node) => node.tagName === "tr");
+  const header = rows.find((row) => [...walk(row)].some((node) => node.tagName === "th"));
+  const headers = header
+    ? (header.childNodes ?? []).filter((node: any) => node.tagName === "th" || node.tagName === "td").map(textContent)
+    : [];
+  const discColumn = headers.findIndex((label: string) => /^\s*(?:cd|disc(?:\s*(?:number|#))?)\s*$/i.test(label));
+  const trackColumn = headers.findIndex((label: string) => /^\s*(?:#|track(?:\s*(?:number|#))?)\s*$/i.test(label));
+  const tracks = [...walk(document)]
+    .filter((node) => node.tagName === "tr")
+    .map((row) => {
+      const cells = (row.childNodes ?? []).filter((node: any) => node.tagName === "td" || node.tagName === "th");
+      const numericIndices = cells
+        .map((cell: any, index: number) => /^\s*\d+\.?\s*$/.test(textContent(cell)) ? index : -1)
+        .filter((index: number) => index >= 0);
+      const disc = discColumn >= 0 ? discColumn : numericIndices.length > 1 ? numericIndices[0] : -1;
+      const track = trackColumn >= 0
+        ? trackColumn
+        : numericIndices.find((index: number) => index !== disc) ?? numericIndices[0] ?? -1;
+      return numberedTrack(row, albumUrl, { disc, track });
+    })
+    .filter((track): track is TrackLink => track !== undefined);
+
+  return {
+    title: titleMatch?.[1] ?? (heading ? textContent(heading) : albumUrl.pathname.split("/").filter(Boolean).at(-1) ?? "Album"),
+    advertisedTrackCount: advertisedMatch ? Number(advertisedMatch[1]) : undefined,
+    tracks,
+  };
+}
+
+export function parseTrackPage(html: string, trackUrl: URL): AudioLink[] {
+  const document = parse(html);
+  const links: AudioLink[] = [];
+  const seen = new Set<string>();
+
+  for (const anchor of [...walk(document)].filter((node) => node.tagName === "a")) {
+    const label = textContent(anchor);
+    if (!/click here to download as/i.test(label)) continue;
+    const url = href(anchor, trackUrl);
+    if (!url || seen.has(url.href)) continue;
+    const extension = url.pathname.split(".").at(-1)?.toLowerCase();
+    const format = extension && AUDIO_EXTENSIONS.has(extension) ? extension.toUpperCase() : undefined;
+    if (!format) continue;
+    seen.add(url.href);
+    links.push({ format, url });
+  }
+
+  return links;
+}
+
+export async function inspectAlbum(
+  input: string,
+  options: InspectionOptions = {},
+): Promise<{ album: AlbumPage; tracks: DiscoveredTrack[] }> {
+  const albumUrl = validateAlbumUrl(input);
+  options.signal?.throwIfAborted();
+  const browser = await chromium.launch({ headless: false, args: ["--start-minimized"] });
+  let context: BrowserContext | undefined;
+  const controller = new AbortController();
+  const abort = () => {
+    controller.abort();
+    void browser.close().catch(() => undefined);
+  };
+  options.signal?.addEventListener("abort", abort, { once: true });
+
+  try {
+    options.signal?.throwIfAborted();
+    context = await browser.newContext({ serviceWorkers: "block" });
+    const page = await context.newPage();
+    page.on("close", () => controller.abort());
+    const cdp = await context.newCDPSession(page);
+    const { windowId } = await cdp.send("Browser.getWindowForTarget");
+    let browserVisible: boolean | undefined;
+    const setBrowserVisible = async (visible: boolean): Promise<void> => {
+      if (page.isClosed()) throw new Error("Inspection browser has been closed");
+      if (browserVisible === visible) return;
+      await cdp.send("Browser.setWindowBounds", {
+        windowId,
+        bounds: { windowState: visible ? "normal" : "minimized" },
+      });
+      browserVisible = visible;
+    };
+    await setBrowserVisible(false);
+    options.onBrowserReady?.(setBrowserVisible);
+
+    const albumResponse = await page.goto(albumUrl.href, { waitUntil: "domcontentloaded", timeout: 30_000 });
+    if (!albumResponse || !albumResponse.ok()) {
+      throw new Error(`Album page request failed with HTTP ${albumResponse?.status() ?? "no response"}`);
+    }
+
+    const album = parseAlbumPage(await albumResponse.text(), albumUrl);
+    if (album.advertisedTrackCount !== undefined && album.tracks.length !== album.advertisedTrackCount) {
+      throw new Error(`Album advertises ${album.advertisedTrackCount} tracks but ${album.tracks.length} track links were found`);
+    }
+    if (album.tracks.length === 0) throw new Error("No numbered track-page links were found");
+
+    const tracks: DiscoveredTrack[] = [];
+    for (const [index, track] of album.tracks.entries()) {
+      if (controller.signal.aborted || page.isClosed()) throw new Error("Inspection browser was closed before inspection completed");
+      if (index > 0) await delay(1_000, undefined, { signal: controller.signal });
+      const trackResponse = await page.goto(track.pageUrl.href, { waitUntil: "domcontentloaded", timeout: 30_000 });
+      if (!trackResponse || !trackResponse.ok()) {
+        throw new Error(`Track ${track.number} page request failed with HTTP ${trackResponse?.status() ?? "no response"}`);
+      }
+      tracks.push({ ...track, audioLinks: parseTrackPage(await trackResponse.text(), track.pageUrl) });
+    }
+
+    options.signal?.throwIfAborted();
+    return { album, tracks };
+  } finally {
+    options.signal?.removeEventListener("abort", abort);
+    await context?.close().catch(() => undefined);
+    await browser.close().catch(() => undefined);
+  }
+}
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **main.ts**</summary>
+
+@@ lines 1-269 @@
+
+```
+import { app, BrowserWindow, dialog, ipcMain, Menu, nativeTheme } from "electron";
+import { monitorCinnamonTheme } from "./system-theme.js";
+import { resolve } from "node:path";
+import { downloadAlbum, type DownloadProgress } from "../downloader.js";
+import { planFormats } from "../formats.js";
+import { inspectAlbum, validateAlbumUrl, type AlbumPage, type DiscoveredTrack } from "../khinsider.js";
+import { defaultOutputRoot } from "../output.js";
+import type { GuiDownloadRequest, GuiFormatPolicy, GuiInspection, GuiInspectionState } from "../gui-types.js";
+
+type CachedInspection = {
+  sourceAlbum: string;
+  album: AlbumPage;
+  tracks: DiscoveredTrack[];
+};
+
+let mainWindow: BrowserWindow | undefined;
+let cinnamonDark: boolean | undefined;
+let stopThemeMonitor: (() => void) | undefined;
+
+function systemThemeIsDark(): boolean {
+  return cinnamonDark ?? nativeTheme.shouldUseDarkColors;
+}
+
+function sendSystemTheme(): void {
+  if (mainWindow && !mainWindow.isDestroyed() && !mainWindow.webContents.isDestroyed()) {
+    mainWindow.webContents.send("appearance:system-theme", systemThemeIsDark());
+  }
+}
+
+const inspections = new Map<number, CachedInspection>();
+const downloads = new Map<number, AbortController>();
+const activeInspections = new Map<number, {
+  controller: AbortController;
+  setBrowserVisible?: (visible: boolean) => Promise<void>;
+  browserVisible: boolean;
+}>();
+
+function assertWindowSender(senderId: number): BrowserWindow {
+  if (!mainWindow || mainWindow.webContents.id !== senderId) throw new Error("Untrusted IPC sender");
+  return mainWindow;
+}
+
+function parseFormatPolicy(policy: unknown): GuiFormatPolicy {
+  if (typeof policy !== "object" || policy === null || !("kind" in policy)) {
+    throw new Error("Invalid format policy");
+  }
+  const value = policy as Record<string, unknown>;
+  const skipUnavailable = value.skipUnavailable === true;
+  if (value.kind === "prefer-lossless" && !skipUnavailable) return { kind: "prefer-lossless" };
+  if (value.kind === "lossless-only") return { kind: "lossless-only", skipUnavailable };
+  if (value.kind === "specific" && typeof value.format === "string" && /^[A-Za-z0-9.+-]{1,16}$/.test(value.format)) {
+    return { kind: "specific", format: value.format.toUpperCase(), skipUnavailable };
+  }
+  throw new Error("Invalid format policy");
+}
+
+function serializeInspection(cached: CachedInspection): GuiInspection {
+  return {
+    albumTitle: cached.album.title,
+    trackCount: cached.tracks.length,
+    tracks: cached.tracks.map((track) => ({
+      ...(track.discNumber === undefined ? {} : { discNumber: track.discNumber }),
+      number: track.number,
+      title: track.title,
+      formats: [...new Set(track.audioLinks.map(({ format }) => format))],
+    })),
+  };
+}
+
+function sendProgress(sender: Electron.WebContents, progress: DownloadProgress): void {
+  if (!sender.isDestroyed()) sender.send("album:progress", progress);
+}
+
+function sendInspectionState(sender: Electron.WebContents, state: GuiInspectionState): void {
+  if (!sender.isDestroyed()) sender.send("inspection:state", state);
+}
+
+function sendWindowState(window: BrowserWindow): void {
+  if (!window.webContents.isDestroyed()) {
+    window.webContents.send("window:state", { maximized: window.isMaximized() });
+  }
+}
+
+function registerIpc(): void {
+  ipcMain.handle("appearance:system-theme", (event) => {
+    assertWindowSender(event.sender.id);
+    return systemThemeIsDark();
+  });
+  ipcMain.handle("window:minimize", (event) => {
+    assertWindowSender(event.sender.id).minimize();
+  });
+
+  ipcMain.handle("window:toggle-maximize", (event) => {
+    const window = assertWindowSender(event.sender.id);
+    if (window.isMaximized()) window.unmaximize();
+    else window.maximize();
+    sendWindowState(window);
+    return window.isMaximized();
+  });
+
+  ipcMain.handle("window:close", (event) => {
+    assertWindowSender(event.sender.id).close();
+  });
+
+  ipcMain.handle("output:default", (event) => {
+    assertWindowSender(event.sender.id);
+    return defaultOutputRoot();
+  });
+
+  ipcMain.handle("output:choose", async (event) => {
+    const window = assertWindowSender(event.sender.id);
+    const result = await dialog.showOpenDialog(window, {
+      title: "Choose download folder",
+      defaultPath: defaultOutputRoot(),
+      properties: ["openDirectory", "createDirectory"],
+    });
+    return result.canceled ? undefined : result.filePaths[0];
+  });
+
+  ipcMain.handle("album:inspect", async (event, input: unknown) => {
+    assertWindowSender(event.sender.id);
+    if (typeof input !== "string" || input.length > 2048) throw new Error("Enter one valid album URL");
+    if (activeInspections.has(event.sender.id)) throw new Error("Album inspection is already active");
+    let sourceAlbum: string;
+    try {
+      sourceAlbum = validateAlbumUrl(input).href;
+    } catch {
+      throw new Error("Paste a valid HTTPS KHInsider album URL.");
+    }
+    const active: {
+      controller: AbortController;
+      setBrowserVisible?: (visible: boolean) => Promise<void>;
+      browserVisible: boolean;
+    } = { controller: new AbortController(), browserVisible: false };
+    inspections.delete(event.sender.id);
+    activeInspections.set(event.sender.id, active);
+    sendInspectionState(event.sender, { active: true, browserReady: false, browserVisible: false });
+    try {
+      const result = await inspectAlbum(sourceAlbum, {
+        signal: active.controller.signal,
+        onBrowserReady: (setBrowserVisible) => {
+          active.setBrowserVisible = setBrowserVisible;
+          sendInspectionState(event.sender, { active: true, browserReady: true, browserVisible: false });
+        },
+      });
+      const cached = { sourceAlbum, album: result.album, tracks: result.tracks };
+      inspections.set(event.sender.id, cached);
+      return serializeInspection(cached);
+    } catch (error) {
+      if (active.controller.signal.aborted) return undefined;
+      throw error;
+    } finally {
+      activeInspections.delete(event.sender.id);
+      sendInspectionState(event.sender, { active: false, browserReady: false, browserVisible: false });
+    }
+  });
+
+  ipcMain.handle("inspection:toggle-browser", async (event) => {
+    assertWindowSender(event.sender.id);
+    const active = activeInspections.get(event.sender.id);
+    if (!active?.setBrowserVisible) throw new Error("Inspection browser is not ready");
+    const browserVisible = !active.browserVisible;
+    await active.setBrowserVisible(browserVisible);
+    active.browserVisible = browserVisible;
+    sendInspectionState(event.sender, { active: true, browserReady: true, browserVisible });
+    return browserVisible;
+  });
+
+  ipcMain.handle("album:download", async (event, request: unknown) => {
+    const window = assertWindowSender(event.sender.id);
+    if (downloads.has(event.sender.id)) throw new Error("A download is already active");
+    if (typeof request !== "object" || request === null || !("outputRoot" in request)) {
+      throw new Error("Invalid download request");
+    }
+    const payload = request as GuiDownloadRequest;
+    if (typeof payload.outputRoot !== "string" || payload.outputRoot.length > 4096 || payload.outputRoot.includes("\0")) {
+      throw new Error("Invalid output folder");
+    }
+    if (payload.discLabel !== "CD" && payload.discLabel !== "Disc") throw new Error("Invalid disc folder label");
+    const cached = inspections.get(event.sender.id);
+    if (!cached) throw new Error("Inspect an album before starting a download");
+    const policy = parseFormatPolicy(payload.policy);
+    const plan = planFormats(cached.tracks, policy);
+    if (plan.blocked) throw new Error("The format preview has unavailable tracks; skip them explicitly or choose another policy");
+
+    const controller = new AbortController();
+    downloads.set(event.sender.id, controller);
+    try {
+      const result = await downloadAlbum({
+        ...cached,
+        outputRoot: resolve(payload.outputRoot),
+        policy,
+        discLabel: payload.discLabel,
+        signal: controller.signal,
+        onProgress: (progress) => sendProgress(window.webContents, progress),
+      });
+      return { state: result.state, directory: result.directory };
+    } finally {
+      downloads.delete(event.sender.id);
+    }
+  });
+
+  ipcMain.handle("album:cancel", (event) => {
+    assertWindowSender(event.sender.id);
+    activeInspections.get(event.sender.id)?.controller.abort();
+    downloads.get(event.sender.id)?.abort();
+  });
+}
+
+async function createWindow(): Promise<void> {
+  const window = new BrowserWindow({
+    frame: false,
+    autoHideMenuBar: true,
+    width: 1120,
+    height: 780,
+    minWidth: 760,
+    minHeight: 620,
+    backgroundColor: "#101715",
+    title: "K-Downloader",
+    webPreferences: {
+      preload: resolve(__dirname, "preload.cjs"),
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: true,
+    },
+  });
+  mainWindow = window;
+  const senderId = window.webContents.id;
+  window.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
+  window.webContents.on("will-navigate", (event, url) => {
+    if (!url.startsWith("file://")) event.preventDefault();
+  });
+  window.on("maximize", () => sendWindowState(window));
+  window.on("unmaximize", () => sendWindowState(window));
+  window.webContents.on("did-finish-load", () => sendWindowState(window));
+  window.on("closed", () => {
+    inspections.delete(senderId);
+    activeInspections.get(senderId)?.controller.abort();
+    activeInspections.delete(senderId);
+    downloads.get(senderId)?.abort();
+    downloads.delete(senderId);
+    if (mainWindow === window) mainWindow = undefined;
+  });
+  await window.loadFile(resolve(__dirname, "../gui/index.html"));
+}
+
+app.whenReady().then(async () => {
+  app.setName("K-Downloader");
+  nativeTheme.themeSource = "system";
+  nativeTheme.on("updated", sendSystemTheme);
+  stopThemeMonitor = await monitorCinnamonTheme((dark) => {
+    cinnamonDark = dark;
+    sendSystemTheme();
+  });
+  Menu.setApplicationMenu(null);
+  registerIpc();
+  await createWindow();
+  app.on("activate", () => {
+    if (BrowserWindow.getAllWindows().length === 0) void createWindow();
+  });
+});
+
+app.on("will-quit", () => stopThemeMonitor?.());
+
+app.on("window-all-closed", () => {
+  for (const controller of downloads.values()) controller.abort();
+  if (process.platform !== "darwin") app.quit();
+});
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **gui-types.ts**</summary>
+
+@@ lines 1-66 @@
+
+```
+export type GuiFormatPolicy =
+  | { kind: "prefer-lossless" }
+  | { kind: "lossless-only"; skipUnavailable: boolean }
+  | { kind: "specific"; format: string; skipUnavailable: boolean };
+
+export type GuiTrack = {
+  discNumber?: number;
+  number: number;
+  title: string;
+  formats: string[];
+};
+
+export type GuiInspection = {
+  albumTitle: string;
+  trackCount: number;
+  tracks: GuiTrack[];
+};
+
+export type GuiInspectionState = {
+  active: boolean;
+  browserReady: boolean;
+  browserVisible: boolean;
+};
+
+export type GuiWindowState = {
+  maximized: boolean;
+};
+
+export type GuiProgress = {
+  stage: "track-start" | "track-complete" | "track-failed" | "canceled";
+  number: number;
+  title: string;
+  completedTracks: number;
+  totalTracks: number;
+  bytesReceived?: number;
+};
+
+export type GuiDownloadRequest = {
+  policy: GuiFormatPolicy;
+  outputRoot: string;
+  discLabel: "CD" | "Disc";
+};
+
+export type KDownloaderApi = {
+  systemTheme: () => Promise<boolean>;
+  onSystemTheme: (listener: (dark: boolean) => void) => () => void;
+  minimizeWindow: () => Promise<void>;
+  toggleMaximizeWindow: () => Promise<boolean>;
+  closeWindow: () => Promise<void>;
+  onWindowState: (listener: (state: GuiWindowState) => void) => () => void;
+  defaultOutputRoot: () => Promise<string>;
+  chooseOutput: () => Promise<string | undefined>;
+  inspect: (albumUrl: string) => Promise<GuiInspection | undefined>;
+  toggleInspectionBrowser: () => Promise<boolean>;
+  onInspectionState: (listener: (state: GuiInspectionState) => void) => () => void;
+  download: (request: GuiDownloadRequest) => Promise<{ state: string; directory: string }>;
+  cancel: () => Promise<void>;
+  onProgress: (listener: (progress: GuiProgress) => void) => () => void;
+};
+
+declare global {
+  interface Window {
+    kDownloader: KDownloaderApi;
+  }
+}
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **renderer.ts**</summary>
+
+@@ lines 1-333 @@
+
+```
+import type { GuiFormatPolicy, GuiInspection, GuiInspectionState, GuiProgress, GuiTrack } from "./gui-types.js";
+import { ArrowLeft, Copy, createIcons, EllipsisVertical, LoaderCircle, Minus, Settings, Square, X } from "lucide";
+import { initializeAppearance } from "./appearance.js";
+
+initializeAppearance();
+
+const windowIcons = { ArrowLeft, Copy, EllipsisVertical, LoaderCircle, Minus, Settings, Square, X };
+createIcons({ icons: windowIcons });
+
+const albumInput = document.querySelector<HTMLTextAreaElement>("#album-url")!;
+const outputInput = document.querySelector<HTMLInputElement>("#output-root")!;
+const formatSelect = document.querySelector<HTMLSelectElement>("#format-policy")!;
+const discLabelSelect = document.querySelector<HTMLSelectElement>("#disc-label")!;
+const discLabelSetting = document.querySelector<HTMLElement>("#disc-label-setting")!;
+const skipInput = document.querySelector<HTMLInputElement>("#skip-unavailable")!;
+const inspectButton = document.querySelector<HTMLButtonElement>("#inspect-button")!;
+const downloadButton = document.querySelector<HTMLButtonElement>("#download-button")!;
+const cancelButton = document.querySelector<HTMLButtonElement>("#cancel-button")!;
+const browseButton = document.querySelector<HTMLButtonElement>("#browse-button")!;
+const tableBody = document.querySelector<HTMLTableSectionElement>("#track-rows")!;
+const albumTitle = document.querySelector<HTMLElement>("#album-title")!;
+const trackCount = document.querySelector<HTMLElement>("#track-count")!;
+const statusText = document.querySelector<HTMLElement>("#status-text")!;
+const statusDot = document.querySelector<HTMLElement>("#status-dot")!;
+const statusStrip = document.querySelector<HTMLElement>(".status-strip")!;
+const inspectionIndicator = document.querySelector<HTMLButtonElement>("#inspection-indicator")!;
+const inspectionIndicatorText = document.querySelector<HTMLElement>("#inspection-indicator-text")!;
+const progress = document.querySelector<HTMLProgressElement>("#download-progress")!;
+const progressText = document.querySelector<HTMLElement>("#progress-text")!;
+const emptyState = document.querySelector<HTMLElement>("#empty-state")!;
+const trackTable = document.querySelector<HTMLTableElement>("#track-table")!;
+const errorText = document.querySelector<HTMLElement>("#error-text")!;
+const minimizeWindowButton = document.querySelector<HTMLButtonElement>("#minimize-window")!;
+const maximizeWindowButton = document.querySelector<HTMLButtonElement>("#maximize-window")!;
+const closeWindowButton = document.querySelector<HTMLButtonElement>("#close-window")!;
+const moreMenuWrap = document.querySelector<HTMLElement>("#more-menu-wrap")!;
+const moreButton = document.querySelector<HTMLButtonElement>("#more-button")!;
+const moreMenu = document.querySelector<HTMLElement>("#more-menu")!;
+const settingsMenuItem = document.querySelector<HTMLButtonElement>("#settings-menu-item")!;
+const workspaceView = document.querySelector<HTMLElement>("#workspace")!;
+const settingsView = document.querySelector<HTMLElement>("#settings-view")!;
+const closeSettingsButton = document.querySelector<HTMLButtonElement>("#close-settings")!;
+
+let inspection: GuiInspection | undefined;
+let busy = false;
+let inspecting = false;
+let inspectionCancelRequested = false;
+let inspectionBrowserVisible = false;
+let settingsOpen = false;
+
+function updateInspectionIndicator(state: GuiInspectionState): void {
+  inspectionBrowserVisible = state.browserVisible;
+  statusStrip.hidden = state.active;
+  inspectionIndicator.hidden = !state.active;
+  inspectionIndicator.disabled = !state.browserReady;
+  inspectionIndicator.setAttribute("aria-pressed", String(state.browserVisible));
+  inspectionIndicatorText.textContent = state.browserReady
+    ? state.browserVisible ? "Hide browser" : "Show browser"
+    : "Starting browser…";
+}
+
+function closeMoreMenu(): void {
+  moreMenu.hidden = true;
+  moreButton.setAttribute("aria-expanded", "false");
+}
+
+function setSettingsOpen(open: boolean): void {
+  settingsOpen = open;
+  workspaceView.hidden = open;
+  settingsView.hidden = !open;
+  closeMoreMenu();
+  if (open) closeSettingsButton.focus();
+  else albumInput.focus();
+}
+
+function updateMaximizeButton(maximized: boolean): void {
+  const label = maximized ? "Restore window" : "Maximize window";
+  maximizeWindowButton.setAttribute("aria-label", label);
+  maximizeWindowButton.title = label;
+  maximizeWindowButton.innerHTML = `<i data-lucide="${maximized ? "copy" : "square"}" aria-hidden="true"></i>`;
+  createIcons({ icons: windowIcons });
+}
+
+function isValidAlbumUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" &&
+      url.hostname.toLowerCase() === "downloads.khinsider.com" &&
+      url.pathname.startsWith("/game-soundtracks/album/") &&
+      !url.username && !url.password;
+  } catch {
+    return false;
+  }
+}
+
+function setStatus(label: string, tone: "idle" | "working" | "success" | "error" = "idle"): void {
+  statusText.textContent = label;
+  statusDot.dataset.tone = tone;
+}
+
+function selectedFormat(track: GuiTrack): { format?: string; state: string; fallback: boolean } {
+  const value = formatSelect.value;
+  if (value === "prefer-lossless") {
+    const lossless = ["FLAC", "ALAC", "WAV"].find((format) => track.formats.includes(format));
+    if (lossless) return { format: lossless, state: "Ready", fallback: false };
+    const lossy = track.formats.find((format) => format === "MP3") ?? track.formats[0];
+    return lossy
+      ? { format: lossy, state: "Ready", fallback: true }
+      : { state: "Unavailable", fallback: false };
+  }
+  const requested = value === "lossless-only" ? ["FLAC", "ALAC", "WAV"].find((format) => track.formats.includes(format)) : value.slice("format:".length);
+  if (requested && track.formats.includes(requested)) return { format: requested, state: "Ready", fallback: false };
+  return skipInput.checked
+    ? { state: "Skipped", fallback: false }
+    : { state: "Unavailable", fallback: false };
+}
+
+function renderTracks(): void {
+  if (!inspection) return;
+  const rows = inspection.tracks.map((track) => {
+    const selected = selectedFormat(track);
+    const row = document.createElement("tr");
+    row.innerHTML = `<td class="track-disc"></td><td class="track-number"></td><td class="track-title"></td><td class="track-formats"></td><td class="track-choice"></td><td class="track-state"></td>`;
+    row.querySelector(".track-disc")!.textContent = track.discNumber === undefined ? "-" : `${discLabelSelect.value}${track.discNumber}`;
+    row.querySelector(".track-number")!.textContent = String(track.number).padStart(2, "0");
+    row.querySelector(".track-title")!.textContent = track.title;
+    row.querySelector(".track-formats")!.textContent = track.formats.join(", ") || "None found";
+    row.querySelector(".track-choice")!.textContent = selected.format ?? "-";
+    const state = row.querySelector<HTMLElement>(".track-state")!;
+    state.textContent = selected.state;
+    state.dataset.state = selected.state.toLowerCase();
+    if (selected.fallback) state.textContent += " · fallback";
+    return row;
+  });
+  tableBody.replaceChildren(...rows);
+  const blocked = inspection.tracks.some((track) => selectedFormat(track).state === "Unavailable");
+  downloadButton.disabled = busy || blocked;
+  trackCount.textContent = `${inspection.trackCount} tracks`;
+  emptyState.hidden = true;
+  trackTable.hidden = false;
+}
+
+function currentPolicy(): GuiFormatPolicy {
+  if (formatSelect.value === "prefer-lossless") return { kind: "prefer-lossless" };
+  if (formatSelect.value === "lossless-only") return { kind: "lossless-only", skipUnavailable: skipInput.checked };
+  return { kind: "specific", format: formatSelect.value.slice("format:".length), skipUnavailable: skipInput.checked };
+}
+
+function updateFormatOptions(): void {
+  if (!inspection) return;
+  const formats = [...new Set(inspection.tracks.flatMap((track) => track.formats))].sort();
+  const discs = [...new Set(inspection.tracks.flatMap((track) => track.discNumber === undefined ? [] : [track.discNumber]))];
+  discLabelSetting.hidden = discs.length < 2;
+  const previous = formatSelect.value;
+  formatSelect.querySelectorAll("option[data-discovered]").forEach((option) => option.remove());
+  for (const format of formats) {
+    const option = document.createElement("option");
+    option.value = `format:${format}`;
+    option.textContent = `Specific format: ${format}`;
+    option.dataset.discovered = "true";
+    formatSelect.append(option);
+  }
+  if ([...formatSelect.options].some((option) => option.value === previous)) formatSelect.value = previous;
+  renderTracks();
+}
+
+function setBusy(value: boolean): void {
+  busy = value;
+  inspectButton.disabled = value;
+  browseButton.disabled = value;
+  albumInput.disabled = value;
+  outputInput.disabled = value;
+  formatSelect.disabled = value;
+  discLabelSelect.disabled = value;
+  skipInput.disabled = value || formatSelect.value === "prefer-lossless";
+  cancelButton.disabled = !value;
+  cancelButton.textContent = inspecting ? "Cancel inspection" : "Cancel active download";
+  if (inspection) renderTracks();
+}
+
+minimizeWindowButton.addEventListener("click", () => { void window.kDownloader.minimizeWindow(); });
+maximizeWindowButton.addEventListener("click", async () => {
+  const maximized = await window.kDownloader.toggleMaximizeWindow();
+  updateMaximizeButton(maximized);
+});
+closeWindowButton.addEventListener("click", () => { void window.kDownloader.closeWindow(); });
+window.kDownloader.onWindowState(({ maximized }) => updateMaximizeButton(maximized));
+
+moreButton.addEventListener("click", () => {
+  moreMenu.hidden = !moreMenu.hidden;
+  moreButton.setAttribute("aria-expanded", String(!moreMenu.hidden));
+});
+settingsMenuItem.addEventListener("click", () => setSettingsOpen(true));
+closeSettingsButton.addEventListener("click", () => setSettingsOpen(false));
+document.addEventListener("click", (event) => {
+  if (!moreMenuWrap.contains(event.target as Node)) closeMoreMenu();
+});
+document.addEventListener("keydown", (event) => {
+  if ((event.ctrlKey || event.metaKey) && event.key === ",") {
+    event.preventDefault();
+    setSettingsOpen(!settingsOpen);
+  } else if (event.key === "Escape") {
+    if (settingsOpen) setSettingsOpen(false);
+    else if (!moreMenu.hidden) {
+      closeMoreMenu();
+      moreButton.focus();
+    }
+  }
+});
+
+inspectButton.addEventListener("click", async () => {
+  errorText.textContent = "";
+  const albumUrl = albumInput.value.trim();
+  if (!isValidAlbumUrl(albumUrl)) {
+    errorText.textContent = "Paste a valid HTTPS KHInsider album URL.";
+    setStatus("Album URL required", "error");
+    albumInput.focus();
+    return;
+  }
+  inspection = undefined;
+  downloadButton.disabled = true;
+  tableBody.replaceChildren();
+  trackTable.hidden = true;
+  emptyState.hidden = false;
+  inspecting = true;
+  inspectionCancelRequested = false;
+  setBusy(true);
+  updateInspectionIndicator({ active: true, browserReady: false, browserVisible: false });
+  try {
+    inspection = await window.kDownloader.inspect(albumUrl);
+    if (!inspection) {
+      setStatus("Inspection canceled");
+      return;
+    }
+    albumTitle.textContent = inspection.albumTitle;
+    updateFormatOptions();
+    setStatus("Preview ready", "success");
+  } catch (error) {
+    if (inspectionCancelRequested) setStatus("Inspection canceled");
+    else {
+      errorText.textContent = error instanceof Error ? error.message : String(error);
+      setStatus("Inspection failed", "error");
+    }
+  } finally {
+    inspecting = false;
+    inspectionCancelRequested = false;
+    updateInspectionIndicator({ active: false, browserReady: false, browserVisible: false });
+    setBusy(false);
+    if (inspection) renderTracks();
+  }
+});
+
+inspectionIndicator.addEventListener("click", async () => {
+  if (inspectionIndicator.disabled) return;
+  try {
+    inspectionBrowserVisible = await window.kDownloader.toggleInspectionBrowser();
+    inspectionIndicator.setAttribute("aria-pressed", String(inspectionBrowserVisible));
+    inspectionIndicatorText.textContent = inspectionBrowserVisible ? "Hide browser" : "Show browser";
+  } catch (error) {
+    errorText.textContent = error instanceof Error ? error.message : String(error);
+  }
+});
+
+window.kDownloader.onInspectionState(updateInspectionIndicator);
+
+browseButton.addEventListener("click", async () => {
+  const selected = await window.kDownloader.chooseOutput();
+  if (selected) outputInput.value = selected;
+});
+
+formatSelect.addEventListener("change", () => {
+  skipInput.disabled = busy || formatSelect.value === "prefer-lossless";
+  renderTracks();
+});
+discLabelSelect.addEventListener("change", renderTracks);
+skipInput.addEventListener("change", renderTracks);
+
+downloadButton.addEventListener("click", async () => {
+  if (!inspection) return;
+  errorText.textContent = "";
+  progress.value = 0;
+  progressText.textContent = "Preparing album";
+  setBusy(true);
+  setStatus("Downloading", "working");
+  try {
+    const result = await window.kDownloader.download({
+      policy: currentPolicy(),
+      outputRoot: outputInput.value,
+      discLabel: discLabelSelect.value === "Disc" ? "Disc" : "CD",
+    });
+    progress.value = inspection.trackCount;
+    progress.max = inspection.trackCount;
+    progressText.textContent = `${result.state} · ${result.directory}`;
+    setStatus(result.state === "complete" ? "Download complete" : result.state, result.state === "complete" ? "success" : "error");
+  } catch (error) {
+    errorText.textContent = error instanceof Error ? error.message : String(error);
+    setStatus("Download failed", "error");
+  } finally {
+    setBusy(false);
+  }
+});
+
+cancelButton.addEventListener("click", async () => {
+  cancelButton.disabled = true;
+  const cancelingInspection = inspecting;
+  if (cancelingInspection) {
+    inspectionCancelRequested = true;
+    inspectionIndicator.disabled = true;
+    inspectionIndicatorText.textContent = "Canceling…";
+  } else setStatus("Canceling active track…", "working");
+  try {
+    await window.kDownloader.cancel();
+  } catch (error) {
+    errorText.textContent = error instanceof Error ? error.message : String(error);
+    inspectionCancelRequested = false;
+    cancelButton.disabled = !busy;
+  }
+});
+
+window.kDownloader.onProgress((event: GuiProgress) => {
+  progress.max = event.totalTracks;
+  progress.value = event.completedTracks;
+  progressText.textContent = event.stage === "track-start"
+    ? `Downloading ${String(event.number).padStart(2, "0")} · ${event.title}`
+    : event.stage === "track-complete"
+      ? `Completed ${event.completedTracks} of ${event.totalTracks} tracks`
+      : event.stage === "track-failed"
+        ? `Failed ${String(event.number).padStart(2, "0")} · ${event.title}`
+        : "Canceled";
+});
+
+void window.kDownloader.defaultOutputRoot().then((value) => { outputInput.value = value; });
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm run build && npm test -- tests/appearance.test.ts tests/khinsider.test.ts`
+
+Check the cancellation return contract and existing inspection/renderer tests before adding cancellation regressions.
+
+```bash
+npm run build && npm test -- tests/appearance.test.ts tests/khinsider.test.ts
+```
+
+**Result:**
+
+```
+
+> k-downloader@0.1.0 build
+> tsc --noEmit
+
+
+> k-downloader@0.1.0 pretest
+> npm run build:gui
+
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+
+> k-downloader@0.1.0 test
+> vitest run tests/appearance.test.ts tests/khinsider.test.ts
+
+
+ RUN  v5.0.4 /home/kel/dev/K-Downloader
+
+
+ Test Files  2 passed (2)
+      Tests  10 passed (10)
+   Start at  12:12:20
+   Duration  3.21s (tests 80%, import 19%, transform 1%)
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The wiring compiles and existing checks pass. I’ll add two regressions: Cancel must reset the UI and allow a new inspection, and the engine must stop a held browser navigation without starting any track requests.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Read `khinsider.test.ts`
+
+**Input:**
+
+- endLine: `145`
+- filePath: `/home/kel/dev/K-Downloader/tests/khinsider.test.ts`
+- startLine: `1`
+
+**Result:**
+
+```
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { describe, expect, it } from "vitest";
+import { parseAlbumPage, parseTrackPage, validateAlbumUrl } from "../src/khinsider.js";
+
+const albumUrl = new URL("https://downloads.khinsider.com/game-soundtracks/album/fixture-album");
+const albumHtml = readFileSync(fileURLToPath(new URL("./fixtures/album.html", import.meta.url)), "utf8");
+const multiDiscAlbumHtml = readFileSync(fileURLToPath(new URL("./fixtures/multi-disc-album.html", import.meta.url)), "utf8");
+const trackHtml = readFileSync(fileURLToPath(new URL("./fixtures/track.html", import.meta.url)), "utf8");
+
+describe("KHInsider page parsing", () => {
+  it("keeps ordered track-page links and ignores bulk and recommendation links", () => {
+    const result = parseAlbumPage(albumHtml, albumUrl);
+    expect(result.title).toBe("Fixture Album");
+    expect(result.advertisedTrackCount).toBe(2);
+    expect(result.tracks.map(({ number, title }) => [number, title])).toEqual([
+      [1, "Opening"],
+      [2, "Finale"],
+    ]);
+    expect(result.tracks.every(({ pageUrl }) => pageUrl.pathname.startsWith(`${albumUrl.pathname}/`))).toBe(true);
+  });
+
+  it("extracts only explicit audio-download links and their format", () => {
+    const result = parseTrackPage(trackHtml, new URL(`${albumUrl.href}/01-Opening.mp3`));
+    expect(result).toHaveLength(1);
+    expect(result[0].format).toBe("MP3");
+    expect(result[0].url.hostname).toBe("media.example.test");
+  });
+
+  it("keeps CD numbers separate from per-disc track numbers", () => {
+    const result = parseAlbumPage(
+      multiDiscAlbumHtml,
+      new URL("https://downloads.khinsider.com/game-soundtracks/album/multi-disc"),
+    );
+    expect(result.tracks.map(({ discNumber, number, title }) => [discNumber, number, title])).toEqual([
+      [1, 1, "Opening"],
+      [1, 2, "Menu"],
+      [2, 1, "Serenity"],
+      [2, 2, "Finale"],
+    ]);
+  });
+
+  it("rejects unrelated or insecure album URLs", () =>
+… (output truncated)
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **khinsider.test.ts**</summary>
+
+@@ lines 1-94 @@
+
+```
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { chromium, type Browser } from "playwright";
+import { inspectAlbum, parseAlbumPage, parseTrackPage, validateAlbumUrl } from "../src/khinsider.js";
+
+const albumUrl = new URL("https://downloads.khinsider.com/game-soundtracks/album/fixture-album");
+const albumHtml = readFileSync(fileURLToPath(new URL("./fixtures/album.html", import.meta.url)), "utf8");
+const multiDiscAlbumHtml = readFileSync(fileURLToPath(new URL("./fixtures/multi-disc-album.html", import.meta.url)), "utf8");
+const trackHtml = readFileSync(fileURLToPath(new URL("./fixtures/track.html", import.meta.url)), "utf8");
+
+describe("KHInsider page parsing", () => {
+  it("keeps ordered track-page links and ignores bulk and recommendation links", () => {
+    const result = parseAlbumPage(albumHtml, albumUrl);
+    expect(result.title).toBe("Fixture Album");
+    expect(result.advertisedTrackCount).toBe(2);
+    expect(result.tracks.map(({ number, title }) => [number, title])).toEqual([
+      [1, "Opening"],
+      [2, "Finale"],
+    ]);
+    expect(result.tracks.every(({ pageUrl }) => pageUrl.pathname.startsWith(`${albumUrl.pathname}/`))).toBe(true);
+  });
+
+  it("extracts only explicit audio-download links and their format", () => {
+    const result = parseTrackPage(trackHtml, new URL(`${albumUrl.href}/01-Opening.mp3`));
+    expect(result).toHaveLength(1);
+    expect(result[0].format).toBe("MP3");
+    expect(result[0].url.hostname).toBe("media.example.test");
+  });
+
+  it("keeps CD numbers separate from per-disc track numbers", () => {
+    const result = parseAlbumPage(
+      multiDiscAlbumHtml,
+      new URL("https://downloads.khinsider.com/game-soundtracks/album/multi-disc"),
+    );
+    expect(result.tracks.map(({ discNumber, number, title }) => [discNumber, number, title])).toEqual([
+      [1, 1, "Opening"],
+      [1, 2, "Menu"],
+      [2, 1, "Serenity"],
+      [2, 2, "Finale"],
+    ]);
+  });
+
+  it("rejects unrelated or insecure album URLs", () => {
+    expect(() => validateAlbumUrl("http://downloads.khinsider.com/game-soundtracks/album/test")).toThrow();
+    expect(() => validateAlbumUrl("https://example.com/game-soundtracks/album/test")).toThrow();
+  });
+});
+
+describe("inspection cancellation", () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  it("does not launch Chromium when already canceled", async () => {
+    const launch = vi.spyOn(chromium, "launch");
+    const controller = new AbortController();
+    controller.abort();
+    await expect(inspectAlbum(albumUrl.href, { signal: controller.signal })).rejects.toThrow();
+    expect(launch).not.toHaveBeenCalled();
+  });
+
+  it("closes Chromium to interrupt active navigation and never starts track requests", async () => {
+    const controller = new AbortController();
+    let rejectNavigation!: (error: Error) => void;
+    let navigationStarted!: () => void;
+    const started = new Promise<void>((resolve) => { navigationStarted = resolve; });
+    const page = {
+      on: vi.fn(),
+      isClosed: () => false,
+      goto: vi.fn(() => new Promise((_, reject) => {
+        rejectNavigation = reject;
+        navigationStarted();
+      })),
+    };
+    const context = {
+      newPage: async () => page,
+      newCDPSession: async () => ({ send: async () => ({ windowId: 1 }) }),
+      close: vi.fn(async () => {}),
+    };
+    const browser = {
+      newContext: async () => context,
+      close: vi.fn(async () => { rejectNavigation?.(new Error("Browser closed")); }),
+    };
+    vi.spyOn(chromium, "launch").mockResolvedValue(browser as unknown as Browser);
+    const run = inspectAlbum(albumUrl.href, { signal: controller.signal });
+    const rejection = expect(run).rejects.toThrow("Browser closed");
+    await started;
+    controller.abort();
+    await rejection;
+    expect(browser.close).toHaveBeenCalled();
+    expect(context.close).toHaveBeenCalled();
+    expect(page.goto).toHaveBeenCalledTimes(1);
+  });
+});
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **appearance.test.ts**</summary>
+
+@@ lines 1-257 @@
+
+```
+import { describe, expect, it } from "vitest";
+import { appearanceModes, colorThemes, defaultAppearance, parseAppearance, resolvedMode } from "../src/appearance.js";
+import { chromium, _electron as electron } from "playwright";
+import { pathToFileURL } from "node:url";
+import { resolve } from "node:path";
+import { createRequire } from "node:module";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { cinnamonThemeIsDark } from "../src/electron/system-theme.js";
+import type { GuiInspectionState } from "../src/gui-types.js";
+
+describe("appearance preferences", () => {
+  it("defaults to System and Mint for absent or malformed settings", () => {
+    for (const raw of [null, "broken", "null", "[]", '{"mode":"invalid","theme":"invalid"}']) {
+      expect(parseAppearance(raw)).toEqual(defaultAppearance);
+    }
+  });
+
+  it("round-trips every supported mode and theme", () => {
+    for (const mode of appearanceModes) for (const theme of colorThemes) {
+      expect(parseAppearance(JSON.stringify({ mode, theme }))).toEqual({ mode, theme });
+    }
+  });
+
+  it("follows the system only in System mode", () => {
+    expect(resolvedMode("system", true)).toBe("dark");
+    expect(resolvedMode("system", false)).toBe("light");
+    expect(resolvedMode("light", true)).toBe("light");
+    expect(resolvedMode("dark", false)).toBe("dark");
+  });
+
+  it("recognizes Cinnamon GTK light and dark theme names", () => {
+    expect(cinnamonThemeIsDark("'Mint-Y'\n")).toBe(false);
+    expect(cinnamonThemeIsDark("'Mint-Y-Dark'\n")).toBe(true);
+    expect(cinnamonThemeIsDark("'Mint-Y-Dark-Aqua'\n")).toBe(true);
+    expect(cinnamonThemeIsDark("'Adwaita-dark'\n")).toBe(true);
+    expect(cinnamonThemeIsDark("unrecognized output")).toBeUndefined();
+  });
+});
+
+describe("appearance controls in Chromium", () => {
+  it("applies appearance preferences and keeps statusbars visible with a long preview", async () => {
+    const browser = await chromium.launch({ headless: true });
+    try {
+      const page = await browser.newPage({ viewport: { width: 1120, height: 780 }, colorScheme: "light" });
+      page.setDefaultTimeout(5_000);
+      const errors: string[] = [];
+      page.on("pageerror", (error) => errors.push(error.message));
+      await page.addInitScript(() => {
+        let inspectionListener: ((state: GuiInspectionState) => void) | undefined;
+        let browserVisible = false;
+        window.kDownloader = {
+          systemTheme: async () => matchMedia("(prefers-color-scheme: dark)").matches,
+          onSystemTheme: (listener) => {
+            const media = matchMedia("(prefers-color-scheme: dark)");
+            const handler = () => listener(media.matches);
+            media.addEventListener("change", handler);
+            return () => media.removeEventListener("change", handler);
+          },
+          defaultOutputRoot: async () => "/tmp/K-Downloader",
+          chooseOutput: async () => undefined,
+          inspect: async () => {
+            let canceled = false;
+            browserVisible = false;
+            inspectionListener?.({ active: true, browserReady: true, browserVisible });
+            try {
+              await new Promise<void>((complete, fail) => {
+                window.addEventListener("finish-inspection", (event) => {
+                  if ((event as CustomEvent).detail === "fail") fail(new Error("Mock inspection failed"));
+                  else {
+                    canceled = (event as CustomEvent).detail === "cancel";
+                    complete();
+                  }
+                }, { once: true });
+              });
+            } finally {
+              inspectionListener?.({ active: false, browserReady: false, browserVisible: false });
+            }
+            if (canceled) return undefined;
+            return {
+            albumTitle: "Large multi-disc fixture",
+            trackCount: 200,
+            tracks: Array.from({ length: 200 }, (_, index) => ({
+              discNumber: Math.floor(index / 100) + 1,
+              number: index % 100 + 1,
+              title: `Track ${index + 1}`,
+              formats: ["MP3", "FLAC"],
+            })),
+            };
+          },
+          download: async () => ({ state: "complete", directory: "/tmp" }),
+          cancel: async () => {
+            window.dispatchEvent(new CustomEvent("finish-inspection", { detail: "cancel" }));
+          },
+          minimizeWindow: async () => {},
+          toggleMaximizeWindow: async () => false,
+          closeWindow: async () => {},
+          toggleInspectionBrowser: async () => {
+            browserVisible = !browserVisible;
+            inspectionListener?.({ active: true, browserReady: true, browserVisible });
+            return browserVisible;
+          },
+          onInspectionState: (listener) => {
+            inspectionListener = listener;
+            return () => { inspectionListener = undefined; };
+          },
+          onProgress: () => () => {},
+          onWindowState: () => () => {},
+        };
+      });
+      await page.goto(pathToFileURL(resolve("dist/gui/index.html")).href);
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "light");
+      await page.keyboard.press("Control+Comma");
+      await page.locator("#settings-view").waitFor({ state: "visible" });
+      for (const mode of ["light", "dark"] as const) {
+        await page.getByRole("radio", { name: new RegExp(`^${mode}$`, "i") }).check();
+        const accents = new Set<string>();
+        for (const theme of colorThemes) {
+          await page.getByRole("radio", { name: new RegExp(`^${theme}$`, "i") }).check();
+          const palette = await page.evaluate(() => {
+            const styles = getComputedStyle(document.documentElement);
+            return {
+              mode: document.documentElement.dataset.mode,
+              theme: document.documentElement.dataset.theme,
+              accent: styles.getPropertyValue("--mint").trim(),
+              surface: styles.getPropertyValue("--panel").trim(),
+              scheme: styles.colorScheme,
+            };
+          });
+          expect(palette.mode).toBe(mode);
+          expect(palette.theme).toBe(theme);
+          expect(palette.scheme).toBe(mode);
+          expect(palette.surface).not.toBe(palette.accent);
+          accents.add(palette.accent);
+        }
+        expect(accents.size).toBe(5);
+      }
+      await page.reload();
+      await page.waitForFunction(() => document.documentElement.dataset.theme === "monochrome");
+      expect(await page.locator("html").getAttribute("data-mode")).toBe("dark");
+      await page.keyboard.press("Control+Comma");
+      await page.getByRole("radio", { name: "System", exact: true }).check();
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "light");
+      await page.emulateMedia({ colorScheme: "dark" });
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "dark");
+      await page.getByRole("radio", { name: "Light", exact: true }).check();
+      await page.emulateMedia({ colorScheme: "light" });
+      await page.emulateMedia({ colorScheme: "dark" });
+      expect(await page.locator("html").getAttribute("data-mode")).toBe("light");
+      await page.screenshot({ path: "/tmp/k-downloader-appearance-light.png" });
+      await page.setViewportSize({ width: 760, height: 620 });
+      await page.getByRole("radio", { name: "Dark", exact: true }).check();
+      await page.getByRole("radio", { name: "Mint", exact: true }).check();
+      await page.screenshot({ path: "/tmp/k-downloader-appearance-dark.png" });
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      await page.keyboard.press("Escape");
+      await page.locator("#workspace").waitFor({ state: "visible" });
+      await page.locator("#album-url").fill("https://downloads.khinsider.com/game-soundtracks/album/fixture");
+      await page.getByRole("button", { name: "Inspect album", exact: true }).click();
+      await page.getByRole("button", { name: "Cancel inspection", exact: true }).click();
+      await page.waitForFunction(() => document.querySelector("#status-text")?.textContent === "Inspection canceled");
+      expect(await page.locator("#inspection-indicator").isVisible()).toBe(false);
+      expect(await page.locator(".status-strip").isVisible()).toBe(true);
+      expect(await page.locator("#inspect-button").isEnabled()).toBe(true);
+      expect(await page.locator("#download-button").isEnabled()).toBe(false);
+      expect(await page.locator("#error-text").textContent()).toBe("");
+      await page.getByRole("button", { name: "Inspect album", exact: true }).click();
+      await page.locator("#inspection-indicator").waitFor({ state: "visible" });
+      expect(await page.getByText("Inspection in progress", { exact: true }).count()).toBe(1);
+      expect(await page.locator(".status-strip").isVisible()).toBe(false);
+      expect(await page.locator(".inspection-spinner").evaluate((element) => {
+        const animation = element.getAnimations()[0];
+        return animation?.playState === "running" && animation.effect?.getTiming().iterations === Infinity;
+      })).toBe(true);
+      await page.screenshot({ path: "/tmp/k-downloader-single-inspection-indicator.png" });
+      await page.locator("#inspection-indicator").click();
+      expect(await page.locator("#inspection-indicator-text").textContent()).toBe("Hide browser");
+      await page.locator("#inspection-indicator").click();
+      expect(await page.locator("#inspection-indicator-text").textContent()).toBe("Show browser");
+      await page.evaluate(() => window.dispatchEvent(new CustomEvent("finish-inspection")));
+      await page.waitForFunction(() => document.querySelectorAll("#track-rows tr").length === 200);
+      expect(await page.locator("#inspection-indicator").isVisible()).toBe(false);
+      expect(await page.locator(".status-strip").isVisible()).toBe(true);
+      expect(await page.locator("#status-text").textContent()).toBe("Preview ready");
+      for (const viewport of [{ width: 760, height: 620 }, { width: 1120, height: 780 }]) {
+        await page.setViewportSize(viewport);
+        const measure = () => page.evaluate(() => {
+          const footer = document.querySelector<HTMLElement>(".app-footer")!.getBoundingClientRect();
+          const transfer = document.querySelector<HTMLElement>(".progress-footer")!.getBoundingClientRect();
+          const table = document.querySelector<HTMLElement>(".table-wrap")!;
+          return {
+            footerTop: footer.top,
+            footerBottom: footer.bottom,
+            transferBottom: transfer.bottom,
+            listScrolls: table.scrollHeight > table.clientHeight,
+            pageHeight: document.documentElement.scrollHeight,
+            listScrollTop: table.scrollTop,
+          };
+        });
+        const initial = await measure();
+        expect(initial.footerBottom).toBe(viewport.height);
+        expect(initial.transferBottom).toBeLessThanOrEqual(initial.footerTop);
+        expect(initial.pageHeight).toBe(viewport.height);
+        expect(initial.listScrolls).toBe(true);
+        await page.locator(".table-wrap").evaluate((element) => { element.scrollTop = element.scrollHeight; });
+        const scrolled = await measure();
+        expect(scrolled.listScrollTop).toBeGreaterThan(0);
+        expect(scrolled.footerBottom).toBe(initial.footerBottom);
+        expect(scrolled.transferBottom).toBe(initial.transferBottom);
+        await page.screenshot({ path: `/tmp/k-downloader-long-preview-${viewport.width}.png` });
+      }
+      await page.getByRole("button", { name: "Inspect album", exact: true }).click();
+      await page.locator("#inspection-indicator").waitFor({ state: "visible" });
+      await page.evaluate(() => window.dispatchEvent(new CustomEvent("finish-inspection", { detail: "fail" })));
+      await page.waitForFunction(() => document.querySelector("#status-text")?.textContent === "Inspection failed");
+      expect(await page.locator("#inspection-indicator").isVisible()).toBe(false);
+      expect(await page.locator(".status-strip").isVisible()).toBe(true);
+      expect(errors).toEqual([]);
+    } finally {
+      await browser.close();
+    }
+  }, 30_000);
+});
+
+describe("Electron native theme updates", () => {
+  it("updates System mode through preload but preserves explicit Light and Dark", async () => {
+    const userData = await mkdtemp(resolve(tmpdir(), "k-downloader-theme-test-"));
+    const require = createRequire(import.meta.url);
+    const app = await electron.launch({
+      executablePath: require("electron"),
+      args: [resolve("dist/electron/main.cjs"), `--user-data-dir=${userData}`],
+      env: { ...process.env, XDG_CURRENT_DESKTOP: "Test" },
+    });
+    try {
+      const page = await app.firstWindow();
+      await page.waitForFunction(() => document.documentElement.dataset.mode);
+      await page.keyboard.press("Control+Comma");
+      await page.getByRole("radio", { name: "System", exact: true }).check();
+      await app.evaluate(({ nativeTheme }) => { nativeTheme.themeSource = "dark"; });
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "dark");
+      await app.evaluate(({ nativeTheme }) => { nativeTheme.themeSource = "light"; });
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "light");
+      await page.getByRole("radio", { name: "Dark", exact: true }).check();
+      await app.evaluate(({ nativeTheme }) => { nativeTheme.themeSource = "light"; });
+      expect(await page.locator("html").getAttribute("data-mode")).toBe("dark");
+      await page.getByRole("radio", { name: "Light", exact: true }).check();
+      await app.evaluate(({ nativeTheme }) => { nativeTheme.themeSource = "dark"; });
+      expect(await page.locator("html").getAttribute("data-mode")).toBe("light");
+      await page.getByRole("radio", { name: "System", exact: true }).check();
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "dark");
+    } finally {
+      await app.close();
+      await rm(userData, { recursive: true, force: true });
+    }
+  }, 30_000);
+});
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm test -- tests/khinsider.test.ts tests/appearance.test.ts && npm run build`
+
+Run cancellation engine and UI regressions, then type-check the complete app.
+
+```bash
+npm test -- tests/khinsider.test.ts tests/appearance.test.ts && npm run build
+```
+
+**Result:**
+
+```
+
+> k-downloader@0.1.0 pretest
+> npm run build:gui
+
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+
+> k-downloader@0.1.0 test
+> vitest run tests/khinsider.test.ts tests/appearance.test.ts
+
+
+ RUN  v5.0.4 /home/kel/dev/K-Downloader
+
+
+ Test Files  2 passed (2)
+      Tests  12 passed (12)
+   Start at  12:13:05
+   Duration  3.39s (tests 78%, import 19%, transform 2%)
+
+
+> k-downloader@0.1.0 build
+> tsc --noEmit
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The cancellation regressions pass: the UI resets without an error, a new scan can start, and aborting navigation closes Chromium before any track request begins. I’ll add coverage for Cancel during browser startup, update the README, and launch the rebuilt GUI.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **khinsider.test.ts**</summary>
+
+@@ lines 1-108 @@
+
+```
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { chromium, type Browser } from "playwright";
+import { inspectAlbum, parseAlbumPage, parseTrackPage, validateAlbumUrl } from "../src/khinsider.js";
+
+const albumUrl = new URL("https://downloads.khinsider.com/game-soundtracks/album/fixture-album");
+const albumHtml = readFileSync(fileURLToPath(new URL("./fixtures/album.html", import.meta.url)), "utf8");
+const multiDiscAlbumHtml = readFileSync(fileURLToPath(new URL("./fixtures/multi-disc-album.html", import.meta.url)), "utf8");
+const trackHtml = readFileSync(fileURLToPath(new URL("./fixtures/track.html", import.meta.url)), "utf8");
+
+describe("KHInsider page parsing", () => {
+  it("keeps ordered track-page links and ignores bulk and recommendation links", () => {
+    const result = parseAlbumPage(albumHtml, albumUrl);
+    expect(result.title).toBe("Fixture Album");
+    expect(result.advertisedTrackCount).toBe(2);
+    expect(result.tracks.map(({ number, title }) => [number, title])).toEqual([
+      [1, "Opening"],
+      [2, "Finale"],
+    ]);
+    expect(result.tracks.every(({ pageUrl }) => pageUrl.pathname.startsWith(`${albumUrl.pathname}/`))).toBe(true);
+  });
+
+  it("extracts only explicit audio-download links and their format", () => {
+    const result = parseTrackPage(trackHtml, new URL(`${albumUrl.href}/01-Opening.mp3`));
+    expect(result).toHaveLength(1);
+    expect(result[0].format).toBe("MP3");
+    expect(result[0].url.hostname).toBe("media.example.test");
+  });
+
+  it("keeps CD numbers separate from per-disc track numbers", () => {
+    const result = parseAlbumPage(
+      multiDiscAlbumHtml,
+      new URL("https://downloads.khinsider.com/game-soundtracks/album/multi-disc"),
+    );
+    expect(result.tracks.map(({ discNumber, number, title }) => [discNumber, number, title])).toEqual([
+      [1, 1, "Opening"],
+      [1, 2, "Menu"],
+      [2, 1, "Serenity"],
+      [2, 2, "Finale"],
+    ]);
+  });
+
+  it("rejects unrelated or insecure album URLs", () => {
+    expect(() => validateAlbumUrl("http://downloads.khinsider.com/game-soundtracks/album/test")).toThrow();
+    expect(() => validateAlbumUrl("https://example.com/game-soundtracks/album/test")).toThrow();
+  });
+});
+
+describe("inspection cancellation", () => {
+  afterEach(() => vi.restoreAllMocks());
+
+  it("does not launch Chromium when already canceled", async () => {
+    const launch = vi.spyOn(chromium, "launch");
+    const controller = new AbortController();
+    controller.abort();
+    await expect(inspectAlbum(albumUrl.href, { signal: controller.signal })).rejects.toThrow();
+    expect(launch).not.toHaveBeenCalled();
+  });
+
+  it("closes a browser that finishes launching after Cancel was requested", async () => {
+    const controller = new AbortController();
+    let finishLaunch!: (browser: Browser) => void;
+    const browser = { newContext: vi.fn(), close: vi.fn(async () => {}) };
+    vi.spyOn(chromium, "launch").mockImplementation(() => new Promise((resolve) => { finishLaunch = resolve; }));
+    const run = inspectAlbum(albumUrl.href, { signal: controller.signal });
+    const rejection = expect(run).rejects.toThrow();
+    controller.abort();
+    finishLaunch(browser as unknown as Browser);
+    await rejection;
+    expect(browser.newContext).not.toHaveBeenCalled();
+    expect(browser.close).toHaveBeenCalled();
+  });
+
+  it("closes Chromium to interrupt active navigation and never starts track requests", async () => {
+    const controller = new AbortController();
+    let rejectNavigation!: (error: Error) => void;
+    let navigationStarted!: () => void;
+    const started = new Promise<void>((resolve) => { navigationStarted = resolve; });
+    const page = {
+      on: vi.fn(),
+      isClosed: () => false,
+      goto: vi.fn(() => new Promise((_, reject) => {
+        rejectNavigation = reject;
+        navigationStarted();
+      })),
+    };
+    const context = {
+      newPage: async () => page,
+      newCDPSession: async () => ({ send: async () => ({ windowId: 1 }) }),
+      close: vi.fn(async () => {}),
+    };
+    const browser = {
+      newContext: async () => context,
+      close: vi.fn(async () => { rejectNavigation?.(new Error("Browser closed")); }),
+    };
+    vi.spyOn(chromium, "launch").mockResolvedValue(browser as unknown as Browser);
+    const run = inspectAlbum(albumUrl.href, { signal: controller.signal });
+    const rejection = expect(run).rejects.toThrow("Browser closed");
+    await started;
+    controller.abort();
+    await rejection;
+    expect(browser.close).toHaveBeenCalled();
+    expect(context.close).toHaveBeenCalled();
+    expect(page.goto).toHaveBeenCalledTimes(1);
+  });
+});
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **README.md**</summary>
+
+@@ lines 1-97 @@
+
+````
+# K-Downloader
+
+K-Downloader is a Linux-first KHInsider album downloader. The current slice
+implements public single-album discovery, format preview and policy, sequential
+streaming, and manifest-backed reruns. Multi-album queues, artwork, the GUI,
+optional account features, and packaging are not implemented yet.
+
+## Discovery check
+
+Requirements: Node.js 20 or newer, npm, and a graphical desktop session.
+
+```sh
+npm install
+npx playwright install chromium
+npm run inspect -- 'https://downloads.khinsider.com/game-soundtracks/album/unreal-ii-the-awakening-original-soundtrack'
+```
+
+The command opens a fresh visible Chromium context without a stored browser
+profile, visits the album and track pages sequentially, and prints every
+track's discovered format selection. It does not sign in or download audio.
+Visible mode is currently needed: plain Node fetch and headless Chromium
+received HTTP 403 during feasibility checks, while a fresh visible Chromium
+context succeeded. No attempt is made to imitate a browser or evade a challenge.
+If access is denied or a challenge appears, stop and review the site's permitted
+access methods.
+
+## Download One Album
+
+The CLI previews the selected formats before starting any transfer. The default
+format policy prefers lossless, falling back to MP3 when needed. The default
+destination is `~/Music/K-Downloader`.
+
+```sh
+npm run download -- 'https://downloads.khinsider.com/game-soundtracks/album/unreal-ii-the-awakening-original-soundtrack'
+```
+
+Use `--format lossless-only` to block when a track has no lossless source. Add
+`--skip-unavailable` to explicitly skip those tracks and mark the album
+incomplete. A specific format such as `--format MP3` never silently substitutes
+another format. Use `--output /path/to/music` for another destination.
+
+Multi-disc albums are saved into per-disc folders such as `CD1/` and `CD2/`.
+The GUI offers `CD` and `Disc` folder labels; the CLI accepts
+`--disc-label CD` or `--disc-label Disc` and defaults to `CD`. Single-disc
+albums keep the flat album folder.
+
+Files are streamed through temporary `.part` files, validated, and moved into
+place without overwriting. A per-album manifest records completion so verified
+files can be skipped on rerun. Transfers are covered by local mocked tests; an
+authorized live audio download has not yet been run.
+
+## Desktop GUI
+
+Requirements: Node.js 20 or newer, npm, and a graphical Linux session.
+
+```sh
+npm install
+npx playwright install chromium
+npm run gui
+```
+
+Paste one album URL and choose **Inspect album**. A Chromium inspection window
+starts minimized while an in-progress indicator appears in the app; click that
+indicator to show or hide the browser. Review the per-track format preview, choose the
+destination and format policy, then select **Download**. The default destination
+is `~/Music/K-Downloader`. **Cancel active download** stops the current transfer
+and prevents later tracks from starting.
+
+While inspection is running, the same button becomes **Cancel inspection**.
+It closes the inspection browser and stops scanning track pages, including
+during browser startup. A canceled inspection can be started again.
+
+Open **More > Settings** in the titlebar or press `Ctrl+,`. Under **Appearance**,
+select Light, Dark, or System mode and a Mint, Ocean, Amber, Rose, or Monochrome
+color theme. System follows desktop appearance changes; System + Mint is the
+default. Choices apply immediately and are saved locally across restarts.
+On Cinnamon, System mode follows the GTK theme (for example, Mint-Y versus
+Mint-Y-Dark); other desktops use Electron's native appearance notifications.
+Return with **Back to downloader** or press `Esc`.
+
+The GUI uses a context-isolated, sandboxed renderer with a narrow preload API.
+It currently supports one album per run; multi-album queues and packaging are
+not available yet.
+
+## Development
+
+```sh
+npm test
+npm run build
+npm audit
+```
+
+Tests build the GUI first and use the installed Playwright Chromium and Electron
+for local appearance checks. The Electron checks require a graphical session
+and use an isolated profile. No desktop settings, site requests, or audio
+transfers are changed or made by those tests.
+````
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="task" data-tool-name="manage_todo_list"><details>
+<summary>Tool use: **manage_todo_list**</summary>
+
+Created 3 todos
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm test -- tests/khinsider.test.ts tests/appearance.test.ts && npm run build`
+
+Verify cancellation before/during startup and active navigation plus GUI reset, then type-check.
+
+```bash
+npm test -- tests/khinsider.test.ts tests/appearance.test.ts && npm run build
+```
+
+**Result:**
+
+```
+
+> k-downloader@0.1.0 pretest
+> npm run build:gui
+
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+
+> k-downloader@0.1.0 test
+> vitest run tests/khinsider.test.ts tests/appearance.test.ts
+
+
+ RUN  v5.0.4 /home/kel/dev/K-Downloader
+
+
+ Test Files  2 passed (2)
+      Tests  13 passed (13)
+   Start at  12:13:40
+   Duration  4.42s (tests 77%, import 21%, transform 2%)
+
+
+> k-downloader@0.1.0 build
+> tsc --noEmit
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="get_errors"><details>
+<summary>Tool use: **get_errors**</summary>
+
+Checked `khinsider.ts`, `main.ts`, `renderer.ts`, `khinsider.test.ts`, `appearance.test.ts`, no problems found
+
+**Input:**
+
+- filePaths:
+
+```
+[
+  "/home/kel/dev/K-Downloader/src/khinsider.ts",
+  "/home/kel/dev/K-Downloader/src/electron/main.ts",
+  "/home/kel/dev/K-Downloader/src/renderer.ts",
+  "/home/kel/dev/K-Downloader/tests/khinsider.test.ts",
+  "/home/kel/dev/K-Downloader/tests/appearance.test.ts"
+]
+```
+
+
+**Result:**
+
+```
+<errors path="/home/kel/dev/K-Downloader/src/khinsider.ts">
+No errors found
+</errors>
+<errors path="/home/kel/dev/K-Downloader/src/electron/main.ts">
+No errors found
+</errors>
+<errors path="/home/kel/dev/K-Downloader/src/renderer.ts">
+No errors found
+</errors>
+<errors path="/home/kel/dev/K-Downloader/tests/khinsider.test.ts">
+No errors found
+</errors>
+<errors path="/home/kel/dev/K-Downloader/tests/appearance.test.ts">
+No errors found
+</errors>
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+All 13 focused checks pass, including Cancel during startup, active navigation, and starting a new scan afterward. The build and diagnostics are clean. I’ll open the updated GUI; the existing cancel button now reads **Cancel inspection** while scanning.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm run gui`
+
+Launch the updated GUI with operation-aware cancellation for active inspections and downloads.
+
+```bash
+npm run gui
+```
+
+**Result:**
+
+```
+Command is running in terminal with ID=a01edc98-8a8d-4d60-941f-ce3e1a7bfc47
+ The command became idle with output:
+kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+
+> k-downloader@0.1.0 gui
+> npm run build:gui && electron dist/electron/main.cjs
+
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+This note is not a signal to end the turn — pick one of the actions below and continue.
+  1. If the command may still be producing output or the shell prompt has not returned, call get_terminal_output with id="a01edc98-8a8d-4d60-941f-ce3e1a7bfc47" to continue polling. This is the default and safest action when unsure.
+  2. Only if the output clearly ends with a real non-secret input prompt (Continue? (y/n), Enter selection, etc. — a normal shell prompt like `$` or `#` does NOT count), call the vscode_askQuestions tool to ask the user, then send each answer using send_to_terminal with id="a01edc98-8a8d-4d60-941f-ce3e1a7bfc47" (which returns the next few lines of output). Repeat one prompt at a time. NEVER route secret prompts (passwords, passphrases, tokens, API keys, etc.) through vscode_askQuestions — answers to that tool are sent through the model. For secret prompts, tell the user to type the value directly into the terminal and stop.
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+Added **Cancel inspection** using the existing cancel button. It stops scanning, closes Chromium, and shows “Inspection canceled” without an error. You can start a new inspection afterward.
+
+Startup and active-navigation cancellation tests pass, as do the build and diagnostics. The updated GUI is open.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="task" data-tool-name="manage_todo_list"><details>
+<summary>Tool use: **manage_todo_list**</summary>
+
+Completed: *Wire Cancel into active inspection* (1/3)
+</details></tool-use>
+
+---
+
+_**User (2026-10-12 17:11:18Z)**_
+
+[Terminal c5ba0ef2-4939-4535-ba4c-b870247e55f9 notification: command completed. The terminal has been cleaned up.]
+Terminal output:
+kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+
+> k-downloader@0.1.0 gui
+> npm run build:gui && electron dist/electron/main.cjs
+
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+---
+
+_**Agent (copilot/auto)**_
+
+<think><details><summary>Thought Process</summary>
+The Markdown libraries are installed with a clean audit. I’ll add the menu items, drawer drag handle, and keyboard controls now. The changelog will be embedded from [changelog.md](changelog.md) during each GUI build; Escape will close the drawer before returning from Settings.
+</details></think>
+
+_**Agent (copilot/auto)**_
+
+The GUI closed without reported errors. Reopen it with `npm run gui`.
+
+I’ll add the restore command and a resizable changelog drawer, load the changelog during the GUI build, and persist window bounds across launches. I’ll also add standard Ctrl zoom shortcuts; zoom will affect the UI without resizing the window.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Read `main.ts`, lines 200 to 268
+
+**Input:**
+
+- endLine: `310`
+- filePath: `/home/kel/dev/K-Downloader/src/electron/main.ts`
+- startLine: `200`
+
+**Result:**
+
+```
+    }
+  });
+
+  ipcMain.handle("album:cancel", (event) => {
+    assertWindowSender(event.sender.id);
+    activeInspections.get(event.sender.id)?.controller.abort();
+    downloads.get(event.sender.id)?.abort();
+  });
+}
+
+async function createWindow(): Promise<void> {
+  const window = new BrowserWindow({
+    frame: false,
+    autoHideMenuBar: true,
+    width: 1120,
+    height: 780,
+    minWidth: 760,
+    minHeight: 620,
+    backgroundColor: "#101715",
+    title: "K-Downloader",
+    webPreferences: {
+      preload: resolve(__dirname, "preload.cjs"),
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: true,
+    },
+  });
+  mainWindow = window;
+  const senderId = window.webContents.id;
+  window.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
+  window.webContents.on("will-navigate", (event, url) => {
+    if (!url.startsWith("file://")) event.preventDefault();
+  });
+  window.on("maximize", () => sendWindowState(window));
+  window.on("unmaximize", () => sendWindowState(window));
+  window.webContents.on("did-finish-load", () => sendWindowState(window));
+  window.on("closed", () => {
+    inspections.delete(senderId);
+    activeInspections.get(senderId)?.controller.abort();
+    activeInspections.delete(senderId);
+    downloads.get(senderId)?.abort();
+    downloads.delete(senderId);
+    if (mainWindow === window) mainWindow = undefined;
+  });
+  await window.loadFile(resolve(__dirname, "../gui/index.html"));
+}
+
+app.whenReady().then(async () => {
+  app.setName("K-Downloader");
+  nativeTheme.themeSource = "system";
+  nativeTheme.on("updated", sendSystemTheme);
+  stopThemeMonitor = await monitorCinnamonTheme((dark) => {
+    cinnamonDark = dark;
+    sendSystemTheme();
+  });
+  Menu.setApplicationMenu(null);
+  registerIpc();
+  await createWindow();
+  app.on("activate", () => {
+    if (BrowserWindow.getAllWindows().length === 0) void createWindow();
+  });
+});
+
+app.on("will-quit", () => stopThemeMonitor?.());
+
+app.on("window-all-closed", () => {
+  for (
+… (output truncated)
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Read `build-gui.mjs`
+
+**Input:**
+
+- endLine: `140`
+- filePath: `/home/kel/dev/K-Downloader/scripts/build-gui.mjs`
+- startLine: `1`
+
+**Result:**
+
+```
+import { cp, mkdir, rm } from "node:fs/promises";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { build } from "esbuild";
+
+const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const output = resolve(root, "dist");
+await rm(output, { recursive: true, force: true });
+await mkdir(resolve(output, "electron"), { recursive: true });
+await mkdir(resolve(output, "gui"), { recursive: true });
+
+await Promise.all([
+  build({
+    entryPoints: [resolve(root, "src/electron/main.ts")],
+    outfile: resolve(output, "electron/main.cjs"),
+    bundle: true,
+    platform: "node",
+    format: "cjs",
+    external: ["electron", "playwright", "parse5"],
+  }),
+  build({
+    entryPoints: [resolve(root, "src/electron/preload.ts")],
+    outfile: resolve(output, "electron/preload.cjs"),
+    bundle: true,
+    platform: "node",
+    format: "cjs",
+    external: ["electron"],
+  }),
+  build({
+    entryPoints: [resolve(root, "src/renderer.ts")],
+    outfile: resolve(output, "gui/renderer.js"),
+    bundle: true,
+    platform: "browser",
+    format: "iife",
+  }),
+]);
+
+await Promise.all([
+  cp(resolve(root, "gui/index.html"), resolve(output, "gui/index.html")),
+  cp(resolve(root, "gui/styles.css"), resolve(output, "gui/styles.css")),
+]);
+console.log("Built Electron main/preload and local renderer into dist/.");
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Read `index.html`, lines 12 to 57
+
+**Input:**
+
+- endLine: `57`
+- filePath: `/home/kel/dev/K-Downloader/gui/index.html`
+- startLine: `12`
+
+**Result:**
+
+```
+    <main class="app-shell">
+      <header class="topbar">
+        <div class="brand-lockup">
+          <div class="app-icon" aria-hidden="true">K</div>
+          <div class="brand-name">K-Downloader</div>
+        </div>
+        <div class="titlebar-actions">
+          <div id="more-menu-wrap" class="more-menu-wrap">
+            <button id="more-button" class="window-control more-button" type="button" aria-label="More options" title="More options" aria-haspopup="menu" aria-expanded="false">
+              <i data-lucide="ellipsis-vertical" aria-hidden="true"></i>
+            </button>
+            <div id="more-menu" class="more-menu" role="menu" aria-label="More options" hidden>
+              <button id="settings-menu-item" class="more-menu-item" type="button" role="menuitem">
+                <i data-lucide="settings" aria-hidden="true"></i>
+                <span>Settings</span>
+                <kbd>Ctrl+,</kbd>
+              </button>
+            </div>
+          </div>
+          <nav class="window-controls" aria-label="Window controls">
+          <button id="minimize-window" class="window-control" type="button" aria-label="Minimize window" title="Minimize">
+            <i data-lucide="minus" aria-hidden="true"></i>
+          </button>
+          <button id="maximize-window" class="window-control" type="button" aria-label="Maximize window" title="Maximize">
+            <i data-lucide="square" aria-hidden="true"></i>
+          </button>
+          <button id="close-window" class="window-control close-control" type="button" aria-label="Close window" title="Close">
+            <i data-lucide="x" aria-hidden="true"></i>
+          </button>
+          </nav>
+        </div>
+      </header>
+
+      <section id="workspace" class="workspace">
+        <aside class="control-panel" aria-label="Download setup">
+          <div class="section-heading"><span class="section-index">01</span><h1>Album source</h1></div>
+          <label for="album-url">KHInsider album URL</label>
+         
+… (output truncated)
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Read `renderer.ts`, lines 1 to 115
+
+**Input:**
+
+- endLine: `115`
+- filePath: `/home/kel/dev/K-Downloader/src/renderer.ts`
+- startLine: `1`
+
+**Result:**
+
+```
+import type { GuiFormatPolicy, GuiInspection, GuiInspectionState, GuiProgress, GuiTrack } from "./gui-types.js";
+import { ArrowLeft, Copy, createIcons, EllipsisVertical, LoaderCircle, Minus, Settings, Square, X } from "lucide";
+import { initializeAppearance } from "./appearance.js";
+
+initializeAppearance();
+
+const windowIcons = { ArrowLeft, Copy, EllipsisVertical, LoaderCircle, Minus, Settings, Square, X };
+createIcons({ icons: windowIcons });
+
+const albumInput = document.querySelector<HTMLTextAreaElement>("#album-url")!;
+const outputInput = document.querySelector<HTMLInputElement>("#output-root")!;
+const formatSelect = document.querySelector<HTMLSelectElement>("#format-policy")!;
+const discLabelSelect = document.querySelector<HTMLSelectElement>("#disc-label")!;
+const discLabelSetting = document.querySelector<HTMLElement>("#disc-label-setting")!;
+const skipInput = document.querySelector<HTMLInputElement>("#skip-unavailable")!;
+const inspectButton = document.querySelector<HTMLButtonElement>("#inspect-button")!;
+const downloadButton = document.querySelector<HTMLButtonElement>("#download-button")!;
+const cancelButton = document.querySelector<HTMLButtonElement>("#cancel-button")!;
+const browseButton = document.querySelector<HTMLButtonElement>("#browse-button")!;
+const tableBody = document.querySelector<HTMLTableSectionElement>("#track-rows")!;
+const albumTitle = document.querySelector<HTMLElement>("#album-title")!;
+const trackCount = document.querySelector<HTMLElement>("#track-count")!;
+const statusText = document.querySelector<HTMLElement>("#status-text")!;
+const statusDot = document.querySelector<HTMLElement>("#status-dot")!;
+const statusStrip = document.querySelector<HTMLElement>(".status-strip")!;
+const inspectionIndicator = document.querySelector<HTMLButtonElement>("#inspection-indicator")!;
+const inspectionIndicatorText = document.querySelector<HTMLElement>("#inspection-indicator-text")!;
+const progress = document.querySelector<HTMLProgressElement>("#download-prog
+… (output truncated)
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Read `renderer.ts`, lines 175 to 222
+
+**Input:**
+
+- endLine: `222`
+- filePath: `/home/kel/dev/K-Downloader/src/renderer.ts`
+- startLine: `175`
+
+**Result:**
+
+```
+  skipInput.disabled = value || formatSelect.value === "prefer-lossless";
+  cancelButton.disabled = !value;
+  cancelButton.textContent = inspecting ? "Cancel inspection" : "Cancel active download";
+  if (inspection) renderTracks();
+}
+
+minimizeWindowButton.addEventListener("click", () => { void window.kDownloader.minimizeWindow(); });
+maximizeWindowButton.addEventListener("click", async () => {
+  const maximized = await window.kDownloader.toggleMaximizeWindow();
+  updateMaximizeButton(maximized);
+});
+closeWindowButton.addEventListener("click", () => { void window.kDownloader.closeWindow(); });
+window.kDownloader.onWindowState(({ maximized }) => updateMaximizeButton(maximized));
+
+moreButton.addEventListener("click", () => {
+  moreMenu.hidden = !moreMenu.hidden;
+  moreButton.setAttribute("aria-expanded", String(!moreMenu.hidden));
+});
+settingsMenuItem.addEventListener("click", () => setSettingsOpen(true));
+closeSettingsButton.addEventListener("click", () => setSettingsOpen(false));
+document.addEventListener("click", (event) => {
+  if (!moreMenuWrap.contains(event.target as Node)) closeMoreMenu();
+});
+document.addEventListener("keydown", (event) => {
+  if ((event.ctrlKey || event.metaKey) && event.key === ",") {
+    event.preventDefault();
+    setSettingsOpen(!settingsOpen);
+  } else if (event.key === "Escape") {
+    if (settingsOpen) setSettingsOpen(false);
+    else if (!moreMenu.hidden) {
+      closeMoreMenu();
+      moreButton.focus();
+    }
+  }
+});
+
+inspectButton.addEventListener("click", async () => {
+  errorText.textContent = "";
+  const albumUrl = albumInput.value.trim();
+  if (!isValidAlbumUrl(albumUrl)) {
+    errorText.textContent = "Paste a valid HTTPS KHInsider album URL.";
+    setStatus("Album URL required", "error");
+    albumInput.focus();
+    return;
+  }
+  inspection = undefined;
+  downloadButton.disabled = true;
+  tableBody.replaceChildren();
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The current window is fixed at 1120×780 on every launch, and the build bundles only the renderer assets. I’ll add validated saved bounds, restore to that default size and center on the current monitor, and embed sanitized Markdown for the changelog drawer. The drawer will start at 32% width and resize up to 40%; Ctrl+0 will reset zoom to 100%.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **window-state.ts**</summary>
+
+@@ lines 1-1 @@
+
+```
+export type WindowBounds = { x: number; y: number; width: number; height: number };
+export type WindowState = { bounds: WindowBounds; maximized: boolean };
+export const defaultWindowSize = { width: 1120, height: 780 };
+
+export function parseWindowState(raw: string): WindowState | undefined {
+  try {
+    const value = JSON.parse(raw);
+    const bounds = value?.bounds;
+    if (!bounds || ![bounds.x, bounds.y, bounds.width, bounds.height].every(Number.isSafeInteger) || bounds.width < 760 || bounds.height < 620) return undefined;
+    return { bounds, maximized: value.maximized === true };
+  } catch {
+    return undefined;
+  }
+}
+
+export function centeredBounds(area: WindowBounds): WindowBounds {
+  const width = Math.min(defaultWindowSize.width, area.width);
+  const height = Math.min(defaultWindowSize.height, area.height);
+  return { width, height, x: area.x + Math.round((area.width - width) / 2), y: area.y + Math.round((area.height - height) / 2) };
+}
+
+export function startupBounds(state: WindowState | undefined, areas: WindowBounds[]): WindowBounds {
+  if (!areas.length) throw new Error("No screen work area available");
+  const bounds = state?.bounds;
+  if (!bounds) return centeredBounds(areas[0]);
+  const area = areas.find((area) => bounds.x < area.x + area.width && bounds.x + bounds.width > area.x && bounds.y < area.y + area.height && bounds.y + bounds.height > area.y);
+  if (!area) return centeredBounds(areas[0]);
+  const width = Math.min(bounds.width, area.width);
+  const height = Math.min(bounds.height, area.height);
+  return { width, height, x: Math.max(area.x, Math.min(bounds.x, area.x + area.width - width)), y: Math.max(area.y, Math.min(bounds.y, area.y + area.height - height)) };
+}
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **main.ts**</summary>
+
+@@ lines 1-300 @@
+
+```
+import { app, BrowserWindow, dialog, ipcMain, Menu, nativeTheme, screen } from "electron";
+import { readFileSync, writeFileSync, renameSync } from "node:fs";
+import { centeredBounds, parseWindowState, startupBounds } from "./window-state.js";
+import { monitorCinnamonTheme } from "./system-theme.js";
+import { resolve } from "node:path";
+import { downloadAlbum, type DownloadProgress } from "../downloader.js";
+import { planFormats } from "../formats.js";
+import { inspectAlbum, validateAlbumUrl, type AlbumPage, type DiscoveredTrack } from "../khinsider.js";
+import { defaultOutputRoot } from "../output.js";
+import type { GuiDownloadRequest, GuiFormatPolicy, GuiInspection, GuiInspectionState } from "../gui-types.js";
+
+type CachedInspection = {
+  sourceAlbum: string;
+  album: AlbumPage;
+  tracks: DiscoveredTrack[];
+};
+
+let mainWindow: BrowserWindow | undefined;
+let cinnamonDark: boolean | undefined;
+let stopThemeMonitor: (() => void) | undefined;
+
+function systemThemeIsDark(): boolean {
+  return cinnamonDark ?? nativeTheme.shouldUseDarkColors;
+}
+
+function sendSystemTheme(): void {
+  if (mainWindow && !mainWindow.isDestroyed() && !mainWindow.webContents.isDestroyed()) {
+    mainWindow.webContents.send("appearance:system-theme", systemThemeIsDark());
+  }
+}
+
+const inspections = new Map<number, CachedInspection>();
+const downloads = new Map<number, AbortController>();
+const activeInspections = new Map<number, {
+  controller: AbortController;
+  setBrowserVisible?: (visible: boolean) => Promise<void>;
+  browserVisible: boolean;
+}>();
+
+function assertWindowSender(senderId: number): BrowserWindow {
+  if (!mainWindow || mainWindow.webContents.id !== senderId) throw new Error("Untrusted IPC sender");
+  return mainWindow;
+}
+
+function parseFormatPolicy(policy: unknown): GuiFormatPolicy {
+  if (typeof policy !== "object" || policy === null || !("kind" in policy)) {
+    throw new Error("Invalid format policy");
+  }
+  const value = policy as Record<string, unknown>;
+  const skipUnavailable = value.skipUnavailable === true;
+  if (value.kind === "prefer-lossless" && !skipUnavailable) return { kind: "prefer-lossless" };
+  if (value.kind === "lossless-only") return { kind: "lossless-only", skipUnavailable };
+  if (value.kind === "specific" && typeof value.format === "string" && /^[A-Za-z0-9.+-]{1,16}$/.test(value.format)) {
+    return { kind: "specific", format: value.format.toUpperCase(), skipUnavailable };
+  }
+  throw new Error("Invalid format policy");
+}
+
+function serializeInspection(cached: CachedInspection): GuiInspection {
+  return {
+    albumTitle: cached.album.title,
+    trackCount: cached.tracks.length,
+    tracks: cached.tracks.map((track) => ({
+      ...(track.discNumber === undefined ? {} : { discNumber: track.discNumber }),
+      number: track.number,
+      title: track.title,
+      formats: [...new Set(track.audioLinks.map(({ format }) => format))],
+    })),
+  };
+}
+
+function sendProgress(sender: Electron.WebContents, progress: DownloadProgress): void {
+  if (!sender.isDestroyed()) sender.send("album:progress", progress);
+}
+
+function sendInspectionState(sender: Electron.WebContents, state: GuiInspectionState): void {
+  if (!sender.isDestroyed()) sender.send("inspection:state", state);
+}
+
+function sendWindowState(window: BrowserWindow): void {
+  if (!window.webContents.isDestroyed()) {
+    window.webContents.send("window:state", { maximized: window.isMaximized() });
+  }
+}
+
+function registerIpc(): void {
+  ipcMain.handle("window:restore-bounds", (event) => {
+    const window = assertWindowSender(event.sender.id);
+    const area = screen.getDisplayMatching(window.getBounds()).workArea;
+    if (window.isFullScreen()) window.setFullScreen(false);
+    if (window.isMaximized()) window.unmaximize();
+    window.setBounds(centeredBounds(area));
+    sendWindowState(window);
+  });
+
+  ipcMain.handle("window:zoom", (event, direction: unknown) => {
+    const window = assertWindowSender(event.sender.id);
+    if (direction !== "in" && direction !== "out" && direction !== "reset") throw new Error("Invalid zoom command");
+    const current = window.webContents.getZoomFactor();
+    const zoom = direction === "reset" ? 1 : Math.max(.5, Math.min(2, Math.round((current + (direction === "in" ? .1 : -.1)) * 10) / 10));
+    window.webContents.setZoomFactor(zoom);
+    return zoom;
+  });
+  ipcMain.handle("appearance:system-theme", (event) => {
+    assertWindowSender(event.sender.id);
+    return systemThemeIsDark();
+  });
+  ipcMain.handle("window:minimize", (event) => {
+    assertWindowSender(event.sender.id).minimize();
+  });
+
+  ipcMain.handle("window:toggle-maximize", (event) => {
+    const window = assertWindowSender(event.sender.id);
+    if (window.isMaximized()) window.unmaximize();
+    else window.maximize();
+    sendWindowState(window);
+    return window.isMaximized();
+  });
+
+  ipcMain.handle("window:close", (event) => {
+    assertWindowSender(event.sender.id).close();
+  });
+
+  ipcMain.handle("output:default", (event) => {
+    assertWindowSender(event.sender.id);
+    return defaultOutputRoot();
+  });
+
+  ipcMain.handle("output:choose", async (event) => {
+    const window = assertWindowSender(event.sender.id);
+    const result = await dialog.showOpenDialog(window, {
+      title: "Choose download folder",
+      defaultPath: defaultOutputRoot(),
+      properties: ["openDirectory", "createDirectory"],
+    });
+    return result.canceled ? undefined : result.filePaths[0];
+  });
+
+  ipcMain.handle("album:inspect", async (event, input: unknown) => {
+    assertWindowSender(event.sender.id);
+    if (typeof input !== "string" || input.length > 2048) throw new Error("Enter one valid album URL");
+    if (activeInspections.has(event.sender.id)) throw new Error("Album inspection is already active");
+    let sourceAlbum: string;
+    try {
+      sourceAlbum = validateAlbumUrl(input).href;
+    } catch {
+      throw new Error("Paste a valid HTTPS KHInsider album URL.");
+    }
+    const active: {
+      controller: AbortController;
+      setBrowserVisible?: (visible: boolean) => Promise<void>;
+      browserVisible: boolean;
+    } = { controller: new AbortController(), browserVisible: false };
+    inspections.delete(event.sender.id);
+    activeInspections.set(event.sender.id, active);
+    sendInspectionState(event.sender, { active: true, browserReady: false, browserVisible: false });
+    try {
+      const result = await inspectAlbum(sourceAlbum, {
+        signal: active.controller.signal,
+        onBrowserReady: (setBrowserVisible) => {
+          active.setBrowserVisible = setBrowserVisible;
+          sendInspectionState(event.sender, { active: true, browserReady: true, browserVisible: false });
+        },
+      });
+      const cached = { sourceAlbum, album: result.album, tracks: result.tracks };
+      inspections.set(event.sender.id, cached);
+      return serializeInspection(cached);
+    } catch (error) {
+      if (active.controller.signal.aborted) return undefined;
+      throw error;
+    } finally {
+      activeInspections.delete(event.sender.id);
+      sendInspectionState(event.sender, { active: false, browserReady: false, browserVisible: false });
+    }
+  });
+
+  ipcMain.handle("inspection:toggle-browser", async (event) => {
+    assertWindowSender(event.sender.id);
+    const active = activeInspections.get(event.sender.id);
+    if (!active?.setBrowserVisible) throw new Error("Inspection browser is not ready");
+    const browserVisible = !active.browserVisible;
+    await active.setBrowserVisible(browserVisible);
+    active.browserVisible = browserVisible;
+    sendInspectionState(event.sender, { active: true, browserReady: true, browserVisible });
+    return browserVisible;
+  });
+
+  ipcMain.handle("album:download", async (event, request: unknown) => {
+    const window = assertWindowSender(event.sender.id);
+    if (downloads.has(event.sender.id)) throw new Error("A download is already active");
+    if (typeof request !== "object" || request === null || !("outputRoot" in request)) {
+      throw new Error("Invalid download request");
+    }
+    const payload = request as GuiDownloadRequest;
+    if (typeof payload.outputRoot !== "string" || payload.outputRoot.length > 4096 || payload.outputRoot.includes("\0")) {
+      throw new Error("Invalid output folder");
+    }
+    if (payload.discLabel !== "CD" && payload.discLabel !== "Disc") throw new Error("Invalid disc folder label");
+    const cached = inspections.get(event.sender.id);
+    if (!cached) throw new Error("Inspect an album before starting a download");
+    const policy = parseFormatPolicy(payload.policy);
+    const plan = planFormats(cached.tracks, policy);
+    if (plan.blocked) throw new Error("The format preview has unavailable tracks; skip them explicitly or choose another policy");
+
+    const controller = new AbortController();
+    downloads.set(event.sender.id, controller);
+    try {
+      const result = await downloadAlbum({
+        ...cached,
+        outputRoot: resolve(payload.outputRoot),
+        policy,
+        discLabel: payload.discLabel,
+        signal: controller.signal,
+        onProgress: (progress) => sendProgress(window.webContents, progress),
+      });
+      return { state: result.state, directory: result.directory };
+    } finally {
+      downloads.delete(event.sender.id);
+    }
+  });
+
+  ipcMain.handle("album:cancel", (event) => {
+    assertWindowSender(event.sender.id);
+    activeInspections.get(event.sender.id)?.controller.abort();
+    downloads.get(event.sender.id)?.abort();
+  });
+}
+
+async function createWindow(): Promise<void> {
+  const statePath = resolve(app.getPath("userData"), "window-state.json");
+  let savedState;
+  try { savedState = parseWindowState(readFileSync(statePath, "utf8")); } catch {}
+  const displays = [screen.getPrimaryDisplay(), ...screen.getAllDisplays().filter((display) => display.id !== screen.getPrimaryDisplay().id)];
+  const window = new BrowserWindow({
+    frame: false,
+    autoHideMenuBar: true,
+    ...startupBounds(savedState, displays.map((display) => display.workArea)),
+    minWidth: 760,
+    minHeight: 620,
+    backgroundColor: "#101715",
+    title: "K-Downloader",
+    webPreferences: {
+      preload: resolve(__dirname, "preload.cjs"),
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: true,
+    },
+  });
+  mainWindow = window;
+  const senderId = window.webContents.id;
+  window.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
+  window.webContents.on("will-navigate", (event, url) => {
+    if (!url.startsWith("file://")) event.preventDefault();
+  });
+  window.on("maximize", () => sendWindowState(window));
+  window.on("unmaximize", () => sendWindowState(window));
+  window.webContents.on("did-finish-load", () => sendWindowState(window));
+  window.on("close", () => {
+    try {
+      writeFileSync(`${statePath}.tmp`, JSON.stringify({ bounds: window.getNormalBounds(), maximized: window.isMaximized() }), { mode: 0o600 });
+      renameSync(`${statePath}.tmp`, statePath);
+    } catch (error) {
+      console.warn("Could not save window size and position:", error);
+    }
+  });
+  window.on("closed", () => {
+    inspections.delete(senderId);
+    activeInspections.get(senderId)?.controller.abort();
+    activeInspections.delete(senderId);
+    downloads.get(senderId)?.abort();
+    downloads.delete(senderId);
+    if (mainWindow === window) mainWindow = undefined;
+  });
+  await window.loadFile(resolve(__dirname, "../gui/index.html"));
+  if (savedState?.maximized) window.maximize();
+}
+
+app.whenReady().then(async () => {
+  app.setName("K-Downloader");
+  nativeTheme.themeSource = "system";
+  nativeTheme.on("updated", sendSystemTheme);
+  stopThemeMonitor = await monitorCinnamonTheme((dark) => {
+    cinnamonDark = dark;
+    sendSystemTheme();
+  });
+  Menu.setApplicationMenu(null);
+  registerIpc();
+  await createWindow();
+  app.on("activate", () => {
+    if (BrowserWindow.getAllWindows().length === 0) void createWindow();
+  });
+});
+
+app.on("will-quit", () => stopThemeMonitor?.());
+
+app.on("window-all-closed", () => {
+  for (const controller of downloads.values()) controller.abort();
+  if (process.platform !== "darwin") app.quit();
+});
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **gui-types.ts**</summary>
+
+@@ lines 1-68 @@
+
+```
+export type GuiFormatPolicy =
+  | { kind: "prefer-lossless" }
+  | { kind: "lossless-only"; skipUnavailable: boolean }
+  | { kind: "specific"; format: string; skipUnavailable: boolean };
+
+export type GuiTrack = {
+  discNumber?: number;
+  number: number;
+  title: string;
+  formats: string[];
+};
+
+export type GuiInspection = {
+  albumTitle: string;
+  trackCount: number;
+  tracks: GuiTrack[];
+};
+
+export type GuiInspectionState = {
+  active: boolean;
+  browserReady: boolean;
+  browserVisible: boolean;
+};
+
+export type GuiWindowState = {
+  maximized: boolean;
+};
+
+export type GuiProgress = {
+  stage: "track-start" | "track-complete" | "track-failed" | "canceled";
+  number: number;
+  title: string;
+  completedTracks: number;
+  totalTracks: number;
+  bytesReceived?: number;
+};
+
+export type GuiDownloadRequest = {
+  policy: GuiFormatPolicy;
+  outputRoot: string;
+  discLabel: "CD" | "Disc";
+};
+
+export type KDownloaderApi = {
+  restoreWindowBounds: () => Promise<void>;
+  zoom: (direction: "in" | "out" | "reset") => Promise<number>;
+  systemTheme: () => Promise<boolean>;
+  onSystemTheme: (listener: (dark: boolean) => void) => () => void;
+  minimizeWindow: () => Promise<void>;
+  toggleMaximizeWindow: () => Promise<boolean>;
+  closeWindow: () => Promise<void>;
+  onWindowState: (listener: (state: GuiWindowState) => void) => () => void;
+  defaultOutputRoot: () => Promise<string>;
+  chooseOutput: () => Promise<string | undefined>;
+  inspect: (albumUrl: string) => Promise<GuiInspection | undefined>;
+  toggleInspectionBrowser: () => Promise<boolean>;
+  onInspectionState: (listener: (state: GuiInspectionState) => void) => () => void;
+  download: (request: GuiDownloadRequest) => Promise<{ state: string; directory: string }>;
+  cancel: () => Promise<void>;
+  onProgress: (listener: (progress: GuiProgress) => void) => () => void;
+};
+
+declare global {
+  interface Window {
+    kDownloader: KDownloaderApi;
+  }
+}
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **preload.ts**</summary>
+
+@@ lines 1-40 @@
+
+```
+import { contextBridge, ipcRenderer } from "electron";
+import type { GuiDownloadRequest, GuiInspectionState, GuiProgress, GuiWindowState, KDownloaderApi } from "../gui-types.js";
+
+const api: KDownloaderApi = {
+  restoreWindowBounds: () => ipcRenderer.invoke("window:restore-bounds"),
+  zoom: (direction) => ipcRenderer.invoke("window:zoom", direction),
+  systemTheme: () => ipcRenderer.invoke("appearance:system-theme"),
+  onSystemTheme: (listener: (dark: boolean) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, dark: boolean) => listener(dark);
+    ipcRenderer.on("appearance:system-theme", handler);
+    return () => ipcRenderer.removeListener("appearance:system-theme", handler);
+  },
+  minimizeWindow: () => ipcRenderer.invoke("window:minimize"),
+  toggleMaximizeWindow: () => ipcRenderer.invoke("window:toggle-maximize"),
+  closeWindow: () => ipcRenderer.invoke("window:close"),
+  onWindowState: (listener: (state: GuiWindowState) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, state: GuiWindowState) => listener(state);
+    ipcRenderer.on("window:state", handler);
+    return () => ipcRenderer.removeListener("window:state", handler);
+  },
+  defaultOutputRoot: () => ipcRenderer.invoke("output:default"),
+  chooseOutput: () => ipcRenderer.invoke("output:choose"),
+  inspect: (albumUrl: string) => ipcRenderer.invoke("album:inspect", albumUrl),
+  toggleInspectionBrowser: () => ipcRenderer.invoke("inspection:toggle-browser"),
+  onInspectionState: (listener: (state: GuiInspectionState) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, state: GuiInspectionState) => listener(state);
+    ipcRenderer.on("inspection:state", handler);
+    return () => ipcRenderer.removeListener("inspection:state", handler);
+  },
+  download: (request: GuiDownloadRequest) => ipcRenderer.invoke("album:download", request),
+  cancel: () => ipcRenderer.invoke("album:cancel"),
+  onProgress: (listener: (progress: GuiProgress) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, progress: GuiProgress) => listener(progress);
+    ipcRenderer.on("album:progress", handler);
+    return () => ipcRenderer.removeListener("album:progress", handler);
+  },
+};
+
+contextBridge.exposeInMainWorld("kDownloader", api);
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **window-state.test.ts**</summary>
+
+@@ lines 1-1 @@
+
+```
+import { describe, expect, it } from "vitest";
+import { centeredBounds, parseWindowState, startupBounds } from "../src/electron/window-state.js";
+
+const screen = { x: 0, y: 0, width: 1920, height: 1080 };
+
+describe("window geometry", () => {
+  it("centers the default development size", () => {
+    expect(centeredBounds(screen)).toEqual({ x: 400, y: 150, width: 1120, height: 780 });
+  });
+  it("rejects malformed state and preserves valid bounds", () => {
+    expect(parseWindowState("bad")).toBeUndefined();
+    expect(parseWindowState('{"bounds":{"x":0}}')).toBeUndefined();
+    const state = { bounds: { x: 50, y: 60, width: 900, height: 700 }, maximized: true };
+    expect(startupBounds(parseWindowState(JSON.stringify(state)), [screen])).toEqual(state.bounds);
+  });
+  it("recenters off-screen state and clamps partly visible windows", () => {
+    expect(startupBounds({ bounds: { x: 3000, y: 2000, width: 900, height: 700 }, maximized: false }, [screen])).toEqual(centeredBounds(screen));
+    expect(startupBounds({ bounds: { x: 1800, y: 900, width: 900, height: 700 }, maximized: false }, [screen])).toEqual({ x: 1020, y: 380, width: 900, height: 700 });
+  });
+});
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm run build && npm test -- tests/window-state.test.ts`
+
+Type-check the restore/zoom IPC and verify window bounds validation, centering, and off-screen recovery.
+
+```bash
+npm run build && npm test -- tests/window-state.test.ts
+```
+
+**Result:**
+
+```
+
+> k-downloader@0.1.0 build
+> tsc --noEmit
+
+
+> k-downloader@0.1.0 pretest
+> npm run build:gui
+
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+
+> k-downloader@0.1.0 test
+> vitest run tests/window-state.test.ts
+
+
+ RUN  v5.0.4 /home/kel/dev/K-Downloader
+
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  12:21:30
+   Duration  193ms (transform 60%, import 21%, tests 10%, worker 9%)
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The window-geometry checks pass, including off-screen recovery. I’ll add a Markdown parser and HTML sanitizer next, so the build can embed the root changelog without allowing scripts or unsafe HTML into the renderer.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm install marked dompurify`
+
+Install maintained Markdown parsing and HTML sanitization libraries for the build-embedded changelog.
+
+```bash
+npm install marked dompurify
+```
+
+**Result:**
+
+```
+
+added 3 packages, and audited 63 packages in 1s
+
+15 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+npm warn install-scripts 1 package has install scripts not yet covered by allowS
+cripts:
+npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+npm warn install-scripts
+npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install
+-scripts approve <pkg>` to allow.
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The Markdown libraries are installed with a clean audit. I’ll add the menu items, drawer drag handle, and keyboard controls now. The changelog will be embedded from changelog.md during each GUI build; Escape will close the drawer before returning from Settings.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **changelog.md**</summary>
+
+@@ lines 1-1 @@
+
+```
+# Changelog
+
+## Unreleased
+
+### Added
+
+- Public KHInsider album discovery and sequential audio downloads.
+- CLI and desktop GUI with format previews and lossless selection policies.
+- Multi-disc output folders with CD and Disc labels.
+- Manifest-backed reruns and safe, non-overwriting file transfers.
+- Cancellable inspection with an animated indicator and browser visibility toggle.
+- Custom titlebar and More menu.
+- Settings with Light, Dark, and System appearance modes.
+- Mint, Ocean, Amber, Rose, and Monochrome color themes.
+- Cinnamon desktop appearance updates.
+- Persistent window size, position, and maximized state.
+- Restore Size/Position command and resizable changelog drawer.
+- Ctrl+0, Ctrl+minus, Ctrl+plus, and Ctrl+mousewheel zoom controls.
+
+### Fixed
+
+- Duplicate inspection status rows.
+- Empty preview space after discovery.
+- Statusbar visibility for long track lists.
+- Main-process exception when closing the window.
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **build-gui.mjs**</summary>
+
+@@ lines 1-45 @@
+
+```
+import { cp, mkdir, readFile, rm } from "node:fs/promises";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { build } from "esbuild";
+
+const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const output = resolve(root, "dist");
+const changelog = await readFile(resolve(root, "changelog.md"), "utf8");
+await rm(output, { recursive: true, force: true });
+await mkdir(resolve(output, "electron"), { recursive: true });
+await mkdir(resolve(output, "gui"), { recursive: true });
+
+await Promise.all([
+  build({
+    entryPoints: [resolve(root, "src/electron/main.ts")],
+    outfile: resolve(output, "electron/main.cjs"),
+    bundle: true,
+    platform: "node",
+    format: "cjs",
+    external: ["electron", "playwright", "parse5"],
+  }),
+  build({
+    entryPoints: [resolve(root, "src/electron/preload.ts")],
+    outfile: resolve(output, "electron/preload.cjs"),
+    bundle: true,
+    platform: "node",
+    format: "cjs",
+    external: ["electron"],
+  }),
+  build({
+    entryPoints: [resolve(root, "src/renderer.ts")],
+    outfile: resolve(output, "gui/renderer.js"),
+    bundle: true,
+    platform: "browser",
+    format: "iife",
+    define: { __CHANGELOG_MARKDOWN__: JSON.stringify(changelog) },
+  }),
+]);
+
+await Promise.all([
+  cp(resolve(root, "gui/index.html"), resolve(output, "gui/index.html")),
+  cp(resolve(root, "gui/styles.css"), resolve(output, "gui/styles.css")),
+]);
+console.log("Built Electron main/preload and local renderer into dist/.");
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **changelog.ts**</summary>
+
+@@ lines 1-1 @@
+
+```
+import DOMPurify from "dompurify";
+import { marked } from "marked";
+
+declare const __CHANGELOG_MARKDOWN__: string;
+
+export function initializeChangelog(): { open: () => void; close: () => void; isOpen: () => boolean } {
+  const drawer = document.querySelector<HTMLElement>("#changelog-drawer")!;
+  const content = document.querySelector<HTMLElement>("#changelog-content")!;
+  const closeButton = document.querySelector<HTMLButtonElement>("#close-changelog")!;
+  const resizeHandle = document.querySelector<HTMLElement>("#changelog-resize")!;
+  const menuButton = document.querySelector<HTMLButtonElement>("#more-button")!;
+  let opened = false;
+  let previousFocus: HTMLElement | null = null;
+  content.innerHTML = DOMPurify.sanitize(marked.parse(__CHANGELOG_MARKDOWN__, { async: false }), {
+    FORBID_TAGS: ["img", "style", "iframe"],
+  });
+  content.addEventListener("click", (event) => {
+    if ((event.target as Element).closest("a")) event.preventDefault();
+  });
+
+  function setWidth(width: number): void {
+    const maximum = innerWidth * .4;
+    const minimum = Math.min(260, maximum);
+    const pixels = Math.max(minimum, Math.min(maximum, width));
+    drawer.style.width = `${pixels / innerWidth * 100}vw`;
+    resizeHandle.setAttribute("aria-valuenow", String(Math.round(pixels / innerWidth * 100)));
+    resizeHandle.setAttribute("aria-valuemin", String(Math.round(minimum / innerWidth * 100)));
+  }
+
+  resizeHandle.addEventListener("pointerdown", (event) => {
+    resizeHandle.setPointerCapture(event.pointerId);
+    event.preventDefault();
+  });
+  resizeHandle.addEventListener("pointermove", (event) => {
+    if (resizeHandle.hasPointerCapture(event.pointerId)) setWidth(innerWidth - event.clientX);
+  });
+  resizeHandle.addEventListener("pointerup", (event) => {
+    if (resizeHandle.hasPointerCapture(event.pointerId)) resizeHandle.releasePointerCapture(event.pointerId);
+  });
+  resizeHandle.addEventListener("keydown", (event) => {
+    if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+    event.preventDefault();
+    const width = drawer.getBoundingClientRect().width;
+    setWidth(event.key === "Home" ? 0 : event.key === "End" ? innerWidth : width + (event.key === "ArrowLeft" ? 20 : -20));
+  });
+  window.addEventListener("resize", () => setWidth(drawer.getBoundingClientRect().width));
+
+  function close(): void {
+    opened = false;
+    drawer.dataset.open = "false";
+    drawer.inert = true;
+    if (previousFocus?.isConnected && previousFocus.getClientRects().length) previousFocus.focus();
+    else menuButton.focus();
+  }
+  closeButton.addEventListener("click", close);
+  drawer.inert = true;
+  return {
+    open: () => {
+      previousFocus = document.activeElement as HTMLElement | null;
+      opened = true;
+      drawer.inert = false;
+      drawer.dataset.open = "true";
+      setWidth(drawer.getBoundingClientRect().width);
+      closeButton.focus();
+    },
+    close,
+    isOpen: () => opened,
+  };
+}
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **index.html**</summary>
+
+@@ lines 1-181 @@
+
+```
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'" />
+    <title>K-Downloader</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script defer src="./renderer.js"></script>
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <div class="brand-lockup">
+          <div class="app-icon" aria-hidden="true">K</div>
+          <div class="brand-name">K-Downloader</div>
+        </div>
+        <div class="titlebar-actions">
+          <div id="more-menu-wrap" class="more-menu-wrap">
+            <button id="more-button" class="window-control more-button" type="button" aria-label="More options" title="More options" aria-haspopup="menu" aria-expanded="false">
+              <i data-lucide="ellipsis-vertical" aria-hidden="true"></i>
+            </button>
+            <div id="more-menu" class="more-menu" role="menu" aria-label="More options" hidden>
+              <button id="settings-menu-item" class="more-menu-item" type="button" role="menuitem">
+                <i data-lucide="settings" aria-hidden="true"></i>
+                <span>Settings</span>
+                <kbd>Ctrl+,</kbd>
+              </button>
+              <button id="restore-bounds-menu-item" class="more-menu-item" type="button" role="menuitem">
+                <i data-lucide="scan" aria-hidden="true"></i>
+                <span>Restore Size/Position</span>
+              </button>
+              <button id="changelog-menu-item" class="more-menu-item" type="button" role="menuitem">
+                <i data-lucide="scroll-text" aria-hidden="true"></i>
+                <span>Changelog</span>
+              </button>
+            </div>
+          </div>
+          <nav class="window-controls" aria-label="Window controls">
+          <button id="minimize-window" class="window-control" type="button" aria-label="Minimize window" title="Minimize">
+            <i data-lucide="minus" aria-hidden="true"></i>
+          </button>
+          <button id="maximize-window" class="window-control" type="button" aria-label="Maximize window" title="Maximize">
+            <i data-lucide="square" aria-hidden="true"></i>
+          </button>
+          <button id="close-window" class="window-control close-control" type="button" aria-label="Close window" title="Close">
+            <i data-lucide="x" aria-hidden="true"></i>
+          </button>
+          </nav>
+        </div>
+      </header>
+
+      <section id="workspace" class="workspace">
+        <aside class="control-panel" aria-label="Download setup">
+          <div class="section-heading"><span class="section-index">01</span><h1>Album source</h1></div>
+          <label for="album-url">KHInsider album URL</label>
+          <textarea id="album-url" rows="3" spellcheck="false" placeholder="https://downloads.khinsider.com/game-soundtracks/album/…"></textarea>
+          <div class="microcopy">Inspection opens a separate visible Chromium window. No login is used.</div>
+
+          <div class="section-heading destination-heading"><span class="section-index">02</span><h2>Destination</h2></div>
+          <label for="output-root">Save album under</label>
+          <div class="path-control">
+            <input id="output-root" type="text" spellcheck="false" />
+            <button id="browse-button" class="icon-button" type="button" aria-label="Choose download folder" title="Choose download folder">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 6.5h6l2 2H20a1 1 0 0 1 1 1v8.8a1.7 1.7 0 0 1-1.7 1.7H4.7A1.7 1.7 0 0 1 3 18.3V7a.5.5 0 0 1 .5-.5Z"/><path d="M12 12v5m-2.5-2.5h5"/></svg>
+            </button>
+          </div>
+
+          <div class="section-heading format-heading"><span class="section-index">03</span><h2>Format policy</h2></div>
+          <label for="format-policy">Choose source audio</label>
+          <select id="format-policy">
+            <option value="prefer-lossless">Prefer lossless</option>
+            <option value="lossless-only">Lossless only</option>
+          </select>
+          <label class="check-row" for="skip-unavailable">
+            <input id="skip-unavailable" type="checkbox" disabled />
+            <span>Skip tracks without the selected format</span>
+          </label>
+          <div id="disc-label-setting" class="disc-label-setting" hidden>
+            <label for="disc-label">Disc folder label</label>
+            <select id="disc-label">
+              <option value="CD">CD1, CD2, …</option>
+              <option value="Disc">Disc1, Disc2, …</option>
+            </select>
+          </div>
+
+          <div class="action-row">
+            <button id="inspect-button" class="secondary-button" type="button">Inspect album</button>
+            <button id="download-button" class="primary-button" type="button" disabled>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v11m0 0 4-4m-4 4-4-4M5 17v3h14v-3"/></svg>
+              Download
+            </button>
+          </div>
+          <button id="cancel-button" class="cancel-button" type="button" disabled>Cancel active download</button>
+          <p id="error-text" class="error-text" role="alert"></p>
+        </aside>
+
+        <section class="results-panel" aria-label="Album preview and progress">
+          <div class="results-header">
+            <div>
+              <div class="eyebrow">DISCOVERY PREVIEW</div>
+              <h2 id="album-title">No album inspected</h2>
+            </div>
+            <div class="track-count" id="track-count">Waiting</div>
+          </div>
+
+          <div class="status-strip">
+            <span id="status-dot" class="status-dot" data-tone="idle"></span>
+            <span id="status-text">Paste an album URL to begin</span>
+          </div>
+          <button id="inspection-indicator" class="inspection-indicator" type="button" hidden disabled aria-pressed="false">
+            <i data-lucide="loader-circle" class="inspection-spinner" aria-hidden="true"></i>
+            <span role="status">Inspection in progress</span>
+            <span id="inspection-indicator-text" class="inspection-indicator-action">Starting browser…</span>
+          </button>
+
+          <div id="empty-state" class="empty-state">
+            <div class="empty-glyph" aria-hidden="true"><span></span><span></span><span></span></div>
+            <div class="empty-title">Ready for an album</div>
+            <div class="empty-note">Track formats and fallback choices appear here before transfer.</div>
+          </div>
+
+          <div class="table-wrap">
+            <table id="track-table" hidden>
+              <thead><tr><th>Disc</th><th>#</th><th>Track</th><th>Available</th><th>Selected</th><th>Status</th></tr></thead>
+              <tbody id="track-rows"></tbody>
+            </table>
+          </div>
+
+          <footer class="progress-footer">
+            <div class="progress-label"><span>TRANSFER</span><span id="progress-text">No active transfer</span></div>
+            <progress id="download-progress" value="0" max="1"></progress>
+          </footer>
+        </section>
+      </section>
+      <section id="settings-view" class="settings-view" aria-labelledby="settings-heading" hidden>
+        <header class="settings-header">
+          <h1 id="settings-heading">Settings</h1>
+          <button id="close-settings" class="settings-close-button" type="button">
+            <i data-lucide="arrow-left" aria-hidden="true"></i>
+            <span>Back to downloader</span>
+          </button>
+        </header>
+        <section class="appearance-section" aria-labelledby="appearance-heading">
+          <h2 id="appearance-heading">Appearance</h2>
+          <fieldset class="appearance-setting">
+            <legend>Mode</legend>
+            <div class="mode-options">
+              <label><input type="radio" name="appearance-mode" value="light" /><span>Light</span></label>
+              <label><input type="radio" name="appearance-mode" value="dark" /><span>Dark</span></label>
+              <label><input type="radio" name="appearance-mode" value="system" checked /><span>System</span></label>
+            </div>
+          </fieldset>
+          <fieldset class="appearance-setting">
+            <legend>Color theme</legend>
+            <div class="theme-options">
+              <label><input type="radio" name="color-theme" value="mint" checked /><span class="theme-swatch swatch-mint"></span><span>Mint</span></label>
+              <label><input type="radio" name="color-theme" value="ocean" /><span class="theme-swatch swatch-ocean"></span><span>Ocean</span></label>
+              <label><input type="radio" name="color-theme" value="amber" /><span class="theme-swatch swatch-amber"></span><span>Amber</span></label>
+              <label><input type="radio" name="color-theme" value="rose" /><span class="theme-swatch swatch-rose"></span><span>Rose</span></label>
+              <label><input type="radio" name="color-theme" value="monochrome" /><span class="theme-swatch swatch-monochrome"></span><span>Monochrome</span></label>
+            </div>
+          </fieldset>
+          <p id="appearance-storage-status" class="error-text" role="status"></p>
+        </section>
+      </section>
+      <aside id="changelog-drawer" class="changelog-drawer" data-open="false" aria-labelledby="changelog-heading" inert>
+        <div id="changelog-resize" class="changelog-resize" role="separator" tabindex="0" aria-label="Changelog panel width" aria-orientation="vertical" aria-valuemin="24" aria-valuemax="40" aria-valuenow="32"></div>
+        <header class="changelog-header">
+          <h2 id="changelog-heading">Changelog</h2>
+          <button id="close-changelog" class="drawer-close-button" type="button" aria-label="Close changelog" title="Close changelog">
+            <i data-lucide="x" aria-hidden="true"></i>
+          </button>
+        </header>
+        <div id="changelog-content" class="changelog-content"></div>
+      </aside>
+      <footer class="app-footer"><span>Original audio bytes · no transcoding</span><span>LOCAL SESSION</span></footer>
+    </main>
+  </body>
+</html>
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **renderer.ts**</summary>
+
+@@ lines 1-354 @@
+
+```
+import type { GuiFormatPolicy, GuiInspection, GuiInspectionState, GuiProgress, GuiTrack } from "./gui-types.js";
+import { ArrowLeft, Copy, createIcons, EllipsisVertical, LoaderCircle, Minus, Scan, ScrollText, Settings, Square, X } from "lucide";
+import { initializeAppearance } from "./appearance.js";
+import { initializeChangelog } from "./changelog.js";
+
+initializeAppearance();
+
+const windowIcons = { ArrowLeft, Copy, EllipsisVertical, LoaderCircle, Minus, Scan, ScrollText, Settings, Square, X };
+createIcons({ icons: windowIcons });
+const changelog = initializeChangelog();
+
+const albumInput = document.querySelector<HTMLTextAreaElement>("#album-url")!;
+const outputInput = document.querySelector<HTMLInputElement>("#output-root")!;
+const formatSelect = document.querySelector<HTMLSelectElement>("#format-policy")!;
+const discLabelSelect = document.querySelector<HTMLSelectElement>("#disc-label")!;
+const discLabelSetting = document.querySelector<HTMLElement>("#disc-label-setting")!;
+const skipInput = document.querySelector<HTMLInputElement>("#skip-unavailable")!;
+const inspectButton = document.querySelector<HTMLButtonElement>("#inspect-button")!;
+const downloadButton = document.querySelector<HTMLButtonElement>("#download-button")!;
+const cancelButton = document.querySelector<HTMLButtonElement>("#cancel-button")!;
+const browseButton = document.querySelector<HTMLButtonElement>("#browse-button")!;
+const tableBody = document.querySelector<HTMLTableSectionElement>("#track-rows")!;
+const albumTitle = document.querySelector<HTMLElement>("#album-title")!;
+const trackCount = document.querySelector<HTMLElement>("#track-count")!;
+const statusText = document.querySelector<HTMLElement>("#status-text")!;
+const statusDot = document.querySelector<HTMLElement>("#status-dot")!;
+const statusStrip = document.querySelector<HTMLElement>(".status-strip")!;
+const inspectionIndicator = document.querySelector<HTMLButtonElement>("#inspection-indicator")!;
+const inspectionIndicatorText = document.querySelector<HTMLElement>("#inspection-indicator-text")!;
+const progress = document.querySelector<HTMLProgressElement>("#download-progress")!;
+const progressText = document.querySelector<HTMLElement>("#progress-text")!;
+const emptyState = document.querySelector<HTMLElement>("#empty-state")!;
+const trackTable = document.querySelector<HTMLTableElement>("#track-table")!;
+const errorText = document.querySelector<HTMLElement>("#error-text")!;
+const minimizeWindowButton = document.querySelector<HTMLButtonElement>("#minimize-window")!;
+const maximizeWindowButton = document.querySelector<HTMLButtonElement>("#maximize-window")!;
+const closeWindowButton = document.querySelector<HTMLButtonElement>("#close-window")!;
+const moreMenuWrap = document.querySelector<HTMLElement>("#more-menu-wrap")!;
+const moreButton = document.querySelector<HTMLButtonElement>("#more-button")!;
+const moreMenu = document.querySelector<HTMLElement>("#more-menu")!;
+const settingsMenuItem = document.querySelector<HTMLButtonElement>("#settings-menu-item")!;
+const restoreBoundsMenuItem = document.querySelector<HTMLButtonElement>("#restore-bounds-menu-item")!;
+const changelogMenuItem = document.querySelector<HTMLButtonElement>("#changelog-menu-item")!;
+const workspaceView = document.querySelector<HTMLElement>("#workspace")!;
+const settingsView = document.querySelector<HTMLElement>("#settings-view")!;
+const closeSettingsButton = document.querySelector<HTMLButtonElement>("#close-settings")!;
+
+let inspection: GuiInspection | undefined;
+let busy = false;
+let inspecting = false;
+let inspectionCancelRequested = false;
+let inspectionBrowserVisible = false;
+let settingsOpen = false;
+
+function updateInspectionIndicator(state: GuiInspectionState): void {
+  inspectionBrowserVisible = state.browserVisible;
+  statusStrip.hidden = state.active;
+  inspectionIndicator.hidden = !state.active;
+  inspectionIndicator.disabled = !state.browserReady;
+  inspectionIndicator.setAttribute("aria-pressed", String(state.browserVisible));
+  inspectionIndicatorText.textContent = state.browserReady
+    ? state.browserVisible ? "Hide browser" : "Show browser"
+    : "Starting browser…";
+}
+
+function closeMoreMenu(): void {
+  moreMenu.hidden = true;
+  moreButton.setAttribute("aria-expanded", "false");
+}
+
+function setSettingsOpen(open: boolean): void {
+  settingsOpen = open;
+  workspaceView.hidden = open;
+  settingsView.hidden = !open;
+  closeMoreMenu();
+  if (open) closeSettingsButton.focus();
+  else albumInput.focus();
+}
+
+function updateMaximizeButton(maximized: boolean): void {
+  const label = maximized ? "Restore window" : "Maximize window";
+  maximizeWindowButton.setAttribute("aria-label", label);
+  maximizeWindowButton.title = label;
+  maximizeWindowButton.innerHTML = `<i data-lucide="${maximized ? "copy" : "square"}" aria-hidden="true"></i>`;
+  createIcons({ icons: windowIcons });
+}
+
+function isValidAlbumUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" &&
+      url.hostname.toLowerCase() === "downloads.khinsider.com" &&
+      url.pathname.startsWith("/game-soundtracks/album/") &&
+      !url.username && !url.password;
+  } catch {
+    return false;
+  }
+}
+
+function setStatus(label: string, tone: "idle" | "working" | "success" | "error" = "idle"): void {
+  statusText.textContent = label;
+  statusDot.dataset.tone = tone;
+}
+
+function selectedFormat(track: GuiTrack): { format?: string; state: string; fallback: boolean } {
+  const value = formatSelect.value;
+  if (value === "prefer-lossless") {
+    const lossless = ["FLAC", "ALAC", "WAV"].find((format) => track.formats.includes(format));
+    if (lossless) return { format: lossless, state: "Ready", fallback: false };
+    const lossy = track.formats.find((format) => format === "MP3") ?? track.formats[0];
+    return lossy
+      ? { format: lossy, state: "Ready", fallback: true }
+      : { state: "Unavailable", fallback: false };
+  }
+  const requested = value === "lossless-only" ? ["FLAC", "ALAC", "WAV"].find((format) => track.formats.includes(format)) : value.slice("format:".length);
+  if (requested && track.formats.includes(requested)) return { format: requested, state: "Ready", fallback: false };
+  return skipInput.checked
+    ? { state: "Skipped", fallback: false }
+    : { state: "Unavailable", fallback: false };
+}
+
+function renderTracks(): void {
+  if (!inspection) return;
+  const rows = inspection.tracks.map((track) => {
+    const selected = selectedFormat(track);
+    const row = document.createElement("tr");
+    row.innerHTML = `<td class="track-disc"></td><td class="track-number"></td><td class="track-title"></td><td class="track-formats"></td><td class="track-choice"></td><td class="track-state"></td>`;
+    row.querySelector(".track-disc")!.textContent = track.discNumber === undefined ? "-" : `${discLabelSelect.value}${track.discNumber}`;
+    row.querySelector(".track-number")!.textContent = String(track.number).padStart(2, "0");
+    row.querySelector(".track-title")!.textContent = track.title;
+    row.querySelector(".track-formats")!.textContent = track.formats.join(", ") || "None found";
+    row.querySelector(".track-choice")!.textContent = selected.format ?? "-";
+    const state = row.querySelector<HTMLElement>(".track-state")!;
+    state.textContent = selected.state;
+    state.dataset.state = selected.state.toLowerCase();
+    if (selected.fallback) state.textContent += " · fallback";
+    return row;
+  });
+  tableBody.replaceChildren(...rows);
+  const blocked = inspection.tracks.some((track) => selectedFormat(track).state === "Unavailable");
+  downloadButton.disabled = busy || blocked;
+  trackCount.textContent = `${inspection.trackCount} tracks`;
+  emptyState.hidden = true;
+  trackTable.hidden = false;
+}
+
+function currentPolicy(): GuiFormatPolicy {
+  if (formatSelect.value === "prefer-lossless") return { kind: "prefer-lossless" };
+  if (formatSelect.value === "lossless-only") return { kind: "lossless-only", skipUnavailable: skipInput.checked };
+  return { kind: "specific", format: formatSelect.value.slice("format:".length), skipUnavailable: skipInput.checked };
+}
+
+function updateFormatOptions(): void {
+  if (!inspection) return;
+  const formats = [...new Set(inspection.tracks.flatMap((track) => track.formats))].sort();
+  const discs = [...new Set(inspection.tracks.flatMap((track) => track.discNumber === undefined ? [] : [track.discNumber]))];
+  discLabelSetting.hidden = discs.length < 2;
+  const previous = formatSelect.value;
+  formatSelect.querySelectorAll("option[data-discovered]").forEach((option) => option.remove());
+  for (const format of formats) {
+    const option = document.createElement("option");
+    option.value = `format:${format}`;
+    option.textContent = `Specific format: ${format}`;
+    option.dataset.discovered = "true";
+    formatSelect.append(option);
+  }
+  if ([...formatSelect.options].some((option) => option.value === previous)) formatSelect.value = previous;
+  renderTracks();
+}
+
+function setBusy(value: boolean): void {
+  busy = value;
+  inspectButton.disabled = value;
+  browseButton.disabled = value;
+  albumInput.disabled = value;
+  outputInput.disabled = value;
+  formatSelect.disabled = value;
+  discLabelSelect.disabled = value;
+  skipInput.disabled = value || formatSelect.value === "prefer-lossless";
+  cancelButton.disabled = !value;
+  cancelButton.textContent = inspecting ? "Cancel inspection" : "Cancel active download";
+  if (inspection) renderTracks();
+}
+
+minimizeWindowButton.addEventListener("click", () => { void window.kDownloader.minimizeWindow(); });
+maximizeWindowButton.addEventListener("click", async () => {
+  const maximized = await window.kDownloader.toggleMaximizeWindow();
+  updateMaximizeButton(maximized);
+});
+closeWindowButton.addEventListener("click", () => { void window.kDownloader.closeWindow(); });
+window.kDownloader.onWindowState(({ maximized }) => updateMaximizeButton(maximized));
+
+moreButton.addEventListener("click", () => {
+  moreMenu.hidden = !moreMenu.hidden;
+  moreButton.setAttribute("aria-expanded", String(!moreMenu.hidden));
+});
+settingsMenuItem.addEventListener("click", () => setSettingsOpen(true));
+restoreBoundsMenuItem.addEventListener("click", () => {
+  closeMoreMenu();
+  void window.kDownloader.restoreWindowBounds();
+});
+changelogMenuItem.addEventListener("click", () => {
+  closeMoreMenu();
+  changelog.open();
+});
+closeSettingsButton.addEventListener("click", () => setSettingsOpen(false));
+document.addEventListener("click", (event) => {
+  if (!moreMenuWrap.contains(event.target as Node)) closeMoreMenu();
+});
+document.addEventListener("keydown", (event) => {
+  if (event.ctrlKey && ["0", "-", "_", "=", "+"].includes(event.key)) {
+    event.preventDefault();
+    const direction = event.key === "0" ? "reset" : ["-", "_"].includes(event.key) ? "out" : "in";
+    void window.kDownloader.zoom(direction);
+  } else if ((event.ctrlKey || event.metaKey) && event.key === ",") {
+    event.preventDefault();
+    setSettingsOpen(!settingsOpen);
+  } else if (event.key === "Escape") {
+    if (!moreMenu.hidden) {
+      closeMoreMenu();
+      moreButton.focus();
+    } else if (changelog.isOpen()) changelog.close();
+    else if (settingsOpen) setSettingsOpen(false);
+  }
+});
+document.addEventListener("wheel", (event) => {
+  if (!event.ctrlKey || event.deltaY === 0) return;
+  event.preventDefault();
+  void window.kDownloader.zoom(event.deltaY < 0 ? "in" : "out");
+}, { passive: false });
+
+inspectButton.addEventListener("click", async () => {
+  errorText.textContent = "";
+  const albumUrl = albumInput.value.trim();
+  if (!isValidAlbumUrl(albumUrl)) {
+    errorText.textContent = "Paste a valid HTTPS KHInsider album URL.";
+    setStatus("Album URL required", "error");
+    albumInput.focus();
+    return;
+  }
+  inspection = undefined;
+  downloadButton.disabled = true;
+  tableBody.replaceChildren();
+  trackTable.hidden = true;
+  emptyState.hidden = false;
+  inspecting = true;
+  inspectionCancelRequested = false;
+  setBusy(true);
+  updateInspectionIndicator({ active: true, browserReady: false, browserVisible: false });
+  try {
+    inspection = await window.kDownloader.inspect(albumUrl);
+    if (!inspection) {
+      setStatus("Inspection canceled");
+      return;
+    }
+    albumTitle.textContent = inspection.albumTitle;
+    updateFormatOptions();
+    setStatus("Preview ready", "success");
+  } catch (error) {
+    if (inspectionCancelRequested) setStatus("Inspection canceled");
+    else {
+      errorText.textContent = error instanceof Error ? error.message : String(error);
+      setStatus("Inspection failed", "error");
+    }
+  } finally {
+    inspecting = false;
+    inspectionCancelRequested = false;
+    updateInspectionIndicator({ active: false, browserReady: false, browserVisible: false });
+    setBusy(false);
+    if (inspection) renderTracks();
+  }
+});
+
+inspectionIndicator.addEventListener("click", async () => {
+  if (inspectionIndicator.disabled) return;
+  try {
+    inspectionBrowserVisible = await window.kDownloader.toggleInspectionBrowser();
+    inspectionIndicator.setAttribute("aria-pressed", String(inspectionBrowserVisible));
+    inspectionIndicatorText.textContent = inspectionBrowserVisible ? "Hide browser" : "Show browser";
+  } catch (error) {
+    errorText.textContent = error instanceof Error ? error.message : String(error);
+  }
+});
+
+window.kDownloader.onInspectionState(updateInspectionIndicator);
+
+browseButton.addEventListener("click", async () => {
+  const selected = await window.kDownloader.chooseOutput();
+  if (selected) outputInput.value = selected;
+});
+
+formatSelect.addEventListener("change", () => {
+  skipInput.disabled = busy || formatSelect.value === "prefer-lossless";
+  renderTracks();
+});
+discLabelSelect.addEventListener("change", renderTracks);
+skipInput.addEventListener("change", renderTracks);
+
+downloadButton.addEventListener("click", async () => {
+  if (!inspection) return;
+  errorText.textContent = "";
+  progress.value = 0;
+  progressText.textContent = "Preparing album";
+  setBusy(true);
+  setStatus("Downloading", "working");
+  try {
+    const result = await window.kDownloader.download({
+      policy: currentPolicy(),
+      outputRoot: outputInput.value,
+      discLabel: discLabelSelect.value === "Disc" ? "Disc" : "CD",
+    });
+    progress.value = inspection.trackCount;
+    progress.max = inspection.trackCount;
+    progressText.textContent = `${result.state} · ${result.directory}`;
+    setStatus(result.state === "complete" ? "Download complete" : result.state, result.state === "complete" ? "success" : "error");
+  } catch (error) {
+    errorText.textContent = error instanceof Error ? error.message : String(error);
+    setStatus("Download failed", "error");
+  } finally {
+    setBusy(false);
+  }
+});
+
+cancelButton.addEventListener("click", async () => {
+  cancelButton.disabled = true;
+  const cancelingInspection = inspecting;
+  if (cancelingInspection) {
+    inspectionCancelRequested = true;
+    inspectionIndicator.disabled = true;
+    inspectionIndicatorText.textContent = "Canceling…";
+  } else setStatus("Canceling active track…", "working");
+  try {
+    await window.kDownloader.cancel();
+  } catch (error) {
+    errorText.textContent = error instanceof Error ? error.message : String(error);
+    inspectionCancelRequested = false;
+    cancelButton.disabled = !busy;
+  }
+});
+
+window.kDownloader.onProgress((event: GuiProgress) => {
+  progress.max = event.totalTracks;
+  progress.value = event.completedTracks;
+  progressText.textContent = event.stage === "track-start"
+    ? `Downloading ${String(event.number).padStart(2, "0")} · ${event.title}`
+    : event.stage === "track-complete"
+      ? `Completed ${event.completedTracks} of ${event.totalTracks} tracks`
+      : event.stage === "track-failed"
+        ? `Failed ${String(event.number).padStart(2, "0")} · ${event.title}`
+        : "Canceled";
+});
+
+void window.kDownloader.defaultOutputRoot().then((value) => { outputInput.value = value; });
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **styles.css**</summary>
+
+@@ lines 1-263 @@
+
+```
+:root {
+  color-scheme: dark;
+  --ink: #e8efec;
+  --muted: #91a09b;
+  --dim: #60716b;
+  --line: #2c3a35;
+  --panel: #17211d;
+  --panel-raised: #1d2a25;
+  --ground: #101715;
+  --mint: #b3f06c;
+  --mint-dark: #83bd42;
+  --coral: #f28568;
+  --blue: #80bac5;
+  --field: #101815;
+  --hover: #293630;
+  --accent-text: #152018;
+  --warning: #d5b675;
+  --close-hover: #c94343;
+  --shadow: rgba(0, 0, 0, .38);
+  font-family: "DejaVu Sans", "Noto Sans", sans-serif;
+  color: var(--ink);
+  background: var(--ground);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+:root[data-mode="light"] {
+  color-scheme: light;
+  --ink: #202b26;
+  --muted: #52635b;
+  --dim: #5d6e66;
+  --line: #ced9d2;
+  --panel: #ffffff;
+  --panel-raised: #eaf0ec;
+  --ground: #f3f6f4;
+  --field: #ffffff;
+  --hover: #dde7e1;
+  --mint: #356a19;
+  --mint-dark: #356a19;
+  --accent-text: #ffffff;
+  --coral: #b33f2c;
+  --blue: #286b79;
+  --warning: #855c10;
+  --shadow: rgba(26, 42, 32, .16);
+}
+
+:root[data-theme="ocean"] { --mint: #76dbd3; --mint-dark: #76dbd3; }
+:root[data-theme="amber"] { --mint: #f0cd72; --mint-dark: #f0cd72; }
+:root[data-theme="rose"] { --mint: #f4a2bd; --mint-dark: #f4a2bd; }
+:root[data-theme="monochrome"] { --mint: #d3d9dd; --mint-dark: #d3d9dd; }
+:root[data-mode="light"][data-theme="ocean"] { --mint: #006c68; --mint-dark: #006c68; }
+:root[data-mode="light"][data-theme="amber"] { --mint: #805c05; --mint-dark: #805c05; }
+:root[data-mode="light"][data-theme="rose"] { --mint: #a03058; --mint-dark: #a03058; }
+:root[data-mode="light"][data-theme="monochrome"] { --mint: #46515a; --mint-dark: #46515a; }
+:root[data-theme="ocean"], :root[data-theme="amber"], :root[data-theme="rose"], :root[data-theme="monochrome"] {
+  --ink: #e9ecee;
+  --muted: #a0a8ad;
+  --dim: #929da4;
+  --line: #363c40;
+  --panel: #1c2023;
+  --panel-raised: #282d31;
+  --ground: #141719;
+  --field: #171b1e;
+  --hover: #353c41;
+  --accent-text: #161c20;
+}
+:root[data-mode="light"][data-theme="ocean"], :root[data-mode="light"][data-theme="amber"], :root[data-mode="light"][data-theme="rose"], :root[data-mode="light"][data-theme="monochrome"] {
+  --ink: #242a2e;
+  --muted: #566169;
+  --dim: #5b6770;
+  --line: #ced5da;
+  --panel: #ffffff;
+  --panel-raised: #edf0f2;
+  --ground: #f5f6f7;
+  --field: #ffffff;
+  --hover: #e0e6ea;
+  --accent-text: #ffffff;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-width: 0;
+  height: 100vh;
+  overflow: hidden;
+  background:
+    linear-gradient(115deg, color-mix(in srgb, var(--mint) 5%, transparent), transparent 44%),
+    var(--ground);
+}
+button, input, textarea, select { font: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: .42; }
+
+.app-shell { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+.topbar { height: 46px; flex: 0 0 46px; padding: 0 0 0 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); background: var(--panel); -webkit-app-region: drag; user-select: none; }
+.brand-lockup { height: 100%; display: flex; align-items: center; gap: 9px; }
+.app-icon { width: 23px; height: 23px; display: grid; place-items: center; background: var(--mint); color: var(--accent-text); font-size: 15px; font-weight: 800; clip-path: polygon(0 0, 100% 0, 100% 72%, 72% 100%, 0 100%); }
+.brand-name { font-size: 12px; font-weight: 800; }
+.titlebar-actions { height: 100%; display: flex; align-items: stretch; -webkit-app-region: no-drag; }
+.more-menu-wrap { position: relative; height: 100%; }
+.window-controls { height: 100%; display: flex; -webkit-app-region: no-drag; }
+.window-control { width: 46px; height: 100%; display: grid; place-items: center; border: 0; border-radius: 0; color: var(--muted); background: transparent; }
+.window-control:hover { color: var(--ink); background: var(--hover); }
+.window-control.close-control:hover { color: white; background: var(--close-hover); }
+.window-control svg { width: 14px; height: 14px; stroke-width: 1.6; }
+.window-control:focus-visible { outline: 1px solid var(--mint); outline-offset: -3px; }
+.more-menu { position: absolute; z-index: 20; top: calc(100% + 5px); right: 0; width: 224px; padding: 5px; border: 1px solid var(--line); border-radius: 4px; background: var(--panel-raised); box-shadow: 0 12px 28px var(--shadow); }
+.more-menu[hidden] { display: none; }
+.more-menu-item { width: 100%; min-height: 36px; padding: 0 9px; display: flex; align-items: center; gap: 10px; border: 0; border-radius: 2px; color: var(--ink); background: transparent; text-align: left; font-size: 11px; }
+.more-menu-item:hover, .more-menu-item:focus-visible { background: var(--hover); outline: none; }
+.more-menu-item svg { width: 15px; height: 15px; color: var(--muted); stroke-width: 1.7; }
+.more-menu-item kbd { margin-left: auto; color: var(--muted); font-family: "DejaVu Sans Mono", monospace; font-size: 9px; }
+.brand-subtitle, .eyebrow, .section-index, .mode-label, .progress-label, .app-footer { font-family: "DejaVu Sans Mono", monospace; letter-spacing: 0; }
+.brand-subtitle { margin-top: 3px; color: var(--dim); font-size: 9px; }
+.mode-label { display: flex; align-items: center; gap: 9px; color: var(--muted); font-size: 11px; }
+.mode-dot { width: 7px; height: 7px; background: var(--mint); border-radius: 50%; }
+
+.workspace { width: min(1440px, 100%); margin: 0 auto; padding: 28px 32px 24px; flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(300px, 370px) minmax(380px, 1fr); grid-template-rows: minmax(0, 1fr); gap: 18px; overflow: hidden; }
+.workspace[hidden], .settings-view[hidden] { display: none; }
+.settings-view { width: min(1440px, 100%); flex: 1; min-height: 0; margin: 0 auto; padding: 28px 32px 24px; overflow: auto; }
+.settings-header { min-height: 56px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); }
+.settings-header h1 { margin: 0; font-size: 18px; }
+.settings-close-button { min-height: 34px; padding: 0 10px; display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 3px; color: var(--ink); background: var(--panel-raised); font-size: 11px; }
+.settings-close-button:hover { border-color: var(--blue); background: var(--hover); }
+.settings-close-button svg { width: 15px; height: 15px; }
+.control-panel, .results-panel { border: 1px solid var(--line); background: linear-gradient(155deg, var(--panel-raised), var(--panel) 65%); }
+.control-panel { padding: 24px; align-self: start; max-height: 100%; min-height: 0; overflow: auto; }
+.section-heading { display: flex; align-items: baseline; gap: 10px; margin: 0 0 18px; }
+.section-heading h1, .section-heading h2 { margin: 0; font-size: 14px; font-weight: 700; }
+.section-index { color: var(--mint); font-size: 10px; }
+label { display: block; color: var(--ink); font-size: 11px; font-weight: 700; margin: 0 0 8px; }
+textarea, input[type="text"], select { width: 100%; border: 1px solid var(--line); border-radius: 3px; color: var(--ink); background: var(--field); outline: none; }
+textarea { min-height: 88px; resize: vertical; padding: 12px; font-family: "DejaVu Sans Mono", monospace; font-size: 11px; line-height: 1.7; }
+input[type="text"], select { min-height: 38px; padding: 0 10px; font-size: 11px; }
+textarea:focus, input[type="text"]:focus, select:focus { border-color: var(--mint-dark); box-shadow: 0 0 0 2px color-mix(in srgb, var(--mint) 15%, transparent); }
+.microcopy { margin: 7px 0 0; color: var(--dim); font-size: 10px; line-height: 1.5; }
+.destination-heading { margin-top: 25px; }
+.format-heading { margin-top: 25px; }
+.path-control { display: flex; gap: 7px; }
+.path-control input { min-width: 0; font-family: "DejaVu Sans Mono", monospace; font-size: 10px; }
+.icon-button { width: 40px; flex: 0 0 40px; border: 1px solid var(--line); border-radius: 3px; color: var(--mint); background: var(--panel-raised); }
+.icon-button svg, .primary-button svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; vertical-align: middle; }
+.check-row { display: flex; align-items: center; gap: 8px; margin-top: 11px; color: var(--muted); font-size: 10px; font-weight: 500; }
+.check-row input { accent-color: var(--mint-dark); }
+.disc-label-setting { margin-top: 14px; }
+.action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 24px; }
+.primary-button, .secondary-button { min-height: 41px; border-radius: 3px; font-size: 11px; font-weight: 800; }
+.primary-button { display: flex; justify-content: center; align-items: center; gap: 8px; border: 1px solid var(--mint); color: var(--accent-text); background: var(--mint); }
+.primary-button:hover:not(:disabled) { background: color-mix(in srgb, var(--mint) 88%, var(--ink)); }
+.secondary-button { border: 1px solid var(--line); color: var(--ink); background: var(--panel-raised); }
+.secondary-button:hover:not(:disabled) { border-color: var(--blue); }
+.cancel-button { display: block; margin: 10px 0 0 auto; padding: 5px 0; border: 0; color: var(--coral); background: transparent; font-size: 10px; }
+.error-text { min-height: 0; margin: 10px 0 0; color: var(--coral); font-size: 11px; line-height: 1.5; overflow-wrap: anywhere; }
+
+.results-panel { min-width: 0; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+.results-header, .status-strip, .inspection-indicator, .progress-footer { flex-shrink: 0; }
+.results-header { padding: 23px 24px 18px; display: flex; justify-content: space-between; align-items: end; border-bottom: 1px solid var(--line); }
+.eyebrow { color: var(--mint); font-size: 9px; }
+.results-header h2 { margin: 7px 0 0; font-size: 17px; line-height: 1.35; }
+.track-count { padding: 6px 8px; border: 1px solid var(--line); color: var(--muted); font-family: "DM Mono", monospace; font-size: 10px; white-space: nowrap; }
+.status-strip { min-height: 39px; display: flex; align-items: center; gap: 9px; padding: 0 24px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 10px; }
+.status-strip[hidden] { display: none; }
+.status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--dim); }
+.status-dot[data-tone="working"] { background: var(--blue); box-shadow: 0 0 0 4px color-mix(in srgb, var(--blue) 12%, transparent); }
+.status-dot[data-tone="success"] { background: var(--mint); }
+.status-dot[data-tone="error"] { background: var(--coral); }
+.inspection-indicator { width: 100%; min-height: 42px; padding: 0 24px; display: flex; align-items: center; gap: 9px; border: 0; border-bottom: 1px solid var(--line); color: var(--blue); background: color-mix(in srgb, var(--blue) 7%, transparent); text-align: left; font-size: 10px; }
+.inspection-indicator[hidden] { display: none; }
+.inspection-indicator:disabled { opacity: 1; }
+.inspection-spinner { width: 14px; height: 14px; flex: 0 0 14px; animation: inspection-spin .9s linear infinite; }
+@keyframes inspection-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .inspection-spinner { animation: none; } }
+.inspection-indicator:not(:disabled):hover { background: color-mix(in srgb, var(--blue) 13%, transparent); }
+.inspection-indicator-action { margin-left: auto; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+.empty-state { min-height: 0; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 36px; text-align: center; }
+.empty-state[hidden] { display: none; }
+.empty-glyph { height: 36px; display: flex; align-items: end; gap: 4px; margin-bottom: 18px; }
+.empty-glyph span { width: 5px; height: 16px; background: var(--mint-dark); opacity: .6; }
+.empty-glyph span:nth-child(2) { height: 30px; background: var(--blue); opacity: .8; }
+.empty-glyph span:nth-child(3) { height: 22px; background: var(--coral); opacity: .75; }
+.empty-title { font-size: 13px; font-weight: 700; }
+.empty-note { max-width: 250px; margin-top: 8px; color: var(--dim); font-size: 10px; line-height: 1.6; }
+.table-wrap { min-height: 0; flex: 1; overflow: auto; }
+table { width: 100%; border-collapse: collapse; text-align: left; font-size: 10px; }
+thead { position: sticky; top: 0; z-index: 1; background: var(--panel-raised); }
+th { padding: 10px 9px; color: var(--muted); font-family: "DM Mono", monospace; font-size: 9px; font-weight: 400; }
+td { padding: 9px; border-top: 1px solid var(--line); }
+tbody tr:hover { background: var(--hover); }
+.track-number { width: 42px; color: var(--dim); font-family: "DejaVu Sans Mono", monospace; }
+.track-title { min-width: 120px; font-weight: 700; }
+.track-formats { color: var(--muted); }
+.track-choice { color: var(--mint); font-family: "DejaVu Sans Mono", monospace; }
+.track-state { color: var(--muted); white-space: nowrap; }
+.track-state[data-state="unavailable"] { color: var(--coral); }
+.track-state[data-state="skipped"] { color: var(--warning); }
+.progress-footer { padding: 14px 24px 18px; border-top: 1px solid var(--line); }
+.progress-label { display: flex; justify-content: space-between; gap: 14px; margin-bottom: 9px; color: var(--dim); font-size: 9px; }
+#progress-text { color: var(--muted); text-align: right; overflow-wrap: anywhere; }
+progress { width: 100%; height: 4px; border: 0; border-radius: 0; appearance: none; }
+progress::-webkit-progress-bar { background: var(--line); }
+progress::-webkit-progress-value { background: linear-gradient(90deg, var(--blue), var(--mint)); }
+.app-footer { flex: 0 0 40px; min-height: 40px; padding: 0 32px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--line); color: var(--dim); font-size: 9px; }
+
+.appearance-section { max-width: 660px; padding: 28px 0; }
+.appearance-section h2 { margin: 0 0 24px; font-size: 15px; }
+.appearance-setting { margin: 0 0 28px; padding: 0; border: 0; }
+.appearance-setting legend { margin-bottom: 12px; font-size: 12px; font-weight: 700; }
+.mode-options { display: inline-flex; padding: 3px; border: 1px solid var(--line); border-radius: 4px; background: var(--panel); }
+.mode-options label { position: relative; margin: 0; cursor: pointer; }
+.mode-options input, .theme-options input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.mode-options span { min-width: 92px; min-height: 36px; display: grid; place-items: center; border-radius: 2px; color: var(--muted); }
+.mode-options input:checked + span { background: var(--mint); color: var(--accent-text); }
+.mode-options input:focus-visible + span { outline: 2px solid var(--blue); outline-offset: 2px; }
+.theme-options { display: flex; flex-wrap: wrap; gap: 12px; }
+.theme-options label { position: relative; min-width: 90px; display: flex; align-items: center; gap: 9px; margin: 0; padding: 8px 4px; cursor: pointer; }
+.theme-swatch { flex: 0 0 24px; width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--line); }
+.swatch-mint { background: #b3f06c; }
+.swatch-ocean { background: #76dbd3; }
+.swatch-amber { background: #f0cd72; }
+.swatch-rose { background: #f4a2bd; }
+.swatch-monochrome { background: #d3d9dd; }
+:root[data-mode="light"] .swatch-mint { background: #356a19; }
+:root[data-mode="light"] .swatch-ocean { background: #006c68; }
+:root[data-mode="light"] .swatch-amber { background: #805c05; }
+:root[data-mode="light"] .swatch-rose { background: #a03058; }
+:root[data-mode="light"] .swatch-monochrome { background: #46515a; }
+.theme-options input:checked + .theme-swatch { outline: 2px solid var(--mint); outline-offset: 3px; }
+.theme-options input:focus-visible + .theme-swatch { outline: 2px solid var(--blue); outline-offset: 3px; }
+
+.changelog-drawer { position: fixed; z-index: 15; top: 46px; right: 0; bottom: 40px; width: 32vw; min-width: min(260px, 40vw); max-width: 40vw; display: flex; flex-direction: column; border-left: 1px solid var(--line); background: var(--panel); box-shadow: -10px 0 24px var(--shadow); transform: translateX(100%); visibility: hidden; transition: transform .2s ease, visibility .2s; }
+.changelog-drawer[data-open="true"] { transform: translateX(0); visibility: visible; }
+.changelog-resize { position: absolute; left: -4px; top: 0; bottom: 0; width: 8px; cursor: ew-resize; touch-action: none; }
+.changelog-resize:hover, .changelog-resize:focus-visible { background: color-mix(in srgb, var(--mint) 30%, transparent); outline: none; }
+.changelog-header { flex: 0 0 58px; display: flex; align-items: center; justify-content: space-between; padding: 0 18px; border-bottom: 1px solid var(--line); }
+.changelog-header h2 { margin: 0; font-size: 15px; }
+.drawer-close-button { width: 32px; height: 32px; display: grid; place-items: center; border: 0; color: var(--ink); background: transparent; }
+.drawer-close-button:hover { background: var(--hover); }
+.drawer-close-button svg { width: 16px; height: 16px; }
+.changelog-content { flex: 1; min-height: 0; overflow: auto; padding: 16px 22px; font-size: 12px; line-height: 1.7; overflow-wrap: anywhere; }
+.changelog-content h1 { font-size: 18px; margin-top: 0; }
+.changelog-content h2 { font-size: 15px; }
+.changelog-content h3 { font-size: 13px; color: var(--mint); }
+.changelog-content ul { padding-left: 18px; }
+.changelog-content li { margin: 6px 0; }
+.changelog-content a { color: var(--mint); }
+.changelog-content pre { overflow: auto; }
+@media (prefers-reduced-motion: reduce) { .changelog-drawer { transition: none; } }
+
+@media (max-width: 720px) {
+  .workspace { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, .9fr) minmax(0, 1.1fr); padding: 12px; }
+  .control-panel { width: 100%; }
+  .settings-view { padding: 16px; }
+  .settings-header { gap: 12px; }
+  .app-footer { padding: 0 12px; gap: 8px; }
+}
+
+@media (max-width: 920px) {
+  .workspace { grid-template-columns: minmax(260px, 320px) minmax(360px, 1fr); padding: 18px; gap: 12px; }
+  .control-panel { padding: 18px; }
+  .results-header, .status-strip, .progress-footer { padding-left: 16px; padding-right: 16px; }
+  th, td { padding-left: 7px; padding-right: 7px; }
+}
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm run build && npm test -- tests/window-state.test.ts tests/appearance.tes...`
+
+Validate the drawer/zoom renderer and window geometry integration with strict compilation and scoped tests.
+
+```bash
+npm run build && npm test -- tests/window-state.test.ts tests/appearance.test.ts
+```
+
+**Result:**
+
+```
+
+> k-downloader@0.1.0 build
+> tsc --noEmit
+
+
+> k-downloader@0.1.0 pretest
+> npm run build:gui
+
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+
+> k-downloader@0.1.0 test
+> vitest run tests/window-state.test.ts tests/appearance.test.ts
+
+
+ RUN  v5.0.4 /home/kel/dev/K-Downloader
+
+
+ Test Files  2 passed (2)
+      Tests  9 passed (9)
+   Start at  12:22:47
+   Duration  3.85s (tests 84%, import 12%, transform 3%)
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The new menu features compile and the existing renderer checks pass. I’ll now exercise them in Electron: resize the drawer to its 40% limit, close it with Escape and its button, test the zoom shortcuts, and verify saved bounds after reopening. I’ll use an isolated profile so the test won’t change your current window preferences.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="apply_patch"><details>
+<summary>Tool use: **apply_patch**</summary>
+
+Apply Patch
+
+**Input:**
+
+- explanation: `Add an isolated Electron regression covering changelog rendering/resizing/closing, zoom shortcuts, saved window bounds, Settings navigation, and restoring defaults.`
+- input:
+
+```
+*** Begin Patch
+*** Update File: /home/kel/dev/K-Downloader/gui/styles.css
+@@
+-@media (max-width: 920px) {
++@media (min-width: 721px) and (max-width: 920px) {
+*** Update File: /home/kel/dev/K-Downloader/tests/appearance.test.ts
+@@
+         window.kDownloader = {
++          restoreWindowBounds: async () => {},
++          zoom: async () => 1,
+*** Update File: /home/kel/dev/K-Downloader/tests/window-state.test.ts
+@@
+ import { centeredBounds, parseWindowState, startupBounds } from "../src/electron/window-state.js";
++import { _electron as electron } from "playwright";
++import { createRequire } from "node:module";
++import { mkdtemp, readFile, rm } from "node:fs/promises";
++import { tmpdir } from "node:os";
++import { resolve } from "node:path";
+@@
+ });
++
++describe("desktop More menu and zoom", () => {
++  it("shows the built changelog, limits its width, zooms, and restores saved geometry", async () => {
++    const userData = await mkdtemp(resolve(tmpdir(), "k-downloader-window-test-"));
++    const require = createRequire(import.meta.url);
++    const launch = () => electron.launch({
++      executablePath: require("electron"),
++      args: [resolve("dist/electron/main.cjs"), `--user-data-dir=${userData}`],
++      env: { ...process.env, XDG_CURRENT_DESKTOP: "Test" },
++    });
++    let app = await launch();
++    try {
++      let page = await app.firstWindow();
++      page.setDefaultTimeout(5_000);
++      await page.waitForFunction(() => document.documentElement.dataset.mode);
++      await page.getByRole("button", { name: "More options", exact: true }).click();
++      await page.getByRole("menuitem", { name: "Changelog", exact: true }).click();
++      await page.locator("#changelog-drawer").waitFor({ state: "visible" });
++      expect(await page.locator("#changelog-content").innerText()).toContain("Persistent window size");
++      const markdown = await readFile(resolve("changelog.md"), "utf8");
++      expect(markdown).toContain("Persistent window size");
++      await page.getByRole("separator", { name: "Changelog panel width" }).focus();
++      await page.keyboard.press("End");
++      expect(await page.locator("#changelog-drawer").evaluate((element) => element.getBoundingClientRect().width / innerWidth)).toBeCloseTo(.4, 2);
++      await page.screenshot({ path: "/tmp/k-downloader-changelog.png" });
++      await page.keyboard.press("Escape");
++      expect(await page.locator("#changelog-drawer").getAttribute("data-open")).toBe("false");
++      await page.getByRole("button", { name: "More options", exact: true }).click();
++      await page.getByRole("menuitem", { name: "Changelog", exact: true }).click();
++      await page.getByRole("button", { name: "Close changelog", exact: true }).click();
++      expect(await page.locator("#changelog-drawer").getAttribute("data-open")).toBe("false");
++      await page.keyboard.press("Control+Equal");
++      await expect.poll(() => app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].webContents.getZoomFactor())).toBeCloseTo(1.1);
++      await page.keyboard.press("Control+Minus");
++      await expect.poll(() => app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].webContents.getZoomFactor())).toBeCloseTo(1);
++      await page.keyboard.down("Control");
++      await page.mouse.wheel(0, -100);
++      await page.keyboard.up("Control");
++      await expect.poll(() => app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].webContents.getZoomFactor())).toBeCloseTo(1.1);
++      await page.keyboard.press("Control+0");
++      await expect.poll(() => app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].webContents.getZoomFactor())).toBe(1);
++      const moved = await app.evaluate(({ BrowserWindow }) => {
++        const window = BrowserWindow.getAllWindows()[0];
++        window.setBounds({ x: 80, y: 90, width: 900, height: 700 });
++        return window.getBounds();
++      });
++      const closing = app.waitForEvent("close");
++      await page.getByRole("button", { name: "Close window", exact: true }).click();
++      await closing;
++      expect(JSON.parse(await readFile(resolve(userData, "window-state.json"), "utf8")).bounds).toEqual(moved);
++      app = await launch();
++      page = await app.firstWindow();
++      await page.waitForFunction(() => document.documentElement.dataset.mode);
++      expect(await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].getBounds())).toEqual(moved);
++      await page.keyboard.press("Control+Comma");
++      expect(await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].getBounds())).toEqual(moved);
++      await page.keyboard.press("Escape");
++      await page.getByRole("button", { name: "More options", exact: true }).click();
++      await page.getByRole("menuitem", { name: "Restore Size/Position", exact: true }).click();
++      const restored = await app.evaluate(({ BrowserWindow, screen }) => {
++        const window = BrowserWindow.getAllWindows()[0];
++        return { bounds: window.getBounds(), area: screen.getDisplayMatching(window.getBounds()).workArea, maximized: window.isMaximized() };
++      });
++      expect(restored.bounds).toEqual(centeredBounds(restored.area));
++      expect(restored.maximized).toBe(false);
++    } finally {
++      await app.close();
++      await rm(userData, { recursive: true, force: true });
++    }
++  }, 30_000);
++});
+*** End Patch
+```
+
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="task" data-tool-name="manage_todo_list"><details>
+<summary>Tool use: **manage_todo_list**</summary>
+
+Created 4 todos
+</details></tool-use>
+
+---
+
+_**User (2026-10-12 17:11:35Z)**_
+
+I also need to be able to cancel the active inspection.
+
+---
+
+_**Agent (copilot/auto)**_
+
+<think><details><summary>Thought Process</summary>
+The previous GUI run has closed. The patch tool didn’t confirm whether the new regression test was saved, so I’ll check the touched files and run the focused Electron test.
+</details></think>
+
+_**Agent (copilot/auto)**_
+
+The regression patch didn’t land. I’ll reapply it in a smaller patch, then run the Electron check. I’ll also fix the narrow-window media query so zooming in doesn’t leave the main content wider than the available view.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **styles.css**</summary>
+
+@@ lines 1-263 @@
+
+```
+:root {
+  color-scheme: dark;
+  --ink: #e8efec;
+  --muted: #91a09b;
+  --dim: #60716b;
+  --line: #2c3a35;
+  --panel: #17211d;
+  --panel-raised: #1d2a25;
+  --ground: #101715;
+  --mint: #b3f06c;
+  --mint-dark: #83bd42;
+  --coral: #f28568;
+  --blue: #80bac5;
+  --field: #101815;
+  --hover: #293630;
+  --accent-text: #152018;
+  --warning: #d5b675;
+  --close-hover: #c94343;
+  --shadow: rgba(0, 0, 0, .38);
+  font-family: "DejaVu Sans", "Noto Sans", sans-serif;
+  color: var(--ink);
+  background: var(--ground);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+:root[data-mode="light"] {
+  color-scheme: light;
+  --ink: #202b26;
+  --muted: #52635b;
+  --dim: #5d6e66;
+  --line: #ced9d2;
+  --panel: #ffffff;
+  --panel-raised: #eaf0ec;
+  --ground: #f3f6f4;
+  --field: #ffffff;
+  --hover: #dde7e1;
+  --mint: #356a19;
+  --mint-dark: #356a19;
+  --accent-text: #ffffff;
+  --coral: #b33f2c;
+  --blue: #286b79;
+  --warning: #855c10;
+  --shadow: rgba(26, 42, 32, .16);
+}
+
+:root[data-theme="ocean"] { --mint: #76dbd3; --mint-dark: #76dbd3; }
+:root[data-theme="amber"] { --mint: #f0cd72; --mint-dark: #f0cd72; }
+:root[data-theme="rose"] { --mint: #f4a2bd; --mint-dark: #f4a2bd; }
+:root[data-theme="monochrome"] { --mint: #d3d9dd; --mint-dark: #d3d9dd; }
+:root[data-mode="light"][data-theme="ocean"] { --mint: #006c68; --mint-dark: #006c68; }
+:root[data-mode="light"][data-theme="amber"] { --mint: #805c05; --mint-dark: #805c05; }
+:root[data-mode="light"][data-theme="rose"] { --mint: #a03058; --mint-dark: #a03058; }
+:root[data-mode="light"][data-theme="monochrome"] { --mint: #46515a; --mint-dark: #46515a; }
+:root[data-theme="ocean"], :root[data-theme="amber"], :root[data-theme="rose"], :root[data-theme="monochrome"] {
+  --ink: #e9ecee;
+  --muted: #a0a8ad;
+  --dim: #929da4;
+  --line: #363c40;
+  --panel: #1c2023;
+  --panel-raised: #282d31;
+  --ground: #141719;
+  --field: #171b1e;
+  --hover: #353c41;
+  --accent-text: #161c20;
+}
+:root[data-mode="light"][data-theme="ocean"], :root[data-mode="light"][data-theme="amber"], :root[data-mode="light"][data-theme="rose"], :root[data-mode="light"][data-theme="monochrome"] {
+  --ink: #242a2e;
+  --muted: #566169;
+  --dim: #5b6770;
+  --line: #ced5da;
+  --panel: #ffffff;
+  --panel-raised: #edf0f2;
+  --ground: #f5f6f7;
+  --field: #ffffff;
+  --hover: #e0e6ea;
+  --accent-text: #ffffff;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-width: 0;
+  height: 100vh;
+  overflow: hidden;
+  background:
+    linear-gradient(115deg, color-mix(in srgb, var(--mint) 5%, transparent), transparent 44%),
+    var(--ground);
+}
+button, input, textarea, select { font: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: .42; }
+
+.app-shell { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+.topbar { height: 46px; flex: 0 0 46px; padding: 0 0 0 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); background: var(--panel); -webkit-app-region: drag; user-select: none; }
+.brand-lockup { height: 100%; display: flex; align-items: center; gap: 9px; }
+.app-icon { width: 23px; height: 23px; display: grid; place-items: center; background: var(--mint); color: var(--accent-text); font-size: 15px; font-weight: 800; clip-path: polygon(0 0, 100% 0, 100% 72%, 72% 100%, 0 100%); }
+.brand-name { font-size: 12px; font-weight: 800; }
+.titlebar-actions { height: 100%; display: flex; align-items: stretch; -webkit-app-region: no-drag; }
+.more-menu-wrap { position: relative; height: 100%; }
+.window-controls { height: 100%; display: flex; -webkit-app-region: no-drag; }
+.window-control { width: 46px; height: 100%; display: grid; place-items: center; border: 0; border-radius: 0; color: var(--muted); background: transparent; }
+.window-control:hover { color: var(--ink); background: var(--hover); }
+.window-control.close-control:hover { color: white; background: var(--close-hover); }
+.window-control svg { width: 14px; height: 14px; stroke-width: 1.6; }
+.window-control:focus-visible { outline: 1px solid var(--mint); outline-offset: -3px; }
+.more-menu { position: absolute; z-index: 20; top: calc(100% + 5px); right: 0; width: 224px; padding: 5px; border: 1px solid var(--line); border-radius: 4px; background: var(--panel-raised); box-shadow: 0 12px 28px var(--shadow); }
+.more-menu[hidden] { display: none; }
+.more-menu-item { width: 100%; min-height: 36px; padding: 0 9px; display: flex; align-items: center; gap: 10px; border: 0; border-radius: 2px; color: var(--ink); background: transparent; text-align: left; font-size: 11px; }
+.more-menu-item:hover, .more-menu-item:focus-visible { background: var(--hover); outline: none; }
+.more-menu-item svg { width: 15px; height: 15px; color: var(--muted); stroke-width: 1.7; }
+.more-menu-item kbd { margin-left: auto; color: var(--muted); font-family: "DejaVu Sans Mono", monospace; font-size: 9px; }
+.brand-subtitle, .eyebrow, .section-index, .mode-label, .progress-label, .app-footer { font-family: "DejaVu Sans Mono", monospace; letter-spacing: 0; }
+.brand-subtitle { margin-top: 3px; color: var(--dim); font-size: 9px; }
+.mode-label { display: flex; align-items: center; gap: 9px; color: var(--muted); font-size: 11px; }
+.mode-dot { width: 7px; height: 7px; background: var(--mint); border-radius: 50%; }
+
+.workspace { width: min(1440px, 100%); margin: 0 auto; padding: 28px 32px 24px; flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(300px, 370px) minmax(380px, 1fr); grid-template-rows: minmax(0, 1fr); gap: 18px; overflow: hidden; }
+.workspace[hidden], .settings-view[hidden] { display: none; }
+.settings-view { width: min(1440px, 100%); flex: 1; min-height: 0; margin: 0 auto; padding: 28px 32px 24px; overflow: auto; }
+.settings-header { min-height: 56px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); }
+.settings-header h1 { margin: 0; font-size: 18px; }
+.settings-close-button { min-height: 34px; padding: 0 10px; display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 3px; color: var(--ink); background: var(--panel-raised); font-size: 11px; }
+.settings-close-button:hover { border-color: var(--blue); background: var(--hover); }
+.settings-close-button svg { width: 15px; height: 15px; }
+.control-panel, .results-panel { border: 1px solid var(--line); background: linear-gradient(155deg, var(--panel-raised), var(--panel) 65%); }
+.control-panel { padding: 24px; align-self: start; max-height: 100%; min-height: 0; overflow: auto; }
+.section-heading { display: flex; align-items: baseline; gap: 10px; margin: 0 0 18px; }
+.section-heading h1, .section-heading h2 { margin: 0; font-size: 14px; font-weight: 700; }
+.section-index { color: var(--mint); font-size: 10px; }
+label { display: block; color: var(--ink); font-size: 11px; font-weight: 700; margin: 0 0 8px; }
+textarea, input[type="text"], select { width: 100%; border: 1px solid var(--line); border-radius: 3px; color: var(--ink); background: var(--field); outline: none; }
+textarea { min-height: 88px; resize: vertical; padding: 12px; font-family: "DejaVu Sans Mono", monospace; font-size: 11px; line-height: 1.7; }
+input[type="text"], select { min-height: 38px; padding: 0 10px; font-size: 11px; }
+textarea:focus, input[type="text"]:focus, select:focus { border-color: var(--mint-dark); box-shadow: 0 0 0 2px color-mix(in srgb, var(--mint) 15%, transparent); }
+.microcopy { margin: 7px 0 0; color: var(--dim); font-size: 10px; line-height: 1.5; }
+.destination-heading { margin-top: 25px; }
+.format-heading { margin-top: 25px; }
+.path-control { display: flex; gap: 7px; }
+.path-control input { min-width: 0; font-family: "DejaVu Sans Mono", monospace; font-size: 10px; }
+.icon-button { width: 40px; flex: 0 0 40px; border: 1px solid var(--line); border-radius: 3px; color: var(--mint); background: var(--panel-raised); }
+.icon-button svg, .primary-button svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; vertical-align: middle; }
+.check-row { display: flex; align-items: center; gap: 8px; margin-top: 11px; color: var(--muted); font-size: 10px; font-weight: 500; }
+.check-row input { accent-color: var(--mint-dark); }
+.disc-label-setting { margin-top: 14px; }
+.action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 24px; }
+.primary-button, .secondary-button { min-height: 41px; border-radius: 3px; font-size: 11px; font-weight: 800; }
+.primary-button { display: flex; justify-content: center; align-items: center; gap: 8px; border: 1px solid var(--mint); color: var(--accent-text); background: var(--mint); }
+.primary-button:hover:not(:disabled) { background: color-mix(in srgb, var(--mint) 88%, var(--ink)); }
+.secondary-button { border: 1px solid var(--line); color: var(--ink); background: var(--panel-raised); }
+.secondary-button:hover:not(:disabled) { border-color: var(--blue); }
+.cancel-button { display: block; margin: 10px 0 0 auto; padding: 5px 0; border: 0; color: var(--coral); background: transparent; font-size: 10px; }
+.error-text { min-height: 0; margin: 10px 0 0; color: var(--coral); font-size: 11px; line-height: 1.5; overflow-wrap: anywhere; }
+
+.results-panel { min-width: 0; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+.results-header, .status-strip, .inspection-indicator, .progress-footer { flex-shrink: 0; }
+.results-header { padding: 23px 24px 18px; display: flex; justify-content: space-between; align-items: end; border-bottom: 1px solid var(--line); }
+.eyebrow { color: var(--mint); font-size: 9px; }
+.results-header h2 { margin: 7px 0 0; font-size: 17px; line-height: 1.35; }
+.track-count { padding: 6px 8px; border: 1px solid var(--line); color: var(--muted); font-family: "DM Mono", monospace; font-size: 10px; white-space: nowrap; }
+.status-strip { min-height: 39px; display: flex; align-items: center; gap: 9px; padding: 0 24px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 10px; }
+.status-strip[hidden] { display: none; }
+.status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--dim); }
+.status-dot[data-tone="working"] { background: var(--blue); box-shadow: 0 0 0 4px color-mix(in srgb, var(--blue) 12%, transparent); }
+.status-dot[data-tone="success"] { background: var(--mint); }
+.status-dot[data-tone="error"] { background: var(--coral); }
+.inspection-indicator { width: 100%; min-height: 42px; padding: 0 24px; display: flex; align-items: center; gap: 9px; border: 0; border-bottom: 1px solid var(--line); color: var(--blue); background: color-mix(in srgb, var(--blue) 7%, transparent); text-align: left; font-size: 10px; }
+.inspection-indicator[hidden] { display: none; }
+.inspection-indicator:disabled { opacity: 1; }
+.inspection-spinner { width: 14px; height: 14px; flex: 0 0 14px; animation: inspection-spin .9s linear infinite; }
+@keyframes inspection-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .inspection-spinner { animation: none; } }
+.inspection-indicator:not(:disabled):hover { background: color-mix(in srgb, var(--blue) 13%, transparent); }
+.inspection-indicator-action { margin-left: auto; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+.empty-state { min-height: 0; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 36px; text-align: center; }
+.empty-state[hidden] { display: none; }
+.empty-glyph { height: 36px; display: flex; align-items: end; gap: 4px; margin-bottom: 18px; }
+.empty-glyph span { width: 5px; height: 16px; background: var(--mint-dark); opacity: .6; }
+.empty-glyph span:nth-child(2) { height: 30px; background: var(--blue); opacity: .8; }
+.empty-glyph span:nth-child(3) { height: 22px; background: var(--coral); opacity: .75; }
+.empty-title { font-size: 13px; font-weight: 700; }
+.empty-note { max-width: 250px; margin-top: 8px; color: var(--dim); font-size: 10px; line-height: 1.6; }
+.table-wrap { min-height: 0; flex: 1; overflow: auto; }
+table { width: 100%; border-collapse: collapse; text-align: left; font-size: 10px; }
+thead { position: sticky; top: 0; z-index: 1; background: var(--panel-raised); }
+th { padding: 10px 9px; color: var(--muted); font-family: "DM Mono", monospace; font-size: 9px; font-weight: 400; }
+td { padding: 9px; border-top: 1px solid var(--line); }
+tbody tr:hover { background: var(--hover); }
+.track-number { width: 42px; color: var(--dim); font-family: "DejaVu Sans Mono", monospace; }
+.track-title { min-width: 120px; font-weight: 700; }
+.track-formats { color: var(--muted); }
+.track-choice { color: var(--mint); font-family: "DejaVu Sans Mono", monospace; }
+.track-state { color: var(--muted); white-space: nowrap; }
+.track-state[data-state="unavailable"] { color: var(--coral); }
+.track-state[data-state="skipped"] { color: var(--warning); }
+.progress-footer { padding: 14px 24px 18px; border-top: 1px solid var(--line); }
+.progress-label { display: flex; justify-content: space-between; gap: 14px; margin-bottom: 9px; color: var(--dim); font-size: 9px; }
+#progress-text { color: var(--muted); text-align: right; overflow-wrap: anywhere; }
+progress { width: 100%; height: 4px; border: 0; border-radius: 0; appearance: none; }
+progress::-webkit-progress-bar { background: var(--line); }
+progress::-webkit-progress-value { background: linear-gradient(90deg, var(--blue), var(--mint)); }
+.app-footer { flex: 0 0 40px; min-height: 40px; padding: 0 32px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--line); color: var(--dim); font-size: 9px; }
+
+.appearance-section { max-width: 660px; padding: 28px 0; }
+.appearance-section h2 { margin: 0 0 24px; font-size: 15px; }
+.appearance-setting { margin: 0 0 28px; padding: 0; border: 0; }
+.appearance-setting legend { margin-bottom: 12px; font-size: 12px; font-weight: 700; }
+.mode-options { display: inline-flex; padding: 3px; border: 1px solid var(--line); border-radius: 4px; background: var(--panel); }
+.mode-options label { position: relative; margin: 0; cursor: pointer; }
+.mode-options input, .theme-options input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.mode-options span { min-width: 92px; min-height: 36px; display: grid; place-items: center; border-radius: 2px; color: var(--muted); }
+.mode-options input:checked + span { background: var(--mint); color: var(--accent-text); }
+.mode-options input:focus-visible + span { outline: 2px solid var(--blue); outline-offset: 2px; }
+.theme-options { display: flex; flex-wrap: wrap; gap: 12px; }
+.theme-options label { position: relative; min-width: 90px; display: flex; align-items: center; gap: 9px; margin: 0; padding: 8px 4px; cursor: pointer; }
+.theme-swatch { flex: 0 0 24px; width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--line); }
+.swatch-mint { background: #b3f06c; }
+.swatch-ocean { background: #76dbd3; }
+.swatch-amber { background: #f0cd72; }
+.swatch-rose { background: #f4a2bd; }
+.swatch-monochrome { background: #d3d9dd; }
+:root[data-mode="light"] .swatch-mint { background: #356a19; }
+:root[data-mode="light"] .swatch-ocean { background: #006c68; }
+:root[data-mode="light"] .swatch-amber { background: #805c05; }
+:root[data-mode="light"] .swatch-rose { background: #a03058; }
+:root[data-mode="light"] .swatch-monochrome { background: #46515a; }
+.theme-options input:checked + .theme-swatch { outline: 2px solid var(--mint); outline-offset: 3px; }
+.theme-options input:focus-visible + .theme-swatch { outline: 2px solid var(--blue); outline-offset: 3px; }
+
+.changelog-drawer { position: fixed; z-index: 15; top: 46px; right: 0; bottom: 40px; width: 32vw; min-width: min(260px, 40vw); max-width: 40vw; display: flex; flex-direction: column; border-left: 1px solid var(--line); background: var(--panel); box-shadow: -10px 0 24px var(--shadow); transform: translateX(100%); visibility: hidden; transition: transform .2s ease, visibility .2s; }
+.changelog-drawer[data-open="true"] { transform: translateX(0); visibility: visible; }
+.changelog-resize { position: absolute; left: -4px; top: 0; bottom: 0; width: 8px; cursor: ew-resize; touch-action: none; }
+.changelog-resize:hover, .changelog-resize:focus-visible { background: color-mix(in srgb, var(--mint) 30%, transparent); outline: none; }
+.changelog-header { flex: 0 0 58px; display: flex; align-items: center; justify-content: space-between; padding: 0 18px; border-bottom: 1px solid var(--line); }
+.changelog-header h2 { margin: 0; font-size: 15px; }
+.drawer-close-button { width: 32px; height: 32px; display: grid; place-items: center; border: 0; color: var(--ink); background: transparent; }
+.drawer-close-button:hover { background: var(--hover); }
+.drawer-close-button svg { width: 16px; height: 16px; }
+.changelog-content { flex: 1; min-height: 0; overflow: auto; padding: 16px 22px; font-size: 12px; line-height: 1.7; overflow-wrap: anywhere; }
+.changelog-content h1 { font-size: 18px; margin-top: 0; }
+.changelog-content h2 { font-size: 15px; }
+.changelog-content h3 { font-size: 13px; color: var(--mint); }
+.changelog-content ul { padding-left: 18px; }
+.changelog-content li { margin: 6px 0; }
+.changelog-content a { color: var(--mint); }
+.changelog-content pre { overflow: auto; }
+@media (prefers-reduced-motion: reduce) { .changelog-drawer { transition: none; } }
+
+@media (max-width: 720px) {
+  .workspace { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, .9fr) minmax(0, 1.1fr); padding: 12px; }
+  .control-panel { width: 100%; }
+  .settings-view { padding: 16px; }
+  .settings-header { gap: 12px; }
+  .app-footer { padding: 0 12px; gap: 8px; }
+}
+
+@media (min-width: 721px) and (max-width: 920px) {
+  .workspace { grid-template-columns: minmax(260px, 320px) minmax(360px, 1fr); padding: 18px; gap: 12px; }
+  .control-panel { padding: 18px; }
+  .results-header, .status-strip, .progress-footer { padding-left: 16px; padding-right: 16px; }
+  th, td { padding-left: 7px; padding-right: 7px; }
+}
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **appearance.test.ts**</summary>
+
+@@ lines 1-259 @@
+
+```
+import { describe, expect, it } from "vitest";
+import { appearanceModes, colorThemes, defaultAppearance, parseAppearance, resolvedMode } from "../src/appearance.js";
+import { chromium, _electron as electron } from "playwright";
+import { pathToFileURL } from "node:url";
+import { resolve } from "node:path";
+import { createRequire } from "node:module";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { cinnamonThemeIsDark } from "../src/electron/system-theme.js";
+import type { GuiInspectionState } from "../src/gui-types.js";
+
+describe("appearance preferences", () => {
+  it("defaults to System and Mint for absent or malformed settings", () => {
+    for (const raw of [null, "broken", "null", "[]", '{"mode":"invalid","theme":"invalid"}']) {
+      expect(parseAppearance(raw)).toEqual(defaultAppearance);
+    }
+  });
+
+  it("round-trips every supported mode and theme", () => {
+    for (const mode of appearanceModes) for (const theme of colorThemes) {
+      expect(parseAppearance(JSON.stringify({ mode, theme }))).toEqual({ mode, theme });
+    }
+  });
+
+  it("follows the system only in System mode", () => {
+    expect(resolvedMode("system", true)).toBe("dark");
+    expect(resolvedMode("system", false)).toBe("light");
+    expect(resolvedMode("light", true)).toBe("light");
+    expect(resolvedMode("dark", false)).toBe("dark");
+  });
+
+  it("recognizes Cinnamon GTK light and dark theme names", () => {
+    expect(cinnamonThemeIsDark("'Mint-Y'\n")).toBe(false);
+    expect(cinnamonThemeIsDark("'Mint-Y-Dark'\n")).toBe(true);
+    expect(cinnamonThemeIsDark("'Mint-Y-Dark-Aqua'\n")).toBe(true);
+    expect(cinnamonThemeIsDark("'Adwaita-dark'\n")).toBe(true);
+    expect(cinnamonThemeIsDark("unrecognized output")).toBeUndefined();
+  });
+});
+
+describe("appearance controls in Chromium", () => {
+  it("applies appearance preferences and keeps statusbars visible with a long preview", async () => {
+    const browser = await chromium.launch({ headless: true });
+    try {
+      const page = await browser.newPage({ viewport: { width: 1120, height: 780 }, colorScheme: "light" });
+      page.setDefaultTimeout(5_000);
+      const errors: string[] = [];
+      page.on("pageerror", (error) => errors.push(error.message));
+      await page.addInitScript(() => {
+        let inspectionListener: ((state: GuiInspectionState) => void) | undefined;
+        let browserVisible = false;
+        window.kDownloader = {
+          restoreWindowBounds: async () => {},
+          zoom: async () => 1,
+          systemTheme: async () => matchMedia("(prefers-color-scheme: dark)").matches,
+          onSystemTheme: (listener) => {
+            const media = matchMedia("(prefers-color-scheme: dark)");
+            const handler = () => listener(media.matches);
+            media.addEventListener("change", handler);
+            return () => media.removeEventListener("change", handler);
+          },
+          defaultOutputRoot: async () => "/tmp/K-Downloader",
+          chooseOutput: async () => undefined,
+          inspect: async () => {
+            let canceled = false;
+            browserVisible = false;
+            inspectionListener?.({ active: true, browserReady: true, browserVisible });
+            try {
+              await new Promise<void>((complete, fail) => {
+                window.addEventListener("finish-inspection", (event) => {
+                  if ((event as CustomEvent).detail === "fail") fail(new Error("Mock inspection failed"));
+                  else {
+                    canceled = (event as CustomEvent).detail === "cancel";
+                    complete();
+                  }
+                }, { once: true });
+              });
+            } finally {
+              inspectionListener?.({ active: false, browserReady: false, browserVisible: false });
+            }
+            if (canceled) return undefined;
+            return {
+            albumTitle: "Large multi-disc fixture",
+            trackCount: 200,
+            tracks: Array.from({ length: 200 }, (_, index) => ({
+              discNumber: Math.floor(index / 100) + 1,
+              number: index % 100 + 1,
+              title: `Track ${index + 1}`,
+              formats: ["MP3", "FLAC"],
+            })),
+            };
+          },
+          download: async () => ({ state: "complete", directory: "/tmp" }),
+          cancel: async () => {
+            window.dispatchEvent(new CustomEvent("finish-inspection", { detail: "cancel" }));
+          },
+          minimizeWindow: async () => {},
+          toggleMaximizeWindow: async () => false,
+          closeWindow: async () => {},
+          toggleInspectionBrowser: async () => {
+            browserVisible = !browserVisible;
+            inspectionListener?.({ active: true, browserReady: true, browserVisible });
+            return browserVisible;
+          },
+          onInspectionState: (listener) => {
+            inspectionListener = listener;
+            return () => { inspectionListener = undefined; };
+          },
+          onProgress: () => () => {},
+          onWindowState: () => () => {},
+        };
+      });
+      await page.goto(pathToFileURL(resolve("dist/gui/index.html")).href);
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "light");
+      await page.keyboard.press("Control+Comma");
+      await page.locator("#settings-view").waitFor({ state: "visible" });
+      for (const mode of ["light", "dark"] as const) {
+        await page.getByRole("radio", { name: new RegExp(`^${mode}$`, "i") }).check();
+        const accents = new Set<string>();
+        for (const theme of colorThemes) {
+          await page.getByRole("radio", { name: new RegExp(`^${theme}$`, "i") }).check();
+          const palette = await page.evaluate(() => {
+            const styles = getComputedStyle(document.documentElement);
+            return {
+              mode: document.documentElement.dataset.mode,
+              theme: document.documentElement.dataset.theme,
+              accent: styles.getPropertyValue("--mint").trim(),
+              surface: styles.getPropertyValue("--panel").trim(),
+              scheme: styles.colorScheme,
+            };
+          });
+          expect(palette.mode).toBe(mode);
+          expect(palette.theme).toBe(theme);
+          expect(palette.scheme).toBe(mode);
+          expect(palette.surface).not.toBe(palette.accent);
+          accents.add(palette.accent);
+        }
+        expect(accents.size).toBe(5);
+      }
+      await page.reload();
+      await page.waitForFunction(() => document.documentElement.dataset.theme === "monochrome");
+      expect(await page.locator("html").getAttribute("data-mode")).toBe("dark");
+      await page.keyboard.press("Control+Comma");
+      await page.getByRole("radio", { name: "System", exact: true }).check();
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "light");
+      await page.emulateMedia({ colorScheme: "dark" });
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "dark");
+      await page.getByRole("radio", { name: "Light", exact: true }).check();
+      await page.emulateMedia({ colorScheme: "light" });
+      await page.emulateMedia({ colorScheme: "dark" });
+      expect(await page.locator("html").getAttribute("data-mode")).toBe("light");
+      await page.screenshot({ path: "/tmp/k-downloader-appearance-light.png" });
+      await page.setViewportSize({ width: 760, height: 620 });
+      await page.getByRole("radio", { name: "Dark", exact: true }).check();
+      await page.getByRole("radio", { name: "Mint", exact: true }).check();
+      await page.screenshot({ path: "/tmp/k-downloader-appearance-dark.png" });
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      await page.keyboard.press("Escape");
+      await page.locator("#workspace").waitFor({ state: "visible" });
+      await page.locator("#album-url").fill("https://downloads.khinsider.com/game-soundtracks/album/fixture");
+      await page.getByRole("button", { name: "Inspect album", exact: true }).click();
+      await page.getByRole("button", { name: "Cancel inspection", exact: true }).click();
+      await page.waitForFunction(() => document.querySelector("#status-text")?.textContent === "Inspection canceled");
+      expect(await page.locator("#inspection-indicator").isVisible()).toBe(false);
+      expect(await page.locator(".status-strip").isVisible()).toBe(true);
+      expect(await page.locator("#inspect-button").isEnabled()).toBe(true);
+      expect(await page.locator("#download-button").isEnabled()).toBe(false);
+      expect(await page.locator("#error-text").textContent()).toBe("");
+      await page.getByRole("button", { name: "Inspect album", exact: true }).click();
+      await page.locator("#inspection-indicator").waitFor({ state: "visible" });
+      expect(await page.getByText("Inspection in progress", { exact: true }).count()).toBe(1);
+      expect(await page.locator(".status-strip").isVisible()).toBe(false);
+      expect(await page.locator(".inspection-spinner").evaluate((element) => {
+        const animation = element.getAnimations()[0];
+        return animation?.playState === "running" && animation.effect?.getTiming().iterations === Infinity;
+      })).toBe(true);
+      await page.screenshot({ path: "/tmp/k-downloader-single-inspection-indicator.png" });
+      await page.locator("#inspection-indicator").click();
+      expect(await page.locator("#inspection-indicator-text").textContent()).toBe("Hide browser");
+      await page.locator("#inspection-indicator").click();
+      expect(await page.locator("#inspection-indicator-text").textContent()).toBe("Show browser");
+      await page.evaluate(() => window.dispatchEvent(new CustomEvent("finish-inspection")));
+      await page.waitForFunction(() => document.querySelectorAll("#track-rows tr").length === 200);
+      expect(await page.locator("#inspection-indicator").isVisible()).toBe(false);
+      expect(await page.locator(".status-strip").isVisible()).toBe(true);
+      expect(await page.locator("#status-text").textContent()).toBe("Preview ready");
+      for (const viewport of [{ width: 760, height: 620 }, { width: 1120, height: 780 }]) {
+        await page.setViewportSize(viewport);
+        const measure = () => page.evaluate(() => {
+          const footer = document.querySelector<HTMLElement>(".app-footer")!.getBoundingClientRect();
+          const transfer = document.querySelector<HTMLElement>(".progress-footer")!.getBoundingClientRect();
+          const table = document.querySelector<HTMLElement>(".table-wrap")!;
+          return {
+            footerTop: footer.top,
+            footerBottom: footer.bottom,
+            transferBottom: transfer.bottom,
+            listScrolls: table.scrollHeight > table.clientHeight,
+            pageHeight: document.documentElement.scrollHeight,
+            listScrollTop: table.scrollTop,
+          };
+        });
+        const initial = await measure();
+        expect(initial.footerBottom).toBe(viewport.height);
+        expect(initial.transferBottom).toBeLessThanOrEqual(initial.footerTop);
+        expect(initial.pageHeight).toBe(viewport.height);
+        expect(initial.listScrolls).toBe(true);
+        await page.locator(".table-wrap").evaluate((element) => { element.scrollTop = element.scrollHeight; });
+        const scrolled = await measure();
+        expect(scrolled.listScrollTop).toBeGreaterThan(0);
+        expect(scrolled.footerBottom).toBe(initial.footerBottom);
+        expect(scrolled.transferBottom).toBe(initial.transferBottom);
+        await page.screenshot({ path: `/tmp/k-downloader-long-preview-${viewport.width}.png` });
+      }
+      await page.getByRole("button", { name: "Inspect album", exact: true }).click();
+      await page.locator("#inspection-indicator").waitFor({ state: "visible" });
+      await page.evaluate(() => window.dispatchEvent(new CustomEvent("finish-inspection", { detail: "fail" })));
+      await page.waitForFunction(() => document.querySelector("#status-text")?.textContent === "Inspection failed");
+      expect(await page.locator("#inspection-indicator").isVisible()).toBe(false);
+      expect(await page.locator(".status-strip").isVisible()).toBe(true);
+      expect(errors).toEqual([]);
+    } finally {
+      await browser.close();
+    }
+  }, 30_000);
+});
+
+describe("Electron native theme updates", () => {
+  it("updates System mode through preload but preserves explicit Light and Dark", async () => {
+    const userData = await mkdtemp(resolve(tmpdir(), "k-downloader-theme-test-"));
+    const require = createRequire(import.meta.url);
+    const app = await electron.launch({
+      executablePath: require("electron"),
+      args: [resolve("dist/electron/main.cjs"), `--user-data-dir=${userData}`],
+      env: { ...process.env, XDG_CURRENT_DESKTOP: "Test" },
+    });
+    try {
+      const page = await app.firstWindow();
+      await page.waitForFunction(() => document.documentElement.dataset.mode);
+      await page.keyboard.press("Control+Comma");
+      await page.getByRole("radio", { name: "System", exact: true }).check();
+      await app.evaluate(({ nativeTheme }) => { nativeTheme.themeSource = "dark"; });
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "dark");
+      await app.evaluate(({ nativeTheme }) => { nativeTheme.themeSource = "light"; });
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "light");
+      await page.getByRole("radio", { name: "Dark", exact: true }).check();
+      await app.evaluate(({ nativeTheme }) => { nativeTheme.themeSource = "light"; });
+      expect(await page.locator("html").getAttribute("data-mode")).toBe("dark");
+      await page.getByRole("radio", { name: "Light", exact: true }).check();
+      await app.evaluate(({ nativeTheme }) => { nativeTheme.themeSource = "dark"; });
+      expect(await page.locator("html").getAttribute("data-mode")).toBe("light");
+      await page.getByRole("radio", { name: "System", exact: true }).check();
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "dark");
+    } finally {
+      await app.close();
+      await rm(userData, { recursive: true, force: true });
+    }
+  }, 30_000);
+});
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **window-state.test.ts**</summary>
+
+@@ lines 1-94 @@
+
+```
+import { describe, expect, it } from "vitest";
+import { centeredBounds, parseWindowState, startupBounds } from "../src/electron/window-state.js";
+import { _electron as electron } from "playwright";
+import { createRequire } from "node:module";
+import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { resolve } from "node:path";
+
+const screen = { x: 0, y: 0, width: 1920, height: 1080 };
+
+describe("window geometry", () => {
+  it("centers the default development size", () => {
+    expect(centeredBounds(screen)).toEqual({ x: 400, y: 150, width: 1120, height: 780 });
+  });
+  it("rejects malformed state and preserves valid bounds", () => {
+    expect(parseWindowState("bad")).toBeUndefined();
+    expect(parseWindowState('{"bounds":{"x":0}}')).toBeUndefined();
+    const state = { bounds: { x: 50, y: 60, width: 900, height: 700 }, maximized: true };
+    expect(startupBounds(parseWindowState(JSON.stringify(state)), [screen])).toEqual(state.bounds);
+  });
+  it("recenters off-screen state and clamps partly visible windows", () => {
+    expect(startupBounds({ bounds: { x: 3000, y: 2000, width: 900, height: 700 }, maximized: false }, [screen])).toEqual(centeredBounds(screen));
+    expect(startupBounds({ bounds: { x: 1800, y: 900, width: 900, height: 700 }, maximized: false }, [screen])).toEqual({ x: 1020, y: 380, width: 900, height: 700 });
+  });
+});
+
+describe("desktop More menu and zoom", () => {
+  it("renders and resizes the changelog, zooms, and persists window bounds", async () => {
+    const userData = await mkdtemp(resolve(tmpdir(), "k-downloader-window-test-"));
+    const require = createRequire(import.meta.url);
+    const launch = () => electron.launch({
+      executablePath: require("electron"),
+      args: [resolve("dist/electron/main.cjs"), `--user-data-dir=${userData}`],
+      env: { ...process.env, XDG_CURRENT_DESKTOP: "Test" },
+    });
+    let app = await launch();
+    try {
+      let page = await app.firstWindow();
+      page.setDefaultTimeout(5_000);
+      await page.waitForFunction(() => document.documentElement.dataset.mode);
+      await page.getByRole("button", { name: "More options", exact: true }).click();
+      await page.getByRole("menuitem", { name: "Changelog", exact: true }).click();
+      await page.locator("#changelog-drawer").waitFor({ state: "visible" });
+      expect(await page.locator("#changelog-content").innerText()).toContain("Persistent window size");
+      await page.getByRole("separator", { name: "Changelog panel width" }).focus();
+      await page.keyboard.press("End");
+      expect(await page.locator("#changelog-drawer").evaluate((element) => element.getBoundingClientRect().width / innerWidth)).toBeCloseTo(.4, 2);
+      await page.screenshot({ path: "/tmp/k-downloader-changelog.png" });
+      await page.keyboard.press("Escape");
+      expect(await page.locator("#changelog-drawer").getAttribute("data-open")).toBe("false");
+      await page.getByRole("button", { name: "More options", exact: true }).click();
+      await page.getByRole("menuitem", { name: "Changelog", exact: true }).click();
+      await page.getByRole("button", { name: "Close changelog", exact: true }).click();
+      const zoom = () => app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].webContents.getZoomFactor());
+      await page.keyboard.press("Control+Equal");
+      await expect.poll(zoom).toBeCloseTo(1.1);
+      await page.keyboard.press("Control+Minus");
+      await expect.poll(zoom).toBeCloseTo(1);
+      await page.keyboard.down("Control");
+      await page.mouse.wheel(0, -100);
+      await page.keyboard.up("Control");
+      await expect.poll(zoom).toBeCloseTo(1.1);
+      await page.keyboard.press("Control+0");
+      await expect.poll(zoom).toBe(1);
+      const moved = await app.evaluate(({ BrowserWindow }) => {
+        const window = BrowserWindow.getAllWindows()[0];
+        window.setBounds({ x: 80, y: 90, width: 900, height: 700 });
+        return window.getBounds();
+      });
+      const closing = app.waitForEvent("close");
+      await page.getByRole("button", { name: "Close window", exact: true }).click();
+      await closing;
+      expect(JSON.parse(await readFile(resolve(userData, "window-state.json"), "utf8")).bounds).toEqual(moved);
+      app = await launch();
+      page = await app.firstWindow();
+      await page.waitForFunction(() => document.documentElement.dataset.mode);
+      expect(await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].getBounds())).toEqual(moved);
+      await page.keyboard.press("Control+Comma");
+      expect(await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].getBounds())).toEqual(moved);
+      await page.keyboard.press("Escape");
+      await page.getByRole("button", { name: "More options", exact: true }).click();
+      await page.getByRole("menuitem", { name: "Restore Size/Position", exact: true }).click();
+      const restored = await app.evaluate(({ BrowserWindow, screen }) => {
+        const window = BrowserWindow.getAllWindows()[0];
+        return { bounds: window.getBounds(), area: screen.getDisplayMatching(window.getBounds()).workArea };
+      });
+      expect(restored.bounds).toEqual(centeredBounds(restored.area));
+    } finally {
+      await app.close();
+      await rm(userData, { recursive: true, force: true });
+    }
+  }, 30_000);
+});
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm test -- tests/window-state.test.ts && npm run build`
+
+Run the isolated Electron regression for the new menu, drawer, zoom, and persistence features, then type-check.
+
+```bash
+npm test -- tests/window-state.test.ts && npm run build
+```
+
+**Result:**
+
+```
+
+> k-downloader@0.1.0 pretest
+> npm run build:gui
+
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+
+> k-downloader@0.1.0 test
+> vitest run tests/window-state.test.ts
+
+
+ RUN  v5.0.4 /home/kel/dev/K-Downloader
+
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  12:24:06
+   Duration  3.33s (tests 87%, import 12%, transform 1%)
+
+
+> k-downloader@0.1.0 build
+> tsc --noEmit
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The Electron workflow test passes: the drawer renders and reaches 40%, both close actions work, zoom shortcuts change scale, and window bounds survive a restart and Settings navigation. I’ll check the screenshot, add mouse-drag and maximized-restore coverage, and document the new controls.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="get_errors"><details>
+<summary>Tool use: **get_errors**</summary>
+
+Checked `changelog.ts`, `window-state.ts`, `main.ts`, `window-state.test.ts`, `appearance.test.ts`, no problems found
+
+**Input:**
+
+- filePaths:
+
+```
+[
+  "/home/kel/dev/K-Downloader/src/changelog.ts",
+  "/home/kel/dev/K-Downloader/src/electron/window-state.ts",
+  "/home/kel/dev/K-Downloader/src/electron/main.ts",
+  "/home/kel/dev/K-Downloader/tests/window-state.test.ts",
+  "/home/kel/dev/K-Downloader/tests/appearance.test.ts"
+]
+```
+
+
+**Result:**
+
+```
+<errors path="/home/kel/dev/K-Downloader/src/changelog.ts">
+No errors found
+</errors>
+<errors path="/home/kel/dev/K-Downloader/src/electron/window-state.ts">
+No errors found
+</errors>
+<errors path="/home/kel/dev/K-Downloader/src/electron/main.ts">
+No errors found
+</errors>
+<errors path="/home/kel/dev/K-Downloader/tests/window-state.test.ts">
+No errors found
+</errors>
+<errors path="/home/kel/dev/K-Downloader/tests/appearance.test.ts">
+No errors found
+</errors>
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="view_image"><details>
+<summary>Tool use: **view_image**</summary>
+
+Viewed image `k-downloader-changelog.png`
+
+**Input:**
+
+- filePath: `/tmp/k-downloader-changelog.png`
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The screenshot was captured mid-slide, which makes the right edge look clipped. I’ll wait for the animation to finish before recapturing it, verify the drag handle caps the width at 40%, and test Restore Size/Position from a maximized window.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **window-state.test.ts**</summary>
+
+@@ lines 1-105 @@
+
+```
+import { describe, expect, it } from "vitest";
+import { centeredBounds, parseWindowState, startupBounds } from "../src/electron/window-state.js";
+import { _electron as electron } from "playwright";
+import { createRequire } from "node:module";
+import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { resolve } from "node:path";
+
+const screen = { x: 0, y: 0, width: 1920, height: 1080 };
+
+describe("window geometry", () => {
+  it("centers the default development size", () => {
+    expect(centeredBounds(screen)).toEqual({ x: 400, y: 150, width: 1120, height: 780 });
+  });
+  it("rejects malformed state and preserves valid bounds", () => {
+    expect(parseWindowState("bad")).toBeUndefined();
+    expect(parseWindowState('{"bounds":{"x":0}}')).toBeUndefined();
+    const state = { bounds: { x: 50, y: 60, width: 900, height: 700 }, maximized: true };
+    expect(startupBounds(parseWindowState(JSON.stringify(state)), [screen])).toEqual(state.bounds);
+  });
+  it("recenters off-screen state and clamps partly visible windows", () => {
+    expect(startupBounds({ bounds: { x: 3000, y: 2000, width: 900, height: 700 }, maximized: false }, [screen])).toEqual(centeredBounds(screen));
+    expect(startupBounds({ bounds: { x: 1800, y: 900, width: 900, height: 700 }, maximized: false }, [screen])).toEqual({ x: 1020, y: 380, width: 900, height: 700 });
+  });
+});
+
+describe("desktop More menu and zoom", () => {
+  it("renders and resizes the changelog, zooms, and persists window bounds", async () => {
+    const userData = await mkdtemp(resolve(tmpdir(), "k-downloader-window-test-"));
+    const require = createRequire(import.meta.url);
+    const launch = () => electron.launch({
+      executablePath: require("electron"),
+      args: [resolve("dist/electron/main.cjs"), `--user-data-dir=${userData}`],
+      env: { ...process.env, XDG_CURRENT_DESKTOP: "Test" },
+    });
+    let app = await launch();
+    try {
+      let page = await app.firstWindow();
+      page.setDefaultTimeout(5_000);
+      await page.waitForFunction(() => document.documentElement.dataset.mode);
+      await page.getByRole("button", { name: "More options", exact: true }).click();
+      await page.getByRole("menuitem", { name: "Changelog", exact: true }).click();
+      await page.locator("#changelog-drawer").waitFor({ state: "visible" });
+      await page.waitForFunction(() => new DOMMatrixReadOnly(getComputedStyle(document.querySelector("#changelog-drawer")!).transform).m41 === 0);
+      expect(await page.locator("#changelog-content").innerText()).toContain("Persistent window size");
+      await page.getByRole("separator", { name: "Changelog panel width" }).focus();
+      await page.keyboard.press("End");
+      expect(await page.locator("#changelog-drawer").evaluate((element) => element.getBoundingClientRect().width / innerWidth)).toBeCloseTo(.4, 2);
+      const handle = await page.locator("#changelog-resize").boundingBox();
+      if (!handle) throw new Error("Changelog resize handle is not visible");
+      await page.mouse.move(handle.x + handle.width / 2, handle.y + 40);
+      await page.mouse.down();
+      await page.mouse.move(1, handle.y + 40);
+      await page.mouse.up();
+      expect(await page.locator("#changelog-drawer").evaluate((element) => element.getBoundingClientRect().width / innerWidth)).toBeCloseTo(.4, 2);
+      await page.screenshot({ path: "/tmp/k-downloader-changelog.png" });
+      await page.keyboard.press("Escape");
+      expect(await page.locator("#changelog-drawer").getAttribute("data-open")).toBe("false");
+      await page.getByRole("button", { name: "More options", exact: true }).click();
+      await page.getByRole("menuitem", { name: "Changelog", exact: true }).click();
+      await page.getByRole("button", { name: "Close changelog", exact: true }).click();
+      const zoom = () => app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].webContents.getZoomFactor());
+      await page.keyboard.press("Control+Equal");
+      await expect.poll(zoom).toBeCloseTo(1.1);
+      await page.keyboard.press("Control+Minus");
+      await expect.poll(zoom).toBeCloseTo(1);
+      await page.keyboard.down("Control");
+      await page.mouse.wheel(0, -100);
+      await page.keyboard.up("Control");
+      await expect.poll(zoom).toBeCloseTo(1.1);
+      await page.keyboard.press("Control+0");
+      await expect.poll(zoom).toBe(1);
+      const moved = await app.evaluate(({ BrowserWindow }) => {
+        const window = BrowserWindow.getAllWindows()[0];
+        window.setBounds({ x: 80, y: 90, width: 900, height: 700 });
+        return window.getBounds();
+      });
+      const closing = app.waitForEvent("close");
+      await page.getByRole("button", { name: "Close window", exact: true }).click();
+      await closing;
+      expect(JSON.parse(await readFile(resolve(userData, "window-state.json"), "utf8")).bounds).toEqual(moved);
+      app = await launch();
+      page = await app.firstWindow();
+      await page.waitForFunction(() => document.documentElement.dataset.mode);
+      expect(await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].getBounds())).toEqual(moved);
+      await page.keyboard.press("Control+Comma");
+      expect(await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].getBounds())).toEqual(moved);
+      await page.keyboard.press("Escape");
+      await page.getByRole("button", { name: "Maximize window", exact: true }).click();
+      await expect.poll(() => app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].isMaximized())).toBe(true);
+      await page.getByRole("button", { name: "More options", exact: true }).click();
+      await page.getByRole("menuitem", { name: "Restore Size/Position", exact: true }).click();
+      await expect.poll(() => app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].isMaximized())).toBe(false);
+      const restored = await app.evaluate(({ BrowserWindow, screen }) => {
+        const window = BrowserWindow.getAllWindows()[0];
+        return { bounds: window.getBounds(), area: screen.getDisplayMatching(window.getBounds()).workArea };
+      });
+      expect(restored.bounds).toEqual(centeredBounds(restored.area));
+    } finally {
+      await app.close();
+      await rm(userData, { recursive: true, force: true });
+    }
+  }, 30_000);
+});
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **README.md**</summary>
+
+@@ lines 1-111 @@
+
+````
+# K-Downloader
+
+K-Downloader is a Linux-first KHInsider album downloader. The current slice
+implements public single-album discovery, format preview and policy, sequential
+streaming, and manifest-backed reruns. Multi-album queues, artwork, the GUI,
+optional account features, and packaging are not implemented yet.
+
+## Discovery check
+
+Requirements: Node.js 20 or newer, npm, and a graphical desktop session.
+
+```sh
+npm install
+npx playwright install chromium
+npm run inspect -- 'https://downloads.khinsider.com/game-soundtracks/album/unreal-ii-the-awakening-original-soundtrack'
+```
+
+The command opens a fresh visible Chromium context without a stored browser
+profile, visits the album and track pages sequentially, and prints every
+track's discovered format selection. It does not sign in or download audio.
+Visible mode is currently needed: plain Node fetch and headless Chromium
+received HTTP 403 during feasibility checks, while a fresh visible Chromium
+context succeeded. No attempt is made to imitate a browser or evade a challenge.
+If access is denied or a challenge appears, stop and review the site's permitted
+access methods.
+
+## Download One Album
+
+The CLI previews the selected formats before starting any transfer. The default
+format policy prefers lossless, falling back to MP3 when needed. The default
+destination is `~/Music/K-Downloader`.
+
+```sh
+npm run download -- 'https://downloads.khinsider.com/game-soundtracks/album/unreal-ii-the-awakening-original-soundtrack'
+```
+
+Use `--format lossless-only` to block when a track has no lossless source. Add
+`--skip-unavailable` to explicitly skip those tracks and mark the album
+incomplete. A specific format such as `--format MP3` never silently substitutes
+another format. Use `--output /path/to/music` for another destination.
+
+Multi-disc albums are saved into per-disc folders such as `CD1/` and `CD2/`.
+The GUI offers `CD` and `Disc` folder labels; the CLI accepts
+`--disc-label CD` or `--disc-label Disc` and defaults to `CD`. Single-disc
+albums keep the flat album folder.
+
+Files are streamed through temporary `.part` files, validated, and moved into
+place without overwriting. A per-album manifest records completion so verified
+files can be skipped on rerun. Transfers are covered by local mocked tests; an
+authorized live audio download has not yet been run.
+
+## Desktop GUI
+
+Requirements: Node.js 20 or newer, npm, and a graphical Linux session.
+
+```sh
+npm install
+npx playwright install chromium
+npm run gui
+```
+
+Paste one album URL and choose **Inspect album**. A Chromium inspection window
+starts minimized while an in-progress indicator appears in the app; click that
+indicator to show or hide the browser. Review the per-track format preview, choose the
+destination and format policy, then select **Download**. The default destination
+is `~/Music/K-Downloader`. **Cancel active download** stops the current transfer
+and prevents later tracks from starting.
+
+While inspection is running, the same button becomes **Cancel inspection**.
+It closes the inspection browser and stops scanning track pages, including
+during browser startup. A canceled inspection can be started again.
+
+Open **More > Settings** in the titlebar or press `Ctrl+,`. Under **Appearance**,
+select Light, Dark, or System mode and a Mint, Ocean, Amber, Rose, or Monochrome
+color theme. System follows desktop appearance changes; System + Mint is the
+default. Choices apply immediately and are saved locally across restarts.
+On Cinnamon, System mode follows the GTK theme (for example, Mint-Y versus
+Mint-Y-Dark); other desktops use Electron's native appearance notifications.
+Return with **Back to downloader** or press `Esc`.
+
+**More > Restore Size/Position** restores the development default (1120x780)
+and centers the window on its current monitor. Window size, position, and
+maximized state are saved on close and restored on the next launch, with
+off-screen positions corrected if monitor arrangements change.
+
+**More > Changelog** opens a panel from the right. Drag its left edge to adjust
+the width up to 40% of the window; the focused resize handle also accepts arrow
+keys. Close it with its close button or `Esc`. Content is embedded from the root
+`changelog.md` during `npm run build:gui` (also run by `npm run gui`).
+
+Use `Ctrl+=` or `Ctrl++` to enlarge the UI, `Ctrl+-` to reduce it, and `Ctrl+0`
+to reset to 100%. `Ctrl+mousewheel` also changes scale. Zoom is limited to
+50%-200% and does not change the window's saved geometry.
+
+The GUI uses a context-isolated, sandboxed renderer with a narrow preload API.
+It currently supports one album per run; multi-album queues and packaging are
+not available yet.
+
+## Development
+
+```sh
+npm test
+npm run build
+npm audit
+```
+
+Tests build the GUI first and use the installed Playwright Chromium and Electron
+for local appearance checks. The Electron checks require a graphical session
+and use an isolated profile. No desktop settings, site requests, or audio
+transfers are changed or made by those tests.
+````
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="task" data-tool-name="manage_todo_list"><details>
+<summary>Tool use: **manage_todo_list**</summary>
+
+Created 4 todos
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm test -- tests/window-state.test.ts && npm run build`
+
+Verify mouse drag limits, completed drawer animation, restore from maximize, window persistence, and zoom after the expanded regression.
+
+```bash
+npm test -- tests/window-state.test.ts && npm run build
+```
+
+**Result:**
+
+```
+
+> k-downloader@0.1.0 pretest
+> npm run build:gui
+
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+
+> k-downloader@0.1.0 test
+> vitest run tests/window-state.test.ts
+
+
+ RUN  v5.0.4 /home/kel/dev/K-Downloader
+
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  12:25:07
+   Duration  3.59s (tests 89%, import 10%, transform 1%)
+
+
+> k-downloader@0.1.0 build
+> tsc --noEmit
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+Mouse resizing respects the 40% cap, and Restore Size/Position correctly unmaximizes and recenters the window. I’ll run the full suite and audit, review the settled drawer screenshot, then launch the updated app.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm test && npm run build && npm audit`
+
+Run the full engine/UI regression suite, strict compile, and dependency audit before launching the new menu features.
+
+```bash
+npm test && npm run build && npm audit
+```
+
+**Result:**
+
+```
+
+> k-downloader@0.1.0 pretest
+> npm run build:gui
+
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+
+> k-downloader@0.1.0 test
+> vitest run
+
+
+ RUN  v5.0.4 /home/kel/dev/K-Downloader
+
+
+ Test Files  7 passed (7)
+      Tests  31 passed (31)
+   Start at  12:25:22
+   Duration  3.56s (tests 79%, import 16%, transform 4%)
+
+
+> k-downloader@0.1.0 build
+> tsc --noEmit
+
+found 0 vulnerabilities
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="view_image"><details>
+<summary>Tool use: **view_image**</summary>
+
+Viewed image `k-downloader-changelog.png`
+
+**Input:**
+
+- filePath: `/tmp/k-downloader-changelog.png`
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+All 31 tests pass, the TypeScript build is clean, and the audit reports zero vulnerabilities. The settled drawer screenshot shows readable content, a visible Close button, and the statusbar still in view. I’ll open the updated GUI now.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm run gui`
+
+Launch the app with Restore Size/Position, the changelog drawer, persistent window geometry, and zoom shortcuts.
+
+```bash
+npm run gui
+```
+
+**Result:**
+
+```
+Command is running in terminal with ID=5b392e65-ce66-4481-bbf4-2b99bcb00b57
+ The command became idle with output:
+kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+
+> k-downloader@0.1.0 gui
+> npm run build:gui && electron dist/electron/main.cjs
+
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+This note is not a signal to end the turn — pick one of the actions below and continue.
+  1. If the command may still be producing output or the shell prompt has not returned, call get_terminal_output with id="5b392e65-ce66-4481-bbf4-2b99bcb00b57" to continue polling. This is the default and safest action when unsure.
+  2. Only if the output clearly ends with a real non-secret input prompt (Continue? (y/n), Enter selection, etc. — a normal shell prompt like `$` or `#` does NOT count), call the vscode_askQuestions tool to ask the user, then send each answer using send_to_terminal with id="5b392e65-ce66-4481-bbf4-2b99bcb00b57" (which returns the next few lines of output). Repeat one prompt at a time. NEVER route secret prompts (passwords, passphrases, tokens, API keys, etc.) through vscode_askQuestions — answers to that tool are sent through the model. For secret prompts, tell the user to type the value directly into the terminal and stop.
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+Implemented all requested changes:
+
+- **Restore Size/Position** resets to 1120×780 and centers on the current monitor.
+- **Changelog** slides in from the right, resizes up to 40%, and closes via its button or `Esc`. Content comes from `changelog.md` at build time.
+- Window size, position, and maximized state persist across launches.
+- `Ctrl+0`, `Ctrl+-`, `Ctrl+=`/`Ctrl++`, and `Ctrl+mousewheel` control UI zoom.
+
+All 31 tests and the build pass; audit is clean. The updated GUI is open.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="task" data-tool-name="manage_todo_list"><details>
+<summary>Tool use: **manage_todo_list**</summary>
+
+Completed: *Create 'Restore Size/Position' menu item* (1/4)
+</details></tool-use>
+
+---
+
+_**User (2026-10-12 17:20:25Z)**_
+
+some changes:
+- In the More menu:
+  - create a 'Restore Size/Position' item that restores the app back to the default size (what it is currently in development) and centers it on the screen.
+  - Add a Changelog item that displays the app's changelog in a panel that slides out from the right side (adjustable out to 40% of the app width). The changelog content should be pulled from a changelog.md file in the project root during build. There should be a Close button in the Changelog panel as well as Esc key support.
+- The app's size and location should persist across settings.
+- the base font of the app should be adjustable using tytpical Ctrl+0/-/=/Mousewheel shortcuts.
+
+---
+
+_**Agent (copilot/auto)**_
+
+I’ll reorder the menu and add a non-clickable app title/version row below a separator. I’ll take the version from the root package manifest during the build so it stays in 
+
+I’ll reorder the menu and add a non-clickable app title/version row below a separator. I’ll take the version from the root package manifest during the build so it stays in sync.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Read `index.html`, lines 17 to 60
+
+**Input:**
+
+- endLine: `60`
+- filePath: `/home/kel/dev/K-Downloader/gui/index.html`
+- startLine: `17`
+
+**Result:**
+
+```
+        </div>
+        <div class="titlebar-actions">
+          <div id="more-menu-wrap" class="more-menu-wrap">
+            <button id="more-button" class="window-control more-button" type="button" aria-label="More options" title="More options" aria-haspopup="menu" aria-expanded="false">
+              <i data-lucide="ellipsis-vertical" aria-hidden="true"></i>
+            </button>
+            <div id="more-menu" class="more-menu" role="menu" aria-label="More options" hidden>
+              <button id="settings-menu-item" class="more-menu-item" type="button" role="menuitem">
+                <i data-lucide="settings" aria-hidden="true"></i>
+                <span>Settings</span>
+                <kbd>Ctrl+,</kbd>
+              </button>
+              <button id="restore-bounds-menu-item" class="more-menu-item" type="button" role="menuitem">
+                <i data-lucide="scan" aria-hidden="true"></i>
+                <span>Restore Size/Position</span>
+              </button>
+              <button id="changelog-menu-item" class="more-menu-item" type="button" role="menuitem">
+                <i data-lucide="scroll-text" aria-hidden="true"></i>
+                <span>Changelog</span>
+              </button>
+            </div>
+          </div>
+          <nav class="window-controls" aria-label="Window controls">
+          <button id="minimize-window" class="window-control" type="button" aria-label="Minimize window" title="Minimize">
+            <i data-lucide="minus" aria-hidden="true"></i>
+          </button>
+          <button id="maximize-window" class="window-control" type="button" aria-label="Maximize window" title="Maximize">
+            <i data-lucide="square" aria-hidden="true"></i>
+          </button>
+          <button id="close-window" class="window-control close-control" type="button" aria-label="Close window" title="Close">
+            <i data-lucide="x" aria-hidden="true"></i>
+          </button>
+          </nav>
+        </div>
+      </header>
+
+      <section id="
+… (output truncated)
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Read `build-gui.mjs`
+
+**Input:**
+
+- endLine: `85`
+- filePath: `/home/kel/dev/K-Downloader/scripts/build-gui.mjs`
+- startLine: `1`
+
+**Result:**
+
+```
+import { cp, mkdir, readFile, rm } from "node:fs/promises";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { build } from "esbuild";
+
+const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const output = resolve(root, "dist");
+const changelog = await readFile(resolve(root, "changelog.md"), "utf8");
+await rm(output, { recursive: true, force: true });
+await mkdir(resolve(output, "electron"), { recursive: true });
+await mkdir(resolve(output, "gui"), { recursive: true });
+
+await Promise.all([
+  build({
+    entryPoints: [resolve(root, "src/electron/main.ts")],
+    outfile: resolve(output, "electron/main.cjs"),
+    bundle: true,
+    platform: "node",
+    format: "cjs",
+    external: ["electron", "playwright", "parse5"],
+  }),
+  build({
+    entryPoints: [resolve(root, "src/electron/preload.ts")],
+    outfile: resolve(output, "electron/preload.cjs"),
+    bundle: true,
+    platform: "node",
+    format: "cjs",
+    external: ["electron"],
+  }),
+  build({
+    entryPoints: [resolve(root, "src/renderer.ts")],
+    outfile: resolve(output, "gui/renderer.js"),
+    bundle: true,
+    platform: "browser",
+    format: "iife",
+    define: { __CHANGELOG_MARKDOWN__: JSON.stringify(changelog) },
+  }),
+]);
+
+await Promise.all([
+  cp(resolve(root, "gui/index.html"), resolve(output, "gui/index.html")),
+  cp(resolve(root, "gui/styles.css"), resolve(output, "gui/styles.css")),
+]);
+console.log("Built Electron main/preload and local renderer into dist/.");
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Read `package.json`, lines 1 to 22
+
+**Input:**
+
+- endLine: `22`
+- filePath: `/home/kel/dev/K-Downloader/package.json`
+- startLine: `1`
+
+**Result:**
+
+```
+{
+  "name": "k-downloader",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "build:gui": "node scripts/build-gui.mjs",
+    "gui": "npm run build:gui && electron dist/electron/main.cjs",
+    "inspect": "tsx src/cli.ts inspect",
+    "download": "tsx src/cli.ts download",
+    "pretest": "npm run build:gui",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "dompurify": "^3.4.17",
+    "lucide": "^1.55.0",
+    "marked": "^18.1.1",
+    "parse5": "^7.3.0",
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Read `styles.css`, lines 107 to 126
+
+**Input:**
+
+- endLine: `126`
+- filePath: `/home/kel/dev/K-Downloader/gui/styles.css`
+- startLine: `107`
+
+**Result:**
+
+```
+.more-menu { position: absolute; z-index: 20; top: calc(100% + 5px); right: 0; width: 224px; padding: 5px; border: 1px solid var(--line); border-radius: 4px; background: var(--panel-raised); box-shadow: 0 12px 28px var(--shadow); }
+.more-menu[hidden] { display: none; }
+.more-menu-item { width: 100%; min-height: 36px; padding: 0 9px; display: flex; align-items: center; gap: 10px; border: 0; border-radius: 2px; color: var(--ink); background: transparent; text-align: left; font-size: 11px; }
+.more-menu-item:hover, .more-menu-item:focus-visible { background: var(--hover); outline: none; }
+.more-menu-item svg { width: 15px; height: 15px; color: var(--muted); stroke-width: 1.7; }
+.more-menu-item kbd { margin-left: auto; color: var(--muted); font-family: "DejaVu Sans Mono", monospace; font-size: 9px; }
+.brand-subtitle, .eyebrow, .section-index, .mode-label, .progress-label, .app-footer { font-family: "DejaVu Sans Mono", monospace; letter-spacing: 0; }
+.brand-subtitle { margin-top: 3px; color: var(--dim); font-size: 9px; }
+.mode-label { display: flex; align-items: center; gap: 9px; color: var(--muted); font-size: 11px; }
+.mode-dot { width: 7px; height: 7px; background: var(--mint); border-radius: 50%; }
+
+.workspace { width: min(1440px, 100%); margin: 0 auto; padding: 28px 32px 24px; flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(300px, 370px) minmax(380px, 1fr); grid-template-rows: minmax(0, 1fr); gap: 18px; overflow: hidden; }
+.workspace[hidden], .settings-view[hidden] { display: none; }
+.settings-view { width: min(1440px, 100%); flex: 1; min-height: 0; margin: 0 auto; padding: 28px 32px 24px; overflow: auto; }
+.settings-header { min-height: 56px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); }
+.settings-header h1 { margin: 0; font-size: 18px; }
+.settings-close-button { min-height: 34px; padding: 0 10px; display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); borde
+… (output truncated)
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The menu order is defined in the HTML. I’ll move Restore Size/Position first, add the separator and informational footer, and embed `package.json`’s version in the renderer bundle. Then I’ll verify the order and displayed version in Electron.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **index.html**</summary>
+
+@@ lines 1-183 @@
+
+```
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'" />
+    <title>K-Downloader</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script defer src="./renderer.js"></script>
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <div class="brand-lockup">
+          <div class="app-icon" aria-hidden="true">K</div>
+          <div class="brand-name">K-Downloader</div>
+        </div>
+        <div class="titlebar-actions">
+          <div id="more-menu-wrap" class="more-menu-wrap">
+            <button id="more-button" class="window-control more-button" type="button" aria-label="More options" title="More options" aria-haspopup="menu" aria-expanded="false">
+              <i data-lucide="ellipsis-vertical" aria-hidden="true"></i>
+            </button>
+            <div id="more-menu" class="more-menu" role="menu" aria-label="More options" hidden>
+              <button id="restore-bounds-menu-item" class="more-menu-item" type="button" role="menuitem">
+                <i data-lucide="scan" aria-hidden="true"></i>
+                <span>Restore Size/Position</span>
+              </button>
+              <button id="settings-menu-item" class="more-menu-item" type="button" role="menuitem">
+                <i data-lucide="settings" aria-hidden="true"></i>
+                <span>Settings</span>
+                <kbd>Ctrl+,</kbd>
+              </button>
+              <button id="changelog-menu-item" class="more-menu-item" type="button" role="menuitem">
+                <i data-lucide="scroll-text" aria-hidden="true"></i>
+                <span>Changelog</span>
+              </button>
+              <div class="more-menu-separator" role="separator"></div>
+              <div class="more-menu-info"><span>K-Downloader</span><span id="menu-app-version"></span></div>
+            </div>
+          </div>
+          <nav class="window-controls" aria-label="Window controls">
+          <button id="minimize-window" class="window-control" type="button" aria-label="Minimize window" title="Minimize">
+            <i data-lucide="minus" aria-hidden="true"></i>
+          </button>
+          <button id="maximize-window" class="window-control" type="button" aria-label="Maximize window" title="Maximize">
+            <i data-lucide="square" aria-hidden="true"></i>
+          </button>
+          <button id="close-window" class="window-control close-control" type="button" aria-label="Close window" title="Close">
+            <i data-lucide="x" aria-hidden="true"></i>
+          </button>
+          </nav>
+        </div>
+      </header>
+
+      <section id="workspace" class="workspace">
+        <aside class="control-panel" aria-label="Download setup">
+          <div class="section-heading"><span class="section-index">01</span><h1>Album source</h1></div>
+          <label for="album-url">KHInsider album URL</label>
+          <textarea id="album-url" rows="3" spellcheck="false" placeholder="https://downloads.khinsider.com/game-soundtracks/album/…"></textarea>
+          <div class="microcopy">Inspection opens a separate visible Chromium window. No login is used.</div>
+
+          <div class="section-heading destination-heading"><span class="section-index">02</span><h2>Destination</h2></div>
+          <label for="output-root">Save album under</label>
+          <div class="path-control">
+            <input id="output-root" type="text" spellcheck="false" />
+            <button id="browse-button" class="icon-button" type="button" aria-label="Choose download folder" title="Choose download folder">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 6.5h6l2 2H20a1 1 0 0 1 1 1v8.8a1.7 1.7 0 0 1-1.7 1.7H4.7A1.7 1.7 0 0 1 3 18.3V7a.5.5 0 0 1 .5-.5Z"/><path d="M12 12v5m-2.5-2.5h5"/></svg>
+            </button>
+          </div>
+
+          <div class="section-heading format-heading"><span class="section-index">03</span><h2>Format policy</h2></div>
+          <label for="format-policy">Choose source audio</label>
+          <select id="format-policy">
+            <option value="prefer-lossless">Prefer lossless</option>
+            <option value="lossless-only">Lossless only</option>
+          </select>
+          <label class="check-row" for="skip-unavailable">
+            <input id="skip-unavailable" type="checkbox" disabled />
+            <span>Skip tracks without the selected format</span>
+          </label>
+          <div id="disc-label-setting" class="disc-label-setting" hidden>
+            <label for="disc-label">Disc folder label</label>
+            <select id="disc-label">
+              <option value="CD">CD1, CD2, …</option>
+              <option value="Disc">Disc1, Disc2, …</option>
+            </select>
+          </div>
+
+          <div class="action-row">
+            <button id="inspect-button" class="secondary-button" type="button">Inspect album</button>
+            <button id="download-button" class="primary-button" type="button" disabled>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v11m0 0 4-4m-4 4-4-4M5 17v3h14v-3"/></svg>
+              Download
+            </button>
+          </div>
+          <button id="cancel-button" class="cancel-button" type="button" disabled>Cancel active download</button>
+          <p id="error-text" class="error-text" role="alert"></p>
+        </aside>
+
+        <section class="results-panel" aria-label="Album preview and progress">
+          <div class="results-header">
+            <div>
+              <div class="eyebrow">DISCOVERY PREVIEW</div>
+              <h2 id="album-title">No album inspected</h2>
+            </div>
+            <div class="track-count" id="track-count">Waiting</div>
+          </div>
+
+          <div class="status-strip">
+            <span id="status-dot" class="status-dot" data-tone="idle"></span>
+            <span id="status-text">Paste an album URL to begin</span>
+          </div>
+          <button id="inspection-indicator" class="inspection-indicator" type="button" hidden disabled aria-pressed="false">
+            <i data-lucide="loader-circle" class="inspection-spinner" aria-hidden="true"></i>
+            <span role="status">Inspection in progress</span>
+            <span id="inspection-indicator-text" class="inspection-indicator-action">Starting browser…</span>
+          </button>
+
+          <div id="empty-state" class="empty-state">
+            <div class="empty-glyph" aria-hidden="true"><span></span><span></span><span></span></div>
+            <div class="empty-title">Ready for an album</div>
+            <div class="empty-note">Track formats and fallback choices appear here before transfer.</div>
+          </div>
+
+          <div class="table-wrap">
+            <table id="track-table" hidden>
+              <thead><tr><th>Disc</th><th>#</th><th>Track</th><th>Available</th><th>Selected</th><th>Status</th></tr></thead>
+              <tbody id="track-rows"></tbody>
+            </table>
+          </div>
+
+          <footer class="progress-footer">
+            <div class="progress-label"><span>TRANSFER</span><span id="progress-text">No active transfer</span></div>
+            <progress id="download-progress" value="0" max="1"></progress>
+          </footer>
+        </section>
+      </section>
+      <section id="settings-view" class="settings-view" aria-labelledby="settings-heading" hidden>
+        <header class="settings-header">
+          <h1 id="settings-heading">Settings</h1>
+          <button id="close-settings" class="settings-close-button" type="button">
+            <i data-lucide="arrow-left" aria-hidden="true"></i>
+            <span>Back to downloader</span>
+          </button>
+        </header>
+        <section class="appearance-section" aria-labelledby="appearance-heading">
+          <h2 id="appearance-heading">Appearance</h2>
+          <fieldset class="appearance-setting">
+            <legend>Mode</legend>
+            <div class="mode-options">
+              <label><input type="radio" name="appearance-mode" value="light" /><span>Light</span></label>
+              <label><input type="radio" name="appearance-mode" value="dark" /><span>Dark</span></label>
+              <label><input type="radio" name="appearance-mode" value="system" checked /><span>System</span></label>
+            </div>
+          </fieldset>
+          <fieldset class="appearance-setting">
+            <legend>Color theme</legend>
+            <div class="theme-options">
+              <label><input type="radio" name="color-theme" value="mint" checked /><span class="theme-swatch swatch-mint"></span><span>Mint</span></label>
+              <label><input type="radio" name="color-theme" value="ocean" /><span class="theme-swatch swatch-ocean"></span><span>Ocean</span></label>
+              <label><input type="radio" name="color-theme" value="amber" /><span class="theme-swatch swatch-amber"></span><span>Amber</span></label>
+              <label><input type="radio" name="color-theme" value="rose" /><span class="theme-swatch swatch-rose"></span><span>Rose</span></label>
+              <label><input type="radio" name="color-theme" value="monochrome" /><span class="theme-swatch swatch-monochrome"></span><span>Monochrome</span></label>
+            </div>
+          </fieldset>
+          <p id="appearance-storage-status" class="error-text" role="status"></p>
+        </section>
+      </section>
+      <aside id="changelog-drawer" class="changelog-drawer" data-open="false" aria-labelledby="changelog-heading" inert>
+        <div id="changelog-resize" class="changelog-resize" role="separator" tabindex="0" aria-label="Changelog panel width" aria-orientation="vertical" aria-valuemin="24" aria-valuemax="40" aria-valuenow="32"></div>
+        <header class="changelog-header">
+          <h2 id="changelog-heading">Changelog</h2>
+          <button id="close-changelog" class="drawer-close-button" type="button" aria-label="Close changelog" title="Close changelog">
+            <i data-lucide="x" aria-hidden="true"></i>
+          </button>
+        </header>
+        <div id="changelog-content" class="changelog-content"></div>
+      </aside>
+      <footer class="app-footer"><span>Original audio bytes · no transcoding</span><span>LOCAL SESSION</span></footer>
+    </main>
+  </body>
+</html>
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **build-gui.mjs**</summary>
+
+@@ lines 1-50 @@
+
+```
+import { cp, mkdir, readFile, rm } from "node:fs/promises";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { build } from "esbuild";
+
+const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const output = resolve(root, "dist");
+const changelog = await readFile(resolve(root, "changelog.md"), "utf8");
+const manifest = JSON.parse(await readFile(resolve(root, "package.json"), "utf8"));
+if (typeof manifest.version !== "string" || !manifest.version.trim()) throw new Error("package.json must contain a version");
+await rm(output, { recursive: true, force: true });
+await mkdir(resolve(output, "electron"), { recursive: true });
+await mkdir(resolve(output, "gui"), { recursive: true });
+
+await Promise.all([
+  build({
+    entryPoints: [resolve(root, "src/electron/main.ts")],
+    outfile: resolve(output, "electron/main.cjs"),
+    bundle: true,
+    platform: "node",
+    format: "cjs",
+    external: ["electron", "playwright", "parse5"],
+  }),
+  build({
+    entryPoints: [resolve(root, "src/electron/preload.ts")],
+    outfile: resolve(output, "electron/preload.cjs"),
+    bundle: true,
+    platform: "node",
+    format: "cjs",
+    external: ["electron"],
+  }),
+  build({
+    entryPoints: [resolve(root, "src/renderer.ts")],
+    outfile: resolve(output, "gui/renderer.js"),
+    bundle: true,
+    platform: "browser",
+    format: "iife",
+    define: {
+      __CHANGELOG_MARKDOWN__: JSON.stringify(changelog),
+      __APP_VERSION__: JSON.stringify(manifest.version),
+    },
+  }),
+]);
+
+await Promise.all([
+  cp(resolve(root, "gui/index.html"), resolve(output, "gui/index.html")),
+  cp(resolve(root, "gui/styles.css"), resolve(output, "gui/styles.css")),
+]);
+console.log("Built Electron main/preload and local renderer into dist/.");
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **renderer.ts**</summary>
+
+@@ lines 1-357 @@
+
+```
+import type { GuiFormatPolicy, GuiInspection, GuiInspectionState, GuiProgress, GuiTrack } from "./gui-types.js";
+import { ArrowLeft, Copy, createIcons, EllipsisVertical, LoaderCircle, Minus, Scan, ScrollText, Settings, Square, X } from "lucide";
+import { initializeAppearance } from "./appearance.js";
+import { initializeChangelog } from "./changelog.js";
+
+declare const __APP_VERSION__: string;
+document.querySelector<HTMLElement>("#menu-app-version")!.textContent = __APP_VERSION__;
+
+initializeAppearance();
+
+const windowIcons = { ArrowLeft, Copy, EllipsisVertical, LoaderCircle, Minus, Scan, ScrollText, Settings, Square, X };
+createIcons({ icons: windowIcons });
+const changelog = initializeChangelog();
+
+const albumInput = document.querySelector<HTMLTextAreaElement>("#album-url")!;
+const outputInput = document.querySelector<HTMLInputElement>("#output-root")!;
+const formatSelect = document.querySelector<HTMLSelectElement>("#format-policy")!;
+const discLabelSelect = document.querySelector<HTMLSelectElement>("#disc-label")!;
+const discLabelSetting = document.querySelector<HTMLElement>("#disc-label-setting")!;
+const skipInput = document.querySelector<HTMLInputElement>("#skip-unavailable")!;
+const inspectButton = document.querySelector<HTMLButtonElement>("#inspect-button")!;
+const downloadButton = document.querySelector<HTMLButtonElement>("#download-button")!;
+const cancelButton = document.querySelector<HTMLButtonElement>("#cancel-button")!;
+const browseButton = document.querySelector<HTMLButtonElement>("#browse-button")!;
+const tableBody = document.querySelector<HTMLTableSectionElement>("#track-rows")!;
+const albumTitle = document.querySelector<HTMLElement>("#album-title")!;
+const trackCount = document.querySelector<HTMLElement>("#track-count")!;
+const statusText = document.querySelector<HTMLElement>("#status-text")!;
+const statusDot = document.querySelector<HTMLElement>("#status-dot")!;
+const statusStrip = document.querySelector<HTMLElement>(".status-strip")!;
+const inspectionIndicator = document.querySelector<HTMLButtonElement>("#inspection-indicator")!;
+const inspectionIndicatorText = document.querySelector<HTMLElement>("#inspection-indicator-text")!;
+const progress = document.querySelector<HTMLProgressElement>("#download-progress")!;
+const progressText = document.querySelector<HTMLElement>("#progress-text")!;
+const emptyState = document.querySelector<HTMLElement>("#empty-state")!;
+const trackTable = document.querySelector<HTMLTableElement>("#track-table")!;
+const errorText = document.querySelector<HTMLElement>("#error-text")!;
+const minimizeWindowButton = document.querySelector<HTMLButtonElement>("#minimize-window")!;
+const maximizeWindowButton = document.querySelector<HTMLButtonElement>("#maximize-window")!;
+const closeWindowButton = document.querySelector<HTMLButtonElement>("#close-window")!;
+const moreMenuWrap = document.querySelector<HTMLElement>("#more-menu-wrap")!;
+const moreButton = document.querySelector<HTMLButtonElement>("#more-button")!;
+const moreMenu = document.querySelector<HTMLElement>("#more-menu")!;
+const settingsMenuItem = document.querySelector<HTMLButtonElement>("#settings-menu-item")!;
+const restoreBoundsMenuItem = document.querySelector<HTMLButtonElement>("#restore-bounds-menu-item")!;
+const changelogMenuItem = document.querySelector<HTMLButtonElement>("#changelog-menu-item")!;
+const workspaceView = document.querySelector<HTMLElement>("#workspace")!;
+const settingsView = document.querySelector<HTMLElement>("#settings-view")!;
+const closeSettingsButton = document.querySelector<HTMLButtonElement>("#close-settings")!;
+
+let inspection: GuiInspection | undefined;
+let busy = false;
+let inspecting = false;
+let inspectionCancelRequested = false;
+let inspectionBrowserVisible = false;
+let settingsOpen = false;
+
+function updateInspectionIndicator(state: GuiInspectionState): void {
+  inspectionBrowserVisible = state.browserVisible;
+  statusStrip.hidden = state.active;
+  inspectionIndicator.hidden = !state.active;
+  inspectionIndicator.disabled = !state.browserReady;
+  inspectionIndicator.setAttribute("aria-pressed", String(state.browserVisible));
+  inspectionIndicatorText.textContent = state.browserReady
+    ? state.browserVisible ? "Hide browser" : "Show browser"
+    : "Starting browser…";
+}
+
+function closeMoreMenu(): void {
+  moreMenu.hidden = true;
+  moreButton.setAttribute("aria-expanded", "false");
+}
+
+function setSettingsOpen(open: boolean): void {
+  settingsOpen = open;
+  workspaceView.hidden = open;
+  settingsView.hidden = !open;
+  closeMoreMenu();
+  if (open) closeSettingsButton.focus();
+  else albumInput.focus();
+}
+
+function updateMaximizeButton(maximized: boolean): void {
+  const label = maximized ? "Restore window" : "Maximize window";
+  maximizeWindowButton.setAttribute("aria-label", label);
+  maximizeWindowButton.title = label;
+  maximizeWindowButton.innerHTML = `<i data-lucide="${maximized ? "copy" : "square"}" aria-hidden="true"></i>`;
+  createIcons({ icons: windowIcons });
+}
+
+function isValidAlbumUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" &&
+      url.hostname.toLowerCase() === "downloads.khinsider.com" &&
+      url.pathname.startsWith("/game-soundtracks/album/") &&
+      !url.username && !url.password;
+  } catch {
+    return false;
+  }
+}
+
+function setStatus(label: string, tone: "idle" | "working" | "success" | "error" = "idle"): void {
+  statusText.textContent = label;
+  statusDot.dataset.tone = tone;
+}
+
+function selectedFormat(track: GuiTrack): { format?: string; state: string; fallback: boolean } {
+  const value = formatSelect.value;
+  if (value === "prefer-lossless") {
+    const lossless = ["FLAC", "ALAC", "WAV"].find((format) => track.formats.includes(format));
+    if (lossless) return { format: lossless, state: "Ready", fallback: false };
+    const lossy = track.formats.find((format) => format === "MP3") ?? track.formats[0];
+    return lossy
+      ? { format: lossy, state: "Ready", fallback: true }
+      : { state: "Unavailable", fallback: false };
+  }
+  const requested = value === "lossless-only" ? ["FLAC", "ALAC", "WAV"].find((format) => track.formats.includes(format)) : value.slice("format:".length);
+  if (requested && track.formats.includes(requested)) return { format: requested, state: "Ready", fallback: false };
+  return skipInput.checked
+    ? { state: "Skipped", fallback: false }
+    : { state: "Unavailable", fallback: false };
+}
+
+function renderTracks(): void {
+  if (!inspection) return;
+  const rows = inspection.tracks.map((track) => {
+    const selected = selectedFormat(track);
+    const row = document.createElement("tr");
+    row.innerHTML = `<td class="track-disc"></td><td class="track-number"></td><td class="track-title"></td><td class="track-formats"></td><td class="track-choice"></td><td class="track-state"></td>`;
+    row.querySelector(".track-disc")!.textContent = track.discNumber === undefined ? "-" : `${discLabelSelect.value}${track.discNumber}`;
+    row.querySelector(".track-number")!.textContent = String(track.number).padStart(2, "0");
+    row.querySelector(".track-title")!.textContent = track.title;
+    row.querySelector(".track-formats")!.textContent = track.formats.join(", ") || "None found";
+    row.querySelector(".track-choice")!.textContent = selected.format ?? "-";
+    const state = row.querySelector<HTMLElement>(".track-state")!;
+    state.textContent = selected.state;
+    state.dataset.state = selected.state.toLowerCase();
+    if (selected.fallback) state.textContent += " · fallback";
+    return row;
+  });
+  tableBody.replaceChildren(...rows);
+  const blocked = inspection.tracks.some((track) => selectedFormat(track).state === "Unavailable");
+  downloadButton.disabled = busy || blocked;
+  trackCount.textContent = `${inspection.trackCount} tracks`;
+  emptyState.hidden = true;
+  trackTable.hidden = false;
+}
+
+function currentPolicy(): GuiFormatPolicy {
+  if (formatSelect.value === "prefer-lossless") return { kind: "prefer-lossless" };
+  if (formatSelect.value === "lossless-only") return { kind: "lossless-only", skipUnavailable: skipInput.checked };
+  return { kind: "specific", format: formatSelect.value.slice("format:".length), skipUnavailable: skipInput.checked };
+}
+
+function updateFormatOptions(): void {
+  if (!inspection) return;
+  const formats = [...new Set(inspection.tracks.flatMap((track) => track.formats))].sort();
+  const discs = [...new Set(inspection.tracks.flatMap((track) => track.discNumber === undefined ? [] : [track.discNumber]))];
+  discLabelSetting.hidden = discs.length < 2;
+  const previous = formatSelect.value;
+  formatSelect.querySelectorAll("option[data-discovered]").forEach((option) => option.remove());
+  for (const format of formats) {
+    const option = document.createElement("option");
+    option.value = `format:${format}`;
+    option.textContent = `Specific format: ${format}`;
+    option.dataset.discovered = "true";
+    formatSelect.append(option);
+  }
+  if ([...formatSelect.options].some((option) => option.value === previous)) formatSelect.value = previous;
+  renderTracks();
+}
+
+function setBusy(value: boolean): void {
+  busy = value;
+  inspectButton.disabled = value;
+  browseButton.disabled = value;
+  albumInput.disabled = value;
+  outputInput.disabled = value;
+  formatSelect.disabled = value;
+  discLabelSelect.disabled = value;
+  skipInput.disabled = value || formatSelect.value === "prefer-lossless";
+  cancelButton.disabled = !value;
+  cancelButton.textContent = inspecting ? "Cancel inspection" : "Cancel active download";
+  if (inspection) renderTracks();
+}
+
+minimizeWindowButton.addEventListener("click", () => { void window.kDownloader.minimizeWindow(); });
+maximizeWindowButton.addEventListener("click", async () => {
+  const maximized = await window.kDownloader.toggleMaximizeWindow();
+  updateMaximizeButton(maximized);
+});
+closeWindowButton.addEventListener("click", () => { void window.kDownloader.closeWindow(); });
+window.kDownloader.onWindowState(({ maximized }) => updateMaximizeButton(maximized));
+
+moreButton.addEventListener("click", () => {
+  moreMenu.hidden = !moreMenu.hidden;
+  moreButton.setAttribute("aria-expanded", String(!moreMenu.hidden));
+});
+settingsMenuItem.addEventListener("click", () => setSettingsOpen(true));
+restoreBoundsMenuItem.addEventListener("click", () => {
+  closeMoreMenu();
+  void window.kDownloader.restoreWindowBounds();
+});
+changelogMenuItem.addEventListener("click", () => {
+  closeMoreMenu();
+  changelog.open();
+});
+closeSettingsButton.addEventListener("click", () => setSettingsOpen(false));
+document.addEventListener("click", (event) => {
+  if (!moreMenuWrap.contains(event.target as Node)) closeMoreMenu();
+});
+document.addEventListener("keydown", (event) => {
+  if (event.ctrlKey && ["0", "-", "_", "=", "+"].includes(event.key)) {
+    event.preventDefault();
+    const direction = event.key === "0" ? "reset" : ["-", "_"].includes(event.key) ? "out" : "in";
+    void window.kDownloader.zoom(direction);
+  } else if ((event.ctrlKey || event.metaKey) && event.key === ",") {
+    event.preventDefault();
+    setSettingsOpen(!settingsOpen);
+  } else if (event.key === "Escape") {
+    if (!moreMenu.hidden) {
+      closeMoreMenu();
+      moreButton.focus();
+    } else if (changelog.isOpen()) changelog.close();
+    else if (settingsOpen) setSettingsOpen(false);
+  }
+});
+document.addEventListener("wheel", (event) => {
+  if (!event.ctrlKey || event.deltaY === 0) return;
+  event.preventDefault();
+  void window.kDownloader.zoom(event.deltaY < 0 ? "in" : "out");
+}, { passive: false });
+
+inspectButton.addEventListener("click", async () => {
+  errorText.textContent = "";
+  const albumUrl = albumInput.value.trim();
+  if (!isValidAlbumUrl(albumUrl)) {
+    errorText.textContent = "Paste a valid HTTPS KHInsider album URL.";
+    setStatus("Album URL required", "error");
+    albumInput.focus();
+    return;
+  }
+  inspection = undefined;
+  downloadButton.disabled = true;
+  tableBody.replaceChildren();
+  trackTable.hidden = true;
+  emptyState.hidden = false;
+  inspecting = true;
+  inspectionCancelRequested = false;
+  setBusy(true);
+  updateInspectionIndicator({ active: true, browserReady: false, browserVisible: false });
+  try {
+    inspection = await window.kDownloader.inspect(albumUrl);
+    if (!inspection) {
+      setStatus("Inspection canceled");
+      return;
+    }
+    albumTitle.textContent = inspection.albumTitle;
+    updateFormatOptions();
+    setStatus("Preview ready", "success");
+  } catch (error) {
+    if (inspectionCancelRequested) setStatus("Inspection canceled");
+    else {
+      errorText.textContent = error instanceof Error ? error.message : String(error);
+      setStatus("Inspection failed", "error");
+    }
+  } finally {
+    inspecting = false;
+    inspectionCancelRequested = false;
+    updateInspectionIndicator({ active: false, browserReady: false, browserVisible: false });
+    setBusy(false);
+    if (inspection) renderTracks();
+  }
+});
+
+inspectionIndicator.addEventListener("click", async () => {
+  if (inspectionIndicator.disabled) return;
+  try {
+    inspectionBrowserVisible = await window.kDownloader.toggleInspectionBrowser();
+    inspectionIndicator.setAttribute("aria-pressed", String(inspectionBrowserVisible));
+    inspectionIndicatorText.textContent = inspectionBrowserVisible ? "Hide browser" : "Show browser";
+  } catch (error) {
+    errorText.textContent = error instanceof Error ? error.message : String(error);
+  }
+});
+
+window.kDownloader.onInspectionState(updateInspectionIndicator);
+
+browseButton.addEventListener("click", async () => {
+  const selected = await window.kDownloader.chooseOutput();
+  if (selected) outputInput.value = selected;
+});
+
+formatSelect.addEventListener("change", () => {
+  skipInput.disabled = busy || formatSelect.value === "prefer-lossless";
+  renderTracks();
+});
+discLabelSelect.addEventListener("change", renderTracks);
+skipInput.addEventListener("change", renderTracks);
+
+downloadButton.addEventListener("click", async () => {
+  if (!inspection) return;
+  errorText.textContent = "";
+  progress.value = 0;
+  progressText.textContent = "Preparing album";
+  setBusy(true);
+  setStatus("Downloading", "working");
+  try {
+    const result = await window.kDownloader.download({
+      policy: currentPolicy(),
+      outputRoot: outputInput.value,
+      discLabel: discLabelSelect.value === "Disc" ? "Disc" : "CD",
+    });
+    progress.value = inspection.trackCount;
+    progress.max = inspection.trackCount;
+    progressText.textContent = `${result.state} · ${result.directory}`;
+    setStatus(result.state === "complete" ? "Download complete" : result.state, result.state === "complete" ? "success" : "error");
+  } catch (error) {
+    errorText.textContent = error instanceof Error ? error.message : String(error);
+    setStatus("Download failed", "error");
+  } finally {
+    setBusy(false);
+  }
+});
+
+cancelButton.addEventListener("click", async () => {
+  cancelButton.disabled = true;
+  const cancelingInspection = inspecting;
+  if (cancelingInspection) {
+    inspectionCancelRequested = true;
+    inspectionIndicator.disabled = true;
+    inspectionIndicatorText.textContent = "Canceling…";
+  } else setStatus("Canceling active track…", "working");
+  try {
+    await window.kDownloader.cancel();
+  } catch (error) {
+    errorText.textContent = error instanceof Error ? error.message : String(error);
+    inspectionCancelRequested = false;
+    cancelButton.disabled = !busy;
+  }
+});
+
+window.kDownloader.onProgress((event: GuiProgress) => {
+  progress.max = event.totalTracks;
+  progress.value = event.completedTracks;
+  progressText.textContent = event.stage === "track-start"
+    ? `Downloading ${String(event.number).padStart(2, "0")} · ${event.title}`
+    : event.stage === "track-complete"
+      ? `Completed ${event.completedTracks} of ${event.totalTracks} tracks`
+      : event.stage === "track-failed"
+        ? `Failed ${String(event.number).padStart(2, "0")} · ${event.title}`
+        : "Canceled";
+});
+
+void window.kDownloader.defaultOutputRoot().then((value) => { outputInput.value = value; });
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **styles.css**</summary>
+
+@@ lines 1-266 @@
+
+```
+:root {
+  color-scheme: dark;
+  --ink: #e8efec;
+  --muted: #91a09b;
+  --dim: #60716b;
+  --line: #2c3a35;
+  --panel: #17211d;
+  --panel-raised: #1d2a25;
+  --ground: #101715;
+  --mint: #b3f06c;
+  --mint-dark: #83bd42;
+  --coral: #f28568;
+  --blue: #80bac5;
+  --field: #101815;
+  --hover: #293630;
+  --accent-text: #152018;
+  --warning: #d5b675;
+  --close-hover: #c94343;
+  --shadow: rgba(0, 0, 0, .38);
+  font-family: "DejaVu Sans", "Noto Sans", sans-serif;
+  color: var(--ink);
+  background: var(--ground);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+:root[data-mode="light"] {
+  color-scheme: light;
+  --ink: #202b26;
+  --muted: #52635b;
+  --dim: #5d6e66;
+  --line: #ced9d2;
+  --panel: #ffffff;
+  --panel-raised: #eaf0ec;
+  --ground: #f3f6f4;
+  --field: #ffffff;
+  --hover: #dde7e1;
+  --mint: #356a19;
+  --mint-dark: #356a19;
+  --accent-text: #ffffff;
+  --coral: #b33f2c;
+  --blue: #286b79;
+  --warning: #855c10;
+  --shadow: rgba(26, 42, 32, .16);
+}
+
+:root[data-theme="ocean"] { --mint: #76dbd3; --mint-dark: #76dbd3; }
+:root[data-theme="amber"] { --mint: #f0cd72; --mint-dark: #f0cd72; }
+:root[data-theme="rose"] { --mint: #f4a2bd; --mint-dark: #f4a2bd; }
+:root[data-theme="monochrome"] { --mint: #d3d9dd; --mint-dark: #d3d9dd; }
+:root[data-mode="light"][data-theme="ocean"] { --mint: #006c68; --mint-dark: #006c68; }
+:root[data-mode="light"][data-theme="amber"] { --mint: #805c05; --mint-dark: #805c05; }
+:root[data-mode="light"][data-theme="rose"] { --mint: #a03058; --mint-dark: #a03058; }
+:root[data-mode="light"][data-theme="monochrome"] { --mint: #46515a; --mint-dark: #46515a; }
+:root[data-theme="ocean"], :root[data-theme="amber"], :root[data-theme="rose"], :root[data-theme="monochrome"] {
+  --ink: #e9ecee;
+  --muted: #a0a8ad;
+  --dim: #929da4;
+  --line: #363c40;
+  --panel: #1c2023;
+  --panel-raised: #282d31;
+  --ground: #141719;
+  --field: #171b1e;
+  --hover: #353c41;
+  --accent-text: #161c20;
+}
+:root[data-mode="light"][data-theme="ocean"], :root[data-mode="light"][data-theme="amber"], :root[data-mode="light"][data-theme="rose"], :root[data-mode="light"][data-theme="monochrome"] {
+  --ink: #242a2e;
+  --muted: #566169;
+  --dim: #5b6770;
+  --line: #ced5da;
+  --panel: #ffffff;
+  --panel-raised: #edf0f2;
+  --ground: #f5f6f7;
+  --field: #ffffff;
+  --hover: #e0e6ea;
+  --accent-text: #ffffff;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-width: 0;
+  height: 100vh;
+  overflow: hidden;
+  background:
+    linear-gradient(115deg, color-mix(in srgb, var(--mint) 5%, transparent), transparent 44%),
+    var(--ground);
+}
+button, input, textarea, select { font: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: .42; }
+
+.app-shell { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+.topbar { height: 46px; flex: 0 0 46px; padding: 0 0 0 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); background: var(--panel); -webkit-app-region: drag; user-select: none; }
+.brand-lockup { height: 100%; display: flex; align-items: center; gap: 9px; }
+.app-icon { width: 23px; height: 23px; display: grid; place-items: center; background: var(--mint); color: var(--accent-text); font-size: 15px; font-weight: 800; clip-path: polygon(0 0, 100% 0, 100% 72%, 72% 100%, 0 100%); }
+.brand-name { font-size: 12px; font-weight: 800; }
+.titlebar-actions { height: 100%; display: flex; align-items: stretch; -webkit-app-region: no-drag; }
+.more-menu-wrap { position: relative; height: 100%; }
+.window-controls { height: 100%; display: flex; -webkit-app-region: no-drag; }
+.window-control { width: 46px; height: 100%; display: grid; place-items: center; border: 0; border-radius: 0; color: var(--muted); background: transparent; }
+.window-control:hover { color: var(--ink); background: var(--hover); }
+.window-control.close-control:hover { color: white; background: var(--close-hover); }
+.window-control svg { width: 14px; height: 14px; stroke-width: 1.6; }
+.window-control:focus-visible { outline: 1px solid var(--mint); outline-offset: -3px; }
+.more-menu { position: absolute; z-index: 20; top: calc(100% + 5px); right: 0; width: 224px; padding: 5px; border: 1px solid var(--line); border-radius: 4px; background: var(--panel-raised); box-shadow: 0 12px 28px var(--shadow); }
+.more-menu[hidden] { display: none; }
+.more-menu-item { width: 100%; min-height: 36px; padding: 0 9px; display: flex; align-items: center; gap: 10px; border: 0; border-radius: 2px; color: var(--ink); background: transparent; text-align: left; font-size: 11px; }
+.more-menu-item:hover, .more-menu-item:focus-visible { background: var(--hover); outline: none; }
+.more-menu-item svg { width: 15px; height: 15px; color: var(--muted); stroke-width: 1.7; }
+.more-menu-item kbd { margin-left: auto; color: var(--muted); font-family: "DejaVu Sans Mono", monospace; font-size: 9px; }
+.more-menu-separator { margin: 5px 4px; border-top: 1px solid var(--line); }
+.more-menu-info { min-height: 32px; padding: 0 9px; display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--muted); font-size: 10px; }
+#menu-app-version { font-family: "DejaVu Sans Mono", monospace; }
+.brand-subtitle, .eyebrow, .section-index, .mode-label, .progress-label, .app-footer { font-family: "DejaVu Sans Mono", monospace; letter-spacing: 0; }
+.brand-subtitle { margin-top: 3px; color: var(--dim); font-size: 9px; }
+.mode-label { display: flex; align-items: center; gap: 9px; color: var(--muted); font-size: 11px; }
+.mode-dot { width: 7px; height: 7px; background: var(--mint); border-radius: 50%; }
+
+.workspace { width: min(1440px, 100%); margin: 0 auto; padding: 28px 32px 24px; flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(300px, 370px) minmax(380px, 1fr); grid-template-rows: minmax(0, 1fr); gap: 18px; overflow: hidden; }
+.workspace[hidden], .settings-view[hidden] { display: none; }
+.settings-view { width: min(1440px, 100%); flex: 1; min-height: 0; margin: 0 auto; padding: 28px 32px 24px; overflow: auto; }
+.settings-header { min-height: 56px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); }
+.settings-header h1 { margin: 0; font-size: 18px; }
+.settings-close-button { min-height: 34px; padding: 0 10px; display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 3px; color: var(--ink); background: var(--panel-raised); font-size: 11px; }
+.settings-close-button:hover { border-color: var(--blue); background: var(--hover); }
+.settings-close-button svg { width: 15px; height: 15px; }
+.control-panel, .results-panel { border: 1px solid var(--line); background: linear-gradient(155deg, var(--panel-raised), var(--panel) 65%); }
+.control-panel { padding: 24px; align-self: start; max-height: 100%; min-height: 0; overflow: auto; }
+.section-heading { display: flex; align-items: baseline; gap: 10px; margin: 0 0 18px; }
+.section-heading h1, .section-heading h2 { margin: 0; font-size: 14px; font-weight: 700; }
+.section-index { color: var(--mint); font-size: 10px; }
+label { display: block; color: var(--ink); font-size: 11px; font-weight: 700; margin: 0 0 8px; }
+textarea, input[type="text"], select { width: 100%; border: 1px solid var(--line); border-radius: 3px; color: var(--ink); background: var(--field); outline: none; }
+textarea { min-height: 88px; resize: vertical; padding: 12px; font-family: "DejaVu Sans Mono", monospace; font-size: 11px; line-height: 1.7; }
+input[type="text"], select { min-height: 38px; padding: 0 10px; font-size: 11px; }
+textarea:focus, input[type="text"]:focus, select:focus { border-color: var(--mint-dark); box-shadow: 0 0 0 2px color-mix(in srgb, var(--mint) 15%, transparent); }
+.microcopy { margin: 7px 0 0; color: var(--dim); font-size: 10px; line-height: 1.5; }
+.destination-heading { margin-top: 25px; }
+.format-heading { margin-top: 25px; }
+.path-control { display: flex; gap: 7px; }
+.path-control input { min-width: 0; font-family: "DejaVu Sans Mono", monospace; font-size: 10px; }
+.icon-button { width: 40px; flex: 0 0 40px; border: 1px solid var(--line); border-radius: 3px; color: var(--mint); background: var(--panel-raised); }
+.icon-button svg, .primary-button svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; vertical-align: middle; }
+.check-row { display: flex; align-items: center; gap: 8px; margin-top: 11px; color: var(--muted); font-size: 10px; font-weight: 500; }
+.check-row input { accent-color: var(--mint-dark); }
+.disc-label-setting { margin-top: 14px; }
+.action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 24px; }
+.primary-button, .secondary-button { min-height: 41px; border-radius: 3px; font-size: 11px; font-weight: 800; }
+.primary-button { display: flex; justify-content: center; align-items: center; gap: 8px; border: 1px solid var(--mint); color: var(--accent-text); background: var(--mint); }
+.primary-button:hover:not(:disabled) { background: color-mix(in srgb, var(--mint) 88%, var(--ink)); }
+.secondary-button { border: 1px solid var(--line); color: var(--ink); background: var(--panel-raised); }
+.secondary-button:hover:not(:disabled) { border-color: var(--blue); }
+.cancel-button { display: block; margin: 10px 0 0 auto; padding: 5px 0; border: 0; color: var(--coral); background: transparent; font-size: 10px; }
+.error-text { min-height: 0; margin: 10px 0 0; color: var(--coral); font-size: 11px; line-height: 1.5; overflow-wrap: anywhere; }
+
+.results-panel { min-width: 0; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+.results-header, .status-strip, .inspection-indicator, .progress-footer { flex-shrink: 0; }
+.results-header { padding: 23px 24px 18px; display: flex; justify-content: space-between; align-items: end; border-bottom: 1px solid var(--line); }
+.eyebrow { color: var(--mint); font-size: 9px; }
+.results-header h2 { margin: 7px 0 0; font-size: 17px; line-height: 1.35; }
+.track-count { padding: 6px 8px; border: 1px solid var(--line); color: var(--muted); font-family: "DM Mono", monospace; font-size: 10px; white-space: nowrap; }
+.status-strip { min-height: 39px; display: flex; align-items: center; gap: 9px; padding: 0 24px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 10px; }
+.status-strip[hidden] { display: none; }
+.status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--dim); }
+.status-dot[data-tone="working"] { background: var(--blue); box-shadow: 0 0 0 4px color-mix(in srgb, var(--blue) 12%, transparent); }
+.status-dot[data-tone="success"] { background: var(--mint); }
+.status-dot[data-tone="error"] { background: var(--coral); }
+.inspection-indicator { width: 100%; min-height: 42px; padding: 0 24px; display: flex; align-items: center; gap: 9px; border: 0; border-bottom: 1px solid var(--line); color: var(--blue); background: color-mix(in srgb, var(--blue) 7%, transparent); text-align: left; font-size: 10px; }
+.inspection-indicator[hidden] { display: none; }
+.inspection-indicator:disabled { opacity: 1; }
+.inspection-spinner { width: 14px; height: 14px; flex: 0 0 14px; animation: inspection-spin .9s linear infinite; }
+@keyframes inspection-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .inspection-spinner { animation: none; } }
+.inspection-indicator:not(:disabled):hover { background: color-mix(in srgb, var(--blue) 13%, transparent); }
+.inspection-indicator-action { margin-left: auto; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+.empty-state { min-height: 0; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 36px; text-align: center; }
+.empty-state[hidden] { display: none; }
+.empty-glyph { height: 36px; display: flex; align-items: end; gap: 4px; margin-bottom: 18px; }
+.empty-glyph span { width: 5px; height: 16px; background: var(--mint-dark); opacity: .6; }
+.empty-glyph span:nth-child(2) { height: 30px; background: var(--blue); opacity: .8; }
+.empty-glyph span:nth-child(3) { height: 22px; background: var(--coral); opacity: .75; }
+.empty-title { font-size: 13px; font-weight: 700; }
+.empty-note { max-width: 250px; margin-top: 8px; color: var(--dim); font-size: 10px; line-height: 1.6; }
+.table-wrap { min-height: 0; flex: 1; overflow: auto; }
+table { width: 100%; border-collapse: collapse; text-align: left; font-size: 10px; }
+thead { position: sticky; top: 0; z-index: 1; background: var(--panel-raised); }
+th { padding: 10px 9px; color: var(--muted); font-family: "DM Mono", monospace; font-size: 9px; font-weight: 400; }
+td { padding: 9px; border-top: 1px solid var(--line); }
+tbody tr:hover { background: var(--hover); }
+.track-number { width: 42px; color: var(--dim); font-family: "DejaVu Sans Mono", monospace; }
+.track-title { min-width: 120px; font-weight: 700; }
+.track-formats { color: var(--muted); }
+.track-choice { color: var(--mint); font-family: "DejaVu Sans Mono", monospace; }
+.track-state { color: var(--muted); white-space: nowrap; }
+.track-state[data-state="unavailable"] { color: var(--coral); }
+.track-state[data-state="skipped"] { color: var(--warning); }
+.progress-footer { padding: 14px 24px 18px; border-top: 1px solid var(--line); }
+.progress-label { display: flex; justify-content: space-between; gap: 14px; margin-bottom: 9px; color: var(--dim); font-size: 9px; }
+#progress-text { color: var(--muted); text-align: right; overflow-wrap: anywhere; }
+progress { width: 100%; height: 4px; border: 0; border-radius: 0; appearance: none; }
+progress::-webkit-progress-bar { background: var(--line); }
+progress::-webkit-progress-value { background: linear-gradient(90deg, var(--blue), var(--mint)); }
+.app-footer { flex: 0 0 40px; min-height: 40px; padding: 0 32px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--line); color: var(--dim); font-size: 9px; }
+
+.appearance-section { max-width: 660px; padding: 28px 0; }
+.appearance-section h2 { margin: 0 0 24px; font-size: 15px; }
+.appearance-setting { margin: 0 0 28px; padding: 0; border: 0; }
+.appearance-setting legend { margin-bottom: 12px; font-size: 12px; font-weight: 700; }
+.mode-options { display: inline-flex; padding: 3px; border: 1px solid var(--line); border-radius: 4px; background: var(--panel); }
+.mode-options label { position: relative; margin: 0; cursor: pointer; }
+.mode-options input, .theme-options input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.mode-options span { min-width: 92px; min-height: 36px; display: grid; place-items: center; border-radius: 2px; color: var(--muted); }
+.mode-options input:checked + span { background: var(--mint); color: var(--accent-text); }
+.mode-options input:focus-visible + span { outline: 2px solid var(--blue); outline-offset: 2px; }
+.theme-options { display: flex; flex-wrap: wrap; gap: 12px; }
+.theme-options label { position: relative; min-width: 90px; display: flex; align-items: center; gap: 9px; margin: 0; padding: 8px 4px; cursor: pointer; }
+.theme-swatch { flex: 0 0 24px; width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--line); }
+.swatch-mint { background: #b3f06c; }
+.swatch-ocean { background: #76dbd3; }
+.swatch-amber { background: #f0cd72; }
+.swatch-rose { background: #f4a2bd; }
+.swatch-monochrome { background: #d3d9dd; }
+:root[data-mode="light"] .swatch-mint { background: #356a19; }
+:root[data-mode="light"] .swatch-ocean { background: #006c68; }
+:root[data-mode="light"] .swatch-amber { background: #805c05; }
+:root[data-mode="light"] .swatch-rose { background: #a03058; }
+:root[data-mode="light"] .swatch-monochrome { background: #46515a; }
+.theme-options input:checked + .theme-swatch { outline: 2px solid var(--mint); outline-offset: 3px; }
+.theme-options input:focus-visible + .theme-swatch { outline: 2px solid var(--blue); outline-offset: 3px; }
+
+.changelog-drawer { position: fixed; z-index: 15; top: 46px; right: 0; bottom: 40px; width: 32vw; min-width: min(260px, 40vw); max-width: 40vw; display: flex; flex-direction: column; border-left: 1px solid var(--line); background: var(--panel); box-shadow: -10px 0 24px var(--shadow); transform: translateX(100%); visibility: hidden; transition: transform .2s ease, visibility .2s; }
+.changelog-drawer[data-open="true"] { transform: translateX(0); visibility: visible; }
+.changelog-resize { position: absolute; left: -4px; top: 0; bottom: 0; width: 8px; cursor: ew-resize; touch-action: none; }
+.changelog-resize:hover, .changelog-resize:focus-visible { background: color-mix(in srgb, var(--mint) 30%, transparent); outline: none; }
+.changelog-header { flex: 0 0 58px; display: flex; align-items: center; justify-content: space-between; padding: 0 18px; border-bottom: 1px solid var(--line); }
+.changelog-header h2 { margin: 0; font-size: 15px; }
+.drawer-close-button { width: 32px; height: 32px; display: grid; place-items: center; border: 0; color: var(--ink); background: transparent; }
+.drawer-close-button:hover { background: var(--hover); }
+.drawer-close-button svg { width: 16px; height: 16px; }
+.changelog-content { flex: 1; min-height: 0; overflow: auto; padding: 16px 22px; font-size: 12px; line-height: 1.7; overflow-wrap: anywhere; }
+.changelog-content h1 { font-size: 18px; margin-top: 0; }
+.changelog-content h2 { font-size: 15px; }
+.changelog-content h3 { font-size: 13px; color: var(--mint); }
+.changelog-content ul { padding-left: 18px; }
+.changelog-content li { margin: 6px 0; }
+.changelog-content a { color: var(--mint); }
+.changelog-content pre { overflow: auto; }
+@media (prefers-reduced-motion: reduce) { .changelog-drawer { transition: none; } }
+
+@media (max-width: 720px) {
+  .workspace { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, .9fr) minmax(0, 1.1fr); padding: 12px; }
+  .control-panel { width: 100%; }
+  .settings-view { padding: 16px; }
+  .settings-header { gap: 12px; }
+  .app-footer { padding: 0 12px; gap: 8px; }
+}
+
+@media (min-width: 721px) and (max-width: 920px) {
+  .workspace { grid-template-columns: minmax(260px, 320px) minmax(360px, 1fr); padding: 18px; gap: 12px; }
+  .control-panel { padding: 18px; }
+  .results-header, .status-strip, .progress-footer { padding-left: 16px; padding-right: 16px; }
+  th, td { padding-left: 7px; padding-right: 7px; }
+}
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **window-state.test.ts**</summary>
+
+@@ lines 1-112 @@
+
+```
+import { describe, expect, it } from "vitest";
+import { centeredBounds, parseWindowState, startupBounds } from "../src/electron/window-state.js";
+import { _electron as electron } from "playwright";
+import { createRequire } from "node:module";
+import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { resolve } from "node:path";
+
+const screen = { x: 0, y: 0, width: 1920, height: 1080 };
+
+describe("window geometry", () => {
+  it("centers the default development size", () => {
+    expect(centeredBounds(screen)).toEqual({ x: 400, y: 150, width: 1120, height: 780 });
+  });
+  it("rejects malformed state and preserves valid bounds", () => {
+    expect(parseWindowState("bad")).toBeUndefined();
+    expect(parseWindowState('{"bounds":{"x":0}}')).toBeUndefined();
+    const state = { bounds: { x: 50, y: 60, width: 900, height: 700 }, maximized: true };
+    expect(startupBounds(parseWindowState(JSON.stringify(state)), [screen])).toEqual(state.bounds);
+  });
+  it("recenters off-screen state and clamps partly visible windows", () => {
+    expect(startupBounds({ bounds: { x: 3000, y: 2000, width: 900, height: 700 }, maximized: false }, [screen])).toEqual(centeredBounds(screen));
+    expect(startupBounds({ bounds: { x: 1800, y: 900, width: 900, height: 700 }, maximized: false }, [screen])).toEqual({ x: 1020, y: 380, width: 900, height: 700 });
+  });
+});
+
+describe("desktop More menu and zoom", () => {
+  it("renders and resizes the changelog, zooms, and persists window bounds", async () => {
+    const userData = await mkdtemp(resolve(tmpdir(), "k-downloader-window-test-"));
+    const require = createRequire(import.meta.url);
+    const launch = () => electron.launch({
+      executablePath: require("electron"),
+      args: [resolve("dist/electron/main.cjs"), `--user-data-dir=${userData}`],
+      env: { ...process.env, XDG_CURRENT_DESKTOP: "Test" },
+    });
+    let app = await launch();
+    try {
+      let page = await app.firstWindow();
+      page.setDefaultTimeout(5_000);
+      await page.waitForFunction(() => document.documentElement.dataset.mode);
+      await page.getByRole("button", { name: "More options", exact: true }).click();
+      expect((await page.getByRole("menuitem").allTextContents()).map((text) => text.replace(/\s+/g, " ").trim())).toEqual([
+        "Restore Size/Position", "Settings Ctrl+,", "Changelog",
+      ]);
+      const manifest = JSON.parse(await readFile(resolve("package.json"), "utf8"));
+      expect(await page.locator("#menu-app-version").textContent()).toBe(manifest.version);
+      expect(await page.locator(".more-menu-info").innerText()).toContain("K-Downloader");
+      expect(await page.locator(".more-menu-separator").isVisible()).toBe(true);
+      await page.getByRole("menuitem", { name: "Changelog", exact: true }).click();
+      await page.locator("#changelog-drawer").waitFor({ state: "visible" });
+      await page.waitForFunction(() => new DOMMatrixReadOnly(getComputedStyle(document.querySelector("#changelog-drawer")!).transform).m41 === 0);
+      expect(await page.locator("#changelog-content").innerText()).toContain("Persistent window size");
+      await page.getByRole("separator", { name: "Changelog panel width" }).focus();
+      await page.keyboard.press("End");
+      expect(await page.locator("#changelog-drawer").evaluate((element) => element.getBoundingClientRect().width / innerWidth)).toBeCloseTo(.4, 2);
+      const handle = await page.locator("#changelog-resize").boundingBox();
+      if (!handle) throw new Error("Changelog resize handle is not visible");
+      await page.mouse.move(handle.x + handle.width / 2, handle.y + 40);
+      await page.mouse.down();
+      await page.mouse.move(1, handle.y + 40);
+      await page.mouse.up();
+      expect(await page.locator("#changelog-drawer").evaluate((element) => element.getBoundingClientRect().width / innerWidth)).toBeCloseTo(.4, 2);
+      await page.screenshot({ path: "/tmp/k-downloader-changelog.png" });
+      await page.keyboard.press("Escape");
+      expect(await page.locator("#changelog-drawer").getAttribute("data-open")).toBe("false");
+      await page.getByRole("button", { name: "More options", exact: true }).click();
+      await page.getByRole("menuitem", { name: "Changelog", exact: true }).click();
+      await page.getByRole("button", { name: "Close changelog", exact: true }).click();
+      const zoom = () => app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].webContents.getZoomFactor());
+      await page.keyboard.press("Control+Equal");
+      await expect.poll(zoom).toBeCloseTo(1.1);
+      await page.keyboard.press("Control+Minus");
+      await expect.poll(zoom).toBeCloseTo(1);
+      await page.keyboard.down("Control");
+      await page.mouse.wheel(0, -100);
+      await page.keyboard.up("Control");
+      await expect.poll(zoom).toBeCloseTo(1.1);
+      await page.keyboard.press("Control+0");
+      await expect.poll(zoom).toBe(1);
+      const moved = await app.evaluate(({ BrowserWindow }) => {
+        const window = BrowserWindow.getAllWindows()[0];
+        window.setBounds({ x: 80, y: 90, width: 900, height: 700 });
+        return window.getBounds();
+      });
+      const closing = app.waitForEvent("close");
+      await page.getByRole("button", { name: "Close window", exact: true }).click();
+      await closing;
+      expect(JSON.parse(await readFile(resolve(userData, "window-state.json"), "utf8")).bounds).toEqual(moved);
+      app = await launch();
+      page = await app.firstWindow();
+      await page.waitForFunction(() => document.documentElement.dataset.mode);
+      expect(await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].getBounds())).toEqual(moved);
+      await page.keyboard.press("Control+Comma");
+      expect(await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].getBounds())).toEqual(moved);
+      await page.keyboard.press("Escape");
+      await page.getByRole("button", { name: "Maximize window", exact: true }).click();
+      await expect.poll(() => app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].isMaximized())).toBe(true);
+      await page.getByRole("button", { name: "More options", exact: true }).click();
+      await page.getByRole("menuitem", { name: "Restore Size/Position", exact: true }).click();
+      await expect.poll(() => app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].isMaximized())).toBe(false);
+      const restored = await app.evaluate(({ BrowserWindow, screen }) => {
+        const window = BrowserWindow.getAllWindows()[0];
+        return { bounds: window.getBounds(), area: screen.getDisplayMatching(window.getBounds()).workArea };
+      });
+      expect(restored.bounds).toEqual(centeredBounds(restored.area));
+    } finally {
+      await app.close();
+      await rm(userData, { recursive: true, force: true });
+    }
+  }, 30_000);
+});
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm test -- tests/window-state.test.ts && npm run build`
+
+Verify the exact More menu order, separator, and package-derived version in Electron, then type-check.
+
+```bash
+npm test -- tests/window-state.test.ts && npm run build
+```
+
+**Result:**
+
+```
+
+> k-downloader@0.1.0 pretest
+> npm run build:gui
+
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+
+> k-downloader@0.1.0 test
+> vitest run tests/window-state.test.ts
+
+
+ RUN  v5.0.4 /home/kel/dev/K-Downloader
+
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  12:29:12
+   Duration  3.52s (tests 89%, import 10%, transform 1%)
+
+
+> k-downloader@0.1.0 build
+> tsc --noEmit
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The Electron test confirms the requested order and the footer shows **K-Downloader 0.1.0**, taken from the package manifest. The build passes. I’ll leave the current GUI running so I don’t interrupt any inspection or download; the menu update will appear after reopening it.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="get_errors"><details>
+<summary>Tool use: **get_errors**</summary>
+
+Checked `renderer.ts`, `styles.css`, `window-state.test.ts`, no problems found
+
+**Input:**
+
+- filePaths:
+
+```
+[
+  "/home/kel/dev/K-Downloader/src/renderer.ts",
+  "/home/kel/dev/K-Downloader/gui/styles.css",
+  "/home/kel/dev/K-Downloader/tests/window-state.test.ts"
+]
+```
+
+
+**Result:**
+
+```
+<errors path="/home/kel/dev/K-Downloader/src/renderer.ts">
+No errors found
+</errors>
+<errors path="/home/kel/dev/K-Downloader/gui/styles.css">
+No errors found
+</errors>
+<errors path="/home/kel/dev/K-Downloader/tests/window-state.test.ts">
+No errors found
+</errors>
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+Updated the More menu to:
+
+1. Restore Size/Position
+2. Settings
+3. Changelog
+4. Separator
+5. K-Downloader 0.1.0
+
+The version comes from `package.json` during build. Electron tests and type-check pass. Reopen the GUI to see the update.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="task" data-tool-name="manage_todo_list"><details>
+<summary>Tool use: **manage_todo_list**</summary>
+
+Created 2 todos
+</details></tool-use>
+
+---
+
+_**User (2026-10-12 17:23:31Z)**_
+
+[Terminal a01edc98-8a8d-4d60-941f-ce3e1a7bfc47 notification: command completed. The terminal has been cleaned up.]
+Terminal output:
+kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+
+> k-downloader@0.1.0 gui
+> npm run build:gui && electron dist/electron/main.cjs
+
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+---
+
+_**Agent (copilot/auto)**_
+
+The previous GUI run has closed. The patch tool didn’t confirm whether the new regression test was saved, so I’ll check the touched files and run the focused Electron test.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="copilot_findTextInFiles"><details>
+<summary>Tool use: **copilot_findTextInFiles**</summary>
+
+No matches found. Your search pattern might be excluded completely by either the search.exclude settings or .*ignore files.
+If you believe that it should have results, you can check into the .*ignore files and the exclude setting (here are some excluded patterns for reference:[**/node_modules,**/bower_components,**/*.code-search,**/.dart_tool]).
+Then if you want to include those files you can call the tool again by setting "includeIgnoredFiles" to true.
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The GUI closed without reported errors. Run `npm run gui` to reopen it with the updated menu.
+
+---
+
+_**User (2026-10-12 17:28:33Z)**_
+
+in the More menu set the items in this order:
+Restore Size/Position
+Settings
+Changelog
+separator
+App Title and version (version taken from package.json versioon value)
+
+---
+
+_**Agent (copilot/auto)**_
+
+<think><details><summary>Thought Process</summary>
+I’ll check the changes since the last commit, update the changelog to match, then commit and push to `main`. I’ll keep editor-local folders and generated files out of the commit.
+</details></think>
+
+_**Agent (copilot/auto)**_
+
+I’ll check the changes since the last commit, update the changelog to match, then commit and push to . I’ll keep editor-local folders and generated files out of the commit.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="tool_search"><details>
+<summary>Tool use: **tool_search**</summary>
+
+**Input:**
+
+- query: `git status and git diff inspect pending working tree changes before staging committing and pushing`
+
+**Result:**
+
+```
+["mcp_gitkraken_cli_git_status","mcp_gitkraken_cli_git_stash","mcp_gitkraken_cli_git_worktree","mcp_gitkraken_cli_gitlens_launchpad","get_changed_files"]
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Read `changelog.md`
+
+**Input:**
+
+- endLine: `160`
+- filePath: `/home/kel/dev/K-Downloader/changelog.md`
+- startLine: `1`
+
+**Result:**
+
+```
+# Changelog
+
+## Unreleased
+
+### Added
+
+- Public KHInsider album discovery and sequential audio downloads.
+- CLI and desktop GUI with format previews and lossless selection policies.
+- Multi-disc output folders with CD and Disc labels.
+- Manifest-backed reruns and safe, non-overwriting file transfers.
+- Cancellable inspection with an animated indicator and browser visibility toggle.
+- Custom titlebar and More menu.
+- Settings with Light, Dark, and System appearance modes.
+- Mint, Ocean, Amber, Rose, and Monochrome color themes.
+- Cinnamon desktop appearance updates.
+- Persistent window size, position, and maximized state.
+- Restore Size/Position command and resizable changelog drawer.
+- Ctrl+0, Ctrl+minus, Ctrl+plus, and Ctrl+mousewheel zoom controls.
+
+### Fixed
+
+- Duplicate inspection status rows.
+- Empty preview space after discovery.
+- Statusbar visibility for long track lists.
+- Main-process exception when closing the window.
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Read `package.json`
+
+**Input:**
+
+- endLine: `75`
+- filePath: `/home/kel/dev/K-Downloader/package.json`
+- startLine: `1`
+
+**Result:**
+
+```
+{
+  "name": "k-downloader",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "build:gui": "node scripts/build-gui.mjs",
+    "gui": "npm run build:gui && electron dist/electron/main.cjs",
+    "inspect": "tsx src/cli.ts inspect",
+    "download": "tsx src/cli.ts download",
+    "pretest": "npm run build:gui",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "dompurify": "^3.4.17",
+    "lucide": "^1.55.0",
+    "marked": "^18.1.1",
+    "parse5": "^7.3.0",
+    "playwright": "^1.55.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "electron": "^44.7.0",
+    "esbuild": "^0.28.2",
+    "tsx": "^4.19.0",
+    "typescript": "^5.8.0",
+    "vitest": "^5.0.4"
+  }
+}
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="mcp_gitkraken_cli_git_status"><details>
+<summary>Tool use: **mcp_gitkraken_cli_git_status**</summary>
+
+Ran `git_status` 
+
+**Input:**
+
+- directory: `/home/kel/dev/K-Downloader`
+
+**Result:**
+
+```
+{"data":{"output":"On branch main\nYour branch is up to date with 'origin/main'.\n\nChanges not staged for commit:\n  (use \"git add \u003cfile\u003e...\" to update what will be committed)\n  (use \"git restore \u003cfile\u003e...\" to discard changes in working directory)\n\tmodified:   .specstory/history/2026-10-12_13-32-09Z-review-project-plan-md.md\n\tmodified:   README.md\n\tmodified:   gui/index.html\n\tmodified:   gui/styles.css\n\tmodified:   package-lock.json\n\tmodified:   package.json\n\tmodified:   scripts/build-gui.mjs\n\tmodified:   src/electron/main.ts\n\tmodified:   src/electron/preload.ts\n\tmodified:   src/gui-types.ts\n\tmodified:   src/khinsider.ts\n\tmodified:   src/renderer.ts\n\tmodified:   tests/appearance.test.ts\n\tmodified:   tests/khinsider.test.ts\n\nUntracked files:\n  (use \"git add \u003cfile\u003e...\" to include in what will be committed)\n\tchangelog.md\n\tsrc/changelog.ts\n\tsrc/electron/window-state.ts\n\ttests/window-state.test.ts\n\nno changes added to commit (use \"git add\" and/or \"git commit -a\")"}}
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The pending changes include the appearance work, custom menu, inspection cancellation, and window controls. There’s also a tracked session-history file; I’ll leave that unstaged. I’ll inspect the project diff before updating the changelog so it doesn’t list older features as new.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="tool_search"><details>
+<summary>Tool use: **tool_search**</summary>
+
+**Input:**
+
+- query: `Show git diff of working tree changes for specified project files and git log recent commits`
+
+**Result:**
+
+```
+["mcp_gitkraken_cli_git_log_or_diff","get_changed_files","mcp_gitkraken_cli_git_commit","mcp_gitkraken_cli_git_worktree","mcp_gitkraken_cli_git_graph"]
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="mcp_gitkraken_cli_git_log_or_diff"><details>
+<summary>Tool use: **mcp_gitkraken_cli_git_log_or_diff**</summary>
+
+Ran `git_log_or_diff` 
+
+**Input:**
+
+- action: `diff`
+- directory: `/home/kel/dev/K-Downloader`
+- revision_range: `HEAD -- README.md gui package.json scripts/build-gui.mjs src tests`
+
+**Result:**
+
+```
+git command failed: fatal: ambiguous argument 'HEAD -- README.md gui package.json scripts/build-gui.mjs src tests': unknown revision or path not in the working tree.
+details:
+fatal: ambiguous argument 'HEAD -- README.md gui package.json scripts/build-gui.mjs src tests': unknown revision or path not in the working tree.
+Use '--' to separate paths from revisions, like this:
+'git <command> [<revision>...] -- [<file>...]': exit status 128
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="mcp_gitkraken_cli_git_log_or_diff"><details>
+<summary>Tool use: **mcp_gitkraken_cli_git_log_or_diff**</summary>
+
+Ran `git_log_or_diff` 
+
+**Input:**
+
+- action: `log`
+- directory: `/home/kel/dev/K-Downloader`
+
+**Result:**
+
+```
+{"data":{"output":"a848177 feat: add appearance settings for light, dark, and system modes\n1783193 feat: add settings menu and more options to the titlebar\nd9623db Add VSCode configuration files for project setup\n550be98 Initial K-Downloader implementation"}}
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="task" data-tool-name="manage_todo_list"><details>
+<summary>Tool use: **manage_todo_list**</summary>
+
+Created 3 todos
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+Appearance and Settings already have their own commits, so the new changelog entries should focus on the later fixes and additions. The Git tool can’t filter a diff by file path, so I’ll use a path-scoped terminal diff for the relevant project files.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` git --no-pager diff --stat HEAD -- README.md gui package.json package-lock.j...`
+
+Inspect project-only change scope and main behavior changes without including the unrelated tracked conversation history.
+
+```bash
+git --no-pager diff --stat HEAD -- README.md gui package.json package-lock.json scripts/build-gui.mjs src tests && git --no-pager diff HEAD -- package.json src/khinsider.ts src/electron/main.ts
+```
+
+**Result:**
+
+```
+ README.md                |  18 ++++++++
+ gui/index.html           |  24 +++++++++-
+ gui/styles.css           |  57 +++++++++++++++++++-----
+ package-lock.json        |  30 +++++++++++++
+ package.json             |   2 +
+ scripts/build-gui.mjs    |   9 +++-
+ src/electron/main.ts     |  42 ++++++++++++++++--
+ src/electron/preload.ts  |   2 +
+ src/gui-types.ts         |   4 +-
+ src/khinsider.ts         |  19 +++++---
+ src/renderer.ts          |  95 +++++++++++++++++++++++++++++++---------
+ tests/appearance.test.ts | 112 ++++++++++++++++++++++++++++++++++++++++++++---
+ tests/khinsider.test.ts  |  64 ++++++++++++++++++++++++++-
+ 13 files changed, 427 insertions(+), 51 deletions(-)
+diff --git a/package.json b/package.json
+index f3ed758..3f7f3c4 100644
+--- a/package.json
++++ b/package.json
+@@ -16,7 +16,9 @@
+     "test": "vitest run"
+   },
+   "dependencies": {
++    "dompurify": "^3.4.17",
+     "lucide": "^1.55.0",
++    "marked": "^18.1.1",
+     "parse5": "^7.3.0",
+     "playwright": "^1.55.0"
+   },
+diff --git a/src/electron/main.ts b/src/electron/main.ts
+index 2b0ed3a..b245110 100644
+--- a/src/electron/main.ts
++++ b/src/electron/main.ts
+@@ -1,4 +1,6 @@
+-import { app, BrowserWindow, dialog, ipcMain, Menu, nativeTheme } from "electro
+n";
++import { app, BrowserWindow, dialog, ipcMain, Menu, nativeTheme, screen } from
+"electron";
++import { readFileSync, writeFileSync, renameSync } from "node:fs";
++import { centeredBounds, parseWindowState, startupBounds } from "./window-state
+.js";
+ import { monitorCinnamonTheme } from "./system-theme.js";
+ import { resolve } from "node:path";
+ import { downloadAlbum, type DownloadProgress } from "../downloader.js";
+@@ -82,6 +84,23 @@ function sendWindowState(window: BrowserWindow): void {
+ }
+ 
+ function registerIpc(): void {
++  ipcMain.handle("window:restore-bounds", (event) => {
++    const window = assertWindowSender(event.sender.id);
++    const area = screen.getDisplayMatching(window.getBounds()).workArea;
++    if (window.isFullScreen()) wi
+… (output truncated)
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The diff confirms the uncommitted work is inspection cancellation, the consolidated spinner/status row, fixed-height preview scrolling, saved window bounds, restore/zoom controls, and the changelog drawer/menu updates. I’ll add those details to the changelog and keep the app version at `0.1.0`; this isn’t a release bump.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **changelog.md**</summary>
+
+@@ lines 1-42 @@
+
+```
+# Changelog
+
+## Unreleased
+
+### Added
+
+- Public KHInsider album discovery and sequential audio downloads.
+- CLI and desktop GUI with format previews and lossless selection policies.
+- Multi-disc output folders with CD and Disc labels.
+- Manifest-backed reruns and safe, non-overwriting file transfers.
+- Cancel inspection during browser startup, navigation, or track scanning;
+	close the inspection browser and allow a fresh scan without an error.
+- Single animated inspection indicator with a browser visibility toggle.
+- Custom titlebar and More menu.
+- Settings with Light, Dark, and System appearance modes.
+- Mint, Ocean, Amber, Rose, and Monochrome color themes.
+- Cinnamon desktop appearance updates.
+- Persistent window size, position, and maximized state, with off-screen recovery
+	when monitor arrangements change.
+- Restore Size/Position command resets to 1120x780 and centers on the current monitor.
+- Right-side changelog drawer with drag and keyboard resizing up to 40% of the
+	window width, a close button, and Escape support.
+- Build-time changelog loading from the root changelog.md with sanitized Markdown rendering.
+- App title and version in the More menu, with the version read from package.json at build time.
+- Ctrl+0, Ctrl+minus, Ctrl+plus/equal, and Ctrl+mousewheel zoom controls, limited
+	to 50%-200% without changing saved window geometry.
+
+### Changed
+
+- More menu order: Restore Size/Position, Settings, Changelog, separator, app title/version.
+- Long Discovery Preview lists scroll inside the panel instead of expanding the app.
+- Setup and Settings content scroll independently while the bottom statusbar remains visible.
+
+### Fixed
+
+- Duplicate inspection status rows.
+- Empty preview space after discovery.
+- Statusbar visibility for long track lists.
+- Main-process exception when closing the window.
+- Inspection cancellation no longer produces an inspection-failure error or
+	leaves stale discovery results available for download.
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm test && npm run build && npm audit`
+
+Rebuild the embedded changelog and run the complete tests, type-check, and dependency audit before committing.
+
+```bash
+npm test && npm run build && npm audit
+```
+
+**Result:**
+
+```
+
+> k-downloader@0.1.0 pretest
+> npm run build:gui
+
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+
+> k-downloader@0.1.0 test
+> vitest run
+
+
+ RUN  v5.0.4 /home/kel/dev/K-Downloader
+
+
+ Test Files  7 passed (7)
+      Tests  31 passed (31)
+   Start at  12:48:32
+   Duration  3.66s (tests 83%, import 16%, worker 1%)
+
+
+> k-downloader@0.1.0 build
+> tsc --noEmit
+
+found 0 vulnerabilities
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The changelog is updated. All 31 tests pass, the TypeScript build is clean, and the audit reports zero vulnerabilities. I’ll stage only the project changes, leaving the 
+
+The changelog is updated. All 31 tests pass, the TypeScript build is clean, and the audit reports zero vulnerabilities. I’ll stage only the project changes, leaving the tracked session-history edit out, then commit and push.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="tool_search"><details>
+<summary>Tool use: **tool_search**</summary>
+
+**Input:**
+
+- query: `Stage selected files with git add and push committed changes to the configured Git remote`
+
+**Result:**
+
+```
+["mcp_gitkraken_cli_git_push","mcp_gitkraken_cli_git_stash","mcp_gitkraken_cli_git_commit","mcp_gitkraken_cli_git_add","mcp_gitkraken_cli_git_pull"]
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="mcp_gitkraken_cli_git_add"><details>
+<summary>Tool use: **mcp_gitkraken_cli_git_add**</summary>
+
+Ran `git_add` 
+
+**Input:**
+
+- directory: `/home/kel/dev/K-Downloader`
+- files:
+
+```
+[
+  "changelog.md",
+  "README.md",
+  "gui/index.html",
+  "gui/styles.css",
+  "package.json",
+  "package-lock.json",
+  "scripts/build-gui.mjs",
+  "src/changelog.ts",
+  "src/electron/window-state.ts",
+  "src/electron/main.ts",
+  "src/electron/preload.ts",
+  "src/gui-types.ts",
+  "src/khinsider.ts",
+  "src/renderer.ts",
+  "tests/appearance.test.ts",
+  "tests/khinsider.test.ts",
+  "tests/window-state.test.ts"
+]
+```
+
+
+**Result:**
+
+```
+{"data":{"output":""}}
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="mcp_gitkraken_cli_git_status"><details>
+<summary>Tool use: **mcp_gitkraken_cli_git_status**</summary>
+
+Ran `git_status` 
+
+**Input:**
+
+- directory: `/home/kel/dev/K-Downloader`
+
+**Result:**
+
+```
+{"data":{"output":"On branch main\nYour branch is up to date with 'origin/main'.\n\nChanges to be committed:\n  (use \"git restore --staged \u003cfile\u003e...\" to unstage)\n\tmodified:   README.md\n\tnew file:   changelog.md\n\tmodified:   gui/index.html\n\tmodified:   gui/styles.css\n\tmodified:   package-lock.json\n\tmodified:   package.json\n\tmodified:   scripts/build-gui.mjs\n\tnew file:   src/changelog.ts\n\tmodified:   src/electron/main.ts\n\tmodified:   src/electron/preload.ts\n\tnew file:   src/electron/window-state.ts\n\tmodified:   src/gui-types.ts\n\tmodified:   src/khinsider.ts\n\tmodified:   src/renderer.ts\n\tmodified:   tests/appearance.test.ts\n\tmodified:   tests/khinsider.test.ts\n\tnew file:   tests/window-state.test.ts\n\nChanges not staged for commit:\n  (use \"git add \u003cfile\u003e...\" to update what will be committed)\n  (use \"git restore \u003cfile\u003e...\" to discard changes in working directory)\n\tmodified:   .specstory/history/2026-10-12_13-32-09Z-review-project-plan-md.md"}}
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The staged list contains the 17 intended project files; the session-history change remains unstaged. I’ll create the commit now and push it to `origin/main`.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="mcp_gitkraken_cli_git_commit"><details>
+<summary>Tool use: **mcp_gitkraken_cli_git_commit**</summary>
+
+Ran `git_commit` 
+
+**Input:**
+
+- description: `Add restore and zoom controls, package-derived menu version, inspection cancellation, consolidated animated status, and viewport-bound scrolling. Update changelog and cover desktop workflows with regression tests.`
+- directory: `/home/kel/dev/K-Downloader`
+- message: `feat: add changelog drawer and persistent window controls`
+
+**Result:**
+
+```
+{"data":{"output":"[main 82c9d8d] feat: add changelog drawer and persistent window controls\n 17 files changed, 679 insertions(+), 51 deletions(-)\n create mode 100644 changelog.md\n create mode 100644 src/changelog.ts\n create mode 100644 src/electron/window-state.ts\n create mode 100644 tests/window-state.test.ts\n"}}
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="mcp_gitkraken_cli_git_push"><details>
+<summary>Tool use: **mcp_gitkraken_cli_git_push**</summary>
+
+Ran `git_push` 
+
+**Input:**
+
+- directory: `/home/kel/dev/K-Downloader`
+
+**Result:**
+
+```
+{"data":{"output":""}}
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="task" data-tool-name="manage_todo_list"><details>
+<summary>Tool use: **manage_todo_list**</summary>
+
+Completed: *Update the changelog* (1/3)
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="mcp_gitkraken_cli_git_status"><details>
+<summary>Tool use: **mcp_gitkraken_cli_git_status**</summary>
+
+Ran `git_status` 
+
+**Input:**
+
+- directory: `/home/kel/dev/K-Downloader`
+
+**Result:**
+
+```
+{"data":{"output":"On branch main\nYour branch is up to date with 'origin/main'.\n\nChanges not staged for commit:\n  (use \"git add \u003cfile\u003e...\" to update what will be committed)\n  (use \"git restore \u003cfile\u003e...\" to discard changes in working directory)\n\tmodified:   .specstory/history/2026-10-12_13-32-09Z-review-project-plan-md.md\n\nno changes added to commit (use \"git add\" and/or \"git commit -a\")"}}
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+Updated `changelog.md`, committed as `82c9d8d`, and pushed to `origin/main`.
+
+All 31 tests, build, and audit pass. The unrelated session-history change remains local and uncommitted.
+
+---
+
+_**User (2026-10-12 17:29:48Z)**_
+
+[Terminal 5b392e65-ce66-4481-bbf4-2b99bcb00b57 notification: command completed. The terminal has been cleaned up.]
+Terminal output:
+kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+
+> k-downloader@0.1.0 gui
+> npm run build:gui && electron dist/electron/main.cjs
+
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+---
+
+_**Agent (copilot/auto)**_
+
+I’ll add a Settings navigation rail with Appearance and Shortcuts, keeping the existing Appearance controls unchanged. I’ll check the implemented shortcuts first so the Shortcuts page lists what the app actually supports.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="search" data-tool-name="grep_search"><details>
+<summary>Tool use: **grep_search**</summary>
+
+Searched for regex `keydown|event.key|event.ctrlKey|settingsOpen|setSettingsOpen` (`**/src/{renderer,changelog}.ts`), 16 results
+
+**Input:**
+
+- includePattern: `src/{renderer,changelog}.ts`
+- isRegexp: `true`
+- query: `keydown|event.key|event.ctrlKey|settingsOpen|setSettingsOpen`
+
+**Result:**
+
+```
+Found 16 matches in 2 files for "keydown|event.key|event.ctrlKey|settingsOpen|setSettingsOpen"
+
+src/changelog.ts
+40:  resizeHandle.addEventListener("keydown", (event) => {
+41:    if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+44:    setWidth(event.key === "Home" ? 0 : event.key === "End" ? innerWidth : width + (event.key === "ArrowLeft" ? 20 : -20));
+
+src/renderer.ts
+56:let settingsOpen = false;
+74:function setSettingsOpen(open: boolean): void {
+75:  settingsOpen = open;
+200:settingsMenuItem.addEventListener("click", () => setSettingsOpen(true));
+209:closeSettingsButton.addEventListener("click", () => setSettingsOpen(false));
+213:document.addEventListener("keydown", (event) => {
+214:  if (event.ctrlKey && ["0", "-", "_", "=", "+"].includes(event.key)) {
+216:    const direction = event.key === "0" ? "reset" : ["-", "_"].includes(event.key) ? "out" : "in";
+218:  } else if ((event.ctrlKey || event.metaKey) && event.key === ",") {
+220:    setSettingsOpen(!settingsOpen);
+221:  } else if (event.key === "Escape") {
+226:    else if (settingsOpen) setSettingsOpen(false);
+230:  if (!event.ctrlKey || event.deltaY === 0) return;
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Read `index.html`, lines 145 to 182
+
+**Input:**
+
+- endLine: `245`
+- filePath: `/home/kel/dev/K-Downloader/gui/index.html`
+- startLine: `145`
+
+**Result:**
+
+```
+        </header>
+        <section class="appearance-section" aria-labelledby="appearance-heading">
+          <h2 id="appearance-heading">Appearance</h2>
+          <fieldset class="appearance-setting">
+            <legend>Mode</legend>
+            <div class="mode-options">
+              <label><input type="radio" name="appearance-mode" value="light" /><span>Light</span></label>
+              <label><input type="radio" name="appearance-mode" value="dark" /><span>Dark</span></label>
+              <label><input type="radio" name="appearance-mode" value="system" checked /><span>System</span></label>
+            </div>
+          </fieldset>
+          <fieldset class="appearance-setting">
+            <legend>Color theme</legend>
+            <div class="theme-options">
+              <label><input type="radio" name="color-theme" value="mint" checked /><span class="theme-swatch swatch-mint"></span><span>Mint</span></label>
+              <label><input type="radio" name="color-theme" value="ocean" /><span class="theme-swatch swatch-ocean"></span><span>Ocean</span></label>
+              <label><input type="radio" name="color-theme" value="amber" /><span class="theme-swatch swatch-amber"></span><span>Amber</span></label>
+              <label><input type="radio" name="color-theme" value="rose" /><span class="theme-swatch swatch-rose"></span><span>Rose</span></label>
+              <label><input type="radio" name="color-theme" value="monochrome" /><span class="theme-swatch swatch-monochrome"></span><span>Monochrome</span></label>
+            </div>
+          </fieldset>
+          <p id="appearance-storage-status" class="error-text" role="status"></p>
+        </section>
+      </section>
+      <aside id="changelog-drawer" class="changelog-drawer" data-open="false" aria-labelledby="changelog-heading" inert>
+        <div id="changelog-resize" class="changelog-resize" role="separator" tabindex="0" aria-label="Changelog panel width" aria-orientation="vertical" aria-valuemin="24" aria-va
+… (output truncated)
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="search" data-tool-name="grep_search"><details>
+<summary>Tool use: **grep_search**</summary>
+
+Searched for regex `settings-|appearance-|mode-options` (`**/gui/styles.css`), 19 results
+
+**Input:**
+
+- includePattern: `gui/styles.css`
+- isRegexp: `true`
+- query: `settings-|appearance-|mode-options`
+
+**Result:**
+
+```
+Found 19 matches in 1 file for "settings-|appearance-|mode-options"
+
+gui/styles.css
+122:.workspace[hidden], .settings-view[hidden] { display: none; }
+123:.settings-view { width: min(1440px, 100%); flex: 1; min-height: 0; margin: 0 auto; padding: 28px 32px 24px; overflow: auto; }
+124:.settings-header { min-height: 56px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); }
+125:.settings-header h1 { margin: 0; font-size: 18px; }
+126:.settings-close-button { min-height: 34px; padding: 0 10px; display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 3px; color: var(--ink); background: var(--panel-raised); font-size: 11px; }
+127:.settings-close-button:hover { border-color: var(--blue); background: var(--hover); }
+128:.settings-close-button svg { width: 15px; height: 15px; }
+207:.appearance-section { max-width: 660px; padding: 28px 0; }
+208:.appearance-section h2 { margin: 0 0 24px; font-size: 15px; }
+209:.appearance-setting { margin: 0 0 28px; padding: 0; border: 0; }
+210:.appearance-setting legend { margin-bottom: 12px; font-size: 12px; font-weight: 700; }
+211:.mode-options { display: inline-flex; padding: 3px; border: 1px solid var(--line); border-radius: 4px; background: var(--panel); }
+212:.mode-options label { position: relative; margin: 0; cursor: pointer; }
+213:.mode-options input, .theme-options input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+214:.mode-options span { min-width: 92px; min-height: 36px; display: grid; place-items: center; border-radius: 2px; color: var(--muted); }
+215:.mode-options input:checked + span { background: var(--mint); color: var(--accent-text); }
+216:.mode-options input:focus-visible + span { outline: 2px solid var(--blue); outline-offset: 2px; }
+255:  .settings-view { padding: 16px; }
+256:  .settings-header { gap: 12px; }
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Read `renderer.ts`, lines 1 to 106
+
+**Input:**
+
+- endLine: `106`
+- filePath: `/home/kel/dev/K-Downloader/src/renderer.ts`
+- startLine: `1`
+
+**Result:**
+
+```
+import type { GuiFormatPolicy, GuiInspection, GuiInspectionState, GuiProgress, GuiTrack } from "./gui-types.js";
+import { ArrowLeft, Copy, createIcons, EllipsisVertical, LoaderCircle, Minus, Scan, ScrollText, Settings, Square, X } from "lucide";
+import { initializeAppearance } from "./appearance.js";
+import { initializeChangelog } from "./changelog.js";
+
+declare const __APP_VERSION__: string;
+document.querySelector<HTMLElement>("#menu-app-version")!.textContent = __APP_VERSION__;
+
+initializeAppearance();
+
+const windowIcons = { ArrowLeft, Copy, EllipsisVertical, LoaderCircle, Minus, Scan, ScrollText, Settings, Square, X };
+createIcons({ icons: windowIcons });
+const changelog = initializeChangelog();
+
+const albumInput = document.querySelector<HTMLTextAreaElement>("#album-url")!;
+const outputInput = document.querySelector<HTMLInputElement>("#output-root")!;
+const formatSelect = document.querySelector<HTMLSelectElement>("#format-policy")!;
+const discLabelSelect = document.querySelector<HTMLSelectElement>("#disc-label")!;
+const discLabelSetting = document.querySelector<HTMLElement>("#disc-label-setting")!;
+const skipInput = document.querySelector<HTMLInputElement>("#skip-unavailable")!;
+const inspectButton = document.querySelector<HTMLButtonElement>("#inspect-button")!;
+const downloadButton = document.querySelector<HTMLButtonElement>("#download-button")!;
+const cancelButton = document.querySelector<HTMLButtonElement>("#cancel-button")!;
+const browseButton = document.querySelector<HTMLButtonElement>("#browse-button")!;
+const tableBody = document.querySelector<HTMLTableSectionElement>("#track-rows")!;
+const albumTitle = document.querySelector<HTMLElement>("#album-title")!;
+const trackCount = document.querySelector<HTMLElement>("#track-count")!;
+const statusText = document.querySelector<HTMLElement>("#status-text")!;
+const statusDot = document.querySelector<HTMLElement>("#status-dot")!;
+const statusStrip = document.querySelector<HTMLElement>(".status-strip")!;
+const inspect
+… (output truncated)
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The app currently supports Settings toggle, contextual Escape, zoom shortcuts, and keyboard resizing of the changelog. I’ll group those into a readable shortcut reference with keycaps. The Settings rail will default to Appearance, and both pages will stay mounted so switching between them preserves the existing controls and selections.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **index.html**</summary>
+
+@@ lines 1-224 @@
+
+```
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'" />
+    <title>K-Downloader</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script defer src="./renderer.js"></script>
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <div class="brand-lockup">
+          <div class="app-icon" aria-hidden="true">K</div>
+          <div class="brand-name">K-Downloader</div>
+        </div>
+        <div class="titlebar-actions">
+          <div id="more-menu-wrap" class="more-menu-wrap">
+            <button id="more-button" class="window-control more-button" type="button" aria-label="More options" title="More options" aria-haspopup="menu" aria-expanded="false">
+              <i data-lucide="ellipsis-vertical" aria-hidden="true"></i>
+            </button>
+            <div id="more-menu" class="more-menu" role="menu" aria-label="More options" hidden>
+              <button id="restore-bounds-menu-item" class="more-menu-item" type="button" role="menuitem">
+                <i data-lucide="scan" aria-hidden="true"></i>
+                <span>Restore Size/Position</span>
+              </button>
+              <button id="settings-menu-item" class="more-menu-item" type="button" role="menuitem">
+                <i data-lucide="settings" aria-hidden="true"></i>
+                <span>Settings</span>
+                <kbd>Ctrl+,</kbd>
+              </button>
+              <button id="changelog-menu-item" class="more-menu-item" type="button" role="menuitem">
+                <i data-lucide="scroll-text" aria-hidden="true"></i>
+                <span>Changelog</span>
+              </button>
+              <div class="more-menu-separator" role="separator"></div>
+              <div class="more-menu-info"><span>K-Downloader</span><span id="menu-app-version"></span></div>
+            </div>
+          </div>
+          <nav class="window-controls" aria-label="Window controls">
+          <button id="minimize-window" class="window-control" type="button" aria-label="Minimize window" title="Minimize">
+            <i data-lucide="minus" aria-hidden="true"></i>
+          </button>
+          <button id="maximize-window" class="window-control" type="button" aria-label="Maximize window" title="Maximize">
+            <i data-lucide="square" aria-hidden="true"></i>
+          </button>
+          <button id="close-window" class="window-control close-control" type="button" aria-label="Close window" title="Close">
+            <i data-lucide="x" aria-hidden="true"></i>
+          </button>
+          </nav>
+        </div>
+      </header>
+
+      <section id="workspace" class="workspace">
+        <aside class="control-panel" aria-label="Download setup">
+          <div class="section-heading"><span class="section-index">01</span><h1>Album source</h1></div>
+          <label for="album-url">KHInsider album URL</label>
+          <textarea id="album-url" rows="3" spellcheck="false" placeholder="https://downloads.khinsider.com/game-soundtracks/album/…"></textarea>
+          <div class="microcopy">Inspection opens a separate visible Chromium window. No login is used.</div>
+
+          <div class="section-heading destination-heading"><span class="section-index">02</span><h2>Destination</h2></div>
+          <label for="output-root">Save album under</label>
+          <div class="path-control">
+            <input id="output-root" type="text" spellcheck="false" />
+            <button id="browse-button" class="icon-button" type="button" aria-label="Choose download folder" title="Choose download folder">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 6.5h6l2 2H20a1 1 0 0 1 1 1v8.8a1.7 1.7 0 0 1-1.7 1.7H4.7A1.7 1.7 0 0 1 3 18.3V7a.5.5 0 0 1 .5-.5Z"/><path d="M12 12v5m-2.5-2.5h5"/></svg>
+            </button>
+          </div>
+
+          <div class="section-heading format-heading"><span class="section-index">03</span><h2>Format policy</h2></div>
+          <label for="format-policy">Choose source audio</label>
+          <select id="format-policy">
+            <option value="prefer-lossless">Prefer lossless</option>
+            <option value="lossless-only">Lossless only</option>
+          </select>
+          <label class="check-row" for="skip-unavailable">
+            <input id="skip-unavailable" type="checkbox" disabled />
+            <span>Skip tracks without the selected format</span>
+          </label>
+          <div id="disc-label-setting" class="disc-label-setting" hidden>
+            <label for="disc-label">Disc folder label</label>
+            <select id="disc-label">
+              <option value="CD">CD1, CD2, …</option>
+              <option value="Disc">Disc1, Disc2, …</option>
+            </select>
+          </div>
+
+          <div class="action-row">
+            <button id="inspect-button" class="secondary-button" type="button">Inspect album</button>
+            <button id="download-button" class="primary-button" type="button" disabled>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v11m0 0 4-4m-4 4-4-4M5 17v3h14v-3"/></svg>
+              Download
+            </button>
+          </div>
+          <button id="cancel-button" class="cancel-button" type="button" disabled>Cancel active download</button>
+          <p id="error-text" class="error-text" role="alert"></p>
+        </aside>
+
+        <section class="results-panel" aria-label="Album preview and progress">
+          <div class="results-header">
+            <div>
+              <div class="eyebrow">DISCOVERY PREVIEW</div>
+              <h2 id="album-title">No album inspected</h2>
+            </div>
+            <div class="track-count" id="track-count">Waiting</div>
+          </div>
+
+          <div class="status-strip">
+            <span id="status-dot" class="status-dot" data-tone="idle"></span>
+            <span id="status-text">Paste an album URL to begin</span>
+          </div>
+          <button id="inspection-indicator" class="inspection-indicator" type="button" hidden disabled aria-pressed="false">
+            <i data-lucide="loader-circle" class="inspection-spinner" aria-hidden="true"></i>
+            <span role="status">Inspection in progress</span>
+            <span id="inspection-indicator-text" class="inspection-indicator-action">Starting browser…</span>
+          </button>
+
+          <div id="empty-state" class="empty-state">
+            <div class="empty-glyph" aria-hidden="true"><span></span><span></span><span></span></div>
+            <div class="empty-title">Ready for an album</div>
+            <div class="empty-note">Track formats and fallback choices appear here before transfer.</div>
+          </div>
+
+          <div class="table-wrap">
+            <table id="track-table" hidden>
+              <thead><tr><th>Disc</th><th>#</th><th>Track</th><th>Available</th><th>Selected</th><th>Status</th></tr></thead>
+              <tbody id="track-rows"></tbody>
+            </table>
+          </div>
+
+          <footer class="progress-footer">
+            <div class="progress-label"><span>TRANSFER</span><span id="progress-text">No active transfer</span></div>
+            <progress id="download-progress" value="0" max="1"></progress>
+          </footer>
+        </section>
+      </section>
+      <section id="settings-view" class="settings-view" aria-labelledby="settings-heading" hidden>
+        <header class="settings-header">
+          <h1 id="settings-heading">Settings</h1>
+          <button id="close-settings" class="settings-close-button" type="button">
+            <i data-lucide="arrow-left" aria-hidden="true"></i>
+            <span>Back to downloader</span>
+          </button>
+        </header>
+        <div class="settings-layout">
+          <nav class="settings-nav" aria-label="Settings navigation">
+            <button id="appearance-nav" class="settings-nav-item" type="button" aria-current="page" aria-controls="appearance-page">
+              <i data-lucide="palette" aria-hidden="true"></i><span>Appearance</span>
+            </button>
+            <button id="shortcuts-nav" class="settings-nav-item" type="button" aria-controls="shortcuts-page">
+              <i data-lucide="keyboard" aria-hidden="true"></i><span>Shortcuts</span>
+            </button>
+          </nav>
+          <div class="settings-content">
+        <section id="appearance-page" class="appearance-section" aria-labelledby="appearance-heading">
+          <h2 id="appearance-heading">Appearance</h2>
+          <fieldset class="appearance-setting">
+            <legend>Mode</legend>
+            <div class="mode-options">
+              <label><input type="radio" name="appearance-mode" value="light" /><span>Light</span></label>
+              <label><input type="radio" name="appearance-mode" value="dark" /><span>Dark</span></label>
+              <label><input type="radio" name="appearance-mode" value="system" checked /><span>System</span></label>
+            </div>
+          </fieldset>
+          <fieldset class="appearance-setting">
+            <legend>Color theme</legend>
+            <div class="theme-options">
+              <label><input type="radio" name="color-theme" value="mint" checked /><span class="theme-swatch swatch-mint"></span><span>Mint</span></label>
+              <label><input type="radio" name="color-theme" value="ocean" /><span class="theme-swatch swatch-ocean"></span><span>Ocean</span></label>
+              <label><input type="radio" name="color-theme" value="amber" /><span class="theme-swatch swatch-amber"></span><span>Amber</span></label>
+              <label><input type="radio" name="color-theme" value="rose" /><span class="theme-swatch swatch-rose"></span><span>Rose</span></label>
+              <label><input type="radio" name="color-theme" value="monochrome" /><span class="theme-swatch swatch-monochrome"></span><span>Monochrome</span></label>
+            </div>
+          </fieldset>
+          <p id="appearance-storage-status" class="error-text" role="status"></p>
+        </section>
+        <section id="shortcuts-page" class="shortcuts-section" aria-labelledby="shortcuts-heading" hidden>
+          <h2 id="shortcuts-heading">Shortcuts</h2>
+          <section class="shortcut-group" aria-labelledby="navigation-shortcuts-heading">
+            <h3 id="navigation-shortcuts-heading">Navigation</h3>
+            <dl class="shortcut-list">
+              <div class="shortcut-row"><dt>Open or close Settings</dt><dd><kbd>Ctrl</kbd><span>+</span><kbd>,</kbd></dd></div>
+              <div class="shortcut-row"><dt>Close the active menu, Changelog, or Settings</dt><dd><kbd>Esc</kbd></dd></div>
+            </dl>
+          </section>
+          <section class="shortcut-group" aria-labelledby="zoom-shortcuts-heading">
+            <h3 id="zoom-shortcuts-heading">Interface Scale</h3>
+            <dl class="shortcut-list">
+              <div class="shortcut-row"><dt>Zoom in</dt><dd><kbd>Ctrl</kbd><span>+</span><kbd>=</kbd><span class="key-alternative">or</span><kbd>Ctrl</kbd><span>+</span><kbd>+</kbd></dd></div>
+              <div class="shortcut-row"><dt>Zoom out</dt><dd><kbd>Ctrl</kbd><span>+</span><kbd>-</kbd></dd></div>
+              <div class="shortcut-row"><dt>Reset to 100%</dt><dd><kbd>Ctrl</kbd><span>+</span><kbd>0</kbd></dd></div>
+              <div class="shortcut-row"><dt>Zoom with the mouse</dt><dd><kbd>Ctrl</kbd><span>+</span><kbd>Mousewheel</kbd></dd></div>
+            </dl>
+          </section>
+          <section class="shortcut-group" aria-labelledby="changelog-shortcuts-heading">
+            <h3 id="changelog-shortcuts-heading">Changelog Panel</h3>
+            <p class="shortcut-context">When the resize handle is focused</p>
+            <dl class="shortcut-list">
+              <div class="shortcut-row"><dt>Widen panel</dt><dd><kbd>Left Arrow</kbd></dd></div>
+              <div class="shortcut-row"><dt>Narrow panel</dt><dd><kbd>Right Arrow</kbd></dd></div>
+              <div class="shortcut-row"><dt>Minimum panel width</dt><dd><kbd>Home</kbd></dd></div>
+              <div class="shortcut-row"><dt>Maximum panel width (40%)</dt><dd><kbd>End</kbd></dd></div>
+            </dl>
+          </section>
+        </section>
+          </div>
+        </div>
+      </section>
+      <aside id="changelog-drawer" class="changelog-drawer" data-open="false" aria-labelledby="changelog-heading" inert>
+        <div id="changelog-resize" class="changelog-resize" role="separator" tabindex="0" aria-label="Changelog panel width" aria-orientation="vertical" aria-valuemin="24" aria-valuemax="40" aria-valuenow="32"></div>
+        <header class="changelog-header">
+          <h2 id="changelog-heading">Changelog</h2>
+          <button id="close-changelog" class="drawer-close-button" type="button" aria-label="Close changelog" title="Close changelog">
+            <i data-lucide="x" aria-hidden="true"></i>
+          </button>
+        </header>
+        <div id="changelog-content" class="changelog-content"></div>
+      </aside>
+      <footer class="app-footer"><span>Original audio bytes · no transcoding</span><span>LOCAL SESSION</span></footer>
+    </main>
+  </body>
+</html>
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **renderer.ts**</summary>
+
+@@ lines 1-376 @@
+
+```
+import type { GuiFormatPolicy, GuiInspection, GuiInspectionState, GuiProgress, GuiTrack } from "./gui-types.js";
+import { ArrowLeft, Copy, createIcons, EllipsisVertical, Keyboard, LoaderCircle, Minus, Palette, Scan, ScrollText, Settings, Square, X } from "lucide";
+import { initializeAppearance } from "./appearance.js";
+import { initializeChangelog } from "./changelog.js";
+
+declare const __APP_VERSION__: string;
+document.querySelector<HTMLElement>("#menu-app-version")!.textContent = __APP_VERSION__;
+
+initializeAppearance();
+
+const windowIcons = { ArrowLeft, Copy, EllipsisVertical, Keyboard, LoaderCircle, Minus, Palette, Scan, ScrollText, Settings, Square, X };
+createIcons({ icons: windowIcons });
+const changelog = initializeChangelog();
+
+const albumInput = document.querySelector<HTMLTextAreaElement>("#album-url")!;
+const outputInput = document.querySelector<HTMLInputElement>("#output-root")!;
+const formatSelect = document.querySelector<HTMLSelectElement>("#format-policy")!;
+const discLabelSelect = document.querySelector<HTMLSelectElement>("#disc-label")!;
+const discLabelSetting = document.querySelector<HTMLElement>("#disc-label-setting")!;
+const skipInput = document.querySelector<HTMLInputElement>("#skip-unavailable")!;
+const inspectButton = document.querySelector<HTMLButtonElement>("#inspect-button")!;
+const downloadButton = document.querySelector<HTMLButtonElement>("#download-button")!;
+const cancelButton = document.querySelector<HTMLButtonElement>("#cancel-button")!;
+const browseButton = document.querySelector<HTMLButtonElement>("#browse-button")!;
+const tableBody = document.querySelector<HTMLTableSectionElement>("#track-rows")!;
+const albumTitle = document.querySelector<HTMLElement>("#album-title")!;
+const trackCount = document.querySelector<HTMLElement>("#track-count")!;
+const statusText = document.querySelector<HTMLElement>("#status-text")!;
+const statusDot = document.querySelector<HTMLElement>("#status-dot")!;
+const statusStrip = document.querySelector<HTMLElement>(".status-strip")!;
+const inspectionIndicator = document.querySelector<HTMLButtonElement>("#inspection-indicator")!;
+const inspectionIndicatorText = document.querySelector<HTMLElement>("#inspection-indicator-text")!;
+const progress = document.querySelector<HTMLProgressElement>("#download-progress")!;
+const progressText = document.querySelector<HTMLElement>("#progress-text")!;
+const emptyState = document.querySelector<HTMLElement>("#empty-state")!;
+const trackTable = document.querySelector<HTMLTableElement>("#track-table")!;
+const errorText = document.querySelector<HTMLElement>("#error-text")!;
+const minimizeWindowButton = document.querySelector<HTMLButtonElement>("#minimize-window")!;
+const maximizeWindowButton = document.querySelector<HTMLButtonElement>("#maximize-window")!;
+const closeWindowButton = document.querySelector<HTMLButtonElement>("#close-window")!;
+const moreMenuWrap = document.querySelector<HTMLElement>("#more-menu-wrap")!;
+const moreButton = document.querySelector<HTMLButtonElement>("#more-button")!;
+const moreMenu = document.querySelector<HTMLElement>("#more-menu")!;
+const settingsMenuItem = document.querySelector<HTMLButtonElement>("#settings-menu-item")!;
+const restoreBoundsMenuItem = document.querySelector<HTMLButtonElement>("#restore-bounds-menu-item")!;
+const changelogMenuItem = document.querySelector<HTMLButtonElement>("#changelog-menu-item")!;
+const workspaceView = document.querySelector<HTMLElement>("#workspace")!;
+const settingsView = document.querySelector<HTMLElement>("#settings-view")!;
+const closeSettingsButton = document.querySelector<HTMLButtonElement>("#close-settings")!;
+const appearanceNav = document.querySelector<HTMLButtonElement>("#appearance-nav")!;
+const shortcutsNav = document.querySelector<HTMLButtonElement>("#shortcuts-nav")!;
+const appearancePage = document.querySelector<HTMLElement>("#appearance-page")!;
+const shortcutsPage = document.querySelector<HTMLElement>("#shortcuts-page")!;
+
+let inspection: GuiInspection | undefined;
+let busy = false;
+let inspecting = false;
+let inspectionCancelRequested = false;
+let inspectionBrowserVisible = false;
+let settingsOpen = false;
+
+function updateInspectionIndicator(state: GuiInspectionState): void {
+  inspectionBrowserVisible = state.browserVisible;
+  statusStrip.hidden = state.active;
+  inspectionIndicator.hidden = !state.active;
+  inspectionIndicator.disabled = !state.browserReady;
+  inspectionIndicator.setAttribute("aria-pressed", String(state.browserVisible));
+  inspectionIndicatorText.textContent = state.browserReady
+    ? state.browserVisible ? "Hide browser" : "Show browser"
+    : "Starting browser…";
+}
+
+function closeMoreMenu(): void {
+  moreMenu.hidden = true;
+  moreButton.setAttribute("aria-expanded", "false");
+}
+
+function setSettingsOpen(open: boolean): void {
+  settingsOpen = open;
+  workspaceView.hidden = open;
+  settingsView.hidden = !open;
+  closeMoreMenu();
+  if (open) closeSettingsButton.focus();
+  else albumInput.focus();
+}
+
+function selectSettingsPage(page: "appearance" | "shortcuts"): void {
+  appearancePage.hidden = page !== "appearance";
+  shortcutsPage.hidden = page !== "shortcuts";
+  if (page === "appearance") {
+    appearanceNav.setAttribute("aria-current", "page");
+    shortcutsNav.removeAttribute("aria-current");
+  } else {
+    shortcutsNav.setAttribute("aria-current", "page");
+    appearanceNav.removeAttribute("aria-current");
+  }
+  document.querySelector<HTMLElement>(".settings-content")!.scrollTop = 0;
+}
+
+function updateMaximizeButton(maximized: boolean): void {
+  const label = maximized ? "Restore window" : "Maximize window";
+  maximizeWindowButton.setAttribute("aria-label", label);
+  maximizeWindowButton.title = label;
+  maximizeWindowButton.innerHTML = `<i data-lucide="${maximized ? "copy" : "square"}" aria-hidden="true"></i>`;
+  createIcons({ icons: windowIcons });
+}
+
+function isValidAlbumUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" &&
+      url.hostname.toLowerCase() === "downloads.khinsider.com" &&
+      url.pathname.startsWith("/game-soundtracks/album/") &&
+      !url.username && !url.password;
+  } catch {
+    return false;
+  }
+}
+
+function setStatus(label: string, tone: "idle" | "working" | "success" | "error" = "idle"): void {
+  statusText.textContent = label;
+  statusDot.dataset.tone = tone;
+}
+
+function selectedFormat(track: GuiTrack): { format?: string; state: string; fallback: boolean } {
+  const value = formatSelect.value;
+  if (value === "prefer-lossless") {
+    const lossless = ["FLAC", "ALAC", "WAV"].find((format) => track.formats.includes(format));
+    if (lossless) return { format: lossless, state: "Ready", fallback: false };
+    const lossy = track.formats.find((format) => format === "MP3") ?? track.formats[0];
+    return lossy
+      ? { format: lossy, state: "Ready", fallback: true }
+      : { state: "Unavailable", fallback: false };
+  }
+  const requested = value === "lossless-only" ? ["FLAC", "ALAC", "WAV"].find((format) => track.formats.includes(format)) : value.slice("format:".length);
+  if (requested && track.formats.includes(requested)) return { format: requested, state: "Ready", fallback: false };
+  return skipInput.checked
+    ? { state: "Skipped", fallback: false }
+    : { state: "Unavailable", fallback: false };
+}
+
+function renderTracks(): void {
+  if (!inspection) return;
+  const rows = inspection.tracks.map((track) => {
+    const selected = selectedFormat(track);
+    const row = document.createElement("tr");
+    row.innerHTML = `<td class="track-disc"></td><td class="track-number"></td><td class="track-title"></td><td class="track-formats"></td><td class="track-choice"></td><td class="track-state"></td>`;
+    row.querySelector(".track-disc")!.textContent = track.discNumber === undefined ? "-" : `${discLabelSelect.value}${track.discNumber}`;
+    row.querySelector(".track-number")!.textContent = String(track.number).padStart(2, "0");
+    row.querySelector(".track-title")!.textContent = track.title;
+    row.querySelector(".track-formats")!.textContent = track.formats.join(", ") || "None found";
+    row.querySelector(".track-choice")!.textContent = selected.format ?? "-";
+    const state = row.querySelector<HTMLElement>(".track-state")!;
+    state.textContent = selected.state;
+    state.dataset.state = selected.state.toLowerCase();
+    if (selected.fallback) state.textContent += " · fallback";
+    return row;
+  });
+  tableBody.replaceChildren(...rows);
+  const blocked = inspection.tracks.some((track) => selectedFormat(track).state === "Unavailable");
+  downloadButton.disabled = busy || blocked;
+  trackCount.textContent = `${inspection.trackCount} tracks`;
+  emptyState.hidden = true;
+  trackTable.hidden = false;
+}
+
+function currentPolicy(): GuiFormatPolicy {
+  if (formatSelect.value === "prefer-lossless") return { kind: "prefer-lossless" };
+  if (formatSelect.value === "lossless-only") return { kind: "lossless-only", skipUnavailable: skipInput.checked };
+  return { kind: "specific", format: formatSelect.value.slice("format:".length), skipUnavailable: skipInput.checked };
+}
+
+function updateFormatOptions(): void {
+  if (!inspection) return;
+  const formats = [...new Set(inspection.tracks.flatMap((track) => track.formats))].sort();
+  const discs = [...new Set(inspection.tracks.flatMap((track) => track.discNumber === undefined ? [] : [track.discNumber]))];
+  discLabelSetting.hidden = discs.length < 2;
+  const previous = formatSelect.value;
+  formatSelect.querySelectorAll("option[data-discovered]").forEach((option) => option.remove());
+  for (const format of formats) {
+    const option = document.createElement("option");
+    option.value = `format:${format}`;
+    option.textContent = `Specific format: ${format}`;
+    option.dataset.discovered = "true";
+    formatSelect.append(option);
+  }
+  if ([...formatSelect.options].some((option) => option.value === previous)) formatSelect.value = previous;
+  renderTracks();
+}
+
+function setBusy(value: boolean): void {
+  busy = value;
+  inspectButton.disabled = value;
+  browseButton.disabled = value;
+  albumInput.disabled = value;
+  outputInput.disabled = value;
+  formatSelect.disabled = value;
+  discLabelSelect.disabled = value;
+  skipInput.disabled = value || formatSelect.value === "prefer-lossless";
+  cancelButton.disabled = !value;
+  cancelButton.textContent = inspecting ? "Cancel inspection" : "Cancel active download";
+  if (inspection) renderTracks();
+}
+
+minimizeWindowButton.addEventListener("click", () => { void window.kDownloader.minimizeWindow(); });
+maximizeWindowButton.addEventListener("click", async () => {
+  const maximized = await window.kDownloader.toggleMaximizeWindow();
+  updateMaximizeButton(maximized);
+});
+closeWindowButton.addEventListener("click", () => { void window.kDownloader.closeWindow(); });
+window.kDownloader.onWindowState(({ maximized }) => updateMaximizeButton(maximized));
+
+moreButton.addEventListener("click", () => {
+  moreMenu.hidden = !moreMenu.hidden;
+  moreButton.setAttribute("aria-expanded", String(!moreMenu.hidden));
+});
+settingsMenuItem.addEventListener("click", () => setSettingsOpen(true));
+appearanceNav.addEventListener("click", () => selectSettingsPage("appearance"));
+shortcutsNav.addEventListener("click", () => selectSettingsPage("shortcuts"));
+restoreBoundsMenuItem.addEventListener("click", () => {
+  closeMoreMenu();
+  void window.kDownloader.restoreWindowBounds();
+});
+changelogMenuItem.addEventListener("click", () => {
+  closeMoreMenu();
+  changelog.open();
+});
+closeSettingsButton.addEventListener("click", () => setSettingsOpen(false));
+document.addEventListener("click", (event) => {
+  if (!moreMenuWrap.contains(event.target as Node)) closeMoreMenu();
+});
+document.addEventListener("keydown", (event) => {
+  if (event.ctrlKey && ["0", "-", "_", "=", "+"].includes(event.key)) {
+    event.preventDefault();
+    const direction = event.key === "0" ? "reset" : ["-", "_"].includes(event.key) ? "out" : "in";
+    void window.kDownloader.zoom(direction);
+  } else if ((event.ctrlKey || event.metaKey) && event.key === ",") {
+    event.preventDefault();
+    setSettingsOpen(!settingsOpen);
+  } else if (event.key === "Escape") {
+    if (!moreMenu.hidden) {
+      closeMoreMenu();
+      moreButton.focus();
+    } else if (changelog.isOpen()) changelog.close();
+    else if (settingsOpen) setSettingsOpen(false);
+  }
+});
+document.addEventListener("wheel", (event) => {
+  if (!event.ctrlKey || event.deltaY === 0) return;
+  event.preventDefault();
+  void window.kDownloader.zoom(event.deltaY < 0 ? "in" : "out");
+}, { passive: false });
+
+inspectButton.addEventListener("click", async () => {
+  errorText.textContent = "";
+  const albumUrl = albumInput.value.trim();
+  if (!isValidAlbumUrl(albumUrl)) {
+    errorText.textContent = "Paste a valid HTTPS KHInsider album URL.";
+    setStatus("Album URL required", "error");
+    albumInput.focus();
+    return;
+  }
+  inspection = undefined;
+  downloadButton.disabled = true;
+  tableBody.replaceChildren();
+  trackTable.hidden = true;
+  emptyState.hidden = false;
+  inspecting = true;
+  inspectionCancelRequested = false;
+  setBusy(true);
+  updateInspectionIndicator({ active: true, browserReady: false, browserVisible: false });
+  try {
+    inspection = await window.kDownloader.inspect(albumUrl);
+    if (!inspection) {
+      setStatus("Inspection canceled");
+      return;
+    }
+    albumTitle.textContent = inspection.albumTitle;
+    updateFormatOptions();
+    setStatus("Preview ready", "success");
+  } catch (error) {
+    if (inspectionCancelRequested) setStatus("Inspection canceled");
+    else {
+      errorText.textContent = error instanceof Error ? error.message : String(error);
+      setStatus("Inspection failed", "error");
+    }
+  } finally {
+    inspecting = false;
+    inspectionCancelRequested = false;
+    updateInspectionIndicator({ active: false, browserReady: false, browserVisible: false });
+    setBusy(false);
+    if (inspection) renderTracks();
+  }
+});
+
+inspectionIndicator.addEventListener("click", async () => {
+  if (inspectionIndicator.disabled) return;
+  try {
+    inspectionBrowserVisible = await window.kDownloader.toggleInspectionBrowser();
+    inspectionIndicator.setAttribute("aria-pressed", String(inspectionBrowserVisible));
+    inspectionIndicatorText.textContent = inspectionBrowserVisible ? "Hide browser" : "Show browser";
+  } catch (error) {
+    errorText.textContent = error instanceof Error ? error.message : String(error);
+  }
+});
+
+window.kDownloader.onInspectionState(updateInspectionIndicator);
+
+browseButton.addEventListener("click", async () => {
+  const selected = await window.kDownloader.chooseOutput();
+  if (selected) outputInput.value = selected;
+});
+
+formatSelect.addEventListener("change", () => {
+  skipInput.disabled = busy || formatSelect.value === "prefer-lossless";
+  renderTracks();
+});
+discLabelSelect.addEventListener("change", renderTracks);
+skipInput.addEventListener("change", renderTracks);
+
+downloadButton.addEventListener("click", async () => {
+  if (!inspection) return;
+  errorText.textContent = "";
+  progress.value = 0;
+  progressText.textContent = "Preparing album";
+  setBusy(true);
+  setStatus("Downloading", "working");
+  try {
+    const result = await window.kDownloader.download({
+      policy: currentPolicy(),
+      outputRoot: outputInput.value,
+      discLabel: discLabelSelect.value === "Disc" ? "Disc" : "CD",
+    });
+    progress.value = inspection.trackCount;
+    progress.max = inspection.trackCount;
+    progressText.textContent = `${result.state} · ${result.directory}`;
+    setStatus(result.state === "complete" ? "Download complete" : result.state, result.state === "complete" ? "success" : "error");
+  } catch (error) {
+    errorText.textContent = error instanceof Error ? error.message : String(error);
+    setStatus("Download failed", "error");
+  } finally {
+    setBusy(false);
+  }
+});
+
+cancelButton.addEventListener("click", async () => {
+  cancelButton.disabled = true;
+  const cancelingInspection = inspecting;
+  if (cancelingInspection) {
+    inspectionCancelRequested = true;
+    inspectionIndicator.disabled = true;
+    inspectionIndicatorText.textContent = "Canceling…";
+  } else setStatus("Canceling active track…", "working");
+  try {
+    await window.kDownloader.cancel();
+  } catch (error) {
+    errorText.textContent = error instanceof Error ? error.message : String(error);
+    inspectionCancelRequested = false;
+    cancelButton.disabled = !busy;
+  }
+});
+
+window.kDownloader.onProgress((event: GuiProgress) => {
+  progress.max = event.totalTracks;
+  progress.value = event.completedTracks;
+  progressText.textContent = event.stage === "track-start"
+    ? `Downloading ${String(event.number).padStart(2, "0")} · ${event.title}`
+    : event.stage === "track-complete"
+      ? `Completed ${event.completedTracks} of ${event.totalTracks} tracks`
+      : event.stage === "track-failed"
+        ? `Failed ${String(event.number).padStart(2, "0")} · ${event.title}`
+        : "Canceled";
+});
+
+void window.kDownloader.defaultOutputRoot().then((value) => { outputInput.value = value; });
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **styles.css**</summary>
+
+@@ lines 1-289 @@
+
+```
+:root {
+  color-scheme: dark;
+  --ink: #e8efec;
+  --muted: #91a09b;
+  --dim: #60716b;
+  --line: #2c3a35;
+  --panel: #17211d;
+  --panel-raised: #1d2a25;
+  --ground: #101715;
+  --mint: #b3f06c;
+  --mint-dark: #83bd42;
+  --coral: #f28568;
+  --blue: #80bac5;
+  --field: #101815;
+  --hover: #293630;
+  --accent-text: #152018;
+  --warning: #d5b675;
+  --close-hover: #c94343;
+  --shadow: rgba(0, 0, 0, .38);
+  font-family: "DejaVu Sans", "Noto Sans", sans-serif;
+  color: var(--ink);
+  background: var(--ground);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+:root[data-mode="light"] {
+  color-scheme: light;
+  --ink: #202b26;
+  --muted: #52635b;
+  --dim: #5d6e66;
+  --line: #ced9d2;
+  --panel: #ffffff;
+  --panel-raised: #eaf0ec;
+  --ground: #f3f6f4;
+  --field: #ffffff;
+  --hover: #dde7e1;
+  --mint: #356a19;
+  --mint-dark: #356a19;
+  --accent-text: #ffffff;
+  --coral: #b33f2c;
+  --blue: #286b79;
+  --warning: #855c10;
+  --shadow: rgba(26, 42, 32, .16);
+}
+
+:root[data-theme="ocean"] { --mint: #76dbd3; --mint-dark: #76dbd3; }
+:root[data-theme="amber"] { --mint: #f0cd72; --mint-dark: #f0cd72; }
+:root[data-theme="rose"] { --mint: #f4a2bd; --mint-dark: #f4a2bd; }
+:root[data-theme="monochrome"] { --mint: #d3d9dd; --mint-dark: #d3d9dd; }
+:root[data-mode="light"][data-theme="ocean"] { --mint: #006c68; --mint-dark: #006c68; }
+:root[data-mode="light"][data-theme="amber"] { --mint: #805c05; --mint-dark: #805c05; }
+:root[data-mode="light"][data-theme="rose"] { --mint: #a03058; --mint-dark: #a03058; }
+:root[data-mode="light"][data-theme="monochrome"] { --mint: #46515a; --mint-dark: #46515a; }
+:root[data-theme="ocean"], :root[data-theme="amber"], :root[data-theme="rose"], :root[data-theme="monochrome"] {
+  --ink: #e9ecee;
+  --muted: #a0a8ad;
+  --dim: #929da4;
+  --line: #363c40;
+  --panel: #1c2023;
+  --panel-raised: #282d31;
+  --ground: #141719;
+  --field: #171b1e;
+  --hover: #353c41;
+  --accent-text: #161c20;
+}
+:root[data-mode="light"][data-theme="ocean"], :root[data-mode="light"][data-theme="amber"], :root[data-mode="light"][data-theme="rose"], :root[data-mode="light"][data-theme="monochrome"] {
+  --ink: #242a2e;
+  --muted: #566169;
+  --dim: #5b6770;
+  --line: #ced5da;
+  --panel: #ffffff;
+  --panel-raised: #edf0f2;
+  --ground: #f5f6f7;
+  --field: #ffffff;
+  --hover: #e0e6ea;
+  --accent-text: #ffffff;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-width: 0;
+  height: 100vh;
+  overflow: hidden;
+  background:
+    linear-gradient(115deg, color-mix(in srgb, var(--mint) 5%, transparent), transparent 44%),
+    var(--ground);
+}
+button, input, textarea, select { font: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: .42; }
+
+.app-shell { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+.topbar { height: 46px; flex: 0 0 46px; padding: 0 0 0 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); background: var(--panel); -webkit-app-region: drag; user-select: none; }
+.brand-lockup { height: 100%; display: flex; align-items: center; gap: 9px; }
+.app-icon { width: 23px; height: 23px; display: grid; place-items: center; background: var(--mint); color: var(--accent-text); font-size: 15px; font-weight: 800; clip-path: polygon(0 0, 100% 0, 100% 72%, 72% 100%, 0 100%); }
+.brand-name { font-size: 12px; font-weight: 800; }
+.titlebar-actions { height: 100%; display: flex; align-items: stretch; -webkit-app-region: no-drag; }
+.more-menu-wrap { position: relative; height: 100%; }
+.window-controls { height: 100%; display: flex; -webkit-app-region: no-drag; }
+.window-control { width: 46px; height: 100%; display: grid; place-items: center; border: 0; border-radius: 0; color: var(--muted); background: transparent; }
+.window-control:hover { color: var(--ink); background: var(--hover); }
+.window-control.close-control:hover { color: white; background: var(--close-hover); }
+.window-control svg { width: 14px; height: 14px; stroke-width: 1.6; }
+.window-control:focus-visible { outline: 1px solid var(--mint); outline-offset: -3px; }
+.more-menu { position: absolute; z-index: 20; top: calc(100% + 5px); right: 0; width: 224px; padding: 5px; border: 1px solid var(--line); border-radius: 4px; background: var(--panel-raised); box-shadow: 0 12px 28px var(--shadow); }
+.more-menu[hidden] { display: none; }
+.more-menu-item { width: 100%; min-height: 36px; padding: 0 9px; display: flex; align-items: center; gap: 10px; border: 0; border-radius: 2px; color: var(--ink); background: transparent; text-align: left; font-size: 11px; }
+.more-menu-item:hover, .more-menu-item:focus-visible { background: var(--hover); outline: none; }
+.more-menu-item svg { width: 15px; height: 15px; color: var(--muted); stroke-width: 1.7; }
+.more-menu-item kbd { margin-left: auto; color: var(--muted); font-family: "DejaVu Sans Mono", monospace; font-size: 9px; }
+.more-menu-separator { margin: 5px 4px; border-top: 1px solid var(--line); }
+.more-menu-info { min-height: 32px; padding: 0 9px; display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--muted); font-size: 10px; }
+#menu-app-version { font-family: "DejaVu Sans Mono", monospace; }
+.brand-subtitle, .eyebrow, .section-index, .mode-label, .progress-label, .app-footer { font-family: "DejaVu Sans Mono", monospace; letter-spacing: 0; }
+.brand-subtitle { margin-top: 3px; color: var(--dim); font-size: 9px; }
+.mode-label { display: flex; align-items: center; gap: 9px; color: var(--muted); font-size: 11px; }
+.mode-dot { width: 7px; height: 7px; background: var(--mint); border-radius: 50%; }
+
+.workspace { width: min(1440px, 100%); margin: 0 auto; padding: 28px 32px 24px; flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(300px, 370px) minmax(380px, 1fr); grid-template-rows: minmax(0, 1fr); gap: 18px; overflow: hidden; }
+.workspace[hidden], .settings-view[hidden] { display: none; }
+.settings-view { width: min(1440px, 100%); flex: 1; min-height: 0; display: flex; flex-direction: column; margin: 0 auto; padding: 28px 32px 24px; overflow: hidden; }
+.settings-header { min-height: 56px; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); }
+.settings-header h1 { margin: 0; font-size: 18px; }
+.settings-close-button { min-height: 34px; padding: 0 10px; display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 3px; color: var(--ink); background: var(--panel-raised); font-size: 11px; }
+.settings-close-button:hover { border-color: var(--blue); background: var(--hover); }
+.settings-close-button svg { width: 15px; height: 15px; }
+.settings-layout { flex: 1; min-height: 0; display: grid; grid-template-columns: 180px minmax(0, 1fr); }
+.settings-nav { padding: 24px 14px 24px 0; border-right: 1px solid var(--line); overflow: auto; }
+.settings-nav-item { width: 100%; min-height: 40px; display: flex; align-items: center; gap: 10px; padding: 0 12px; margin-bottom: 4px; border: 0; border-radius: 3px; background: transparent; color: var(--muted); text-align: left; font-size: 12px; }
+.settings-nav-item:hover { background: var(--hover); color: var(--ink); }
+.settings-nav-item[aria-current="page"] { background: color-mix(in srgb, var(--mint) 12%, var(--panel)); color: var(--mint); }
+.settings-nav-item:focus-visible { outline: 2px solid var(--blue); outline-offset: -2px; }
+.settings-nav-item svg { width: 16px; height: 16px; flex: 0 0 16px; }
+.settings-content { min-width: 0; min-height: 0; padding: 0 28px; overflow: auto; }
+.appearance-section[hidden], .shortcuts-section[hidden] { display: none; }
+.shortcuts-section { max-width: 740px; padding: 28px 0; }
+.shortcuts-section h2 { margin: 0 0 24px; font-size: 15px; }
+.shortcut-group { margin: 0 0 28px; }
+.shortcut-group h3 { margin: 0 0 10px; color: var(--muted); font-size: 11px; font-weight: 700; }
+.shortcut-list { margin: 0; }
+.shortcut-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding: 13px 0; border-bottom: 1px solid var(--line); font-size: 12px; }
+.shortcut-row dt { flex: 1 1 180px; line-height: 1.5; }
+.shortcut-row dd { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin: 0; color: var(--muted); }
+.shortcut-row kbd { min-width: 26px; min-height: 26px; display: inline-grid; place-items: center; padding: 3px 7px; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; color: var(--ink); background: var(--panel-raised); font-family: "DejaVu Sans Mono", monospace; font-size: 10px; }
+.key-alternative { padding: 0 4px; font-size: 10px; }
+.shortcut-context { margin: 0 0 6px; color: var(--muted); font-size: 10px; }
+.control-panel, .results-panel { border: 1px solid var(--line); background: linear-gradient(155deg, var(--panel-raised), var(--panel) 65%); }
+.control-panel { padding: 24px; align-self: start; max-height: 100%; min-height: 0; overflow: auto; }
+.section-heading { display: flex; align-items: baseline; gap: 10px; margin: 0 0 18px; }
+.section-heading h1, .section-heading h2 { margin: 0; font-size: 14px; font-weight: 700; }
+.section-index { color: var(--mint); font-size: 10px; }
+label { display: block; color: var(--ink); font-size: 11px; font-weight: 700; margin: 0 0 8px; }
+textarea, input[type="text"], select { width: 100%; border: 1px solid var(--line); border-radius: 3px; color: var(--ink); background: var(--field); outline: none; }
+textarea { min-height: 88px; resize: vertical; padding: 12px; font-family: "DejaVu Sans Mono", monospace; font-size: 11px; line-height: 1.7; }
+input[type="text"], select { min-height: 38px; padding: 0 10px; font-size: 11px; }
+textarea:focus, input[type="text"]:focus, select:focus { border-color: var(--mint-dark); box-shadow: 0 0 0 2px color-mix(in srgb, var(--mint) 15%, transparent); }
+.microcopy { margin: 7px 0 0; color: var(--dim); font-size: 10px; line-height: 1.5; }
+.destination-heading { margin-top: 25px; }
+.format-heading { margin-top: 25px; }
+.path-control { display: flex; gap: 7px; }
+.path-control input { min-width: 0; font-family: "DejaVu Sans Mono", monospace; font-size: 10px; }
+.icon-button { width: 40px; flex: 0 0 40px; border: 1px solid var(--line); border-radius: 3px; color: var(--mint); background: var(--panel-raised); }
+.icon-button svg, .primary-button svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; vertical-align: middle; }
+.check-row { display: flex; align-items: center; gap: 8px; margin-top: 11px; color: var(--muted); font-size: 10px; font-weight: 500; }
+.check-row input { accent-color: var(--mint-dark); }
+.disc-label-setting { margin-top: 14px; }
+.action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 24px; }
+.primary-button, .secondary-button { min-height: 41px; border-radius: 3px; font-size: 11px; font-weight: 800; }
+.primary-button { display: flex; justify-content: center; align-items: center; gap: 8px; border: 1px solid var(--mint); color: var(--accent-text); background: var(--mint); }
+.primary-button:hover:not(:disabled) { background: color-mix(in srgb, var(--mint) 88%, var(--ink)); }
+.secondary-button { border: 1px solid var(--line); color: var(--ink); background: var(--panel-raised); }
+.secondary-button:hover:not(:disabled) { border-color: var(--blue); }
+.cancel-button { display: block; margin: 10px 0 0 auto; padding: 5px 0; border: 0; color: var(--coral); background: transparent; font-size: 10px; }
+.error-text { min-height: 0; margin: 10px 0 0; color: var(--coral); font-size: 11px; line-height: 1.5; overflow-wrap: anywhere; }
+
+.results-panel { min-width: 0; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+.results-header, .status-strip, .inspection-indicator, .progress-footer { flex-shrink: 0; }
+.results-header { padding: 23px 24px 18px; display: flex; justify-content: space-between; align-items: end; border-bottom: 1px solid var(--line); }
+.eyebrow { color: var(--mint); font-size: 9px; }
+.results-header h2 { margin: 7px 0 0; font-size: 17px; line-height: 1.35; }
+.track-count { padding: 6px 8px; border: 1px solid var(--line); color: var(--muted); font-family: "DM Mono", monospace; font-size: 10px; white-space: nowrap; }
+.status-strip { min-height: 39px; display: flex; align-items: center; gap: 9px; padding: 0 24px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 10px; }
+.status-strip[hidden] { display: none; }
+.status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--dim); }
+.status-dot[data-tone="working"] { background: var(--blue); box-shadow: 0 0 0 4px color-mix(in srgb, var(--blue) 12%, transparent); }
+.status-dot[data-tone="success"] { background: var(--mint); }
+.status-dot[data-tone="error"] { background: var(--coral); }
+.inspection-indicator { width: 100%; min-height: 42px; padding: 0 24px; display: flex; align-items: center; gap: 9px; border: 0; border-bottom: 1px solid var(--line); color: var(--blue); background: color-mix(in srgb, var(--blue) 7%, transparent); text-align: left; font-size: 10px; }
+.inspection-indicator[hidden] { display: none; }
+.inspection-indicator:disabled { opacity: 1; }
+.inspection-spinner { width: 14px; height: 14px; flex: 0 0 14px; animation: inspection-spin .9s linear infinite; }
+@keyframes inspection-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .inspection-spinner { animation: none; } }
+.inspection-indicator:not(:disabled):hover { background: color-mix(in srgb, var(--blue) 13%, transparent); }
+.inspection-indicator-action { margin-left: auto; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+.empty-state { min-height: 0; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 36px; text-align: center; }
+.empty-state[hidden] { display: none; }
+.empty-glyph { height: 36px; display: flex; align-items: end; gap: 4px; margin-bottom: 18px; }
+.empty-glyph span { width: 5px; height: 16px; background: var(--mint-dark); opacity: .6; }
+.empty-glyph span:nth-child(2) { height: 30px; background: var(--blue); opacity: .8; }
+.empty-glyph span:nth-child(3) { height: 22px; background: var(--coral); opacity: .75; }
+.empty-title { font-size: 13px; font-weight: 700; }
+.empty-note { max-width: 250px; margin-top: 8px; color: var(--dim); font-size: 10px; line-height: 1.6; }
+.table-wrap { min-height: 0; flex: 1; overflow: auto; }
+table { width: 100%; border-collapse: collapse; text-align: left; font-size: 10px; }
+thead { position: sticky; top: 0; z-index: 1; background: var(--panel-raised); }
+th { padding: 10px 9px; color: var(--muted); font-family: "DM Mono", monospace; font-size: 9px; font-weight: 400; }
+td { padding: 9px; border-top: 1px solid var(--line); }
+tbody tr:hover { background: var(--hover); }
+.track-number { width: 42px; color: var(--dim); font-family: "DejaVu Sans Mono", monospace; }
+.track-title { min-width: 120px; font-weight: 700; }
+.track-formats { color: var(--muted); }
+.track-choice { color: var(--mint); font-family: "DejaVu Sans Mono", monospace; }
+.track-state { color: var(--muted); white-space: nowrap; }
+.track-state[data-state="unavailable"] { color: var(--coral); }
+.track-state[data-state="skipped"] { color: var(--warning); }
+.progress-footer { padding: 14px 24px 18px; border-top: 1px solid var(--line); }
+.progress-label { display: flex; justify-content: space-between; gap: 14px; margin-bottom: 9px; color: var(--dim); font-size: 9px; }
+#progress-text { color: var(--muted); text-align: right; overflow-wrap: anywhere; }
+progress { width: 100%; height: 4px; border: 0; border-radius: 0; appearance: none; }
+progress::-webkit-progress-bar { background: var(--line); }
+progress::-webkit-progress-value { background: linear-gradient(90deg, var(--blue), var(--mint)); }
+.app-footer { flex: 0 0 40px; min-height: 40px; padding: 0 32px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--line); color: var(--dim); font-size: 9px; }
+
+.appearance-section { max-width: 660px; padding: 28px 0; }
+.appearance-section h2 { margin: 0 0 24px; font-size: 15px; }
+.appearance-setting { margin: 0 0 28px; padding: 0; border: 0; }
+.appearance-setting legend { margin-bottom: 12px; font-size: 12px; font-weight: 700; }
+.mode-options { display: inline-flex; padding: 3px; border: 1px solid var(--line); border-radius: 4px; background: var(--panel); }
+.mode-options label { position: relative; margin: 0; cursor: pointer; }
+.mode-options input, .theme-options input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.mode-options span { min-width: 92px; min-height: 36px; display: grid; place-items: center; border-radius: 2px; color: var(--muted); }
+.mode-options input:checked + span { background: var(--mint); color: var(--accent-text); }
+.mode-options input:focus-visible + span { outline: 2px solid var(--blue); outline-offset: 2px; }
+.theme-options { display: flex; flex-wrap: wrap; gap: 12px; }
+.theme-options label { position: relative; min-width: 90px; display: flex; align-items: center; gap: 9px; margin: 0; padding: 8px 4px; cursor: pointer; }
+.theme-swatch { flex: 0 0 24px; width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--line); }
+.swatch-mint { background: #b3f06c; }
+.swatch-ocean { background: #76dbd3; }
+.swatch-amber { background: #f0cd72; }
+.swatch-rose { background: #f4a2bd; }
+.swatch-monochrome { background: #d3d9dd; }
+:root[data-mode="light"] .swatch-mint { background: #356a19; }
+:root[data-mode="light"] .swatch-ocean { background: #006c68; }
+:root[data-mode="light"] .swatch-amber { background: #805c05; }
+:root[data-mode="light"] .swatch-rose { background: #a03058; }
+:root[data-mode="light"] .swatch-monochrome { background: #46515a; }
+.theme-options input:checked + .theme-swatch { outline: 2px solid var(--mint); outline-offset: 3px; }
+.theme-options input:focus-visible + .theme-swatch { outline: 2px solid var(--blue); outline-offset: 3px; }
+
+.changelog-drawer { position: fixed; z-index: 15; top: 46px; right: 0; bottom: 40px; width: 32vw; min-width: min(260px, 40vw); max-width: 40vw; display: flex; flex-direction: column; border-left: 1px solid var(--line); background: var(--panel); box-shadow: -10px 0 24px var(--shadow); transform: translateX(100%); visibility: hidden; transition: transform .2s ease, visibility .2s; }
+.changelog-drawer[data-open="true"] { transform: translateX(0); visibility: visible; }
+.changelog-resize { position: absolute; left: -4px; top: 0; bottom: 0; width: 8px; cursor: ew-resize; touch-action: none; }
+.changelog-resize:hover, .changelog-resize:focus-visible { background: color-mix(in srgb, var(--mint) 30%, transparent); outline: none; }
+.changelog-header { flex: 0 0 58px; display: flex; align-items: center; justify-content: space-between; padding: 0 18px; border-bottom: 1px solid var(--line); }
+.changelog-header h2 { margin: 0; font-size: 15px; }
+.drawer-close-button { width: 32px; height: 32px; display: grid; place-items: center; border: 0; color: var(--ink); background: transparent; }
+.drawer-close-button:hover { background: var(--hover); }
+.drawer-close-button svg { width: 16px; height: 16px; }
+.changelog-content { flex: 1; min-height: 0; overflow: auto; padding: 16px 22px; font-size: 12px; line-height: 1.7; overflow-wrap: anywhere; }
+.changelog-content h1 { font-size: 18px; margin-top: 0; }
+.changelog-content h2 { font-size: 15px; }
+.changelog-content h3 { font-size: 13px; color: var(--mint); }
+.changelog-content ul { padding-left: 18px; }
+.changelog-content li { margin: 6px 0; }
+.changelog-content a { color: var(--mint); }
+.changelog-content pre { overflow: auto; }
+@media (prefers-reduced-motion: reduce) { .changelog-drawer { transition: none; } }
+
+@media (max-width: 720px) {
+  .workspace { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, .9fr) minmax(0, 1.1fr); padding: 12px; }
+  .control-panel { width: 100%; }
+  .settings-view { padding: 16px; }
+  .settings-header { gap: 12px; }
+  .settings-layout { grid-template-columns: 135px minmax(0, 1fr); }
+  .settings-content { padding: 0 14px; }
+  .settings-nav { padding-right: 8px; }
+  .app-footer { padding: 0 12px; gap: 8px; }
+}
+
+@media (min-width: 721px) and (max-width: 920px) {
+  .workspace { grid-template-columns: minmax(260px, 320px) minmax(360px, 1fr); padding: 18px; gap: 12px; }
+  .control-panel { padding: 18px; }
+  .results-header, .status-strip, .progress-footer { padding-left: 16px; padding-right: 16px; }
+  th, td { padding-left: 7px; padding-right: 7px; }
+}
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm test -- tests/appearance.test.ts && npm run build`
+
+Validate that existing appearance controls, renderer behavior, and Electron appearance remain intact inside the new Settings rail.
+
+```bash
+npm test -- tests/appearance.test.ts && npm run build
+```
+
+**Result:**
+
+```
+
+> k-downloader@0.1.0 pretest
+> npm run build:gui
+
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+
+> k-downloader@0.1.0 test
+> vitest run tests/appearance.test.ts
+
+
+ RUN  v5.0.4 /home/kel/dev/K-Downloader
+
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  12:53:48
+   Duration  4.09s (tests 88%, import 12%)
+
+
+> k-downloader@0.1.0 build
+> tsc --noEmit
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The existing Appearance checks still pass with the new rail. I’ll add coverage for switching pages and preserving selections, then capture the Shortcuts page at normal and minimum window sizes to check the keycaps and scrolling.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **appearance.test.ts**</summary>
+
+@@ lines 1-284 @@
+
+```
+import { describe, expect, it } from "vitest";
+import { appearanceModes, colorThemes, defaultAppearance, parseAppearance, resolvedMode } from "../src/appearance.js";
+import { chromium, _electron as electron } from "playwright";
+import { pathToFileURL } from "node:url";
+import { resolve } from "node:path";
+import { createRequire } from "node:module";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { cinnamonThemeIsDark } from "../src/electron/system-theme.js";
+import type { GuiInspectionState } from "../src/gui-types.js";
+
+describe("appearance preferences", () => {
+  it("defaults to System and Mint for absent or malformed settings", () => {
+    for (const raw of [null, "broken", "null", "[]", '{"mode":"invalid","theme":"invalid"}']) {
+      expect(parseAppearance(raw)).toEqual(defaultAppearance);
+    }
+  });
+
+  it("round-trips every supported mode and theme", () => {
+    for (const mode of appearanceModes) for (const theme of colorThemes) {
+      expect(parseAppearance(JSON.stringify({ mode, theme }))).toEqual({ mode, theme });
+    }
+  });
+
+  it("follows the system only in System mode", () => {
+    expect(resolvedMode("system", true)).toBe("dark");
+    expect(resolvedMode("system", false)).toBe("light");
+    expect(resolvedMode("light", true)).toBe("light");
+    expect(resolvedMode("dark", false)).toBe("dark");
+  });
+
+  it("recognizes Cinnamon GTK light and dark theme names", () => {
+    expect(cinnamonThemeIsDark("'Mint-Y'\n")).toBe(false);
+    expect(cinnamonThemeIsDark("'Mint-Y-Dark'\n")).toBe(true);
+    expect(cinnamonThemeIsDark("'Mint-Y-Dark-Aqua'\n")).toBe(true);
+    expect(cinnamonThemeIsDark("'Adwaita-dark'\n")).toBe(true);
+    expect(cinnamonThemeIsDark("unrecognized output")).toBeUndefined();
+  });
+});
+
+describe("appearance controls in Chromium", () => {
+  it("applies appearance preferences and keeps statusbars visible with a long preview", async () => {
+    const browser = await chromium.launch({ headless: true });
+    try {
+      const page = await browser.newPage({ viewport: { width: 1120, height: 780 }, colorScheme: "light" });
+      page.setDefaultTimeout(5_000);
+      const errors: string[] = [];
+      page.on("pageerror", (error) => errors.push(error.message));
+      await page.addInitScript(() => {
+        let inspectionListener: ((state: GuiInspectionState) => void) | undefined;
+        let browserVisible = false;
+        window.kDownloader = {
+          restoreWindowBounds: async () => {},
+          zoom: async () => 1,
+          systemTheme: async () => matchMedia("(prefers-color-scheme: dark)").matches,
+          onSystemTheme: (listener) => {
+            const media = matchMedia("(prefers-color-scheme: dark)");
+            const handler = () => listener(media.matches);
+            media.addEventListener("change", handler);
+            return () => media.removeEventListener("change", handler);
+          },
+          defaultOutputRoot: async () => "/tmp/K-Downloader",
+          chooseOutput: async () => undefined,
+          inspect: async () => {
+            let canceled = false;
+            browserVisible = false;
+            inspectionListener?.({ active: true, browserReady: true, browserVisible });
+            try {
+              await new Promise<void>((complete, fail) => {
+                window.addEventListener("finish-inspection", (event) => {
+                  if ((event as CustomEvent).detail === "fail") fail(new Error("Mock inspection failed"));
+                  else {
+                    canceled = (event as CustomEvent).detail === "cancel";
+                    complete();
+                  }
+                }, { once: true });
+              });
+            } finally {
+              inspectionListener?.({ active: false, browserReady: false, browserVisible: false });
+            }
+            if (canceled) return undefined;
+            return {
+            albumTitle: "Large multi-disc fixture",
+            trackCount: 200,
+            tracks: Array.from({ length: 200 }, (_, index) => ({
+              discNumber: Math.floor(index / 100) + 1,
+              number: index % 100 + 1,
+              title: `Track ${index + 1}`,
+              formats: ["MP3", "FLAC"],
+            })),
+            };
+          },
+          download: async () => ({ state: "complete", directory: "/tmp" }),
+          cancel: async () => {
+            window.dispatchEvent(new CustomEvent("finish-inspection", { detail: "cancel" }));
+          },
+          minimizeWindow: async () => {},
+          toggleMaximizeWindow: async () => false,
+          closeWindow: async () => {},
+          toggleInspectionBrowser: async () => {
+            browserVisible = !browserVisible;
+            inspectionListener?.({ active: true, browserReady: true, browserVisible });
+            return browserVisible;
+          },
+          onInspectionState: (listener) => {
+            inspectionListener = listener;
+            return () => { inspectionListener = undefined; };
+          },
+          onProgress: () => () => {},
+          onWindowState: () => () => {},
+        };
+      });
+      await page.goto(pathToFileURL(resolve("dist/gui/index.html")).href);
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "light");
+      await page.keyboard.press("Control+Comma");
+      await page.locator("#settings-view").waitFor({ state: "visible" });
+      expect(await page.locator("#appearance-nav").getAttribute("aria-current")).toBe("page");
+      const initialSelection = await page.getByRole("radio", { name: "System", exact: true }).isChecked();
+      await page.getByRole("button", { name: "Shortcuts", exact: true }).click();
+      expect(await page.locator("#shortcuts-page").isVisible()).toBe(true);
+      expect(await page.locator("#appearance-page").isVisible()).toBe(false);
+      expect(await page.locator("#shortcuts-nav").getAttribute("aria-current")).toBe("page");
+      expect(await page.locator(".shortcut-row dt").allTextContents()).toEqual([
+        "Open or close Settings",
+        "Close the active menu, Changelog, or Settings",
+        "Zoom in", "Zoom out", "Reset to 100%", "Zoom with the mouse",
+        "Widen panel", "Narrow panel", "Minimum panel width", "Maximum panel width (40%)",
+      ]);
+      for (const viewport of [{ width: 1120, height: 780 }, { width: 760, height: 620 }]) {
+        await page.setViewportSize(viewport);
+        await page.screenshot({ path: `/tmp/k-downloader-shortcuts-${viewport.width}.png` });
+        expect(await page.evaluate(() => {
+          const content = document.querySelector<HTMLElement>(".settings-content")!;
+          const footer = document.querySelector<HTMLElement>(".app-footer")!.getBoundingClientRect();
+          return content.scrollWidth <= content.clientWidth && footer.bottom === innerHeight;
+        })).toBe(true);
+      }
+      await page.getByRole("button", { name: "Appearance", exact: true }).click();
+      expect(await page.getByRole("radio", { name: "System", exact: true }).isChecked()).toBe(initialSelection);
+      expect(await page.locator("#shortcuts-page").isVisible()).toBe(false);
+      await page.setViewportSize({ width: 1120, height: 780 });
+      for (const mode of ["light", "dark"] as const) {
+        await page.getByRole("radio", { name: new RegExp(`^${mode}$`, "i") }).check();
+        const accents = new Set<string>();
+        for (const theme of colorThemes) {
+          await page.getByRole("radio", { name: new RegExp(`^${theme}$`, "i") }).check();
+          const palette = await page.evaluate(() => {
+            const styles = getComputedStyle(document.documentElement);
+            return {
+              mode: document.documentElement.dataset.mode,
+              theme: document.documentElement.dataset.theme,
+              accent: styles.getPropertyValue("--mint").trim(),
+              surface: styles.getPropertyValue("--panel").trim(),
+              scheme: styles.colorScheme,
+            };
+          });
+          expect(palette.mode).toBe(mode);
+          expect(palette.theme).toBe(theme);
+          expect(palette.scheme).toBe(mode);
+          expect(palette.surface).not.toBe(palette.accent);
+          accents.add(palette.accent);
+        }
+        expect(accents.size).toBe(5);
+      }
+      await page.reload();
+      await page.waitForFunction(() => document.documentElement.dataset.theme === "monochrome");
+      expect(await page.locator("html").getAttribute("data-mode")).toBe("dark");
+      await page.keyboard.press("Control+Comma");
+      await page.getByRole("radio", { name: "System", exact: true }).check();
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "light");
+      await page.emulateMedia({ colorScheme: "dark" });
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "dark");
+      await page.getByRole("radio", { name: "Light", exact: true }).check();
+      await page.emulateMedia({ colorScheme: "light" });
+      await page.emulateMedia({ colorScheme: "dark" });
+      expect(await page.locator("html").getAttribute("data-mode")).toBe("light");
+      await page.screenshot({ path: "/tmp/k-downloader-appearance-light.png" });
+      await page.setViewportSize({ width: 760, height: 620 });
+      await page.getByRole("radio", { name: "Dark", exact: true }).check();
+      await page.getByRole("radio", { name: "Mint", exact: true }).check();
+      await page.screenshot({ path: "/tmp/k-downloader-appearance-dark.png" });
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      await page.keyboard.press("Escape");
+      await page.locator("#workspace").waitFor({ state: "visible" });
+      await page.locator("#album-url").fill("https://downloads.khinsider.com/game-soundtracks/album/fixture");
+      await page.getByRole("button", { name: "Inspect album", exact: true }).click();
+      await page.getByRole("button", { name: "Cancel inspection", exact: true }).click();
+      await page.waitForFunction(() => document.querySelector("#status-text")?.textContent === "Inspection canceled");
+      expect(await page.locator("#inspection-indicator").isVisible()).toBe(false);
+      expect(await page.locator(".status-strip").isVisible()).toBe(true);
+      expect(await page.locator("#inspect-button").isEnabled()).toBe(true);
+      expect(await page.locator("#download-button").isEnabled()).toBe(false);
+      expect(await page.locator("#error-text").textContent()).toBe("");
+      await page.getByRole("button", { name: "Inspect album", exact: true }).click();
+      await page.locator("#inspection-indicator").waitFor({ state: "visible" });
+      expect(await page.getByText("Inspection in progress", { exact: true }).count()).toBe(1);
+      expect(await page.locator(".status-strip").isVisible()).toBe(false);
+      expect(await page.locator(".inspection-spinner").evaluate((element) => {
+        const animation = element.getAnimations()[0];
+        return animation?.playState === "running" && animation.effect?.getTiming().iterations === Infinity;
+      })).toBe(true);
+      await page.screenshot({ path: "/tmp/k-downloader-single-inspection-indicator.png" });
+      await page.locator("#inspection-indicator").click();
+      expect(await page.locator("#inspection-indicator-text").textContent()).toBe("Hide browser");
+      await page.locator("#inspection-indicator").click();
+      expect(await page.locator("#inspection-indicator-text").textContent()).toBe("Show browser");
+      await page.evaluate(() => window.dispatchEvent(new CustomEvent("finish-inspection")));
+      await page.waitForFunction(() => document.querySelectorAll("#track-rows tr").length === 200);
+      expect(await page.locator("#inspection-indicator").isVisible()).toBe(false);
+      expect(await page.locator(".status-strip").isVisible()).toBe(true);
+      expect(await page.locator("#status-text").textContent()).toBe("Preview ready");
+      for (const viewport of [{ width: 760, height: 620 }, { width: 1120, height: 780 }]) {
+        await page.setViewportSize(viewport);
+        const measure = () => page.evaluate(() => {
+          const footer = document.querySelector<HTMLElement>(".app-footer")!.getBoundingClientRect();
+          const transfer = document.querySelector<HTMLElement>(".progress-footer")!.getBoundingClientRect();
+          const table = document.querySelector<HTMLElement>(".table-wrap")!;
+          return {
+            footerTop: footer.top,
+            footerBottom: footer.bottom,
+            transferBottom: transfer.bottom,
+            listScrolls: table.scrollHeight > table.clientHeight,
+            pageHeight: document.documentElement.scrollHeight,
+            listScrollTop: table.scrollTop,
+          };
+        });
+        const initial = await measure();
+        expect(initial.footerBottom).toBe(viewport.height);
+        expect(initial.transferBottom).toBeLessThanOrEqual(initial.footerTop);
+        expect(initial.pageHeight).toBe(viewport.height);
+        expect(initial.listScrolls).toBe(true);
+        await page.locator(".table-wrap").evaluate((element) => { element.scrollTop = element.scrollHeight; });
+        const scrolled = await measure();
+        expect(scrolled.listScrollTop).toBeGreaterThan(0);
+        expect(scrolled.footerBottom).toBe(initial.footerBottom);
+        expect(scrolled.transferBottom).toBe(initial.transferBottom);
+        await page.screenshot({ path: `/tmp/k-downloader-long-preview-${viewport.width}.png` });
+      }
+      await page.getByRole("button", { name: "Inspect album", exact: true }).click();
+      await page.locator("#inspection-indicator").waitFor({ state: "visible" });
+      await page.evaluate(() => window.dispatchEvent(new CustomEvent("finish-inspection", { detail: "fail" })));
+      await page.waitForFunction(() => document.querySelector("#status-text")?.textContent === "Inspection failed");
+      expect(await page.locator("#inspection-indicator").isVisible()).toBe(false);
+      expect(await page.locator(".status-strip").isVisible()).toBe(true);
+      expect(errors).toEqual([]);
+    } finally {
+      await browser.close();
+    }
+  }, 30_000);
+});
+
+describe("Electron native theme updates", () => {
+  it("updates System mode through preload but preserves explicit Light and Dark", async () => {
+    const userData = await mkdtemp(resolve(tmpdir(), "k-downloader-theme-test-"));
+    const require = createRequire(import.meta.url);
+    const app = await electron.launch({
+      executablePath: require("electron"),
+      args: [resolve("dist/electron/main.cjs"), `--user-data-dir=${userData}`],
+      env: { ...process.env, XDG_CURRENT_DESKTOP: "Test" },
+    });
+    try {
+      const page = await app.firstWindow();
+      await page.waitForFunction(() => document.documentElement.dataset.mode);
+      await page.keyboard.press("Control+Comma");
+      await page.getByRole("radio", { name: "System", exact: true }).check();
+      await app.evaluate(({ nativeTheme }) => { nativeTheme.themeSource = "dark"; });
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "dark");
+      await app.evaluate(({ nativeTheme }) => { nativeTheme.themeSource = "light"; });
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "light");
+      await page.getByRole("radio", { name: "Dark", exact: true }).check();
+      await app.evaluate(({ nativeTheme }) => { nativeTheme.themeSource = "light"; });
+      expect(await page.locator("html").getAttribute("data-mode")).toBe("dark");
+      await page.getByRole("radio", { name: "Light", exact: true }).check();
+      await app.evaluate(({ nativeTheme }) => { nativeTheme.themeSource = "dark"; });
+      expect(await page.locator("html").getAttribute("data-mode")).toBe("light");
+      await page.getByRole("radio", { name: "System", exact: true }).check();
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "dark");
+    } finally {
+      await app.close();
+      await rm(userData, { recursive: true, force: true });
+    }
+  }, 30_000);
+});
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **README.md**</summary>
+
+@@ lines 1-114 @@
+
+````
+# K-Downloader
+
+K-Downloader is a Linux-first KHInsider album downloader. The current slice
+implements public single-album discovery, format preview and policy, sequential
+streaming, and manifest-backed reruns. Multi-album queues, artwork, the GUI,
+optional account features, and packaging are not implemented yet.
+
+## Discovery check
+
+Requirements: Node.js 20 or newer, npm, and a graphical desktop session.
+
+```sh
+npm install
+npx playwright install chromium
+npm run inspect -- 'https://downloads.khinsider.com/game-soundtracks/album/unreal-ii-the-awakening-original-soundtrack'
+```
+
+The command opens a fresh visible Chromium context without a stored browser
+profile, visits the album and track pages sequentially, and prints every
+track's discovered format selection. It does not sign in or download audio.
+Visible mode is currently needed: plain Node fetch and headless Chromium
+received HTTP 403 during feasibility checks, while a fresh visible Chromium
+context succeeded. No attempt is made to imitate a browser or evade a challenge.
+If access is denied or a challenge appears, stop and review the site's permitted
+access methods.
+
+## Download One Album
+
+The CLI previews the selected formats before starting any transfer. The default
+format policy prefers lossless, falling back to MP3 when needed. The default
+destination is `~/Music/K-Downloader`.
+
+```sh
+npm run download -- 'https://downloads.khinsider.com/game-soundtracks/album/unreal-ii-the-awakening-original-soundtrack'
+```
+
+Use `--format lossless-only` to block when a track has no lossless source. Add
+`--skip-unavailable` to explicitly skip those tracks and mark the album
+incomplete. A specific format such as `--format MP3` never silently substitutes
+another format. Use `--output /path/to/music` for another destination.
+
+Multi-disc albums are saved into per-disc folders such as `CD1/` and `CD2/`.
+The GUI offers `CD` and `Disc` folder labels; the CLI accepts
+`--disc-label CD` or `--disc-label Disc` and defaults to `CD`. Single-disc
+albums keep the flat album folder.
+
+Files are streamed through temporary `.part` files, validated, and moved into
+place without overwriting. A per-album manifest records completion so verified
+files can be skipped on rerun. Transfers are covered by local mocked tests; an
+authorized live audio download has not yet been run.
+
+## Desktop GUI
+
+Requirements: Node.js 20 or newer, npm, and a graphical Linux session.
+
+```sh
+npm install
+npx playwright install chromium
+npm run gui
+```
+
+Paste one album URL and choose **Inspect album**. A Chromium inspection window
+starts minimized while an in-progress indicator appears in the app; click that
+indicator to show or hide the browser. Review the per-track format preview, choose the
+destination and format policy, then select **Download**. The default destination
+is `~/Music/K-Downloader`. **Cancel active download** stops the current transfer
+and prevents later tracks from starting.
+
+While inspection is running, the same button becomes **Cancel inspection**.
+It closes the inspection browser and stops scanning track pages, including
+during browser startup. A canceled inspection can be started again.
+
+Open **More > Settings** in the titlebar or press `Ctrl+,`. Under **Appearance**,
+select Light, Dark, or System mode and a Mint, Ocean, Amber, Rose, or Monochrome
+color theme. System follows desktop appearance changes; System + Mint is the
+default. Choices apply immediately and are saved locally across restarts.
+On Cinnamon, System mode follows the GTK theme (for example, Mint-Y versus
+Mint-Y-Dark); other desktops use Electron's native appearance notifications.
+Return with **Back to downloader** or press `Esc`.
+Settings has its own left navigation rail. **Appearance** retains the mode and
+theme controls; **Shortcuts** lists navigation, zoom, and changelog-resize
+commands with their key combinations. Switching pages preserves selections.
+
+**More > Restore Size/Position** restores the development default (1120x780)
+and centers the window on its current monitor. Window size, position, and
+maximized state are saved on close and restored on the next launch, with
+off-screen positions corrected if monitor arrangements change.
+
+**More > Changelog** opens a panel from the right. Drag its left edge to adjust
+the width up to 40% of the window; the focused resize handle also accepts arrow
+keys. Close it with its close button or `Esc`. Content is embedded from the root
+`changelog.md` during `npm run build:gui` (also run by `npm run gui`).
+
+Use `Ctrl+=` or `Ctrl++` to enlarge the UI, `Ctrl+-` to reduce it, and `Ctrl+0`
+to reset to 100%. `Ctrl+mousewheel` also changes scale. Zoom is limited to
+50%-200% and does not change the window's saved geometry.
+
+The GUI uses a context-isolated, sandboxed renderer with a narrow preload API.
+It currently supports one album per run; multi-album queues and packaging are
+not available yet.
+
+## Development
+
+```sh
+npm test
+npm run build
+npm audit
+```
+
+Tests build the GUI first and use the installed Playwright Chromium and Electron
+for local appearance checks. The Electron checks require a graphical session
+and use an isolated profile. No desktop settings, site requests, or audio
+transfers are changed or made by those tests.
+````
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **changelog.md**</summary>
+
+@@ lines 1-43 @@
+
+```
+# Changelog
+
+## Unreleased
+
+### Added
+
+- Settings navigation rail with Appearance and a grouped keyboard-shortcut reference.
+- Public KHInsider album discovery and sequential audio downloads.
+- CLI and desktop GUI with format previews and lossless selection policies.
+- Multi-disc output folders with CD and Disc labels.
+- Manifest-backed reruns and safe, non-overwriting file transfers.
+- Cancel inspection during browser startup, navigation, or track scanning;
+	close the inspection browser and allow a fresh scan without an error.
+- Single animated inspection indicator with a browser visibility toggle.
+- Custom titlebar and More menu.
+- Settings with Light, Dark, and System appearance modes.
+- Mint, Ocean, Amber, Rose, and Monochrome color themes.
+- Cinnamon desktop appearance updates.
+- Persistent window size, position, and maximized state, with off-screen recovery
+	when monitor arrangements change.
+- Restore Size/Position command resets to 1120x780 and centers on the current monitor.
+- Right-side changelog drawer with drag and keyboard resizing up to 40% of the
+	window width, a close button, and Escape support.
+- Build-time changelog loading from the root changelog.md with sanitized Markdown rendering.
+- App title and version in the More menu, with the version read from package.json at build time.
+- Ctrl+0, Ctrl+minus, Ctrl+plus/equal, and Ctrl+mousewheel zoom controls, limited
+	to 50%-200% without changing saved window geometry.
+
+### Changed
+
+- More menu order: Restore Size/Position, Settings, Changelog, separator, app title/version.
+- Long Discovery Preview lists scroll inside the panel instead of expanding the app.
+- Setup and Settings content scroll independently while the bottom statusbar remains visible.
+
+### Fixed
+
+- Duplicate inspection status rows.
+- Empty preview space after discovery.
+- Statusbar visibility for long track lists.
+- Main-process exception when closing the window.
+- Inspection cancellation no longer produces an inspection-failure error or
+	leaves stale discovery results available for download.
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm test -- tests/appearance.test.ts && npm run build`
+
+Run the Settings navigation and shortcut-layout regression with existing appearance and inspection checks, then type-check.
+
+```bash
+npm test -- tests/appearance.test.ts && npm run build
+```
+
+**Result:**
+
+```
+
+> k-downloader@0.1.0 pretest
+> npm run build:gui
+
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+
+> k-downloader@0.1.0 test
+> vitest run tests/appearance.test.ts
+
+
+ RUN  v5.0.4 /home/kel/dev/K-Downloader
+
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  12:54:30
+   Duration  3.73s (tests 88%, import 11%, transform 1%)
+
+
+> k-downloader@0.1.0 build
+> tsc --noEmit
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The navigation test passes: Appearance selections survive switching pages, the shortcut groups are present, and the content fits at both window sizes without moving the statusbar. I’ll review the screenshots and diagnostics, then launch the updated 
+
+The navigation test passes: Appearance selections survive switching pages, the shortcut groups are present, and the content fits at both window sizes without moving the statusbar. I’ll review the screenshots and diagnostics, then launch the updated GUI.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="get_errors"><details>
+<summary>Tool use: **get_errors**</summary>
+
+Checked `renderer.ts`, `styles.css`, `appearance.test.ts`, no problems found
+
+**Input:**
+
+- filePaths:
+
+```
+[
+  "/home/kel/dev/K-Downloader/src/renderer.ts",
+  "/home/kel/dev/K-Downloader/gui/styles.css",
+  "/home/kel/dev/K-Downloader/tests/appearance.test.ts"
+]
+```
+
+
+**Result:**
+
+```
+<errors path="/home/kel/dev/K-Downloader/src/renderer.ts">
+No errors found
+</errors>
+<errors path="/home/kel/dev/K-Downloader/gui/styles.css">
+No errors found
+</errors>
+<errors path="/home/kel/dev/K-Downloader/tests/appearance.test.ts">
+No errors found
+</errors>
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="view_image"><details>
+<summary>Tool use: **view_image**</summary>
+
+Viewed image `k-downloader-shortcuts-1120.png`
+
+**Input:**
+
+- filePath: `/tmp/k-downloader-shortcuts-1120.png`
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="view_image"><details>
+<summary>Tool use: **view_image**</summary>
+
+Viewed image `k-downloader-shortcuts-760.png`
+
+**Input:**
+
+- filePath: `/tmp/k-downloader-shortcuts-760.png`
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="task" data-tool-name="manage_todo_list"><details>
+<summary>Tool use: **manage_todo_list**</summary>
+
+Created 3 todos
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The screenshots show a clear Settings rail and aligned shortcut keycaps at both sizes. The content area scrolls while the Settings header and statusbar remain visible. Diagnostics are clean; I’ll open the rebuilt GUI now.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm run gui`
+
+Launch the GUI with Settings' Appearance/Shortcuts navigation rail and keyboard-shortcut reference.
+
+```bash
+npm run gui
+```
+
+**Result:**
+
+```
+Command is running in terminal with ID=aae91859-de8e-4cad-aec5-69980ec997d9
+ The command became idle with output:
+kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+
+> k-downloader@0.1.0 gui
+> npm run build:gui && electron dist/electron/main.cjs
+
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+[97851:1012/125501.518615:ERROR:gpu/command_buffer/service/gpu_persistent_cache.cc:137] Persistent cache error: 1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+This note is not a signal to end the turn — pick one of the actions below and continue.
+  1. If the command may still be producing output or the shell prompt has not returned, call get_terminal_output with id="aae91859-de8e-4cad-aec5-69980ec997d9" to continue polling. This is the default and safest action when unsure.
+  2. Only if the output clearly ends with a real non-secret input prompt (Continue? (y/n), Enter selection, etc. — a normal shell prompt like `$` or `#` does NOT count), call the vscode_askQuestions tool to ask the user, then send each answer using send_to_terminal with id="aae91859-de8e-4cad-aec5-69980ec997d9" (which returns the next few lines of output). Repeat one prompt at a time. NEVER route secret prompts (passwords, passphrases, tokens, API keys, etc.) through vscode_askQuestions — answers to that tool are sent through the model. For secret prompts, tell the user to type the value directly into the terminal and stop.
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+Added the Settings left rail with **Appearance** and **Shortcuts**.
+
+Appearance keeps its existing controls and selections. Shortcuts presents grouped navigation, zoom, and changelog-resize commands with keycaps.
+
+Navigation/layout tests and build pass. The updated GUI is open.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="task" data-tool-name="manage_todo_list"><details>
+<summary>Tool use: **manage_todo_list**</summary>
+
+Completed: *Add Settings navigation rail* (1/3)
+</details></tool-use>
+
+---
+
+_**User (2026-10-12 17:41:02Z)**_
+
+update the changelog, then commit and push
+
+---
+
+_**Agent (copilot/auto)**_
+
+<think><details><summary>Thought Process</summary>
+I’ll update the changelog with the Settings rail and shortcut reference, verify the pending project changes, then commit and push. Session-history files will stay out of the commit.
+
+There are six project files to commit; the only unrelated change is the tracked session history. I’ll expand the changelog entry to mention preserved Appearance selections, the shortcut groups, and the independently scrolling Settings content.
+
+The changelog is updated, all 31 tests pass, and the TypeScript build is clean. I’ll stage the six Settings-related project files, commit them, and push `main`.
+
+Only the intended project files are staged; session history remains unstaged. I’ll commit and push now, then check that `main` is synchronized with the remote.
+</details></think>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm test && npm run build`
+
+Rebuild the embedded changelog and validate all tests plus TypeScript before committing the Settings changes.
+
+```bash
+npm test && npm run build
+```
+
+**Result:**
+
+```
+
+> k-downloader@0.1.0 pretest
+> npm run build:gui
+
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+
+> k-downloader@0.1.0 test
+> vitest run
+
+
+ RUN  v5.0.4 /home/kel/dev/K-Downloader
+
+
+ Test Files  7 passed (7)
+      Tests  31 passed (31)
+   Start at  12:57:28
+   Duration  3.93s (tests 84%, import 15%, transform 1%, worker 1%)
+
+
+> k-downloader@0.1.0 build
+> tsc --noEmit
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The changelog is updated, all 31 tests pass, and the TypeScript build is clean. I’ll stage the six Settings-related project files, commit them, and push .
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="tool_search"><details>
+<summary>Tool use: **tool_search**</summary>
+
+**Input:**
+
+- query: `Stage explicitly selected Git files with git add and push commits to the configured upstream remote`
+
+**Result:**
+
+```
+["mcp_gitkraken_cli_git_push","mcp_gitkraken_cli_git_pull","mcp_gitkraken_cli_git_stash","mcp_gitkraken_cli_git_commit","mcp_gitkraken_cli_git_add"]
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="mcp_gitkraken_cli_git_add"><details>
+<summary>Tool use: **mcp_gitkraken_cli_git_add**</summary>
+
+Ran `git_add` 
+
+**Input:**
+
+- directory: `/home/kel/dev/K-Downloader`
+- files:
+
+```
+[
+  "README.md",
+  "changelog.md",
+  "gui/index.html",
+  "gui/styles.css",
+  "src/renderer.ts",
+  "tests/appearance.test.ts"
+]
+```
+
+
+**Result:**
+
+```
+{"data":{"output":""}}
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="mcp_gitkraken_cli_git_status"><details>
+<summary>Tool use: **mcp_gitkraken_cli_git_status**</summary>
+
+Created 3 todos
+
+**Input:**
+
+- directory: `/home/kel/dev/K-Downloader`
+
+**Result:**
+
+```
+{"data":{"output":"On branch main\nYour branch is up to date with 'origin/main'.\n\nChanges not staged for commit:\n  (use \"git add \u003cfile\u003e...\" to update what will be committed)\n  (use \"git restore \u003cfile\u003e...\" to discard changes in working directory)\n\tmodified:   .specstory/history/2026-10-12_13-32-09Z-review-project-plan-md.md\n\tmodified:   README.md\n\tmodified:   changelog.md\n\tmodified:   gui/index.html\n\tmodified:   gui/styles.css\n\tmodified:   src/renderer.ts\n\tmodified:   tests/appearance.test.ts\n\nno changes added to commit (use \"git add\" and/or \"git commit -a\")"}}
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="mcp_gitkraken_cli_git_status"><details>
+<summary>Tool use: **mcp_gitkraken_cli_git_status**</summary>
+
+Ran `git_status` 
+
+**Input:**
+
+- directory: `/home/kel/dev/K-Downloader`
+
+**Result:**
+
+```
+{"data":{"output":"On branch main\nYour branch is up to date with 'origin/main'.\n\nChanges to be committed:\n  (use \"git restore --staged \u003cfile\u003e...\" to unstage)\n\tmodified:   README.md\n\tmodified:   changelog.md\n\tmodified:   gui/index.html\n\tmodified:   gui/styles.css\n\tmodified:   src/renderer.ts\n\tmodified:   tests/appearance.test.ts\n\nChanges not staged for commit:\n  (use \"git add \u003cfile\u003e...\" to update what will be committed)\n  (use \"git restore \u003cfile\u003e...\" to discard changes in working directory)\n\tmodified:   .specstory/history/2026-10-12_13-32-09Z-review-project-plan-md.md"}}
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+Only the intended project files are staged; session history remains unstaged. I’ll commit and push now, then check that  is synchronized with the remote.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="mcp_gitkraken_cli_git_commit"><details>
+<summary>Tool use: **mcp_gitkraken_cli_git_commit**</summary>
+
+Ran `git_commit` 
+
+**Input:**
+
+- description: `Add Appearance and Shortcuts pages in the Settings rail, preserve appearance selections, present grouped keyboard shortcuts, and update documentation, changelog, and browser regression coverage.`
+- directory: `/home/kel/dev/K-Downloader`
+- message: `feat: add Settings navigation and shortcut reference`
+
+**Result:**
+
+```
+{"data":{"output":"[main 8f3d8d4] feat: add Settings navigation and shortcut reference\n 6 files changed, 121 insertions(+), 5 deletions(-)\n"}}
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="mcp_gitkraken_cli_git_push"><details>
+<summary>Tool use: **mcp_gitkraken_cli_git_push**</summary>
+
+Ran `git_push` 
+
+**Input:**
+
+- directory: `/home/kel/dev/K-Downloader`
+
+**Result:**
+
+```
+{"data":{"output":""}}
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="mcp_gitkraken_cli_git_status"><details>
+<summary>Tool use: **mcp_gitkraken_cli_git_status**</summary>
+
+Ran `git_status` 
+
+**Input:**
+
+- directory: `/home/kel/dev/K-Downloader`
+
+**Result:**
+
+```
+{"data":{"output":"On branch main\nYour branch is up to date with 'origin/main'.\n\nChanges not staged for commit:\n  (use \"git add \u003cfile\u003e...\" to update what will be committed)\n  (use \"git restore \u003cfile\u003e...\" to discard changes in working directory)\n\tmodified:   .specstory/history/2026-10-12_13-32-09Z-review-project-plan-md.md\n\nno changes added to commit (use \"git add\" and/or \"git commit -a\")"}}
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+Updated `changelog.md`, committed as `8f3d8d4`, and pushed to `origin/main`.
+
+All 31 tests and the build pass. Session-history changes remain local and uncommitted.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Completed: *Update changelog with new features* (1/3)
+
+**Input:**
+
+- endLine: `110`
+- filePath: `/home/kel/dev/K-Downloader/changelog.md`
+- startLine: `1`
+
+**Result:**
+
+```
+# Changelog
+
+## Unreleased
+
+### Added
+
+- Settings navigation rail with Appearance and a grouped keyboard-shortcut reference.
+- Public KHInsider album discovery and sequential audio downloads.
+- CLI and desktop GUI with format previews and lossless selection policies.
+- Multi-disc output folders with CD and Disc labels.
+- Manifest-backed reruns and safe, non-overwriting file transfers.
+- Cancel inspection during browser startup, navigation, or track scanning;
+	close the inspection browser and allow a fresh scan without an error.
+- Single animated inspection indicator with a browser visibility toggle.
+- Custom titlebar and More menu.
+- Settings with Light, Dark, and System appearance modes.
+- Mint, Ocean, Amber, Rose, and Monochrome color themes.
+- Cinnamon desktop appearance updates.
+- Persistent window size, position, and maximized state, with off-screen recovery
+	when monitor arrangements change.
+- Restore Size/Position command resets to 1120x780 and centers on the current monitor.
+- Right-side changelog drawer with drag and keyboard resizing up to 40% of the
+	window width, a close button, and Escape support.
+- Build-time changelog loading from the root changelog.md with sanitized Markdown rendering.
+- App title and version in the More menu, with the version read from package.json at build time.
+- Ctrl+0, Ctrl+minus, Ctrl+plus/equal, and Ctrl+mousewheel zoom controls, limited
+	to 50%-200% without changing saved window geometry.
+
+### Changed
+
+- More menu order: Restore Size/Position, Settings, Changelog, separator, app title/version.
+- Long Discovery Preview lists scroll inside the panel instead of expanding the app.
+- Setup and Settings content scroll independently while the bottom statusbar remains visible.
+
+### Fixed
+
+- Duplicate inspection status rows.
+- Empty preview space after discovery.
+- Statusbar visibility for long track lists.
+- Main-process exception when closing the window.
+- Inspection cancellation no longer produces an inspection-failure error or
+	le
+… (output truncated)
+```
+</details></tool-use>
+
+---
+
+_**User (2026-10-12 17:52:42Z)**_
+
+now Settings needs to have it's own left nav rail. In that should be Appearance and Shortcuts. Make sure the items that currently exist in the Appearance section are displayed as is when the user selects Appearance from the Settings nav. When Shortcuts is selected, display a typical modern presentation of all keyboard shortcuts available in the app.
+
+---
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="copilot_readFile"><details>
+<summary>Tool use: **copilot_readFile**</summary>
+
+Read `package.json`
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="copilot_readFile"><details>
+<summary>Tool use: **copilot_readFile**</summary>
+
+Read `build-gui.mjs`
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="copilot_findFiles"><details>
+<summary>Tool use: **copilot_findFiles**</summary>
+
+Searched for files matching `**/{*release*,*builder*,*.yml,*.yaml}`, no matches
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="copilot_listDirectory"><details>
+<summary>Tool use: **copilot_listDirectory**</summary>
+
+Read `docs`
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="copilot_readFile"><details>
+<summary>Tool use: **copilot_readFile**</summary>
+
+Read `README.md`
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+There’s no installer packaging or release workflow configured yet. I’ll document the current build and a source-only GitHub release process, with validation, versioning, tagging, and draft publishing steps. I’ll also call out why `dist` alone isn’t a distributable desktop app.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **BUILD_AND_RELEASE.md**</summary>
+
+@@ lines 1-1 @@
+
+````
+# Build and GitHub Release Guide
+
+Run the commands below from the repository root. This guide describes the
+current implementation, not the planned installer packaging.
+
+## What Can Be Released Today
+
+The project supports a source-only GitHub release. GitHub provides source ZIP
+and tar archives automatically for its release tag. Users must install Node.js,
+npm dependencies, and Playwright Chromium before running the app.
+
+AppImage, Debian `.deb`, and Fedora `.rpm` packaging are not configured yet.
+There is no installer-building command or automated GitHub release workflow.
+Do not describe a source release as an installable Linux application package.
+
+The generated `dist/` directory contains Electron main/preload bundles and the
+local renderer assets. It is **not a standalone application**: it still depends
+on Electron, external Node packages, and Playwright's browser runtime. Uploading
+only `dist/` does not provide a runnable installer.
+
+## Prerequisites
+
+- Linux with a graphical desktop session for GUI and Electron tests.
+- A current supported Node.js release; Node.js 22.12+ or 24+ is recommended for
+  the current test toolchain. An older system Node may fail even if it satisfies
+  the application's declared Node.js 20 minimum.
+- npm, Git, and access to the target GitHub repository.
+- GitHub CLI (`gh`) for the command-line release steps, or the GitHub website.
+
+Check the environment:
+
+```sh
+node --version
+npm --version
+git --version
+gh --version
+gh auth status
+```
+
+If GitHub authentication is missing, run `gh auth login` and complete its browser
+or terminal flow directly. Never put passwords or tokens in commit messages,
+release notes, command arguments, or project files.
+
+## Install and Build
+
+Install the exact locked dependencies and the discovery browser:
+
+```sh
+npm ci
+npx playwright install chromium
+```
+
+Allow required package installation scripts according to your npm installation
+policy. Electron must have its platform binary installed before its tests or
+GUI can launch. A missing native library is a host setup issue; follow the
+runtime's supported dependency instructions rather than disabling its sandbox.
+
+Validate and generate the GUI:
+
+```sh
+npm test
+npm run build
+npm run build:gui
+npm audit
+```
+
+- `npm test` first builds the GUI, then runs unit, Chromium, and isolated
+  Electron regression tests. Tests make no live site requests or audio downloads.
+- `npm run build` performs a TypeScript check only; it does not emit an installer.
+- `npm run build:gui` recreates `dist/`, bundles the Electron and renderer code,
+  and copies the local HTML/CSS assets.
+- The GUI build embeds the root [changelog.md](../changelog.md) and the version
+  from [package.json](../package.json). Rebuild after changing either file.
+- `npm audit` reports dependency advisories. Review and resolve release-blocking
+  issues; do not blindly apply a forced dependency upgrade.
+
+Launch the app for a manual smoke check:
+
+```sh
+npm run gui
+```
+
+Check startup/close, Settings navigation and appearance, keyboard shortcuts,
+changelog resizing, window restore, and saved geometry. Only test site discovery
+or real audio transfers when authorized; they are not required for building.
+
+## Prepare the Release Commit
+
+1. Check `git status` and review the intended diff. Exclude local settings,
+   session history, secrets, downloaded music, and generated dependencies/assets.
+   Use explicit file paths when staging; do not automatically stage everything.
+2. Decide the release version. The current app version is `0.1.0`; the first
+   release can use that version. For a subsequent release, update the root
+   manifest and lockfile without creating a tag automatically, for example:
+
+   ```sh
+   npm version 0.1.1 --no-git-tag-version
+   ```
+
+3. Replace the changelog's `Unreleased` heading for the released entries with
+   the selected version and release date, and leave a new `Unreleased` section
+   above it for future work. Keep the release notes accurate about unfinished
+   features and the graphical-session/browser requirements.
+4. Repeat the build/test checks after the version and changelog updates.
+5. Stage only intended release files, review, and commit. For example, when
+   these are the only changed release files:
+
+   ```sh
+   git add package.json package-lock.json changelog.md
+   git diff --cached
+   git diff --cached --check
+   git commit -m "chore: prepare release"
+   git push origin main
+   ```
+
+If `main` is protected, use the repository's pull-request workflow instead.
+Create the tag from the final merged, validated commit, not an unmerged branch.
+The application is marked `private` in its manifest; this workflow publishes to
+GitHub, not npm.
+
+## Tag and Create a Draft Release
+
+Ensure the selected commit and version are ready, and the tag does not already
+exist. The commands below derive the tag from the app's manifest:
+
+```sh
+VERSION=$(node -p "require('./package.json').version")
+TAG="v$VERSION"
+git status
+git ls-remote --tags origin "refs/tags/$TAG"
+```
+
+Stop if the remote tag already exists. Also stop if a local tag with that name
+exists (`git tag --list "$TAG"`); inspect it rather than moving or overwriting it.
+
+Create and push the annotated tag:
+
+```sh
+git tag -a "$TAG" -m "K-Downloader $VERSION"
+git push origin "$TAG"
+```
+
+Create a draft using the verified remote tag and the changelog as the initial
+notes source:
+
+```sh
+gh release create "$TAG" \
+  --repo kelmankenberg/K-Downloader \
+  --verify-tag \
+  --draft \
+  --title "K-Downloader $VERSION" \
+  --notes-file changelog.md
+```
+
+For experimental versions, also pass `--prerelease`. Review the draft notes:
+`--notes-file` includes the whole changelog, so trim older entries in the draft
+and prominently state **source-only release; no Linux installers included**.
+
+## Publish and Verify
+
+Open the draft, review its tag, notes, and release type, then publish:
+
+```sh
+gh release view "$TAG" --repo kelmankenberg/K-Downloader --web
+gh release edit "$TAG" --repo kelmankenberg/K-Downloader --draft=false
+gh release view "$TAG" --repo kelmankenberg/K-Downloader
+```
+
+On the GitHub website, the equivalent is **Releases > Draft a new release**:
+select the pushed tag, enter the title/notes, save as draft, review, and publish.
+
+After publication, verify the source archives are available and correspond to
+the selected tag. Test setup from that tag in a clean directory, using `npm ci`
+and the browser installation step above. Do not assume a successful development
+build proves installer compatibility.
+
+## When Installer Packaging Is Added
+
+Before uploading AppImage, `.deb`, or `.rpm` assets, define supported Linux
+versions/architectures and implement a packaging workflow. It must include
+runtime dependencies, browser provisioning, desktop integration, CLI invocation,
+and normal sandbox support. Test the actual artifacts on the declared targets.
+
+Only then attach validated installers and checksums to a draft, using actual
+artifact paths, for example `gh release upload "$TAG" <artifact-paths>` with
+the same `--repo` option. Do not upload unrelated build output or claim installer
+support until those packaging and compatibility checks pass.
+````
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The guide is written. I’ll check its relative links, referenced npm scripts, and Node-version guidance against the installed toolchain. I won’t run any version, tag, or release-creation commands.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` node --input-type=module -e 'import \{ readFileSync, existsSync \} from "node:...`
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The links and npm script names check out. The installed tools require newer Node versions than the app manifest’s minimum, so I’ll make the guide precise: Node 22.12+ within the 22 series, Node 24, or Node 26+.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **BUILD_AND_RELEASE.md**</summary>
+
+@@ lines 1-188 @@
+
+````
+# Build and GitHub Release Guide
+
+Run the commands below from the repository root. This guide describes the
+current implementation, not the planned installer packaging.
+
+## What Can Be Released Today
+
+The project supports a source-only GitHub release. GitHub provides source ZIP
+and tar archives automatically for its release tag. Users must install Node.js,
+npm dependencies, and Playwright Chromium before running the app.
+
+AppImage, Debian `.deb`, and Fedora `.rpm` packaging are not configured yet.
+There is no installer-building command or automated GitHub release workflow.
+Do not describe a source release as an installable Linux application package.
+
+The generated `dist/` directory contains Electron main/preload bundles and the
+local renderer assets. It is **not a standalone application**: it still depends
+on Electron, external Node packages, and Playwright's browser runtime. Uploading
+only `dist/` does not provide a runnable installer.
+
+## Prerequisites
+
+- Linux with a graphical desktop session for GUI and Electron tests.
+- Node.js 22 (22.12 or later), Node.js 24, or Node.js 26 or later, as required by
+  the installed Electron and Vitest toolchain. An older system Node may fail
+  even if it satisfies the application's declared Node.js 20 minimum.
+- npm, Git, and access to the target GitHub repository.
+- GitHub CLI (`gh`) for the command-line release steps, or the GitHub website.
+
+Check the environment:
+
+```sh
+node --version
+npm --version
+git --version
+gh --version
+gh auth status
+```
+
+If GitHub authentication is missing, run `gh auth login` and complete its browser
+or terminal flow directly. Never put passwords or tokens in commit messages,
+release notes, command arguments, or project files.
+
+## Install and Build
+
+Install the exact locked dependencies and the discovery browser:
+
+```sh
+npm ci
+npx playwright install chromium
+```
+
+Allow required package installation scripts according to your npm installation
+policy. Electron must have its platform binary installed before its tests or
+GUI can launch. A missing native library is a host setup issue; follow the
+runtime's supported dependency instructions rather than disabling its sandbox.
+
+Validate and generate the GUI:
+
+```sh
+npm test
+npm run build
+npm run build:gui
+npm audit
+```
+
+- `npm test` first builds the GUI, then runs unit, Chromium, and isolated
+  Electron regression tests. Tests make no live site requests or audio downloads.
+- `npm run build` performs a TypeScript check only; it does not emit an installer.
+- `npm run build:gui` recreates `dist/`, bundles the Electron and renderer code,
+  and copies the local HTML/CSS assets.
+- The GUI build embeds the root [changelog.md](../changelog.md) and the version
+  from [package.json](../package.json). Rebuild after changing either file.
+- `npm audit` reports dependency advisories. Review and resolve release-blocking
+  issues; do not blindly apply a forced dependency upgrade.
+
+Launch the app for a manual smoke check:
+
+```sh
+npm run gui
+```
+
+Check startup/close, Settings navigation and appearance, keyboard shortcuts,
+changelog resizing, window restore, and saved geometry. Only test site discovery
+or real audio transfers when authorized; they are not required for building.
+
+## Prepare the Release Commit
+
+1. Check `git status` and review the intended diff. Exclude local settings,
+   session history, secrets, downloaded music, and generated dependencies/assets.
+   Use explicit file paths when staging; do not automatically stage everything.
+2. Decide the release version. The current app version is `0.1.0`; the first
+   release can use that version. For a subsequent release, update the root
+   manifest and lockfile without creating a tag automatically, for example:
+
+   ```sh
+   npm version 0.1.1 --no-git-tag-version
+   ```
+
+3. Replace the changelog's `Unreleased` heading for the released entries with
+   the selected version and release date, and leave a new `Unreleased` section
+   above it for future work. Keep the release notes accurate about unfinished
+   features and the graphical-session/browser requirements.
+4. Repeat the build/test checks after the version and changelog updates.
+5. Stage only intended release files, review, and commit. For example, when
+   these are the only changed release files:
+
+   ```sh
+   git add package.json package-lock.json changelog.md
+   git diff --cached
+   git diff --cached --check
+   git commit -m "chore: prepare release"
+   git push origin main
+   ```
+
+If `main` is protected, use the repository's pull-request workflow instead.
+Create the tag from the final merged, validated commit, not an unmerged branch.
+The application is marked `private` in its manifest; this workflow publishes to
+GitHub, not npm.
+
+## Tag and Create a Draft Release
+
+Ensure the selected commit and version are ready, and the tag does not already
+exist. The commands below derive the tag from the app's manifest:
+
+```sh
+VERSION=$(node -p "require('./package.json').version")
+TAG="v$VERSION"
+git status
+git ls-remote --tags origin "refs/tags/$TAG"
+```
+
+Stop if the remote tag already exists. Also stop if a local tag with that name
+exists (`git tag --list "$TAG"`); inspect it rather than moving or overwriting it.
+
+Create and push the annotated tag:
+
+```sh
+git tag -a "$TAG" -m "K-Downloader $VERSION"
+git push origin "$TAG"
+```
+
+Create a draft using the verified remote tag and the changelog as the initial
+notes source:
+
+```sh
+gh release create "$TAG" \
+  --repo kelmankenberg/K-Downloader \
+  --verify-tag \
+  --draft \
+  --title "K-Downloader $VERSION" \
+  --notes-file changelog.md
+```
+
+For experimental versions, also pass `--prerelease`. Review the draft notes:
+`--notes-file` includes the whole changelog, so trim older entries in the draft
+and prominently state **source-only release; no Linux installers included**.
+
+## Publish and Verify
+
+Open the draft, review its tag, notes, and release type, then publish:
+
+```sh
+gh release view "$TAG" --repo kelmankenberg/K-Downloader --web
+gh release edit "$TAG" --repo kelmankenberg/K-Downloader --draft=false
+gh release view "$TAG" --repo kelmankenberg/K-Downloader
+```
+
+On the GitHub website, the equivalent is **Releases > Draft a new release**:
+select the pushed tag, enter the title/notes, save as draft, review, and publish.
+
+After publication, verify the source archives are available and correspond to
+the selected tag. Test setup from that tag in a clean directory, using `npm ci`
+and the browser installation step above. Do not assume a successful development
+build proves installer compatibility.
+
+## When Installer Packaging Is Added
+
+Before uploading AppImage, `.deb`, or `.rpm` assets, define supported Linux
+versions/architectures and implement a packaging workflow. It must include
+runtime dependencies, browser provisioning, desktop integration, CLI invocation,
+and normal sandbox support. Test the actual artifacts on the declared targets.
+
+Only then attach validated installers and checksums to a draft, using actual
+artifact paths, for example `gh release upload "$TAG" <artifact-paths>` with
+the same `--repo` option. Do not upload unrelated build output or claim installer
+support until those packaging and compatibility checks pass.
+````
+</details></tool-use>
+
+---
+
+_**User (2026-10-12 17:56:59Z)**_
+
+good. update the changelog, commit and push
+
+---
+
+_**Agent (copilot/auto)**_
+
+I’ll update the changelog with the Settings rail and shortcut reference, verify the pending project changes, then commit and push. Session-history files will stay out of the commit.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="tool_search"><details>
+<summary>Tool use: **tool_search**</summary>
+
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="mcp_gitkraken_cli_git_status"><details>
+<summary>Tool use: **mcp_gitkraken_cli_git_status**</summary>
+
+Ran `git_status` 
+
+**Input:**
+
+- directory: `/home/kel/dev/K-Downloader`
+
+**Result:**
+
+```
+{"data":{"output":"On branch main\nYour branch is up to date with 'origin/main'.\n\nChanges not staged for commit:\n  (use \"git add \u003cfile\u003e...\" to update what will be committed)\n  (use \"git restore \u003cfile\u003e...\" to discard changes in working directory)\n\tmodified:   .specstory/history/2026-10-12_13-32-09Z-review-project-plan-md.md\n\tmodified:   README.md\n\tmodified:   changelog.md\n\tmodified:   gui/index.html\n\tmodified:   gui/styles.css\n\tmodified:   src/renderer.ts\n\tmodified:   tests/appearance.test.ts\n\nno changes added to commit (use \"git add\" and/or \"git commit -a\")"}}
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="copilot_readFile"><details>
+<summary>Tool use: **copilot_readFile**</summary>
+
+Read `changelog.md`
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+There are six project files to commit; the only unrelated change is the tracked session history. I’ll expand the changelog entry to mention preserved Appearance selections, the shortcut groups, and the independently scrolling Settings content.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **changelog.md**</summary>
+
+@@ lines 1-47 @@
+
+```
+# Changelog
+
+## Unreleased
+
+### Added
+
+- Settings left navigation rail with Appearance and Shortcuts pages.
+- Grouped shortcut reference with keycaps for navigation, interface zoom,
+  and focused changelog-panel resizing.
+- Public KHInsider album discovery and sequential audio downloads.
+- CLI and desktop GUI with format previews and lossless selection policies.
+- Multi-disc output folders with CD and Disc labels.
+- Manifest-backed reruns and safe, non-overwriting file transfers.
+- Cancel inspection during browser startup, navigation, or track scanning;
+	close the inspection browser and allow a fresh scan without an error.
+- Single animated inspection indicator with a browser visibility toggle.
+- Custom titlebar and More menu.
+- Settings with Light, Dark, and System appearance modes.
+- Mint, Ocean, Amber, Rose, and Monochrome color themes.
+- Cinnamon desktop appearance updates.
+- Persistent window size, position, and maximized state, with off-screen recovery
+	when monitor arrangements change.
+- Restore Size/Position command resets to 1120x780 and centers on the current monitor.
+- Right-side changelog drawer with drag and keyboard resizing up to 40% of the
+	window width, a close button, and Escape support.
+- Build-time changelog loading from the root changelog.md with sanitized Markdown rendering.
+- App title and version in the More menu, with the version read from package.json at build time.
+- Ctrl+0, Ctrl+minus, Ctrl+plus/equal, and Ctrl+mousewheel zoom controls, limited
+	to 50%-200% without changing saved window geometry.
+
+### Changed
+
+- Appearance controls retain their layout and selections when switching Settings pages.
+- Settings content scrolls independently of its navigation rail, header, and statusbar.
+- More menu order: Restore Size/Position, Settings, Changelog, separator, app title/version.
+- Long Discovery Preview lists scroll inside the panel instead of expanding the app.
+- Setup and Settings content scroll independently while the bottom statusbar remains visible.
+
+### Fixed
+
+- Duplicate inspection status rows.
+- Empty preview space after discovery.
+- Statusbar visibility for long track lists.
+- Main-process exception when closing the window.
+- Inspection cancellation no longer produces an inspection-failure error or
+	leaves stale discovery results available for download.
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm test && npm run build`
+</details></tool-use>
+
+---
+
+_**User (2026-10-12 17:59:16Z)**_
+
+create a new markdown doc in docs folder that describes how to build and create a release in github.
+
+---
+
+_**Agent (copilot/auto)**_
+
+I’ll check the current build scripts and packaging status, then write a release guide in `docs`. It will distinguish what can be built today from the Linux installers still planned, and include GitHub release commands.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="copilot_readFile"><details>
+<summary>Tool use: **copilot_readFile**</summary>
+
+Read `package.json`
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="copilot_readFile"><details>
+<summary>Tool use: **copilot_readFile**</summary>
+
+Read `build-gui.mjs`
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="copilot_findFiles"><details>
+<summary>Tool use: **copilot_findFiles**</summary>
+
+Searched for files matching `**/{*release*,*builder*,*.yml,*.yaml}`, no matches
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="copilot_listDirectory"><details>
+<summary>Tool use: **copilot_listDirectory**</summary>
+
+Read `docs`
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="copilot_readFile"><details>
+<summary>Tool use: **copilot_readFile**</summary>
+
+Read `README.md`
+</details></tool-use>
