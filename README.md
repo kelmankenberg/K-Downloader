@@ -66,6 +66,9 @@ destination and format policy, then select **Download**. The default destination
 is `~/Music/K-Downloader`. **Cancel active download** stops the current transfer
 and prevents later tracks from starting.
 
+Open **More > Settings** in the titlebar or press `Ctrl+,`. The Settings view is
+currently a placeholder; return with **Back to downloader** or press `Esc`.
+
 The GUI uses a context-isolated, sandboxed renderer with a narrow preload API.
 It currently supports one album per run; multi-album queues and packaging are
 not available yet.

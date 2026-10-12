@@ -20912,3 +20912,1138 @@ now let's lose the default titlebar and menubar.I want to create a custom top to
 LEft aligned: the app icon, app Title
 right aligned: custom control buttons.
 USe lucide icons for the buttons
+
+---
+
+_**Agent (copilot/auto)**_
+
+I’ll add the kebab menu beside Minimize, with a gear-labeled Settings item and `Ctrl+,` hint, then make Settings a local view that replaces the workspace while preserving the toolbar. It will close via an in-page button or Escape; I’m checking the current titlebar and renderer state before wiring it.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Read `index.html`
+
+**Input:**
+
+- endLine: `180`
+- filePath: `/home/kel/dev/K-Downloader/gui/index.html`
+- startLine: `1`
+
+**Result:**
+
+```
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'" />
+    <title>K-Downloader</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script defer src="./renderer.js"></script>
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <div class="brand-lockup">
+          <div class="app-icon" aria-hidden="true">K</div>
+          <div class="brand-name">K-Downloader</div>
+        </div>
+        <nav class="window-controls" aria-label="Window controls">
+          <button id="minimize-window" class="window-control" type="button" aria-label="Minimize window" title="Minimize">
+            <i data-lucide="minus" aria-hidden="true"></i>
+          </button>
+          <button id="maximize-window" class="window-control" type="button" aria-label="Maximize window" title="Maximize">
+            <i data-lucide="square" aria-hidden="true"></i>
+          </button>
+          <button id="close-window" class="window-control close-control" type="button" aria-label="Close window" title="Close">
+            <i data-lucide="x" aria-hidden="true"></i>
+          </button>
+        </nav>
+      </header>
+
+      <section class="workspace">
+        <aside class="control-panel" aria-label="Download setup">
+          <div class="section-heading"><span class="section-index">01</span><h1>Album source</h1></div>
+          <label for="album-url">KHInsider album URL</label>
+          <textarea id="album-url" rows="3" spellcheck="false" placeholder="https://downloads.khinsider.com/game-soundtracks/album/…"></textarea>
+          <div class="microcopy">Inspection opens a separate visible Chromium window. No login is used.</div>
+
+          <div class="section-headi
+… (output truncated)
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Read `renderer.ts`
+
+**Input:**
+
+- endLine: `280`
+- filePath: `/home/kel/dev/K-Downloader/src/renderer.ts`
+- startLine: `1`
+
+**Result:**
+
+```
+import type { GuiFormatPolicy, GuiInspection, GuiInspectionState, GuiProgress, GuiTrack } from "./gui-types.js";
+import { Copy, createIcons, Minus, Square, X } from "lucide";
+
+const windowIcons = { Copy, Minus, Square, X };
+createIcons({ icons: windowIcons });
+
+const albumInput = document.querySelector<HTMLTextAreaElement>("#album-url")!;
+const outputInput = document.querySelector<HTMLInputElement>("#output-root")!;
+const formatSelect = document.querySelector<HTMLSelectElement>("#format-policy")!;
+const discLabelSelect = document.querySelector<HTMLSelectElement>("#disc-label")!;
+const discLabelSetting = document.querySelector<HTMLElement>("#disc-label-setting")!;
+const skipInput = document.querySelector<HTMLInputElement>("#skip-unavailable")!;
+const inspectButton = document.querySelector<HTMLButtonElement>("#inspect-button")!;
+const downloadButton = document.querySelector<HTMLButtonElement>("#download-button")!;
+const cancelButton = document.querySelector<HTMLButtonElement>("#cancel-button")!;
+const browseButton = document.querySelector<HTMLButtonElement>("#browse-button")!;
+const tableBody = document.querySelector<HTMLTableSectionElement>("#track-rows")!;
+const albumTitle = document.querySelector<HTMLElement>("#album-title")!;
+const trackCount = document.querySelector<HTMLElement>("#track-count")!;
+const statusText = document.querySelector<HTMLElement>("#status-text")!;
+const statusDot = document.querySelector<HTMLElement>("#status-dot")!;
+const inspectionIndicator = document.querySelector<HTMLButtonElement>("#inspection-indicator")!;
+const inspectionIndicatorText = document.querySelector<HTMLElement>("#inspection-indicator-text")!;
+const progress = document.querySelector<HTMLProgressElement>("#download-progress")!;
+const progressText = document.querySelector<HTMLElement>("#progress-text")!;
+const emptyState = document.querySelector<HTMLElement>("#empty-state")!;
+const trackTable = document.querySelector<HTMLTableElement>("#track-table")!;
+const errorText = documen
+… (output truncated)
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Read `styles.css`
+
+**Input:**
+
+- endLine: `260`
+- filePath: `/home/kel/dev/K-Downloader/gui/styles.css`
+- startLine: `1`
+
+**Result:**
+
+```
+:root {
+  color-scheme: dark;
+  --ink: #e8efec;
+  --muted: #91a09b;
+  --dim: #60716b;
+  --line: #2c3a35;
+  --panel: #17211d;
+  --panel-raised: #1d2a25;
+  --ground: #101715;
+  --mint: #b3f06c;
+  --mint-dark: #83bd42;
+  --coral: #f28568;
+  --blue: #80bac5;
+  font-family: "DejaVu Sans", "Noto Sans", sans-serif;
+  color: var(--ink);
+  background: var(--ground);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-width: 720px;
+  min-height: 100vh;
+  background:
+    linear-gradient(115deg, rgba(111, 148, 126, .07), transparent 44%),
+    radial-gradient(ellipse at 95% 100%, rgba(86, 135, 143, .08), transparent 36%),
+    var(--ground);
+}
+button, input, textarea, select { font: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: .42; }
+
+.app-shell { min-height: 100vh; display: flex; flex-direction: column; }
+.topbar { height: 46px; flex: 0 0 46px; padding: 0 0 0 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); background: rgba(18, 26, 23, .96); -webkit-app-region: drag; user-select: none; }
+.brand-lockup { height: 100%; display: flex; align-items: center; gap: 9px; }
+.app-icon { width: 23px; height: 23px; display: grid; place-items: center; background: var(--mint); color: #152018; font-size: 15px; font-weight: 800; clip-path: polygon(0 0, 100% 0, 100% 72%, 72% 100%, 0 100%); }
+.brand-name { font-size: 12px; font-weight: 800; }
+.window-controls { height: 100%; display: flex; -webkit-app-region: no-drag; }
+.window-control { width: 46px; height: 100%; display: grid; place-items: center; border: 0; border-radius: 0; color: #b8c5bf; background: transparent; }
+.window-control:hover { color: var(--ink); background: #293630; }
+.window-control.close-control:hover { color: white; background: #c94343; }
+.window-control svg { width: 14px; height: 14px; stroke-width: 1.6; }
+.window-control:focus-visible { outline: 1px solid
+… (output truncated)
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Read `package.json`
+
+**Input:**
+
+- endLine: `100`
+- filePath: `/home/kel/dev/K-Downloader/package.json`
+- startLine: `1`
+
+**Result:**
+
+```
+{
+  "name": "k-downloader",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "build:gui": "node scripts/build-gui.mjs",
+    "gui": "npm run build:gui && electron dist/electron/main.cjs",
+    "inspect": "tsx src/cli.ts inspect",
+    "download": "tsx src/cli.ts download",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "lucide": "^1.55.0",
+    "parse5": "^7.3.0",
+    "playwright": "^1.55.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "electron": "^44.7.0",
+    "esbuild": "^0.28.2",
+    "tsx": "^4.19.0",
+    "typescript": "^5.8.0",
+    "vitest": "^5.0.4"
+  }
+}
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+Lucide is already installed, so no new dependency is needed. I’m confirming the menu, gear, and back-arrow icon exports, then I’ll add the menu popover and a blank Settings view with `Ctrl+,`/`Esc` navigation.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` node --input-type=module -e 'import \* as lucide from "lucide"; console.log\(O...`
+
+Confirm Lucide exports for the kebab menu, settings item, and settings-page close button.
+
+```bash
+node --input-type=module -e 'import * as lucide from "lucide"; console.log(Object.keys(lucide).filter(name => ["MoreVertical", "EllipsisVertical", "Settings", "ArrowLeft"].includes(name)))'
+```
+
+**Result:**
+
+```
+[ 'ArrowLeft', 'EllipsisVertical', 'MoreVertical', 'Settings' ]
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **index.html**</summary>
+
+@@ lines 1-141 @@
+
+```
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'" />
+    <title>K-Downloader</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script defer src="./renderer.js"></script>
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <div class="brand-lockup">
+          <div class="app-icon" aria-hidden="true">K</div>
+          <div class="brand-name">K-Downloader</div>
+        </div>
+        <div class="titlebar-actions">
+          <div id="more-menu-wrap" class="more-menu-wrap">
+            <button id="more-button" class="window-control more-button" type="button" aria-label="More options" title="More options" aria-haspopup="menu" aria-expanded="false">
+              <i data-lucide="ellipsis-vertical" aria-hidden="true"></i>
+            </button>
+            <div id="more-menu" class="more-menu" role="menu" aria-label="More options" hidden>
+              <button id="settings-menu-item" class="more-menu-item" type="button" role="menuitem">
+                <i data-lucide="settings" aria-hidden="true"></i>
+                <span>Settings</span>
+                <kbd>Ctrl+,</kbd>
+              </button>
+            </div>
+          </div>
+          <nav class="window-controls" aria-label="Window controls">
+          <button id="minimize-window" class="window-control" type="button" aria-label="Minimize window" title="Minimize">
+            <i data-lucide="minus" aria-hidden="true"></i>
+          </button>
+          <button id="maximize-window" class="window-control" type="button" aria-label="Maximize window" title="Maximize">
+            <i data-lucide="square" aria-hidden="true"></i>
+          </button>
+          <button id="close-window" class="window-control close-control" type="button" aria-label="Close window" title="Close">
+            <i data-lucide="x" aria-hidden="true"></i>
+          </button>
+          </nav>
+        </div>
+      </header>
+
+      <section id="workspace" class="workspace">
+        <aside class="control-panel" aria-label="Download setup">
+          <div class="section-heading"><span class="section-index">01</span><h1>Album source</h1></div>
+          <label for="album-url">KHInsider album URL</label>
+          <textarea id="album-url" rows="3" spellcheck="false" placeholder="https://downloads.khinsider.com/game-soundtracks/album/…"></textarea>
+          <div class="microcopy">Inspection opens a separate visible Chromium window. No login is used.</div>
+
+          <div class="section-heading destination-heading"><span class="section-index">02</span><h2>Destination</h2></div>
+          <label for="output-root">Save album under</label>
+          <div class="path-control">
+            <input id="output-root" type="text" spellcheck="false" />
+            <button id="browse-button" class="icon-button" type="button" aria-label="Choose download folder" title="Choose download folder">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 6.5h6l2 2H20a1 1 0 0 1 1 1v8.8a1.7 1.7 0 0 1-1.7 1.7H4.7A1.7 1.7 0 0 1 3 18.3V7a.5.5 0 0 1 .5-.5Z"/><path d="M12 12v5m-2.5-2.5h5"/></svg>
+            </button>
+          </div>
+
+          <div class="section-heading format-heading"><span class="section-index">03</span><h2>Format policy</h2></div>
+          <label for="format-policy">Choose source audio</label>
+          <select id="format-policy">
+            <option value="prefer-lossless">Prefer lossless</option>
+            <option value="lossless-only">Lossless only</option>
+          </select>
+          <label class="check-row" for="skip-unavailable">
+            <input id="skip-unavailable" type="checkbox" disabled />
+            <span>Skip tracks without the selected format</span>
+          </label>
+          <div id="disc-label-setting" class="disc-label-setting" hidden>
+            <label for="disc-label">Disc folder label</label>
+            <select id="disc-label">
+              <option value="CD">CD1, CD2, …</option>
+              <option value="Disc">Disc1, Disc2, …</option>
+            </select>
+          </div>
+
+          <div class="action-row">
+            <button id="inspect-button" class="secondary-button" type="button">Inspect album</button>
+            <button id="download-button" class="primary-button" type="button" disabled>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v11m0 0 4-4m-4 4-4-4M5 17v3h14v-3"/></svg>
+              Download
+            </button>
+          </div>
+          <button id="cancel-button" class="cancel-button" type="button" disabled>Cancel active download</button>
+          <p id="error-text" class="error-text" role="alert"></p>
+        </aside>
+
+        <section class="results-panel" aria-label="Album preview and progress">
+          <div class="results-header">
+            <div>
+              <div class="eyebrow">DISCOVERY PREVIEW</div>
+              <h2 id="album-title">No album inspected</h2>
+            </div>
+            <div class="track-count" id="track-count">Waiting</div>
+          </div>
+
+          <div class="status-strip">
+            <span id="status-dot" class="status-dot" data-tone="idle"></span>
+            <span id="status-text">Paste an album URL to begin</span>
+          </div>
+          <button id="inspection-indicator" class="inspection-indicator" type="button" hidden disabled aria-pressed="false">
+            <span class="status-dot" data-tone="working"></span>
+            <span>Inspection in progress</span>
+            <span id="inspection-indicator-text" class="inspection-indicator-action">Starting browser…</span>
+          </button>
+
+          <div id="empty-state" class="empty-state">
+            <div class="empty-glyph" aria-hidden="true"><span></span><span></span><span></span></div>
+            <div class="empty-title">Ready for an album</div>
+            <div class="empty-note">Track formats and fallback choices appear here before transfer.</div>
+          </div>
+
+          <div class="table-wrap">
+            <table id="track-table" hidden>
+              <thead><tr><th>Disc</th><th>#</th><th>Track</th><th>Available</th><th>Selected</th><th>Status</th></tr></thead>
+              <tbody id="track-rows"></tbody>
+            </table>
+          </div>
+
+          <footer class="progress-footer">
+            <div class="progress-label"><span>TRANSFER</span><span id="progress-text">No active transfer</span></div>
+            <progress id="download-progress" value="0" max="1"></progress>
+          </footer>
+        </section>
+      </section>
+      <section id="settings-view" class="settings-view" aria-labelledby="settings-heading" hidden>
+        <header class="settings-header">
+          <h1 id="settings-heading">Settings</h1>
+          <button id="close-settings" class="settings-close-button" type="button">
+            <i data-lucide="arrow-left" aria-hidden="true"></i>
+            <span>Back to downloader</span>
+          </button>
+        </header>
+      </section>
+      <footer class="app-footer"><span>Original audio bytes · no transcoding</span><span>LOCAL SESSION</span></footer>
+    </main>
+  </body>
+</html>
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **renderer.ts**</summary>
+
+@@ lines 1-301 @@
+
+```
+import type { GuiFormatPolicy, GuiInspection, GuiInspectionState, GuiProgress, GuiTrack } from "./gui-types.js";
+import { ArrowLeft, Copy, createIcons, EllipsisVertical, Minus, Settings, Square, X } from "lucide";
+
+const windowIcons = { ArrowLeft, Copy, EllipsisVertical, Minus, Settings, Square, X };
+createIcons({ icons: windowIcons });
+
+const albumInput = document.querySelector<HTMLTextAreaElement>("#album-url")!;
+const outputInput = document.querySelector<HTMLInputElement>("#output-root")!;
+const formatSelect = document.querySelector<HTMLSelectElement>("#format-policy")!;
+const discLabelSelect = document.querySelector<HTMLSelectElement>("#disc-label")!;
+const discLabelSetting = document.querySelector<HTMLElement>("#disc-label-setting")!;
+const skipInput = document.querySelector<HTMLInputElement>("#skip-unavailable")!;
+const inspectButton = document.querySelector<HTMLButtonElement>("#inspect-button")!;
+const downloadButton = document.querySelector<HTMLButtonElement>("#download-button")!;
+const cancelButton = document.querySelector<HTMLButtonElement>("#cancel-button")!;
+const browseButton = document.querySelector<HTMLButtonElement>("#browse-button")!;
+const tableBody = document.querySelector<HTMLTableSectionElement>("#track-rows")!;
+const albumTitle = document.querySelector<HTMLElement>("#album-title")!;
+const trackCount = document.querySelector<HTMLElement>("#track-count")!;
+const statusText = document.querySelector<HTMLElement>("#status-text")!;
+const statusDot = document.querySelector<HTMLElement>("#status-dot")!;
+const inspectionIndicator = document.querySelector<HTMLButtonElement>("#inspection-indicator")!;
+const inspectionIndicatorText = document.querySelector<HTMLElement>("#inspection-indicator-text")!;
+const progress = document.querySelector<HTMLProgressElement>("#download-progress")!;
+const progressText = document.querySelector<HTMLElement>("#progress-text")!;
+const emptyState = document.querySelector<HTMLElement>("#empty-state")!;
+const trackTable = document.querySelector<HTMLTableElement>("#track-table")!;
+const errorText = document.querySelector<HTMLElement>("#error-text")!;
+const minimizeWindowButton = document.querySelector<HTMLButtonElement>("#minimize-window")!;
+const maximizeWindowButton = document.querySelector<HTMLButtonElement>("#maximize-window")!;
+const closeWindowButton = document.querySelector<HTMLButtonElement>("#close-window")!;
+const moreMenuWrap = document.querySelector<HTMLElement>("#more-menu-wrap")!;
+const moreButton = document.querySelector<HTMLButtonElement>("#more-button")!;
+const moreMenu = document.querySelector<HTMLElement>("#more-menu")!;
+const settingsMenuItem = document.querySelector<HTMLButtonElement>("#settings-menu-item")!;
+const workspaceView = document.querySelector<HTMLElement>("#workspace")!;
+const settingsView = document.querySelector<HTMLElement>("#settings-view")!;
+const closeSettingsButton = document.querySelector<HTMLButtonElement>("#close-settings")!;
+
+let inspection: GuiInspection | undefined;
+let busy = false;
+let inspectionBrowserVisible = false;
+let settingsOpen = false;
+
+function closeMoreMenu(): void {
+  moreMenu.hidden = true;
+  moreButton.setAttribute("aria-expanded", "false");
+}
+
+function setSettingsOpen(open: boolean): void {
+  settingsOpen = open;
+  workspaceView.hidden = open;
+  settingsView.hidden = !open;
+  closeMoreMenu();
+  if (open) closeSettingsButton.focus();
+  else albumInput.focus();
+}
+
+function updateMaximizeButton(maximized: boolean): void {
+  const label = maximized ? "Restore window" : "Maximize window";
+  maximizeWindowButton.setAttribute("aria-label", label);
+  maximizeWindowButton.title = label;
+  maximizeWindowButton.innerHTML = `<i data-lucide="${maximized ? "copy" : "square"}" aria-hidden="true"></i>`;
+  createIcons({ icons: windowIcons });
+}
+
+function isValidAlbumUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" &&
+      url.hostname.toLowerCase() === "downloads.khinsider.com" &&
+      url.pathname.startsWith("/game-soundtracks/album/") &&
+      !url.username && !url.password;
+  } catch {
+    return false;
+  }
+}
+
+function setStatus(label: string, tone: "idle" | "working" | "success" | "error" = "idle"): void {
+  statusText.textContent = label;
+  statusDot.dataset.tone = tone;
+}
+
+function selectedFormat(track: GuiTrack): { format?: string; state: string; fallback: boolean } {
+  const value = formatSelect.value;
+  if (value === "prefer-lossless") {
+    const lossless = ["FLAC", "ALAC", "WAV"].find((format) => track.formats.includes(format));
+    if (lossless) return { format: lossless, state: "Ready", fallback: false };
+    const lossy = track.formats.find((format) => format === "MP3") ?? track.formats[0];
+    return lossy
+      ? { format: lossy, state: "Ready", fallback: true }
+      : { state: "Unavailable", fallback: false };
+  }
+  const requested = value === "lossless-only" ? ["FLAC", "ALAC", "WAV"].find((format) => track.formats.includes(format)) : value.slice("format:".length);
+  if (requested && track.formats.includes(requested)) return { format: requested, state: "Ready", fallback: false };
+  return skipInput.checked
+    ? { state: "Skipped", fallback: false }
+    : { state: "Unavailable", fallback: false };
+}
+
+function renderTracks(): void {
+  if (!inspection) return;
+  const rows = inspection.tracks.map((track) => {
+    const selected = selectedFormat(track);
+    const row = document.createElement("tr");
+    row.innerHTML = `<td class="track-disc"></td><td class="track-number"></td><td class="track-title"></td><td class="track-formats"></td><td class="track-choice"></td><td class="track-state"></td>`;
+    row.querySelector(".track-disc")!.textContent = track.discNumber === undefined ? "-" : `${discLabelSelect.value}${track.discNumber}`;
+    row.querySelector(".track-number")!.textContent = String(track.number).padStart(2, "0");
+    row.querySelector(".track-title")!.textContent = track.title;
+    row.querySelector(".track-formats")!.textContent = track.formats.join(", ") || "None found";
+    row.querySelector(".track-choice")!.textContent = selected.format ?? "-";
+    const state = row.querySelector<HTMLElement>(".track-state")!;
+    state.textContent = selected.state;
+    state.dataset.state = selected.state.toLowerCase();
+    if (selected.fallback) state.textContent += " · fallback";
+    return row;
+  });
+  tableBody.replaceChildren(...rows);
+  const blocked = inspection.tracks.some((track) => selectedFormat(track).state === "Unavailable");
+  downloadButton.disabled = busy || blocked;
+  trackCount.textContent = `${inspection.trackCount} tracks`;
+  emptyState.hidden = true;
+  trackTable.hidden = false;
+}
+
+function currentPolicy(): GuiFormatPolicy {
+  if (formatSelect.value === "prefer-lossless") return { kind: "prefer-lossless" };
+  if (formatSelect.value === "lossless-only") return { kind: "lossless-only", skipUnavailable: skipInput.checked };
+  return { kind: "specific", format: formatSelect.value.slice("format:".length), skipUnavailable: skipInput.checked };
+}
+
+function updateFormatOptions(): void {
+  if (!inspection) return;
+  const formats = [...new Set(inspection.tracks.flatMap((track) => track.formats))].sort();
+  const discs = [...new Set(inspection.tracks.flatMap((track) => track.discNumber === undefined ? [] : [track.discNumber]))];
+  discLabelSetting.hidden = discs.length < 2;
+  const previous = formatSelect.value;
+  formatSelect.querySelectorAll("option[data-discovered]").forEach((option) => option.remove());
+  for (const format of formats) {
+    const option = document.createElement("option");
+    option.value = `format:${format}`;
+    option.textContent = `Specific format: ${format}`;
+    option.dataset.discovered = "true";
+    formatSelect.append(option);
+  }
+  if ([...formatSelect.options].some((option) => option.value === previous)) formatSelect.value = previous;
+  renderTracks();
+}
+
+function setBusy(value: boolean): void {
+  busy = value;
+  inspectButton.disabled = value;
+  browseButton.disabled = value;
+  albumInput.disabled = value;
+  outputInput.disabled = value;
+  formatSelect.disabled = value;
+  discLabelSelect.disabled = value;
+  skipInput.disabled = value || formatSelect.value === "prefer-lossless";
+  cancelButton.disabled = !value;
+  if (inspection) renderTracks();
+}
+
+minimizeWindowButton.addEventListener("click", () => { void window.kDownloader.minimizeWindow(); });
+maximizeWindowButton.addEventListener("click", async () => {
+  const maximized = await window.kDownloader.toggleMaximizeWindow();
+  updateMaximizeButton(maximized);
+});
+closeWindowButton.addEventListener("click", () => { void window.kDownloader.closeWindow(); });
+window.kDownloader.onWindowState(({ maximized }) => updateMaximizeButton(maximized));
+
+moreButton.addEventListener("click", () => {
+  moreMenu.hidden = !moreMenu.hidden;
+  moreButton.setAttribute("aria-expanded", String(!moreMenu.hidden));
+});
+settingsMenuItem.addEventListener("click", () => setSettingsOpen(true));
+closeSettingsButton.addEventListener("click", () => setSettingsOpen(false));
+document.addEventListener("click", (event) => {
+  if (!moreMenuWrap.contains(event.target as Node)) closeMoreMenu();
+});
+document.addEventListener("keydown", (event) => {
+  if ((event.ctrlKey || event.metaKey) && event.key === ",") {
+    event.preventDefault();
+    setSettingsOpen(!settingsOpen);
+  } else if (event.key === "Escape") {
+    if (settingsOpen) setSettingsOpen(false);
+    else if (!moreMenu.hidden) {
+      closeMoreMenu();
+      moreButton.focus();
+    }
+  }
+});
+
+inspectButton.addEventListener("click", async () => {
+  errorText.textContent = "";
+  const albumUrl = albumInput.value.trim();
+  if (!isValidAlbumUrl(albumUrl)) {
+    errorText.textContent = "Paste a valid HTTPS KHInsider album URL.";
+    setStatus("Album URL required", "error");
+    albumInput.focus();
+    return;
+  }
+  inspection = undefined;
+  downloadButton.disabled = true;
+  tableBody.replaceChildren();
+  trackTable.hidden = true;
+  emptyState.hidden = false;
+  setBusy(true);
+  setStatus("Inspection in progress", "working");
+  try {
+    inspection = await window.kDownloader.inspect(albumUrl);
+    albumTitle.textContent = inspection.albumTitle;
+    updateFormatOptions();
+    setStatus("Preview ready", "success");
+  } catch (error) {
+    errorText.textContent = error instanceof Error ? error.message : String(error);
+    setStatus("Inspection failed", "error");
+  } finally {
+    setBusy(false);
+    if (inspection) renderTracks();
+  }
+});
+
+inspectionIndicator.addEventListener("click", async () => {
+  if (inspectionIndicator.disabled) return;
+  try {
+    inspectionBrowserVisible = await window.kDownloader.toggleInspectionBrowser();
+    inspectionIndicator.setAttribute("aria-pressed", String(inspectionBrowserVisible));
+    inspectionIndicatorText.textContent = inspectionBrowserVisible ? "Hide browser" : "Show browser";
+  } catch (error) {
+    errorText.textContent = error instanceof Error ? error.message : String(error);
+  }
+});
+
+window.kDownloader.onInspectionState((state: GuiInspectionState) => {
+  inspectionBrowserVisible = state.browserVisible;
+  inspectionIndicator.hidden = !state.active;
+  inspectionIndicator.disabled = !state.browserReady;
+  inspectionIndicator.setAttribute("aria-pressed", String(state.browserVisible));
+  inspectionIndicatorText.textContent = state.browserReady
+    ? state.browserVisible ? "Hide browser" : "Show browser"
+    : "Starting browser…";
+  if (state.active) setStatus("Inspection in progress", "working");
+});
+
+browseButton.addEventListener("click", async () => {
+  const selected = await window.kDownloader.chooseOutput();
+  if (selected) outputInput.value = selected;
+});
+
+formatSelect.addEventListener("change", () => {
+  skipInput.disabled = busy || formatSelect.value === "prefer-lossless";
+  renderTracks();
+});
+discLabelSelect.addEventListener("change", renderTracks);
+skipInput.addEventListener("change", renderTracks);
+
+downloadButton.addEventListener("click", async () => {
+  if (!inspection) return;
+  errorText.textContent = "";
+  progress.value = 0;
+  progressText.textContent = "Preparing album";
+  setBusy(true);
+  setStatus("Downloading", "working");
+  try {
+    const result = await window.kDownloader.download({
+      policy: currentPolicy(),
+      outputRoot: outputInput.value,
+      discLabel: discLabelSelect.value === "Disc" ? "Disc" : "CD",
+    });
+    progress.value = inspection.trackCount;
+    progress.max = inspection.trackCount;
+    progressText.textContent = `${result.state} · ${result.directory}`;
+    setStatus(result.state === "complete" ? "Download complete" : result.state, result.state === "complete" ? "success" : "error");
+  } catch (error) {
+    errorText.textContent = error instanceof Error ? error.message : String(error);
+    setStatus("Download failed", "error");
+  } finally {
+    setBusy(false);
+  }
+});
+
+cancelButton.addEventListener("click", async () => {
+  cancelButton.disabled = true;
+  await window.kDownloader.cancel();
+  setStatus("Canceling active track…", "working");
+});
+
+window.kDownloader.onProgress((event: GuiProgress) => {
+  progress.max = event.totalTracks;
+  progress.value = event.completedTracks;
+  progressText.textContent = event.stage === "track-start"
+    ? `Downloading ${String(event.number).padStart(2, "0")} · ${event.title}`
+    : event.stage === "track-complete"
+      ? `Completed ${event.completedTracks} of ${event.totalTracks} tracks`
+      : event.stage === "track-failed"
+        ? `Failed ${String(event.number).padStart(2, "0")} · ${event.title}`
+        : "Canceled";
+});
+
+void window.kDownloader.defaultOutputRoot().then((value) => { outputInput.value = value; });
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **styles.css**</summary>
+
+@@ lines 1-145 @@
+
+```
+:root {
+  color-scheme: dark;
+  --ink: #e8efec;
+  --muted: #91a09b;
+  --dim: #60716b;
+  --line: #2c3a35;
+  --panel: #17211d;
+  --panel-raised: #1d2a25;
+  --ground: #101715;
+  --mint: #b3f06c;
+  --mint-dark: #83bd42;
+  --coral: #f28568;
+  --blue: #80bac5;
+  font-family: "DejaVu Sans", "Noto Sans", sans-serif;
+  color: var(--ink);
+  background: var(--ground);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-width: 720px;
+  min-height: 100vh;
+  background:
+    linear-gradient(115deg, rgba(111, 148, 126, .07), transparent 44%),
+    radial-gradient(ellipse at 95% 100%, rgba(86, 135, 143, .08), transparent 36%),
+    var(--ground);
+}
+button, input, textarea, select { font: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: .42; }
+
+.app-shell { min-height: 100vh; display: flex; flex-direction: column; }
+.topbar { height: 46px; flex: 0 0 46px; padding: 0 0 0 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); background: rgba(18, 26, 23, .96); -webkit-app-region: drag; user-select: none; }
+.brand-lockup { height: 100%; display: flex; align-items: center; gap: 9px; }
+.app-icon { width: 23px; height: 23px; display: grid; place-items: center; background: var(--mint); color: #152018; font-size: 15px; font-weight: 800; clip-path: polygon(0 0, 100% 0, 100% 72%, 72% 100%, 0 100%); }
+.brand-name { font-size: 12px; font-weight: 800; }
+.titlebar-actions { height: 100%; display: flex; align-items: stretch; -webkit-app-region: no-drag; }
+.more-menu-wrap { position: relative; height: 100%; }
+.window-controls { height: 100%; display: flex; -webkit-app-region: no-drag; }
+.window-control { width: 46px; height: 100%; display: grid; place-items: center; border: 0; border-radius: 0; color: #b8c5bf; background: transparent; }
+.window-control:hover { color: var(--ink); background: #293630; }
+.window-control.close-control:hover { color: white; background: #c94343; }
+.window-control svg { width: 14px; height: 14px; stroke-width: 1.6; }
+.window-control:focus-visible { outline: 1px solid var(--mint); outline-offset: -3px; }
+.more-menu { position: absolute; z-index: 20; top: calc(100% + 5px); right: 0; width: 224px; padding: 5px; border: 1px solid #3c4b43; border-radius: 4px; background: #202b25; box-shadow: 0 12px 28px rgba(0, 0, 0, .38); }
+.more-menu[hidden] { display: none; }
+.more-menu-item { width: 100%; min-height: 36px; padding: 0 9px; display: flex; align-items: center; gap: 10px; border: 0; border-radius: 2px; color: var(--ink); background: transparent; text-align: left; font-size: 11px; }
+.more-menu-item:hover, .more-menu-item:focus-visible { background: #304039; outline: none; }
+.more-menu-item svg { width: 15px; height: 15px; color: #bdc9c2; stroke-width: 1.7; }
+.more-menu-item kbd { margin-left: auto; color: var(--muted); font-family: "DejaVu Sans Mono", monospace; font-size: 9px; }
+.brand-subtitle, .eyebrow, .section-index, .mode-label, .progress-label, .app-footer { font-family: "DejaVu Sans Mono", monospace; letter-spacing: 0; }
+.brand-subtitle { margin-top: 3px; color: var(--dim); font-size: 9px; }
+.mode-label { display: flex; align-items: center; gap: 9px; color: #bac8c1; font-size: 11px; }
+.mode-dot { width: 7px; height: 7px; background: var(--mint); border-radius: 50%; box-shadow: 0 0 0 3px rgba(179, 240, 108, .11); }
+
+.workspace { width: min(1440px, 100%); margin: 0 auto; padding: 28px 32px 24px; flex: 1; display: grid; grid-template-columns: minmax(300px, 370px) minmax(380px, 1fr); gap: 18px; }
+.workspace[hidden], .settings-view[hidden] { display: none; }
+.settings-view { width: min(1440px, 100%); flex: 1; margin: 0 auto; padding: 28px 32px 24px; }
+.settings-header { min-height: 56px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); }
+.settings-header h1 { margin: 0; font-size: 18px; }
+.settings-close-button { min-height: 34px; padding: 0 10px; display: inline-flex; align-items: center; gap: 8px; border: 1px solid #46564c; border-radius: 3px; color: var(--ink); background: #202c26; font-size: 11px; }
+.settings-close-button:hover { border-color: var(--blue); background: #293832; }
+.settings-close-button svg { width: 15px; height: 15px; }
+.control-panel, .results-panel { border: 1px solid var(--line); background: linear-gradient(155deg, rgba(33, 47, 40, .68), rgba(19, 28, 24, .92) 65%); }
+.control-panel { padding: 24px; align-self: start; }
+.section-heading { display: flex; align-items: baseline; gap: 10px; margin: 0 0 18px; }
+.section-heading h1, .section-heading h2 { margin: 0; font-size: 14px; font-weight: 700; }
+.section-index { color: var(--mint); font-size: 10px; }
+label { display: block; color: #c2cdc7; font-size: 11px; font-weight: 700; margin: 0 0 8px; }
+textarea, input[type="text"], select { width: 100%; border: 1px solid #394941; border-radius: 3px; color: var(--ink); background: #101815; outline: none; }
+textarea { min-height: 88px; resize: vertical; padding: 12px; font-family: "DejaVu Sans Mono", monospace; font-size: 11px; line-height: 1.7; }
+input[type="text"], select { min-height: 38px; padding: 0 10px; font-size: 11px; }
+textarea:focus, input[type="text"]:focus, select:focus { border-color: var(--mint-dark); box-shadow: 0 0 0 2px rgba(179, 240, 108, .1); }
+.microcopy { margin: 7px 0 0; color: var(--dim); font-size: 10px; line-height: 1.5; }
+.destination-heading { margin-top: 25px; }
+.format-heading { margin-top: 25px; }
+.path-control { display: flex; gap: 7px; }
+.path-control input { min-width: 0; font-family: "DejaVu Sans Mono", monospace; font-size: 10px; }
+.icon-button { width: 40px; flex: 0 0 40px; border: 1px solid #46564c; border-radius: 3px; color: var(--mint); background: #202c26; }
+.icon-button svg, .primary-button svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; vertical-align: middle; }
+.check-row { display: flex; align-items: center; gap: 8px; margin-top: 11px; color: var(--muted); font-size: 10px; font-weight: 500; }
+.check-row input { accent-color: var(--mint-dark); }
+.disc-label-setting { margin-top: 14px; }
+.action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 24px; }
+.primary-button, .secondary-button { min-height: 41px; border-radius: 3px; font-size: 11px; font-weight: 800; }
+.primary-button { display: flex; justify-content: center; align-items: center; gap: 8px; border: 1px solid var(--mint); color: #182017; background: var(--mint); }
+.primary-button:hover:not(:disabled) { background: #c4fa8b; }
+.secondary-button { border: 1px solid #53635a; color: var(--ink); background: #26332c; }
+.secondary-button:hover:not(:disabled) { border-color: var(--blue); }
+.cancel-button { display: block; margin: 10px 0 0 auto; padding: 5px 0; border: 0; color: var(--coral); background: transparent; font-size: 10px; }
+.error-text { min-height: 0; margin: 10px 0 0; color: var(--coral); font-size: 11px; line-height: 1.5; overflow-wrap: anywhere; }
+
+.results-panel { min-width: 0; display: flex; flex-direction: column; }
+.results-header { padding: 23px 24px 18px; display: flex; justify-content: space-between; align-items: end; border-bottom: 1px solid var(--line); }
+.eyebrow { color: var(--mint); font-size: 9px; }
+.results-header h2 { margin: 7px 0 0; font-size: 17px; line-height: 1.35; }
+.track-count { padding: 6px 8px; border: 1px solid #394941; color: #b4c1ba; font-family: "DM Mono", monospace; font-size: 10px; white-space: nowrap; }
+.status-strip { min-height: 39px; display: flex; align-items: center; gap: 9px; padding: 0 24px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 10px; }
+.status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--dim); }
+.status-dot[data-tone="working"] { background: var(--blue); box-shadow: 0 0 0 4px rgba(128, 186, 197, .1); }
+.status-dot[data-tone="success"] { background: var(--mint); }
+.status-dot[data-tone="error"] { background: var(--coral); }
+.inspection-indicator { width: 100%; min-height: 42px; padding: 0 24px; display: flex; align-items: center; gap: 9px; border: 0; border-bottom: 1px solid var(--line); color: var(--blue); background: rgba(128, 186, 197, .07); text-align: left; font-size: 10px; }
+.inspection-indicator[hidden] { display: none; }
+.inspection-indicator:not(:disabled):hover { background: rgba(128, 186, 197, .13); }
+.inspection-indicator-action { margin-left: auto; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+.empty-state { min-height: 280px; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 36px; text-align: center; }
+.empty-state[hidden] { display: none; }
+.empty-glyph { height: 36px; display: flex; align-items: end; gap: 4px; margin-bottom: 18px; }
+.empty-glyph span { width: 5px; height: 16px; background: var(--mint-dark); opacity: .6; }
+.empty-glyph span:nth-child(2) { height: 30px; background: var(--blue); opacity: .8; }
+.empty-glyph span:nth-child(3) { height: 22px; background: var(--coral); opacity: .75; }
+.empty-title { font-size: 13px; font-weight: 700; }
+.empty-note { max-width: 250px; margin-top: 8px; color: var(--dim); font-size: 10px; line-height: 1.6; }
+.table-wrap { min-height: 0; flex: 1; overflow: auto; }
+table { width: 100%; border-collapse: collapse; text-align: left; font-size: 10px; }
+thead { position: sticky; top: 0; z-index: 1; background: #202b25; }
+th { padding: 10px 9px; color: #9fac9f; font-family: "DM Mono", monospace; font-size: 9px; font-weight: 400; }
+td { padding: 9px; border-top: 1px solid rgba(53, 68, 59, .7); }
+tbody tr:hover { background: rgba(133, 171, 129, .06); }
+.track-number { width: 42px; color: var(--dim); font-family: "DejaVu Sans Mono", monospace; }
+.track-title { min-width: 120px; font-weight: 700; }
+.track-formats { color: var(--muted); }
+.track-choice { color: var(--mint); font-family: "DejaVu Sans Mono", monospace; }
+.track-state { color: var(--muted); white-space: nowrap; }
+.track-state[data-state="unavailable"] { color: var(--coral); }
+.track-state[data-state="skipped"] { color: #d5b675; }
+.progress-footer { padding: 14px 24px 18px; border-top: 1px solid var(--line); }
+.progress-label { display: flex; justify-content: space-between; gap: 14px; margin-bottom: 9px; color: var(--dim); font-size: 9px; }
+#progress-text { color: var(--muted); text-align: right; overflow-wrap: anywhere; }
+progress { width: 100%; height: 4px; border: 0; border-radius: 0; appearance: none; }
+progress::-webkit-progress-bar { background: #2b3832; }
+progress::-webkit-progress-value { background: linear-gradient(90deg, var(--blue), var(--mint)); }
+.app-footer { min-height: 40px; padding: 0 32px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--line); color: var(--dim); font-size: 9px; }
+
+@media (max-width: 920px) {
+  .workspace { grid-template-columns: minmax(260px, 320px) minmax(360px, 1fr); padding: 18px; gap: 12px; }
+  .control-panel { padding: 18px; }
+  .results-header, .status-strip, .progress-footer { padding-left: 16px; padding-right: 16px; }
+  th, td { padding-left: 7px; padding-right: 7px; }
+}
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The Settings menu, blank Settings view, `Ctrl+,` shortcut, and Escape/button close behavior are wired. I’m running the full type/build/test check now; then I’ll launch the GUI and verify the menu and settings navigation in the rendered app.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm test && npm run build && npm run build:gui && npm audit`
+
+Validate the Lucide kebab/settings menu, Settings view, keyboard shortcut handlers, Electron bundle, and dependencies.
+
+```bash
+npm test && npm run build && npm run build:gui && npm audit
+```
+
+**Result:**
+
+```
+
+> k-downloader@0.1.0 test
+> vitest run
+
+
+ RUN  v5.0.4 /home/kel/dev/K-Downloader
+
+
+ Test Files  5 passed (5)
+      Tests  18 passed (18)
+   Start at  11:11:34
+   Duration  998ms (import 55%, tests 28%, transform 14%, worker 4%)
+
+
+> k-downloader@0.1.0 build
+> tsc --noEmit
+
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+found 0 vulnerabilities
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The new view/menu passes all checks: 18 tests, TypeScript, Electron bundle, and zero audit findings. I’m launching the app now so you can try the kebab menu, Settings page, `Ctrl+,`, and Escape close behavior.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm run gui`
+
+Launch the updated desktop app for interactive verification of More > Settings and keyboard navigation.
+
+```bash
+npm run gui
+```
+
+**Result:**
+
+```
+Command is running in terminal with ID=5e9010e6-f303-4bb5-904b-0258e687aee4
+ The command became idle with output:
+kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+
+> k-downloader@0.1.0 gui
+> npm run build:gui && electron dist/electron/main.cjs
+
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+[3054150:1012/111149.712504:ERROR:gpu/command_buffer/service/gpu_persistent_cache.cc:137] Persistent cache error: 1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+This note is not a signal to end the turn — pick one of the actions below and continue.
+  1. If the command may still be producing output or the shell prompt has not returned, call get_terminal_output with id="5e9010e6-f303-4bb5-904b-0258e687aee4" to continue polling. This is the default and safest action when unsure.
+  2. Only if the output clearly ends with a real non-secret input prompt (Continue? (y/n), Enter selection, etc. — a normal shell prompt like `$` or `#` does NOT count), call the vscode_askQuestions tool to ask the user, then send each answer using send_to_terminal with id="5e9010e6-f303-4bb5-904b-0258e687aee4" (which returns the next few lines of output). Repeat one prompt at a time. NEVER route secret prompts (passwords, passphrases, tokens, API keys, etc.) through vscode_askQuestions — answers to that tool are sent through the model. For secret prompts, tell the user to type the value directly into the terminal and stop.
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="get_terminal_output"><details>
+<summary>Tool use: **get_terminal_output**</summary>
+
+Checked terminal output
+
+**Input:**
+
+- id: `5e9010e6-f303-4bb5-904b-0258e687aee4`
+
+**Result:**
+
+```
+Output of terminal 5e9010e6-f303-4bb5-904b-0258e687aee4:
+kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+
+> k-downloader@0.1.0 gui
+> npm run build:gui && electron dist/electron/main.cjs
+
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+[3054150:1012/111149.712504:ERROR:gpu/command_buffer/service/gpu_persistent_cache.cc:137] Persistent cache error: 1
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The updated app is launched. There’s one non-fatal Electron GPU-cache warning in the terminal; the build and audit are clean. I’m adding the new Settings navigation and shortcut to the GUI instructions so the README stays aligned with the interface.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **README.md**</summary>
+
+@@ lines 1-83 @@
+
+````
+# K-Downloader
+
+K-Downloader is a Linux-first KHInsider album downloader. The current slice
+implements public single-album discovery, format preview and policy, sequential
+streaming, and manifest-backed reruns. Multi-album queues, artwork, the GUI,
+optional account features, and packaging are not implemented yet.
+
+## Discovery check
+
+Requirements: Node.js 20 or newer, npm, and a graphical desktop session.
+
+```sh
+npm install
+npx playwright install chromium
+npm run inspect -- 'https://downloads.khinsider.com/game-soundtracks/album/unreal-ii-the-awakening-original-soundtrack'
+```
+
+The command opens a fresh visible Chromium context without a stored browser
+profile, visits the album and track pages sequentially, and prints every
+track's discovered format selection. It does not sign in or download audio.
+Visible mode is currently needed: plain Node fetch and headless Chromium
+received HTTP 403 during feasibility checks, while a fresh visible Chromium
+context succeeded. No attempt is made to imitate a browser or evade a challenge.
+If access is denied or a challenge appears, stop and review the site's permitted
+access methods.
+
+## Download One Album
+
+The CLI previews the selected formats before starting any transfer. The default
+format policy prefers lossless, falling back to MP3 when needed. The default
+destination is `~/Music/K-Downloader`.
+
+```sh
+npm run download -- 'https://downloads.khinsider.com/game-soundtracks/album/unreal-ii-the-awakening-original-soundtrack'
+```
+
+Use `--format lossless-only` to block when a track has no lossless source. Add
+`--skip-unavailable` to explicitly skip those tracks and mark the album
+incomplete. A specific format such as `--format MP3` never silently substitutes
+another format. Use `--output /path/to/music` for another destination.
+
+Multi-disc albums are saved into per-disc folders such as `CD1/` and `CD2/`.
+The GUI offers `CD` and `Disc` folder labels; the CLI accepts
+`--disc-label CD` or `--disc-label Disc` and defaults to `CD`. Single-disc
+albums keep the flat album folder.
+
+Files are streamed through temporary `.part` files, validated, and moved into
+place without overwriting. A per-album manifest records completion so verified
+files can be skipped on rerun. Transfers are covered by local mocked tests; an
+authorized live audio download has not yet been run.
+
+## Desktop GUI
+
+Requirements: Node.js 20 or newer, npm, and a graphical Linux session.
+
+```sh
+npm install
+npx playwright install chromium
+npm run gui
+```
+
+Paste one album URL and choose **Inspect album**. A Chromium inspection window
+starts minimized while an in-progress indicator appears in the app; click that
+indicator to show or hide the browser. Review the per-track format preview, choose the
+destination and format policy, then select **Download**. The default destination
+is `~/Music/K-Downloader`. **Cancel active download** stops the current transfer
+and prevents later tracks from starting.
+
+Open **More > Settings** in the titlebar or press `Ctrl+,`. The Settings view is
+currently a placeholder; return with **Back to downloader** or press `Esc`.
+
+The GUI uses a context-isolated, sandboxed renderer with a narrow preload API.
+It currently supports one album per run; multi-album queues and packaging are
+not available yet.
+
+## Development
+
+```sh
+npm test
+npm run build
+npm audit
+```
+````
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+Added the Lucide kebab menu beside Minimize. Its **Settings** item has a gear icon and `Ctrl+,` shortcut. Settings replaces the downloader workspace with a blank page titled **Settings**; **Back to downloader** and `Esc` both close it.
+
+All 18 tests pass; TypeScript, Electron build, and audit pass. The updated GUI is running. Instructions are in `README.md`.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="task" data-tool-name="manage_todo_list"><details>
+<summary>Tool use: **manage_todo_list**</summary>
+
+Created 3 todos
+</details></tool-use>
+
+---
+
+_**User (2026-10-12 16:10:40Z)**_
+
+Very good. LEt's add the following:
+- in the top toolbar next to the Minimize button, add a More (kebab) menu with a Settings menu item.
+- The SEttings menu item should show the typical gear icon and also show the keyboard shortcut for it (Ctrl+,)
+- Add a Settings page that replaces the displayed 'main content' (Album source, Discovery Preview). It should be blank for the moment but have a suitable Setting title on the page. It should also have a button to close the SEttings page as well as close using the Esc key.

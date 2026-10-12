@@ -1,7 +1,7 @@
 import type { GuiFormatPolicy, GuiInspection, GuiInspectionState, GuiProgress, GuiTrack } from "./gui-types.js";
-import { Copy, createIcons, Minus, Square, X } from "lucide";
+import { ArrowLeft, Copy, createIcons, EllipsisVertical, Minus, Settings, Square, X } from "lucide";
 
-const windowIcons = { Copy, Minus, Square, X };
+const windowIcons = { ArrowLeft, Copy, EllipsisVertical, Minus, Settings, Square, X };
 createIcons({ icons: windowIcons });
 
 const albumInput = document.querySelector<HTMLTextAreaElement>("#album-url")!;
@@ -29,10 +29,32 @@ const errorText = document.querySelector<HTMLElement>("#error-text")!;
 const minimizeWindowButton = document.querySelector<HTMLButtonElement>("#minimize-window")!;
 const maximizeWindowButton = document.querySelector<HTMLButtonElement>("#maximize-window")!;
 const closeWindowButton = document.querySelector<HTMLButtonElement>("#close-window")!;
+const moreMenuWrap = document.querySelector<HTMLElement>("#more-menu-wrap")!;
+const moreButton = document.querySelector<HTMLButtonElement>("#more-button")!;
+const moreMenu = document.querySelector<HTMLElement>("#more-menu")!;
+const settingsMenuItem = document.querySelector<HTMLButtonElement>("#settings-menu-item")!;
+const workspaceView = document.querySelector<HTMLElement>("#workspace")!;
+const settingsView = document.querySelector<HTMLElement>("#settings-view")!;
+const closeSettingsButton = document.querySelector<HTMLButtonElement>("#close-settings")!;
 
 let inspection: GuiInspection | undefined;
 let busy = false;
 let inspectionBrowserVisible = false;
+let settingsOpen = false;
+
+function closeMoreMenu(): void {
+  moreMenu.hidden = true;
+  moreButton.setAttribute("aria-expanded", "false");
+}
+
+function setSettingsOpen(open: boolean): void {
+  settingsOpen = open;
+  workspaceView.hidden = open;
+  settingsView.hidden = !open;
+  closeMoreMenu();
+  if (open) closeSettingsButton.focus();
+  else albumInput.focus();
+}
 
 function updateMaximizeButton(maximized: boolean): void {
   const label = maximized ? "Restore window" : "Maximize window";
@@ -145,6 +167,28 @@ maximizeWindowButton.addEventListener("click", async () => {
 });
 closeWindowButton.addEventListener("click", () => { void window.kDownloader.closeWindow(); });
 window.kDownloader.onWindowState(({ maximized }) => updateMaximizeButton(maximized));
+
+moreButton.addEventListener("click", () => {
+  moreMenu.hidden = !moreMenu.hidden;
+  moreButton.setAttribute("aria-expanded", String(!moreMenu.hidden));
+});
+settingsMenuItem.addEventListener("click", () => setSettingsOpen(true));
+closeSettingsButton.addEventListener("click", () => setSettingsOpen(false));
+document.addEventListener("click", (event) => {
+  if (!moreMenuWrap.contains(event.target as Node)) closeMoreMenu();
+});
+document.addEventListener("keydown", (event) => {
+  if ((event.ctrlKey || event.metaKey) && event.key === ",") {
+    event.preventDefault();
+    setSettingsOpen(!settingsOpen);
+  } else if (event.key === "Escape") {
+    if (settingsOpen) setSettingsOpen(false);
+    else if (!moreMenu.hidden) {
+      closeMoreMenu();
+      moreButton.focus();
+    }
+  }
+});
 
 inspectButton.addEventListener("click", async () => {
   errorText.textContent = "";
