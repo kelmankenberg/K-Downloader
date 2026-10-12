@@ -14,6 +14,9 @@ The desktop app requires a graphical Linux session. Public-track downloads
 need no site login. Use only audio you are authorized to download and respect
 the site's access policy. The current release accepts one album per run.
 
+The **KHInsider** link to the right of the album URL label opens the website
+in your default browser, where you can find and copy an album-page URL.
+
 ## Album Inspection
 
 Use an HTTPS album URL beginning with
@@ -231,7 +234,10 @@ app shows the GitHub URL so you can visit it manually.
 - **System mode not changing:** select System in Appearance. Cinnamon follows
   its GTK theme, not every desktop accent/wallpaper setting.
 
-The current implementation is Linux-first, single-album, and source-distributed.
-Multi-album queues, cover artwork, login/bulk downloads, AppImage/.deb/.rpm
-packaging, automatic updates, tagging, transcoding, and player integration are
-not implemented. Source build/release instructions are in the project's docs.
+The current implementation is Linux-first and single-album. Linux x64 AppImage
+and .deb builds include Electron and Chromium. The installed launcher supports
+`k-downloader inspect`, `k-downloader download`, and `k-downloader --help`.
+Distribution compatibility still requires target-machine testing.
+Multi-album queues, cover artwork, login/bulk downloads, .rpm/ARM packaging,
+automatic updates, tagging, transcoding, and player integration are not
+implemented. Build/release instructions are in the project's docs.

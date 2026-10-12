@@ -63,7 +63,12 @@
       <section id="workspace" class="workspace">
         <aside class="control-panel" aria-label="Download setup">
           <div class="section-heading"><span class="section-index">01</span><h1>Album source</h1></div>
-          <label for="album-url">KHInsider album URL</label>
+          <div class="album-url-label-row">
+            <label for="album-url">KHInsider album URL</label>
+            <a id="khinsider-link" href="https://downloads.khinsider.com/" title="Open KHInsider in your browser" aria-label="Open KHInsider website">
+              <span>KHInsider</span><i data-lucide="external-link" aria-hidden="true"></i>
+            </a>
+          </div>
           <textarea id="album-url" rows="3" spellcheck="false" placeholder="https://downloads.khinsider.com/game-soundtracks/album/…"></textarea>
           <div class="microcopy">Inspection opens a separate visible Chromium window. No login is used.</div>
 

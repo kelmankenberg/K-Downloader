@@ -42,6 +42,7 @@ export type GuiDownloadRequest = {
 };
 
 export type KDownloaderApi = {
+  openKhinsider: () => Promise<void>;
   reportIssue: () => Promise<void>;
   restoreWindowBounds: () => Promise<void>;
   zoom: (direction: "in" | "out" | "reset") => Promise<number>;

@@ -5,9 +5,11 @@ import { downloadAlbum } from "./downloader.js";
 import { defaultOutputRoot } from "./output.js";
 import { resolve } from "node:path";
 
-function usage(): never {
-  console.error("Usage:\n  npm run inspect -- <album-url>\n  npm run download -- <album-url> [--format prefer-lossless|lossless-only|FORMAT] [--skip-unavailable] [--disc-label CD|Disc] [--output DIR]");
-  process.exit(2);
+function usage(exitCode = 2): never {
+  const inspect = process.env.K_DOWNLOADER_CHROMIUM_PATH ? "k-downloader inspect" : "npm run inspect --";
+  const download = process.env.K_DOWNLOADER_CHROMIUM_PATH ? "k-downloader download" : "npm run download --";
+  console.error(`Usage:\n  ${inspect} <album-url>\n  ${download} <album-url> [--format prefer-lossless|lossless-only|FORMAT] [--skip-unavailable] [--disc-label CD|Disc] [--output DIR]`);
+  process.exit(exitCode);
 }
 
 function printPlan(
@@ -82,7 +84,7 @@ async function downloadCommand(albumUrl: string, args: string[]): Promise<void> 
 
 async function main(): Promise<void> {
   const [command, albumUrl, ...args] = process.argv.slice(2);
-  if (command === "--help" || command === "help" || albumUrl === "--help") usage();
+  if (command === "--help" || command === "help" || albumUrl === "--help") usage(0);
   if (!albumUrl) usage();
   if (command === "inspect") await inspectCommand(albumUrl, args);
   else if (command === "download") await downloadCommand(albumUrl, args);

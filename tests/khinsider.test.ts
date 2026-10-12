@@ -48,7 +48,10 @@ describe("KHInsider page parsing", () => {
 });
 
 describe("inspection cancellation", () => {
-  afterEach(() => vi.restoreAllMocks());
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.unstubAllEnvs();
+  });
 
   it("does not launch Chromium when already canceled", async () => {
     const launch = vi.spyOn(chromium, "launch");
@@ -73,6 +76,7 @@ describe("inspection cancellation", () => {
   });
 
   it("closes Chromium to interrupt active navigation and never starts track requests", async () => {
+    vi.stubEnv("K_DOWNLOADER_CHROMIUM_PATH", "/test/resources/chromium/chrome");
     const controller = new AbortController();
     let rejectNavigation!: (error: Error) => void;
     let navigationStarted!: () => void;
@@ -103,5 +107,6 @@ describe("inspection cancellation", () => {
     expect(browser.close).toHaveBeenCalled();
     expect(context.close).toHaveBeenCalled();
     expect(page.goto).toHaveBeenCalledTimes(1);
+    expect(chromium.launch).toHaveBeenCalledWith(expect.objectContaining({ executablePath: "/test/resources/chromium/chrome" }));
   });
 });

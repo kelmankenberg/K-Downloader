@@ -50,6 +50,7 @@ describe("appearance controls in Chromium", () => {
         let inspectionListener: ((state: GuiInspectionState) => void) | undefined;
         let browserVisible = false;
         window.kDownloader = {
+          openKhinsider: async () => {},
           reportIssue: async () => {},
           restoreWindowBounds: async () => {},
           zoom: async () => 1,

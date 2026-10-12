@@ -16,6 +16,14 @@ await mkdir(resolve(output, "assets"), { recursive: true });
 
 await Promise.all([
   build({
+    entryPoints: [resolve(root, "src/cli.ts")],
+    outfile: resolve(output, "cli.cjs"),
+    bundle: true,
+    platform: "node",
+    format: "cjs",
+    external: ["playwright", "parse5"],
+  }),
+  build({
     entryPoints: [resolve(root, "src/electron/main.ts")],
     outfile: resolve(output, "electron/main.cjs"),
     bundle: true,

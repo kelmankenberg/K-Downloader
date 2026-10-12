@@ -4,6 +4,10 @@
 
 ### Added
 
+- KHInsider website link beside the album URL label, opening in the default browser.
+- Linux x64 AppImage and .deb packaging scripts with bundled Electron/Chromium,
+  desktop integration, embedded-Node CLI launchers, checksums, and artifact smoke tests.
+- Separate package:linux, package:deb, package:appimage, and package:dir commands.
 - Report an Issue menu command opening the fixed GitHub issue chooser in the
 	default browser, with a manual-link fallback if the browser cannot launch.
 - GitHub bug-report and feature-request forms with required details and privacy

@@ -61,8 +61,25 @@ describe("desktop More menu and zoom", () => {
         Reflect.set(globalThis, "supportUrls", []);
         shell.openExternal = async (url) => { Reflect.get(globalThis, "supportUrls").push(url); };
       });
+      const sourceLink = page.getByRole("link", { name: "Open KHInsider website", exact: true });
+      expect(await sourceLink.getAttribute("href")).toBe("https://downloads.khinsider.com/");
+      const appUrl = page.url();
+      await sourceLink.click();
+      expect(await app.evaluate(() => Reflect.get(globalThis, "supportUrls"))).toEqual(["https://downloads.khinsider.com/"]);
+      expect(page.url()).toBe(appUrl);
+      for (const [width, height] of [[760, 620], [1120, 780]]) {
+        await app.evaluate(({ BrowserWindow }, size) => BrowserWindow.getAllWindows()[0].setSize(size.width, size.height), { width, height });
+        const labelBounds = await page.locator(".album-url-label-row label").boundingBox();
+        const linkBounds = await sourceLink.boundingBox();
+        if (!labelBounds || !linkBounds) throw new Error("Missing label/link layout");
+        expect(linkBounds.x).toBeGreaterThanOrEqual(labelBounds.x + labelBounds.width);
+        expect(Math.abs(linkBounds.y - labelBounds.y)).toBeLessThan(5);
+        await page.screenshot({ path: `/tmp/k-downloader-site-link-${width}.png` });
+      }
+      await page.getByRole("button", { name: "More options", exact: true }).click();
       await page.getByRole("menuitem", { name: "Report an Issue", exact: true }).click();
       expect(await app.evaluate(() => Reflect.get(globalThis, "supportUrls"))).toEqual([
+        "https://downloads.khinsider.com/",
         "https://github.com/kelmankenberg/K-Downloader/issues/new/choose",
       ]);
       expect(await page.locator("#more-menu").isVisible()).toBe(false);
@@ -74,6 +91,10 @@ describe("desktop More menu and zoom", () => {
           return { response: 0, checkboxChecked: false };
         };
       });
+      await sourceLink.click();
+      const sourceError = await app.evaluate(() => Reflect.get(globalThis, "supportError"));
+      expect(sourceError.title).toBe("Could not open KHInsider");
+      expect(sourceError.detail).toContain("https://downloads.khinsider.com/");
       await page.getByRole("button", { name: "More options", exact: true }).click();
       await page.getByRole("menuitem", { name: "Report an Issue", exact: true }).click();
       const supportError = await app.evaluate(() => Reflect.get(globalThis, "supportError"));

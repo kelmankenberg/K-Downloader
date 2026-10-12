@@ -1,17 +1,20 @@
 # Build and GitHub Release Guide
 
 Run the commands below from the repository root. This guide describes the
-current implementation, not the planned installer packaging.
+current Linux packaging and release workflow.
 
 ## What Can Be Released Today
 
-The project supports a source-only GitHub release. GitHub provides source ZIP
-and tar archives automatically for its release tag. Users must install Node.js,
-npm dependencies, and Playwright Chromium before running the app.
+The project builds Linux x64 AppImage and Debian `.deb` artifacts, with Electron,
+production dependencies, Chromium, a desktop icon, and CLI support included.
+Recipients do not need npm or a separate Node.js/Playwright installation.
+Linux shared libraries and a graphical session are still required for discovery.
 
-AppImage, Debian `.deb`, and Fedora `.rpm` packaging are not configured yet.
-There is no installer-building command or automated GitHub release workflow.
-Do not describe a source release as an installable Linux application package.
+Fedora `.rpm` and ARM packaging are not configured. Builds and extracted-artifact
+smoke tests have been verified on the development host; installed-package behavior
+and compatibility across distribution versions still require target-machine tests.
+The Chromium build is Playwright's Ubuntu 24.04 x64 fallback on this host.
+Do not claim certification for all Debian/Ubuntu versions based on package format.
 
 The generated `dist/` directory contains Electron main/preload bundles and the
 local renderer assets. It is **not a standalone application**: it still depends
@@ -20,11 +23,12 @@ only `dist/` does not provide a runnable installer.
 
 ## Prerequisites
 
-- Linux with a graphical desktop session for GUI and Electron tests.
+- Linux x64 with a graphical desktop session for packaging and smoke tests.
 - Node.js 22 (22.12 or later), Node.js 24, or Node.js 26 or later, as required by
   the installed Electron and Vitest toolchain. An older system Node may fail
   even if it satisfies the application's declared Node.js 20 minimum.
 - npm, Git, and access to the target GitHub repository.
+- `dpkg-deb` for extracted Debian package smoke tests.
 - GitHub CLI (`gh`) for the command-line release steps, or the GitHub website.
 
 Check the environment:
@@ -89,6 +93,98 @@ Check startup/close, Settings navigation and appearance, keyboard shortcuts,
 changelog resizing, window restore, and saved geometry. Only test site discovery
 or real audio transfers when authorized; they are not required for building.
 
+## Build Installers
+
+Build both formats:
+
+```sh
+npm run package:linux
+```
+
+Or choose one output:
+
+```sh
+npm run package:deb
+npm run package:appimage
+npm run package:dir
+```
+
+The scripts type-check and rebuild the app, install the pinned Playwright
+Chromium into `.packaging/browser-cache/`, stage it outside `app.asar`, and run
+electron-builder. Browser and builder tools may be downloaded on the first run.
+`.packaging/` and `release/` are ignored build output, not source files to commit.
+
+For version 0.1.0, outputs are:
+
+```text
+release/K-Downloader-0.1.0-amd64.deb
+release/K-Downloader-0.1.0-x86_64.AppImage
+release/K-Downloader-0.1.0-SHA256SUMS.txt
+release/linux-unpacked/
+```
+
+Versioned filenames follow package.json. A single-target command writes checksums
+for its produced artifact; `package:linux` writes checksums for both formats.
+Nothing is uploaded or released automatically.
+
+Debian requires maintainer metadata. The script uses Git's configured user.name
+and user.email by default. These become public package metadata; review them
+before distributing. Override them explicitly with a real maintainer identity:
+
+```sh
+K_DOWNLOADER_MAINTAINER='Your Name <your-real-email@example.org>' npm run package:linux
+```
+
+Replace the example with your chosen identity. The manifest currently declares
+`UNLICENSED`; choose an appropriate distribution license before a public release
+if you intend to grant redistribution rights. Packaging does not choose a license
+or change existing copyright ownership for you.
+
+## Test the Artifacts
+
+```sh
+npm run test:packages
+cd release
+sha256sum -c K-Downloader-0.1.0-SHA256SUMS.txt
+```
+
+Adjust the checksum filename for the release version. Run from the repository
+root again for subsequent build commands. `test:packages` extracts both current
+artifacts to temporary directories and verifies packaged GUI/Help, Chromium,
+and CLI help without display variables. It makes no site requests, does not
+install system-wide, and cleans its temporary files. It requires a desktop
+session for the GUI portion. No sandbox-disabling flags are added.
+
+On a disposable target machine, also test real Debian installation/removal,
+desktop-launcher behavior, download destinations, and authorized discovery.
+Installing a `.deb` requires system privileges; do that manually, not as part
+of these automated smoke tests.
+
+For AppImage, mark it executable and launch it:
+
+```sh
+chmod +x release/K-Downloader-0.1.0-x86_64.AppImage
+./release/K-Downloader-0.1.0-x86_64.AppImage
+```
+
+If the host cannot mount AppImages via FUSE, extraction mode is available:
+
+```sh
+./release/K-Downloader-0.1.0-x86_64.AppImage --appimage-extract-and-run
+```
+
+The installed Debian launcher is `k-downloader`. The packaged CLI uses Electron's
+embedded Node runtime without opening the GUI:
+
+```sh
+k-downloader --help
+k-downloader inspect 'https://downloads.khinsider.com/game-soundtracks/album/ALBUM'
+k-downloader download 'https://downloads.khinsider.com/game-soundtracks/album/ALBUM'
+```
+
+An AppImage accepts the same CLI arguments. Help needs no display; inspection
+and download discovery still require a graphical session.
+
 ## Prepare the Release Commit
 
 1. Check `git status` and review the intended diff. Exclude local settings,
@@ -106,7 +202,8 @@ or real audio transfers when authorized; they are not required for building.
    the selected version and release date, and leave a new `Unreleased` section
    above it for future work. Keep the release notes accurate about unfinished
    features and the graphical-session/browser requirements.
-4. Repeat the build/test checks after the version and changelog updates.
+4. Repeat the build/test checks and rebuild/test artifacts after version and
+  changelog updates. Release binaries must match the tagged source commit.
 5. Stage only intended release files, review, and commit. For example, when
    these are the only changed release files:
 
@@ -159,7 +256,16 @@ gh release create "$TAG" \
 
 For experimental versions, also pass `--prerelease`. Review the draft notes:
 `--notes-file` includes the whole changelog, so trim older entries in the draft
-and prominently state **source-only release; no Linux installers included**.
+and identify the actual Linux architectures and distributions tested. Attach
+the validated artifacts and checksum file to the draft before publication:
+
+```sh
+gh release upload "$TAG" \
+  "release/K-Downloader-$VERSION-amd64.deb" \
+  "release/K-Downloader-$VERSION-x86_64.AppImage" \
+  "release/K-Downloader-$VERSION-SHA256SUMS.txt" \
+  --repo kelmankenberg/K-Downloader
+```
 
 ## Publish and Verify
 
@@ -174,22 +280,14 @@ gh release view "$TAG" --repo kelmankenberg/K-Downloader
 On the GitHub website, the equivalent is **Releases > Draft a new release**:
 select the pushed tag, enter the title/notes, save as draft, review, and publish.
 
-After publication, verify the source archives are available and correspond to
-the selected tag. Test setup from that tag in a clean directory, using `npm ci`
-and the browser installation step above. Do not assume a successful development
-build proves installer compatibility.
+After publication, verify installer assets, checksums, and source archives are
+available and correspond to the selected tag. Download and verify the artifacts
+on each supported target. Do not assume development launch or extraction-only
+smoke testing proves installed-package compatibility.
 
-## When Installer Packaging Is Added
+## Packaging Scope
 
-Before uploading AppImage, `.deb`, or `.rpm` assets, define supported Linux
-versions/architectures and implement a packaging workflow. It must include
-runtime dependencies, browser provisioning, desktop integration, CLI invocation,
-and normal sandbox support. Test the actual artifacts on the declared targets.
-Installer desktop entries must also reference the K-Downloader icon; window
-icon configuration alone does not install a desktop launcher or override every
-Linux desktop's taskbar grouping behavior.
-
-Only then attach validated installers and checksums to a draft, using actual
-artifact paths, for example `gh release upload "$TAG" <artifact-paths>` with
-the same `--repo` option. Do not upload unrelated build output or claim installer
-support until those packaging and compatibility checks pass.
+Linux x64 AppImage and `.deb` generation are implemented. Multi-distribution
+certification, ARM builds, `.rpm`, automatic updates, signing, and automated
+release publishing remain separate work. Do not upload builder debug files,
+unpacked directories, browser caches, or unrelated build output as installers.

@@ -23,6 +23,7 @@ let cinnamonDark: boolean | undefined;
 let stopThemeMonitor: (() => void) | undefined;
 
 app.setName("K-Downloader");
+if (process.platform === "linux") app.setDesktopName("k-downloader.desktop");
 const primaryInstance = app.requestSingleInstanceLock();
 if (!primaryInstance) app.quit();
 else app.on("second-instance", () => {
@@ -125,6 +126,21 @@ function sendWindowState(window: BrowserWindow): void {
 }
 
 function registerIpc(): void {
+  ipcMain.handle("source:open-khinsider", async (event) => {
+    const window = assertWindowSender(event.sender.id);
+    const url = "https://downloads.khinsider.com/";
+    try {
+      await shell.openExternal(url);
+    } catch {
+      await dialog.showMessageBox(window, {
+        type: "error",
+        title: "Could not open KHInsider",
+        message: "Your browser could not be opened.",
+        detail: `Open this address manually:\n${url}`,
+        buttons: ["OK"],
+      });
+    }
+  });
   ipcMain.handle("support:report-issue", async (event) => {
     const window = assertWindowSender(event.sender.id);
     const url = "https://github.com/kelmankenberg/K-Downloader/issues/new/choose";
@@ -338,6 +354,7 @@ async function createWindow(): Promise<void> {
 
 app.whenReady().then(async () => {
   if (!primaryInstance) return;
+  if (app.isPackaged) process.env.K_DOWNLOADER_CHROMIUM_PATH = resolve(process.resourcesPath, "chromium/chrome");
   nativeTheme.themeSource = "system";
   nativeTheme.on("updated", sendSystemTheme);
   stopThemeMonitor = await monitorCinnamonTheme((dark) => {

@@ -2,8 +2,9 @@
 
 K-Downloader is a Linux-first KHInsider album downloader. The current slice
 implements public single-album discovery, format preview and policy, sequential
-streaming, and manifest-backed reruns. Multi-album queues, artwork, the GUI,
-optional account features, and packaging are not implemented yet.
+streaming, manifest-backed reruns, an Electron GUI, and Linux x64 AppImage/.deb
+packaging. Multi-album queues, artwork, and optional account features are not
+implemented yet.
 
 ## Discovery check
 
@@ -108,8 +109,27 @@ to reset to 100%. `Ctrl+mousewheel` also changes scale. Zoom is limited to
 50%-200% and does not change the window's saved geometry.
 
 The GUI uses a context-isolated, sandboxed renderer with a narrow preload API.
-It currently supports one album per run; multi-album queues and packaging are
-not available yet.
+It currently supports one album per run; multi-album queues are not available yet.
+
+## Linux Packages
+
+On a Linux x64 build host with dependencies installed:
+
+```sh
+npm run package:linux
+npm run test:packages
+```
+
+The first command creates `.deb`, AppImage, and SHA-256 checksum files under
+`release/`, with Electron and Chromium included. To build separately, use
+`npm run package:deb` or `npm run package:appimage`; `npm run package:dir` creates
+an unpacked application. Recipients do not need npm or a separate Node runtime.
+The packaged `k-downloader` launcher supports `inspect`, `download`, and `--help`.
+
+See [docs/BUILD_AND_RELEASE.md](docs/BUILD_AND_RELEASE.md) for maintainer metadata,
+build prerequisites, installation/testing caveats, and GitHub release commands.
+Artifacts are smoke-tested on the build host, not certified across all Linux
+versions. Packaging does not automatically publish a GitHub release.
 
 ## Issue Reporting
 

@@ -164,7 +164,11 @@ export async function inspectAlbum(
 ): Promise<{ album: AlbumPage; tracks: DiscoveredTrack[] }> {
   const albumUrl = validateAlbumUrl(input);
   options.signal?.throwIfAborted();
-  const browser = await chromium.launch({ headless: false, args: ["--start-minimized"] });
+  const browser = await chromium.launch({
+    headless: false,
+    args: ["--start-minimized"],
+    ...(process.env.K_DOWNLOADER_CHROMIUM_PATH ? { executablePath: process.env.K_DOWNLOADER_CHROMIUM_PATH } : {}),
+  });
   let context: BrowserContext | undefined;
   const controller = new AbortController();
   const abort = () => {

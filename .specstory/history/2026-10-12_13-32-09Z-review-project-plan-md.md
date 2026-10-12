@@ -49394,3 +49394,8097 @@ You should see:
 If the folder is missing or returns 404, they haven’t been pushed to .
 
 Then open [the issue chooser](https://github.com/kelmankenberg/K-Downloader/issues/new/choose). Seeing **Bug Report** and **Feature Request** confirms they’re active.
+
+---
+
+_**User (2026-10-12 19:09:25Z)**_
+
+what script actually builds the distributable deb and appimage files?
+
+---
+
+_**Agent (copilot/auto)**_
+
+None yet. The current `npm run build:gui` creates Electron bundles in `dist`, but **does not produce `.deb` or AppImage installers**.
+
+We still need to configure a packager such as `electron-builder` and add a command like `npm run package:linux`, including the app icon, runtime/browser dependencies, and desktop launcher.
+
+---
+
+_**User (2026-10-12 19:09:59Z)**_
+
+well, I can't distribute without them, can I?
+
+---
+
+_**Agent (copilot/auto)**_
+
+You can share the source, but you’re right: **it isn’t ready for normal end-user distribution** without installable packages. The GUI bundle isn’t a substitute for `.deb` or AppImage.
+
+I should have made that gap clearer. Packaging is the next priority, including Chromium provisioning, the icon and launcher, and testing the actual artifacts.
+
+---
+
+_**User (2026-10-12 19:10:29Z)**_
+
+create the necessary package scripts
+
+---
+
+_**Agent (copilot/auto)**_
+
+<think><details><summary>Thought Process</summary>
+The unpacked application builds successfully with Chromium included. I’ll now test that directory directly: load the GUI from `app.asar`, launch the bundled browser, and run CLI help with display variables removed. If those pass, I’ll generate the `.deb` and AppImage files.
+
+The packaged GUI opened, but the smoke-test callback failed because `require` isn’t available in Playwright’s main-process evaluation context. I’ll test the bundled browser through Electron’s embedded Node runtime instead; that also checks the runtime used by the packaged CLI.
+
+The standalone runtime checks pass: the packaged GUI loads from `app.asar`, bundled Chromium launches, and CLI help runs without display variables. I’ll fix the packaged CLI’s help text and success exit code, clear stale browser staging files between builds, then generate both installer formats.
+
+Both artifacts were generated: the `.deb`, AppImage, and checksum file are in `release/`. The builder flagged a desktop-name association warning, so I’ll fix that metadata to keep the taskbar icon and launcher associated, then smoke-test the extracted artifacts without installing them system-wide.
+</details></think>
+
+_**Agent (copilot/auto)**_
+
+I’ll add a Linux packaging command that builds `.deb` and AppImage artifacts, including the app icon and the Chromium runtime needed for discovery. I’ll check the current build entry point and browser path handling first, then build and smoke-test the generated artifacts.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Read `package.json`
+
+**Input:**
+
+- endLine: `120`
+- filePath: `/home/kel/dev/K-Downloader/package.json`
+- startLine: `1`
+
+**Result:**
+
+```
+{
+  "name": "k-downloader",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "build:gui": "node scripts/build-gui.mjs",
+    "gui": "npm run build:gui && electron dist/electron/main.cjs",
+    "inspect": "tsx src/cli.ts inspect",
+    "download": "tsx src/cli.ts download",
+    "pretest": "npm run build:gui",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "dompurify": "^3.4.17",
+    "lucide": "^1.55.0",
+    "marked": "^18.1.1",
+    "parse5": "^7.3.0",
+    "playwright": "^1.55.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "electron": "^44.7.0",
+    "esbuild": "^0.28.2",
+    "tsx": "^4.19.0",
+    "typescript": "^5.8.0",
+    "vitest": "^5.0.4",
+    "yaml": "^2.9.1"
+  }
+}
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Read `build-gui.mjs`
+
+**Input:**
+
+- endLine: `140`
+- filePath: `/home/kel/dev/K-Downloader/scripts/build-gui.mjs`
+- startLine: `1`
+
+**Result:**
+
+```
+import { cp, mkdir, readFile, rm } from "node:fs/promises";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { build } from "esbuild";
+
+const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const output = resolve(root, "dist");
+const changelog = await readFile(resolve(root, "changelog.md"), "utf8");
+const help = await readFile(resolve(root, "docs/HELP.md"), "utf8");
+const manifest = JSON.parse(await readFile(resolve(root, "package.json"), "utf8"));
+if (typeof manifest.version !== "string" || !manifest.version.trim()) throw new Error("package.json must contain a version");
+await rm(output, { recursive: true, force: true });
+await mkdir(resolve(output, "electron"), { recursive: true });
+await mkdir(resolve(output, "gui"), { recursive: true });
+await mkdir(resolve(output, "assets"), { recursive: true });
+
+await Promise.all([
+  build({
+    entryPoints: [resolve(root, "src/electron/main.ts")],
+    outfile: resolve(output, "electron/main.cjs"),
+    bundle: true,
+    platform: "node",
+    format: "cjs",
+    external: ["electron", "playwright", "parse5"],
+  }),
+  build({
+    entryPoints: [resolve(root, "src/electron/preload.ts")],
+    outfile: resolve(output, "electron/preload.cjs"),
+    bundle: true,
+    platform: "node",
+    format: "cjs",
+    external: ["electron"],
+  }),
+  build({
+    entryPoints: [resolve(root, "src/renderer.ts")],
+    outfile: resolve(output, "gui/renderer.js"),
+    bundle: true,
+    platform: "browser",
+    format: "iife",
+    define: {
+      __CHANGELOG_MARKDOWN__: JSON.stringify(changelog),
+      __HELP_MARKDOWN__: JSON.stringify(help),
+      __APP_VERSION__: JSON.stringify(manifest.version),
+    },
+  }),
+]);
+
+await Promise.all([
+  cp(resolve(root, "gui/index.html"), resolve(output, "gui/index.html")),
+  cp(resolve(root, "gui/styles.css"), resolve(output, "gui/styles.css")),
+  cp(resolve(root, "assets/k-downloader.png"), resolve(output, "assets/k-downloader.png")),
+]);
+console.log("Built 
+… (output truncated)
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Read `khinsider.ts`, lines 150 to 190
+
+**Input:**
+
+- endLine: `190`
+- filePath: `/home/kel/dev/K-Downloader/src/khinsider.ts`
+- startLine: `150`
+
+**Result:**
+
+```
+    if (!url || seen.has(url.href)) continue;
+    const extension = url.pathname.split(".").at(-1)?.toLowerCase();
+    const format = extension && AUDIO_EXTENSIONS.has(extension) ? extension.toUpperCase() : undefined;
+    if (!format) continue;
+    seen.add(url.href);
+    links.push({ format, url });
+  }
+
+  return links;
+}
+
+export async function inspectAlbum(
+  input: string,
+  options: InspectionOptions = {},
+): Promise<{ album: AlbumPage; tracks: DiscoveredTrack[] }> {
+  const albumUrl = validateAlbumUrl(input);
+  options.signal?.throwIfAborted();
+  const browser = await chromium.launch({ headless: false, args: ["--start-minimized"] });
+  let context: BrowserContext | undefined;
+  const controller = new AbortController();
+  const abort = () => {
+    controller.abort();
+    void browser.close().catch(() => undefined);
+  };
+  options.signal?.addEventListener("abort", abort, { once: true });
+
+  try {
+    options.signal?.throwIfAborted();
+    context = await browser.newContext({ serviceWorkers: "block" });
+    const page = await context.newPage();
+    page.on("close", () => controller.abort());
+    const cdp = await context.newCDPSession(page);
+    const { windowId } = await cdp.send("Browser.getWindowForTarget");
+    let browserVisible: boolean | undefined;
+    const setBrowserVisible = async (visible: boolean): Promise<void> => {
+      if (page.isClosed()) throw new Error("Inspection browser has been closed");
+      if (browserVisible === visible) return;
+      await cdp.send("Browser.setWindowBounds", {
+        windowId,
+        bounds: { windowState: visible ? "normal" : "minimized" },
+      });
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Read `main.ts`, lines 1 to 82
+
+**Input:**
+
+- endLine: `82`
+- filePath: `/home/kel/dev/K-Downloader/src/electron/main.ts`
+- startLine: `1`
+
+**Result:**
+
+```
+import { app, BrowserWindow, dialog, ipcMain, Menu, nativeTheme, screen, shell } from "electron";
+import { readFileSync, writeFileSync, renameSync } from "node:fs";
+import { centeredBounds, parseWindowState, startupBounds } from "./window-state.js";
+import { monitorCinnamonTheme } from "./system-theme.js";
+import { resolve } from "node:path";
+import { downloadAlbum, type DownloadProgress } from "../downloader.js";
+import { planFormats } from "../formats.js";
+import { inspectAlbum, validateAlbumUrl, type AlbumPage, type DiscoveredTrack } from "../khinsider.js";
+import { defaultOutputRoot } from "../output.js";
+import type { GuiDownloadRequest, GuiFormatPolicy, GuiInspection, GuiInspectionState } from "../gui-types.js";
+
+type CachedInspection = {
+  sourceAlbum: string;
+  album: AlbumPage;
+  tracks: DiscoveredTrack[];
+};
+
+let mainWindow: BrowserWindow | undefined;
+let mainWindowReady = false;
+let duplicateLaunchPending = false;
+let instanceNoticeOpen = false;
+let cinnamonDark: boolean | undefined;
+let stopThemeMonitor: (() => void) | undefined;
+
+app.setName("K-Downloader");
+const primaryInstance = app.requestSingleInstanceLock();
+if (!primaryInstance) app.quit();
+else app.on("second-instance", () => {
+  duplicateLaunchPending = true;
+  void notifyExistingInstance();
+});
+
+function bringWindowForward(window: BrowserWindow): void {
+  if (window.isDestroyed()) return;
+  if (window.isMinimized()) window.restore();
+  window.show();
+  window.focus();
+}
+
+async function notifyExistingInstance(): Promise<void> {
+  const window = mainWindow;
+  if (!duplicateLaunchPending || instanceNoticeOpen || !mainWindowReady || !window || window.isDestroyed()) return;
+  duplicateLaunchPending = false;
+  instanceNoticeOpen = true;
+  bringWindowForward(window);
+  try {
+    await dialog.showMessageBox(window, {
+      type: "info",
+      title: "K-Downloader is already running",
+      message: "K-Downloader is already running.",
+      detail: "Only one instance can run. Continue in the existing w
+… (output truncated)
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Read `.gitignore`
+
+**Input:**
+
+- endLine: `80`
+- filePath: `/home/kel/dev/K-Downloader/.gitignore`
+- startLine: `1`
+
+**Result:**
+
+```
+node_modules/
+dist/
+*.part
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Read `cli.ts`
+
+**Input:**
+
+- endLine: `180`
+- filePath: `/home/kel/dev/K-Downloader/src/cli.ts`
+- startLine: `1`
+
+**Result:**
+
+```
+import { inspectAlbum } from "./khinsider.js";
+import { planFormats } from "./formats.js";
+import type { FormatPolicy } from "./formats.js";
+import { downloadAlbum } from "./downloader.js";
+import { defaultOutputRoot } from "./output.js";
+import { resolve } from "node:path";
+
+function usage(): never {
+  console.error("Usage:\n  npm run inspect -- <album-url>\n  npm run download -- <album-url> [--format prefer-lossless|lossless-only|FORMAT] [--skip-unavailable] [--disc-label CD|Disc] [--output DIR]");
+  process.exit(2);
+}
+
+function printPlan(
+  album: Awaited<ReturnType<typeof inspectAlbum>>["album"],
+  tracks: Awaited<ReturnType<typeof inspectAlbum>>["tracks"],
+  policy: FormatPolicy,
+  discLabel: "CD" | "Disc" = "CD",
+): boolean {
+  const plan = planFormats(tracks, policy);
+  console.log(`Album: ${album.title}`);
+  console.log(`Tracks: ${album.tracks.length}${album.advertisedTrackCount ? ` / ${album.advertisedTrackCount}` : ""}`);
+  for (const selection of plan.tracks) {
+    const { track, selected, state, reason, fallback } = selection;
+    const disc = track.discNumber ? `${discLabel}${track.discNumber} · ` : "";
+    const prefix = `${disc}${String(track.number).padStart(2, "0")} - ${track.title}`;
+    if (selected) console.log(`${prefix}: ${selected.format}${fallback ? " (lossy fallback)" : ""}`);
+    else console.log(`${prefix}: ${state}${reason ? ` (${reason})` : ""}`);
+  }
+  return !plan.blocked;
+}
+
+async function inspectCommand(albumUrl: string, args: string[]): Promise<void> {
+  if (args.length > 0) usage();
+  const { album, tracks } = await inspectAlbum(albumUrl);
+  if (printPlan(album, tracks, { kind: "prefer-lossless" })) {
+    console.log("Format preview complete; no audio was downloaded.");
+  } else process.exitCode = 1;
+}
+
+async function downloadCommand(albumUrl: string, args: string[]): Promise<void> {
+  let format = "prefer-lossless";
+  let outputRoot = defaultOutputRoot();
+  let discLabel: "CD" | "Disc" = "CD";
+  let skipUnavailable = false;
+  for 
+… (output truncated)
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The main portability issue is Chromium: discovery currently uses a browser from the developer’s cache, which won’t exist on an end user’s machine. I’ll bundle Chromium as an application resource and give the installed app an explicit path to it. I’ll target Linux x64 for this first packaging path and verify that the extracted app can find its resources.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **khinsider.ts**</summary>
+
+@@ lines 1-230 @@
+
+```
+import { chromium, type BrowserContext } from "playwright";
+import { parse } from "parse5";
+import { setTimeout as delay } from "node:timers/promises";
+
+const SITE_HOST = "downloads.khinsider.com";
+const AUDIO_EXTENSIONS = new Set(["mp3", "flac", "ogg", "opus", "m4a", "aac", "wav", "wma", "alac"]);
+
+export type TrackLink = {
+  discNumber?: number;
+  number: number;
+  title: string;
+  pageUrl: URL;
+};
+
+export type AudioLink = {
+  format: string;
+  url: URL;
+};
+
+export type AlbumPage = {
+  title: string;
+  advertisedTrackCount?: number;
+  tracks: TrackLink[];
+};
+
+export type DiscoveredTrack = TrackLink & {
+  audioLinks: AudioLink[];
+};
+
+export type InspectionOptions = {
+  signal?: AbortSignal;
+  onBrowserReady?: (setVisible: (visible: boolean) => Promise<void>) => void;
+};
+
+function* walk(node: any): Generator<any> {
+  yield node;
+  for (const child of node.childNodes ?? []) yield* walk(child);
+}
+
+function textContent(node: any): string {
+  if (node.nodeName === "#text") return node.value;
+  return (node.childNodes ?? []).map(textContent).join(" ").replace(/\s+/g, " ").trim();
+}
+
+function href(node: any, baseUrl: URL): URL | undefined {
+  const value = node.attrs?.find((attribute: any) => attribute.name === "href")?.value;
+  if (!value) return undefined;
+  try {
+    const url = new URL(value, baseUrl);
+    if (url.protocol !== "https:" || url.username || url.password) return undefined;
+    return url;
+  } catch {
+    return undefined;
+  }
+}
+
+function numberedTrack(
+  row: any,
+  albumUrl: URL,
+  columns: { disc: number; track: number },
+): TrackLink | undefined {
+  const cells = (row.childNodes ?? []).filter((node: any) => node.tagName === "td" || node.tagName === "th");
+  const cellNumber = (index: number): number | undefined => {
+    if (index < 0 || index >= cells.length) return undefined;
+    const value = textContent(cells[index]);
+    return /^\s*\d+\.?\s*$/.test(value) ? Number.parseInt(value, 10) : undefined;
+  };
+  const discNumber = cellNumber(columns.disc);
+  const number = cellNumber(columns.track);
+  if (number === undefined) return undefined;
+
+  const anchors = [...walk(row)].filter((node) => node.tagName === "a");
+  for (const anchor of anchors) {
+    const pageUrl = href(anchor, albumUrl);
+    if (
+      !pageUrl ||
+      pageUrl.hostname.toLowerCase() !== SITE_HOST ||
+      !pageUrl.pathname.startsWith(`${albumUrl.pathname.replace(/\/$/, "")}/`)
+    ) continue;
+
+    const title = textContent(anchor);
+    if (!title) continue;
+    return { ...(discNumber === undefined ? {} : { discNumber }), number, title, pageUrl };
+  }
+  return undefined;
+}
+
+export function validateAlbumUrl(input: string): URL {
+  const url = new URL(input);
+  if (
+    url.protocol !== "https:" ||
+    url.hostname.toLowerCase() !== SITE_HOST ||
+    url.username ||
+    url.password ||
+    !url.pathname.startsWith("/game-soundtracks/album/")
+  ) {
+    throw new Error(`Expected an HTTPS KHInsider album URL on ${SITE_HOST}`);
+  }
+  url.hash = "";
+  return url;
+}
+
+export function parseAlbumPage(html: string, albumUrl: URL): AlbumPage {
+  const document = parse(html);
+  const text = textContent(document);
+  const advertisedMatch = text.match(/Number of Files:\s*(\d+)/i);
+  const pageTitle = [...walk(document)].find((node) => node.tagName === "title");
+  const titleMatch = pageTitle && textContent(pageTitle).match(
+    /^(.*?)\s+(?:MP3|FLAC|OGG|OPUS|M4A|AAC|WAV|WMA|ALAC)\s+-\s+Download Soundtracks/i,
+  );
+  const heading = [...walk(document)].find((node) => node.tagName === "h2" || node.tagName === "h1");
+  const rows = [...walk(document)].filter((node) => node.tagName === "tr");
+  const header = rows.find((row) => [...walk(row)].some((node) => node.tagName === "th"));
+  const headers = header
+    ? (header.childNodes ?? []).filter((node: any) => node.tagName === "th" || node.tagName === "td").map(textContent)
+    : [];
+  const discColumn = headers.findIndex((label: string) => /^\s*(?:cd|disc(?:\s*(?:number|#))?)\s*$/i.test(label));
+  const trackColumn = headers.findIndex((label: string) => /^\s*(?:#|track(?:\s*(?:number|#))?)\s*$/i.test(label));
+  const tracks = [...walk(document)]
+    .filter((node) => node.tagName === "tr")
+    .map((row) => {
+      const cells = (row.childNodes ?? []).filter((node: any) => node.tagName === "td" || node.tagName === "th");
+      const numericIndices = cells
+        .map((cell: any, index: number) => /^\s*\d+\.?\s*$/.test(textContent(cell)) ? index : -1)
+        .filter((index: number) => index >= 0);
+      const disc = discColumn >= 0 ? discColumn : numericIndices.length > 1 ? numericIndices[0] : -1;
+      const track = trackColumn >= 0
+        ? trackColumn
+        : numericIndices.find((index: number) => index !== disc) ?? numericIndices[0] ?? -1;
+      return numberedTrack(row, albumUrl, { disc, track });
+    })
+    .filter((track): track is TrackLink => track !== undefined);
+
+  return {
+    title: titleMatch?.[1] ?? (heading ? textContent(heading) : albumUrl.pathname.split("/").filter(Boolean).at(-1) ?? "Album"),
+    advertisedTrackCount: advertisedMatch ? Number(advertisedMatch[1]) : undefined,
+    tracks,
+  };
+}
+
+export function parseTrackPage(html: string, trackUrl: URL): AudioLink[] {
+  const document = parse(html);
+  const links: AudioLink[] = [];
+  const seen = new Set<string>();
+
+  for (const anchor of [...walk(document)].filter((node) => node.tagName === "a")) {
+    const label = textContent(anchor);
+    if (!/click here to download as/i.test(label)) continue;
+    const url = href(anchor, trackUrl);
+    if (!url || seen.has(url.href)) continue;
+    const extension = url.pathname.split(".").at(-1)?.toLowerCase();
+    const format = extension && AUDIO_EXTENSIONS.has(extension) ? extension.toUpperCase() : undefined;
+    if (!format) continue;
+    seen.add(url.href);
+    links.push({ format, url });
+  }
+
+  return links;
+}
+
+export async function inspectAlbum(
+  input: string,
+  options: InspectionOptions = {},
+): Promise<{ album: AlbumPage; tracks: DiscoveredTrack[] }> {
+  const albumUrl = validateAlbumUrl(input);
+  options.signal?.throwIfAborted();
+  const browser = await chromium.launch({
+    headless: false,
+    args: ["--start-minimized"],
+    ...(process.env.K_DOWNLOADER_CHROMIUM_PATH ? { executablePath: process.env.K_DOWNLOADER_CHROMIUM_PATH } : {}),
+  });
+  let context: BrowserContext | undefined;
+  const controller = new AbortController();
+  const abort = () => {
+    controller.abort();
+    void browser.close().catch(() => undefined);
+  };
+  options.signal?.addEventListener("abort", abort, { once: true });
+
+  try {
+    options.signal?.throwIfAborted();
+    context = await browser.newContext({ serviceWorkers: "block" });
+    const page = await context.newPage();
+    page.on("close", () => controller.abort());
+    const cdp = await context.newCDPSession(page);
+    const { windowId } = await cdp.send("Browser.getWindowForTarget");
+    let browserVisible: boolean | undefined;
+    const setBrowserVisible = async (visible: boolean): Promise<void> => {
+      if (page.isClosed()) throw new Error("Inspection browser has been closed");
+      if (browserVisible === visible) return;
+      await cdp.send("Browser.setWindowBounds", {
+        windowId,
+        bounds: { windowState: visible ? "normal" : "minimized" },
+      });
+      browserVisible = visible;
+    };
+    await setBrowserVisible(false);
+    options.onBrowserReady?.(setBrowserVisible);
+
+    const albumResponse = await page.goto(albumUrl.href, { waitUntil: "domcontentloaded", timeout: 30_000 });
+    if (!albumResponse || !albumResponse.ok()) {
+      throw new Error(`Album page request failed with HTTP ${albumResponse?.status() ?? "no response"}`);
+    }
+
+    const album = parseAlbumPage(await albumResponse.text(), albumUrl);
+    if (album.advertisedTrackCount !== undefined && album.tracks.length !== album.advertisedTrackCount) {
+      throw new Error(`Album advertises ${album.advertisedTrackCount} tracks but ${album.tracks.length} track links were found`);
+    }
+    if (album.tracks.length === 0) throw new Error("No numbered track-page links were found");
+
+    const tracks: DiscoveredTrack[] = [];
+    for (const [index, track] of album.tracks.entries()) {
+      if (controller.signal.aborted || page.isClosed()) throw new Error("Inspection browser was closed before inspection completed");
+      if (index > 0) await delay(1_000, undefined, { signal: controller.signal });
+      const trackResponse = await page.goto(track.pageUrl.href, { waitUntil: "domcontentloaded", timeout: 30_000 });
+      if (!trackResponse || !trackResponse.ok()) {
+        throw new Error(`Track ${track.number} page request failed with HTTP ${trackResponse?.status() ?? "no response"}`);
+      }
+      tracks.push({ ...track, audioLinks: parseTrackPage(await trackResponse.text(), track.pageUrl) });
+    }
+
+    options.signal?.throwIfAborted();
+    return { album, tracks };
+  } finally {
+    options.signal?.removeEventListener("abort", abort);
+    await context?.close().catch(() => undefined);
+    await browser.close().catch(() => undefined);
+  }
+}
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **main.ts**</summary>
+
+@@ lines 1-363 @@
+
+```
+import { app, BrowserWindow, dialog, ipcMain, Menu, nativeTheme, screen, shell } from "electron";
+import { readFileSync, writeFileSync, renameSync } from "node:fs";
+import { centeredBounds, parseWindowState, startupBounds } from "./window-state.js";
+import { monitorCinnamonTheme } from "./system-theme.js";
+import { resolve } from "node:path";
+import { downloadAlbum, type DownloadProgress } from "../downloader.js";
+import { planFormats } from "../formats.js";
+import { inspectAlbum, validateAlbumUrl, type AlbumPage, type DiscoveredTrack } from "../khinsider.js";
+import { defaultOutputRoot } from "../output.js";
+import type { GuiDownloadRequest, GuiFormatPolicy, GuiInspection, GuiInspectionState } from "../gui-types.js";
+
+type CachedInspection = {
+  sourceAlbum: string;
+  album: AlbumPage;
+  tracks: DiscoveredTrack[];
+};
+
+let mainWindow: BrowserWindow | undefined;
+let mainWindowReady = false;
+let duplicateLaunchPending = false;
+let instanceNoticeOpen = false;
+let cinnamonDark: boolean | undefined;
+let stopThemeMonitor: (() => void) | undefined;
+
+app.setName("K-Downloader");
+const primaryInstance = app.requestSingleInstanceLock();
+if (!primaryInstance) app.quit();
+else app.on("second-instance", () => {
+  duplicateLaunchPending = true;
+  void notifyExistingInstance();
+});
+
+function bringWindowForward(window: BrowserWindow): void {
+  if (window.isDestroyed()) return;
+  if (window.isMinimized()) window.restore();
+  window.show();
+  window.focus();
+}
+
+async function notifyExistingInstance(): Promise<void> {
+  const window = mainWindow;
+  if (!duplicateLaunchPending || instanceNoticeOpen || !mainWindowReady || !window || window.isDestroyed()) return;
+  duplicateLaunchPending = false;
+  instanceNoticeOpen = true;
+  bringWindowForward(window);
+  try {
+    await dialog.showMessageBox(window, {
+      type: "info",
+      title: "K-Downloader is already running",
+      message: "K-Downloader is already running.",
+      detail: "Only one instance can run. Continue in the existing window.",
+      buttons: ["Show running app"],
+      defaultId: 0,
+      noLink: true,
+    });
+    bringWindowForward(window);
+  } finally {
+    instanceNoticeOpen = false;
+    duplicateLaunchPending = false;
+  }
+}
+
+function systemThemeIsDark(): boolean {
+  return cinnamonDark ?? nativeTheme.shouldUseDarkColors;
+}
+
+function sendSystemTheme(): void {
+  if (mainWindow && !mainWindow.isDestroyed() && !mainWindow.webContents.isDestroyed()) {
+    mainWindow.webContents.send("appearance:system-theme", systemThemeIsDark());
+  }
+}
+
+const inspections = new Map<number, CachedInspection>();
+const downloads = new Map<number, AbortController>();
+const activeInspections = new Map<number, {
+  controller: AbortController;
+  setBrowserVisible?: (visible: boolean) => Promise<void>;
+  browserVisible: boolean;
+}>();
+
+function assertWindowSender(senderId: number): BrowserWindow {
+  if (!mainWindow || mainWindow.webContents.id !== senderId) throw new Error("Untrusted IPC sender");
+  return mainWindow;
+}
+
+function parseFormatPolicy(policy: unknown): GuiFormatPolicy {
+  if (typeof policy !== "object" || policy === null || !("kind" in policy)) {
+    throw new Error("Invalid format policy");
+  }
+  const value = policy as Record<string, unknown>;
+  const skipUnavailable = value.skipUnavailable === true;
+  if (value.kind === "prefer-lossless" && !skipUnavailable) return { kind: "prefer-lossless" };
+  if (value.kind === "lossless-only") return { kind: "lossless-only", skipUnavailable };
+  if (value.kind === "specific" && typeof value.format === "string" && /^[A-Za-z0-9.+-]{1,16}$/.test(value.format)) {
+    return { kind: "specific", format: value.format.toUpperCase(), skipUnavailable };
+  }
+  throw new Error("Invalid format policy");
+}
+
+function serializeInspection(cached: CachedInspection): GuiInspection {
+  return {
+    albumTitle: cached.album.title,
+    trackCount: cached.tracks.length,
+    tracks: cached.tracks.map((track) => ({
+      ...(track.discNumber === undefined ? {} : { discNumber: track.discNumber }),
+      number: track.number,
+      title: track.title,
+      formats: [...new Set(track.audioLinks.map(({ format }) => format))],
+    })),
+  };
+}
+
+function sendProgress(sender: Electron.WebContents, progress: DownloadProgress): void {
+  if (!sender.isDestroyed()) sender.send("album:progress", progress);
+}
+
+function sendInspectionState(sender: Electron.WebContents, state: GuiInspectionState): void {
+  if (!sender.isDestroyed()) sender.send("inspection:state", state);
+}
+
+function sendWindowState(window: BrowserWindow): void {
+  if (!window.webContents.isDestroyed()) {
+    window.webContents.send("window:state", { maximized: window.isMaximized() });
+  }
+}
+
+function registerIpc(): void {
+  ipcMain.handle("support:report-issue", async (event) => {
+    const window = assertWindowSender(event.sender.id);
+    const url = "https://github.com/kelmankenberg/K-Downloader/issues/new/choose";
+    try {
+      await shell.openExternal(url);
+    } catch {
+      await dialog.showMessageBox(window, {
+        type: "error",
+        title: "Could not open GitHub",
+        message: "Your browser could not be opened.",
+        detail: `Open this address manually to report an issue:\n${url}`,
+        buttons: ["OK"],
+      });
+    }
+  });
+  ipcMain.handle("window:restore-bounds", (event) => {
+    const window = assertWindowSender(event.sender.id);
+    const area = screen.getDisplayMatching(window.getBounds()).workArea;
+    if (window.isFullScreen()) window.setFullScreen(false);
+    if (window.isMaximized()) window.unmaximize();
+    window.setBounds(centeredBounds(area));
+    sendWindowState(window);
+  });
+
+  ipcMain.handle("window:zoom", (event, direction: unknown) => {
+    const window = assertWindowSender(event.sender.id);
+    if (direction !== "in" && direction !== "out" && direction !== "reset") throw new Error("Invalid zoom command");
+    const current = window.webContents.getZoomFactor();
+    const zoom = direction === "reset" ? 1 : Math.max(.5, Math.min(2, Math.round((current + (direction === "in" ? .1 : -.1)) * 10) / 10));
+    window.webContents.setZoomFactor(zoom);
+    return zoom;
+  });
+  ipcMain.handle("appearance:system-theme", (event) => {
+    assertWindowSender(event.sender.id);
+    return systemThemeIsDark();
+  });
+  ipcMain.handle("window:minimize", (event) => {
+    assertWindowSender(event.sender.id).minimize();
+  });
+
+  ipcMain.handle("window:toggle-maximize", (event) => {
+    const window = assertWindowSender(event.sender.id);
+    if (window.isMaximized()) window.unmaximize();
+    else window.maximize();
+    sendWindowState(window);
+    return window.isMaximized();
+  });
+
+  ipcMain.handle("window:close", (event) => {
+    assertWindowSender(event.sender.id).close();
+  });
+
+  ipcMain.handle("output:default", (event) => {
+    assertWindowSender(event.sender.id);
+    return defaultOutputRoot();
+  });
+
+  ipcMain.handle("output:choose", async (event) => {
+    const window = assertWindowSender(event.sender.id);
+    const result = await dialog.showOpenDialog(window, {
+      title: "Choose download folder",
+      defaultPath: defaultOutputRoot(),
+      properties: ["openDirectory", "createDirectory"],
+    });
+    return result.canceled ? undefined : result.filePaths[0];
+  });
+
+  ipcMain.handle("album:inspect", async (event, input: unknown) => {
+    assertWindowSender(event.sender.id);
+    if (typeof input !== "string" || input.length > 2048) throw new Error("Enter one valid album URL");
+    if (activeInspections.has(event.sender.id)) throw new Error("Album inspection is already active");
+    let sourceAlbum: string;
+    try {
+      sourceAlbum = validateAlbumUrl(input).href;
+    } catch {
+      throw new Error("Paste a valid HTTPS KHInsider album URL.");
+    }
+    const active: {
+      controller: AbortController;
+      setBrowserVisible?: (visible: boolean) => Promise<void>;
+      browserVisible: boolean;
+    } = { controller: new AbortController(), browserVisible: false };
+    inspections.delete(event.sender.id);
+    activeInspections.set(event.sender.id, active);
+    sendInspectionState(event.sender, { active: true, browserReady: false, browserVisible: false });
+    try {
+      const result = await inspectAlbum(sourceAlbum, {
+        signal: active.controller.signal,
+        onBrowserReady: (setBrowserVisible) => {
+          active.setBrowserVisible = setBrowserVisible;
+          sendInspectionState(event.sender, { active: true, browserReady: true, browserVisible: false });
+        },
+      });
+      const cached = { sourceAlbum, album: result.album, tracks: result.tracks };
+      inspections.set(event.sender.id, cached);
+      return serializeInspection(cached);
+    } catch (error) {
+      if (active.controller.signal.aborted) return undefined;
+      throw error;
+    } finally {
+      activeInspections.delete(event.sender.id);
+      sendInspectionState(event.sender, { active: false, browserReady: false, browserVisible: false });
+    }
+  });
+
+  ipcMain.handle("inspection:toggle-browser", async (event) => {
+    assertWindowSender(event.sender.id);
+    const active = activeInspections.get(event.sender.id);
+    if (!active?.setBrowserVisible) throw new Error("Inspection browser is not ready");
+    const browserVisible = !active.browserVisible;
+    await active.setBrowserVisible(browserVisible);
+    active.browserVisible = browserVisible;
+    sendInspectionState(event.sender, { active: true, browserReady: true, browserVisible });
+    return browserVisible;
+  });
+
+  ipcMain.handle("album:download", async (event, request: unknown) => {
+    const window = assertWindowSender(event.sender.id);
+    if (downloads.has(event.sender.id)) throw new Error("A download is already active");
+    if (typeof request !== "object" || request === null || !("outputRoot" in request)) {
+      throw new Error("Invalid download request");
+    }
+    const payload = request as GuiDownloadRequest;
+    if (typeof payload.outputRoot !== "string" || payload.outputRoot.length > 4096 || payload.outputRoot.includes("\0")) {
+      throw new Error("Invalid output folder");
+    }
+    if (payload.discLabel !== "CD" && payload.discLabel !== "Disc") throw new Error("Invalid disc folder label");
+    const cached = inspections.get(event.sender.id);
+    if (!cached) throw new Error("Inspect an album before starting a download");
+    const policy = parseFormatPolicy(payload.policy);
+    const plan = planFormats(cached.tracks, policy);
+    if (plan.blocked) throw new Error("The format preview has unavailable tracks; skip them explicitly or choose another policy");
+
+    const controller = new AbortController();
+    downloads.set(event.sender.id, controller);
+    try {
+      const result = await downloadAlbum({
+        ...cached,
+        outputRoot: resolve(payload.outputRoot),
+        policy,
+        discLabel: payload.discLabel,
+        signal: controller.signal,
+        onProgress: (progress) => sendProgress(window.webContents, progress),
+      });
+      return { state: result.state, directory: result.directory };
+    } finally {
+      downloads.delete(event.sender.id);
+    }
+  });
+
+  ipcMain.handle("album:cancel", (event) => {
+    assertWindowSender(event.sender.id);
+    activeInspections.get(event.sender.id)?.controller.abort();
+    downloads.get(event.sender.id)?.abort();
+  });
+}
+
+async function createWindow(): Promise<void> {
+  const statePath = resolve(app.getPath("userData"), "window-state.json");
+  let savedState;
+  try { savedState = parseWindowState(readFileSync(statePath, "utf8")); } catch {}
+  const displays = [screen.getPrimaryDisplay(), ...screen.getAllDisplays().filter((display) => display.id !== screen.getPrimaryDisplay().id)];
+  const window = new BrowserWindow({
+    frame: false,
+    autoHideMenuBar: true,
+    ...startupBounds(savedState, displays.map((display) => display.workArea)),
+    minWidth: 760,
+    minHeight: 620,
+    backgroundColor: "#101715",
+    title: "K-Downloader",
+    icon: resolve(__dirname, "../assets/k-downloader.png"),
+    webPreferences: {
+      preload: resolve(__dirname, "preload.cjs"),
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: true,
+    },
+  });
+  mainWindow = window;
+  const senderId = window.webContents.id;
+  window.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
+  window.webContents.on("will-navigate", (event, url) => {
+    if (!url.startsWith("file://")) event.preventDefault();
+  });
+  window.on("maximize", () => sendWindowState(window));
+  window.on("unmaximize", () => sendWindowState(window));
+  window.webContents.on("did-finish-load", () => sendWindowState(window));
+  window.on("close", () => {
+    try {
+      writeFileSync(`${statePath}.tmp`, JSON.stringify({ bounds: window.getNormalBounds(), maximized: window.isMaximized() }), { mode: 0o600 });
+      renameSync(`${statePath}.tmp`, statePath);
+    } catch (error) {
+      console.warn("Could not save window size and position:", error);
+    }
+  });
+  window.on("closed", () => {
+    inspections.delete(senderId);
+    activeInspections.get(senderId)?.controller.abort();
+    activeInspections.delete(senderId);
+    downloads.get(senderId)?.abort();
+    downloads.delete(senderId);
+    if (mainWindow === window) {
+      mainWindow = undefined;
+      mainWindowReady = false;
+    }
+  });
+  await window.loadFile(resolve(__dirname, "../gui/index.html"));
+  if (savedState?.maximized) window.maximize();
+  mainWindowReady = true;
+}
+
+app.whenReady().then(async () => {
+  if (!primaryInstance) return;
+  if (app.isPackaged) process.env.K_DOWNLOADER_CHROMIUM_PATH = resolve(process.resourcesPath, "chromium/chrome");
+  nativeTheme.themeSource = "system";
+  nativeTheme.on("updated", sendSystemTheme);
+  stopThemeMonitor = await monitorCinnamonTheme((dark) => {
+    cinnamonDark = dark;
+    sendSystemTheme();
+  });
+  Menu.setApplicationMenu(null);
+  registerIpc();
+  await createWindow();
+  await notifyExistingInstance();
+  app.on("activate", () => {
+    if (BrowserWindow.getAllWindows().length === 0) void createWindow();
+  });
+});
+
+app.on("will-quit", () => stopThemeMonitor?.());
+
+app.on("window-all-closed", () => {
+  for (const controller of downloads.values()) controller.abort();
+  if (process.platform !== "darwin") app.quit();
+});
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm test -- tests/khinsider.test.ts && npm run build`
+
+Verify the explicit Chromium path change preserves parser/cancellation behavior and compiles.
+
+```bash
+npm test -- tests/khinsider.test.ts && npm run build
+```
+
+**Result:**
+
+```
+kel@kel-EQ-Mint:~/dev/K-Downloader$  npm test -- tests/khinsider.test.ts && npm
+run build
+
+> k-downloader@0.1.0 pretest
+> npm run build:gui
+
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+
+> k-downloader@0.1.0 test
+> vitest run tests/khinsider.test.ts
+
+
+ RUN  v5.0.4 /home/kel/dev/K-Downloader
+
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  14:12:36
+   Duration  565ms (import 85%, transform 8%, tests 5%, worker 1%)
+
+
+> k-downloader@0.1.0 build
+> tsc --noEmit
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The browser-path change passes the focused tests and type-check. I’ll install `electron-builder` and check its Linux packaging options next. I’ll also package the CLI with Electron’s embedded Node runtime, so recipients don’t need a separate Node installation.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm install --save-dev electron-builder`
+
+Install the Linux artifact packager for AppImage and Debian packages.
+
+```bash
+npm install --save-dev electron-builder
+```
+
+**Result:**
+
+```
+npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memo
+ry. Do not use it. Check out lru-cache if you want a good and tested way to coal
+esce async requests by a key value, which is much more comprehensive and powerfu
+l.
+npm warn deprecated rimraf@2.6.3: Rimraf versions prior to v4 are no longer supp
+orted
+npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and cont
+ain widely publicized security vulnerabilities, which have been fixed in the cur
+rent version. Please update. Support for old versions may be purchased (at exorb
+itant rates) by contacting i@izs.me
+npm warn deprecated boolean@3.2.0: Package no longer supported. Contact Support
+at https://www.npmjs.com/support for more info.
+
+added 267 packages, and audited 331 packages in 7s
+
+61 packages are looking for funding
+  run `npm fund` for details
+
+8 moderate severity vulnerabilities
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+npm warn install-scripts 2 packages have install scripts not yet covered by allo
+wScripts:
+npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+npm warn install-scripts   electron-winstaller@5.4.0 (install: node ./script/sel
+ect-7z-arch.js)
+npm warn install-scripts
+npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install
+-scripts approve <pkg>` to allow.
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="fetch_webpage"><details>
+<summary>Tool use: **fetch_webpage**</summary>
+
+Fetched 2 resources
+
+**Input:**
+
+- query: `electron-builder Linux AppImage deb configuration: executableName desktop entry depends maintainer afterPack extraResources electronDist asar and output directory options`
+- urls:
+
+```
+[
+  "https://www.electron.build/linux.html",
+  "https://www.electron.build/appimage.html"
+]
+```
+
+
+**Result:**
+
+```
+Here is some relevant context from the web page https://www.electron.build/appimage.html:
+An error occurred retrieving the fetch result: Failed to extract meaningful content from the web page
+Here is some relevant context from the web page https://www.electron.build/linux.html:
+An error occurred retrieving the fetch result: Failed to extract meaningful content from the web page
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+`electron-builder` is installed, but npm reported eight moderate advisories. I’ll inspect those before finalizing the setup. The documentation fetch didn’t return usable content, so I’ll use the installed builder types to confirm the configuration fields.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm audit && true`
+
+Inspect the packager's reported advisories before deciding whether a scoped dependency fix is available.
+
+```bash
+npm audit && true
+```
+
+**Result:**
+
+```
+# npm audit report
+
+sprintf-js  *
+Severity: moderate
+sprintf-js vulnerable to denial of service through unbounded precision specifier
+s - https://github.com/advisories/GHSA-hp3w-g68c-fv3c
+fix available via `npm audit fix --force`
+Will install electron-builder@26.5.0, which is a breaking change
+node_modules/sprintf-js
+  roarr  <=2.15.4
+  Depends on vulnerable versions of sprintf-js
+  node_modules/roarr
+    global-agent  <=3.0.0
+    Depends on vulnerable versions of roarr
+    node_modules/global-agent
+      @electron/get  1.6.0 - 4.0.3
+      Depends on vulnerable versions of global-agent
+      node_modules/app-builder-lib/node_modules/@electron/get
+        app-builder-lib  26.6.0 - 27.0.0-alpha.2
+        Depends on vulnerable versions of @electron/get
+        Depends on vulnerable versions of dmg-builder
+        Depends on vulnerable versions of electron-builder-squirrel-windows
+        node_modules/app-builder-lib
+          dmg-builder  26.6.0 - 27.0.0-alpha.2
+          Depends on vulnerable versions of app-builder-lib
+          node_modules/dmg-builder
+            electron-builder  19.25.0 || 26.6.0 - 27.0.0-alpha.2
+            Depends on vulnerable versions of app-builder-lib
+            Depends on vulnerable versions of dmg-builder
+            node_modules/electron-builder
+          electron-builder-squirrel-windows  26.6.0 - 27.0.0-alpha.2
+          Depends on vulnerable versions of app-builder-lib
+          node_modules/electron-builder-squirrel-windows
+
+8 moderate severity vulnerabilities
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Read `linuxOptions.d.ts`, lines 1 to 200
+
+**Input:**
+
+- endLine: `200`
+- filePath: `/home/kel/dev/K-Downloader/node_modules/app-builder-lib/out/options/linuxOptions.d.ts`
+- startLine: `1`
+
+**Result:**
+
+````
+import { PlatformSpecificBuildOptions, TargetConfigType, TargetSpecificOptions } from "../index";
+/**
+ * Example Spec: https://specifications.freedesktop.org/desktop-entry-spec/latest/example.html
+ */
+export interface LinuxDesktopFile {
+    /**
+     * `[Desktop Entry]` metadata entries (name to value). Overwrites default values calculated by electron-builder
+     */
+    entry?: {
+        [k: string]: string;
+    } | null;
+    /**
+     * `[Desktop Actions <ActionName>]` metadata entries (name to value).
+     *
+     * Config Example:
+     * ```js
+     * desktopActions: {
+     *    NewWindow: {
+     *       Name: 'New Window',
+     *       Exec: 'app --new-window',
+     *    }
+     * }
+     * ```
+     */
+    desktopActions?: {
+        [ActionName: string]: any;
+    } | null;
+}
+export interface LinuxConfiguration extends CommonLinuxOptions, PlatformSpecificBuildOptions {
+    /**
+     * Target package type: list of `AppImage`, `flatpak`, `snap`, `deb`, `rpm`, `freebsd`, `pacman`, `p5p`, `apk`, `7z`, `zip`, `tar.xz`, `tar.lz`, `tar.gz`, `tar.bz2`, `dir`.
+     *
+     * electron-builder [docker image](https://www.electron.build/multi-platform-build#docker) can be used to build Linux targets on any platform.
+     *
+     * Please [do not put an AppImage into another archive](https://github.com/probonopd/AppImageKit/wiki/Creating-AppImages#common-mistake) like a .zip or .tar.gz.
+     * @default AppImage
+     */
+    readonly target?: TargetConfigType;
+    /**
+     * The maintainer. Defaults to [author](https://www.electron.build/configuration#author).
+     */
+    readonly maintainer?: string | null;
+    /**
+     * The vendor. Defaults to [author](https://www.electron.build/configuration#author).
+     */
+    readonly vendor?: string | null;
+    /**
+     * The path to icon set directory or one png file, relative to the [build resources](https://www.electron.build/contents#extraresources) or to the project directory. The icon filename must contain the size (e.g. 32x32.png) of the 
+… (output truncated)
+````
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The advisories come from the builder’s download dependencies, and npm identifies `electron-builder` 26.5.0 as the unaffected version. I’ll use that explicit version instead of a forced audit fix, then add the artifact scripts with bundled Chromium and CLI support.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm install --save-dev --save-exact electron-builder@26.5.0 && npm audit && ...`
+
+Pin the unaffected builder version and verify the audit and current Linux build architecture.
+
+```bash
+npm install --save-dev --save-exact electron-builder@26.5.0 && npm audit && node -p 'JSON.stringify({arch:process.arch,electron:require("electron/package.json").version,builder:require("electron-builder/package.json").version})'
+```
+
+**Result:**
+
+```
+npm warn deprecated tar@6.2.1: Old versions of tar are not supported, and contai
+n widely publicized security vulnerabilities, which have been fixed in the curre
+nt version. Please update. Support for old versions may be purchased (at exorbit
+ant rates) by contacting i@izs.me
+npm warn deprecated glob@10.5.0: Old versions of glob are not supported, and con
+tain widely publicized security vulnerabilities, which have been fixed in the cu
+rrent version. Please update. Support for old versions may be purchased (at exor
+bitant rates) by contacting i@izs.me
+npm warn deprecated tar@7.5.3: Old versions of tar are not supported, and contai
+n widely publicized security vulnerabilities, which have been fixed in the curre
+nt version. Please update. Support for old versions may be purchased (at exorbit
+ant rates) by contacting i@izs.me
+
+added 81 packages, removed 51 packages, changed 18 packages, and audited 361 pac
+kages in 6s
+
+74 packages are looking for funding
+  run `npm fund` for details
+
+9 vulnerabilities (8 high, 1 critical)
+
+To address all issues, run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+npm warn install-scripts 2 packages have install scripts not yet covered by allo
+wScripts:
+npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+npm warn install-scripts   electron-winstaller@5.4.0 (install: node ./script/sel
+ect-7z-arch.js)
+npm warn install-scripts
+npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install
+-scripts approve <pkg>` to allow.
+# npm audit report
+
+app-builder-lib  <=26.14.0
+Severity: high
+Depends on vulnerable versions of @electron/rebuild
+electron-updater: Uncontrolled search path elements within `AppImage` built by `
+app-builder-lib` - https://github.com/advisories/GHSA-7g7r-gx96-252g
+Depends on vulnerable versions of builder-util
+Depends on vulnerable versions of builder-util-runtime
+Depends on vulnerable versions of dmg-builder
+Depends on vulnerable versions of electron-builder-squirrel-windows
+De
+… (output truncated)
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The downgrade exposed older high/critical advisories, so I won’t use it. I’ll restore the current builder version and check whether its remaining download dependency can be updated safely. This is still confined to the packaging toolchain.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm install --save-dev --save-exact electron-builder@26.15.3 && npm view @el...`
+
+Restore the current builder rather than retain critical older dependencies, then inspect its remaining download-library advisory chain.
+
+```bash
+npm install --save-dev --save-exact electron-builder@26.15.3 && npm view @electron/get version && npm ls @electron/get global-agent sprintf-js
+```
+
+**Result:**
+
+```
+npm warn deprecated boolean@3.2.0: Package no longer supported. Contact Support
+at https://www.npmjs.com/support for more info.
+
+added 51 packages, removed 81 packages, changed 18 packages, and audited 331 pac
+kages in 2s
+
+61 packages are looking for funding
+  run `npm fund` for details
+
+8 moderate severity vulnerabilities
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+npm warn install-scripts 2 packages have install scripts not yet covered by allo
+wScripts:
+npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+npm warn install-scripts   electron-winstaller@5.4.0 (install: node ./script/sel
+ect-7z-arch.js)
+npm warn install-scripts
+npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install
+-scripts approve <pkg>` to allow.
+5.1.0
+k-downloader@0.1.0 /home/kel/dev/K-Downloader
+├─┬ electron-builder@26.15.3
+│ └─┬ app-builder-lib@26.15.3
+│   └─┬ @electron/get@3.1.0
+│     └─┬ global-agent@3.0.0
+│       └─┬ roarr@2.15.4
+│         └── sprintf-js@1.1.3
+└─┬ electron@44.7.0
+  └── @electron/get@5.1.0
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="search" data-tool-name="grep_search"><details>
+<summary>Tool use: **grep_search**</summary>
+
+No matches found.
+
+**Input:**
+
+- includeIgnoredFiles: `true`
+- includePattern: `node_modules/app-builder-lib/out/electron/**`
+- isRegexp: `true`
+- maxResults: `8`
+- query: `@electron/get|downloadArtifact`
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+Electron already uses `@electron/get` 5.1.0 successfully. I’ll use that version for the builder’s older download dependency and validate the override through the package build. The packaging scripts will also produce checksums and an unpacked directory for smoke-testing without installing system-wide.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="apply_patch"><details>
+<summary>Tool use: **apply_patch**</summary>
+
+Generating patch (164 lines) in `package.json`, `.gitignore`, `build-gui.mjs`, `linux-launcher.sh`, `electron-builder.config.cjs`, `package-linux.mjs`
+
+**Input:**
+
+- explanation: `Add Linux x64 AppImage/deb/unpacked packaging scripts, bundled Chromium staging, embedded-Node CLI launcher, builder config, checksums, and audited download dependency override.`
+- input:
+
+```
+*** Begin Patch
+*** Update File: /home/kel/dev/K-Downloader/package.json
+@@
+   "private": true,
+   "type": "module",
++  "main": "dist/electron/main.cjs",
++  "description": "Linux desktop downloader for public KHInsider album tracks",
++  "author": "kelmankenberg",
++  "homepage": "https://github.com/kelmankenberg/K-Downloader",
++  "license": "UNLICENSED",
+@@
+     "build:gui": "node scripts/build-gui.mjs",
++    "package:linux": "node scripts/package-linux.mjs",
++    "package:deb": "node scripts/package-linux.mjs deb",
++    "package:appimage": "node scripts/package-linux.mjs AppImage",
++    "package:dir": "node scripts/package-linux.mjs dir",
+@@
+-  "devDependencies": {
++  "overrides": {
++    "app-builder-lib": {
++      "@electron/get": "^5.1.0"
++    }
++  },
++  "devDependencies": {
+*** Update File: /home/kel/dev/K-Downloader/.gitignore
+@@
+ dist/
++release/
++.packaging/
+*** Update File: /home/kel/dev/K-Downloader/scripts/build-gui.mjs
+@@
+ await Promise.all([
++  build({
++    entryPoints: [resolve(root, "src/cli.ts")],
++    outfile: resolve(output, "cli.cjs"),
++    bundle: true,
++    platform: "node",
++    format: "cjs",
++    external: ["playwright", "parse5"],
++  }),
+*** Add File: /home/kel/dev/K-Downloader/scripts/linux-launcher.sh
++#!/bin/sh
++set -eu
++APP_DIR=$(dirname "$(readlink -f "$0")")
++export K_DOWNLOADER_CHROMIUM_PATH="$APP_DIR/resources/chromium/chrome"
++case "${1:-}" in
++  inspect|download|--help|help)
++    export ELECTRON_RUN_AS_NODE=1
++    exec "$APP_DIR/k-downloader-bin" "$APP_DIR/resources/app.asar/dist/cli.cjs" "$@"
++    ;;
++  *)
++    unset ELECTRON_RUN_AS_NODE
++    exec "$APP_DIR/k-downloader-bin" "$@"
++    ;;
++esac
+*** Add File: /home/kel/dev/K-Downloader/electron-builder.config.cjs
++const { chmod, copyFile, rename } = require("node:fs/promises");
++const { resolve } = require("node:path");
++
++module.exports = {
++  appId: "com.kelmankenberg.kdownloader",
++  productName: "K-Downloader",
++  executableName: "k-downloader",
++  directories: { output: "release", buildResources: "assets" },
++  asar: true,
++  npmRebuild: false,
++  files: ["dist/**/*", "package.json"],
++  extraResources: [{ from: ".packaging/chromium", to: "chromium" }],
++  linux: {
++    target: ["deb", "AppImage"],
++    icon: "assets/k-downloader.png",
++    category: "AudioVideo",
++    synopsis: "Download public KHInsider soundtrack tracks",
++    desktop: { entry: { Name: "K-Downloader", StartupWMClass: "k-downloader", Terminal: "false" } },
++    artifactName: "K-Downloader-${version}-${arch}.${ext}",
++  },
++  deb: {
++    packageName: "k-downloader",
++    compression: "gz",
++    recommends: [],
++    depends: [
++      "libc6 (>= 2.35)", "libgtk-3-0 | libgtk-3-0t64", "libnotify4", "libnss3", "libnspr4",
++      "libxss1", "libxtst6", "xdg-utils", "libatspi2.0-0 | libatspi2.0-0t64", "libuuid1",
++      "libsecret-1-0", "libasound2 | libasound2t64", "libgbm1", "libxkbcommon0", "libdrm2",
++      "libxcomposite1", "libxdamage1", "libxrandr2", "libxfixes3", "libx11-6", "libxcb1",
++      "libxext6", "libxrender1", "libcups2 | libcups2t64", "libpango-1.0-0", "libcairo2",
++    ],
++  },
++  afterPack: async ({ appOutDir, electronPlatformName }) => {
++    if (electronPlatformName !== "linux") return;
++    await rename(resolve(appOutDir, "k-downloader"), resolve(appOutDir, "k-downloader-bin"));
++    await copyFile(resolve(__dirname, "scripts/linux-launcher.sh"), resolve(appOutDir, "k-downloader"));
++    await chmod(resolve(appOutDir, "k-downloader"), 0o755);
++  },
++};
+*** Add File: /home/kel/dev/K-Downloader/scripts/package-linux.mjs
++import { execFileSync } from "node:child_process";
++import { createHash } from "node:crypto";
++import { createReadStream } from "node:fs";
++import { cp, mkdir, readFile, writeFile } from "node:fs/promises";
++import { createRequire } from "node:module";
++import { dirname, resolve } from "node:path";
++import { fileURLToPath } from "node:url";
++import { Arch, build, Platform } from "electron-builder";
++
++const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
++const require = createRequire(import.meta.url);
++const targets = process.argv.slice(2);
++if (process.platform !== "linux" || process.arch !== "x64") throw new Error("Packaging currently requires a Linux x64 build host.");
++if (targets.some((target) => !["deb", "AppImage", "dir"].includes(target))) throw new Error("Supported targets: deb, AppImage, dir");
++const selected = targets.length ? targets : ["deb", "AppImage"];
++const config = require(resolve(root, "electron-builder.config.cjs"));
++
++function command(file, args, options = {}) {
++  return execFileSync(file, args, { cwd: root, stdio: "inherit", ...options });
++}
++
++function maintainer() {
++  if (process.env.K_DOWNLOADER_MAINTAINER) return process.env.K_DOWNLOADER_MAINTAINER;
++  try {
++    const name = command("git", ["config", "user.name"], { encoding: "utf8", stdio: "pipe" }).trim();
++    const email = command("git", ["config", "user.email"], { encoding: "utf8", stdio: "pipe" }).trim();
++    if (name && email) return `${name} <${email}>`;
++  } catch {}
++  throw new Error("Set K_DOWNLOADER_MAINTAINER='Name <email>' or configure Git user.name/user.email for .deb metadata.");
++}
++
++const packageMaintainer = selected.includes("deb") ? maintainer() : undefined;
++command(process.execPath, [resolve(root, "node_modules/typescript/bin/tsc"), "--noEmit"]);
++command(process.execPath, [resolve(root, "scripts/build-gui.mjs")]);
++
++const browserEnv = { ...process.env, PLAYWRIGHT_BROWSERS_PATH: resolve(root, ".packaging/browser-cache") };
++command(process.execPath, [require.resolve("playwright/cli"), "install", "chromium", "--no-shell"], { env: browserEnv });
++const browserPath = command(process.execPath, ["-e", "console.log(require('playwright').chromium.executablePath())"], {
++  env: browserEnv, stdio: "pipe", encoding: "utf8",
++}).trim();
++await mkdir(resolve(root, ".packaging"), { recursive: true });
++await cp(dirname(browserPath), resolve(root, ".packaging/chromium"), { recursive: true, force: true });
++
++const electronExecutable = require("electron");
++const manifest = JSON.parse(await readFile(resolve(root, "package.json"), "utf8"));
++const artifacts = await build({
++  projectDir: root,
++  targets: Platform.LINUX.createTarget(selected, Arch.x64),
++  publish: "never",
++  config: {
++    ...config,
++    electronDist: dirname(electronExecutable),
++    electronVersion: require("electron/package.json").version,
++    ...(packageMaintainer ? { deb: { ...config.deb, maintainer: packageMaintainer } } : {}),
++  },
++});
++const checksums = [];
++for (const artifact of artifacts.filter((path) => path.endsWith(".deb") || path.endsWith(".AppImage"))) {
++  const hash = createHash("sha256");
++  for await (const chunk of createReadStream(artifact)) hash.update(chunk);
++  checksums.push(`${hash.digest("hex")}  ${artifact.split("/").at(-1)}`);
++}
++if (checksums.length) {
++  const filename = `K-Downloader-${manifest.version}-SHA256SUMS.txt`;
++  await writeFile(resolve(root, "release", filename), `${checksums.join("\n")}\n`);
++}
++console.log("Package output: release/ (nothing was published to GitHub).");
+*** End Patch
+```
+
+
+**Result:**
+
+```
+The following files were successfully edited:
+/home/kel/dev/K-Downloader/package.json
+/home/kel/dev/K-Downloader/.gitignore
+/home/kel/dev/K-Downloader/scripts/build-gui.mjs
+/home/kel/dev/K-Downloader/scripts/linux-launcher.sh
+/home/kel/dev/K-Downloader/electron-builder.config.cjs
+/home/kel/dev/K-Downloader/scripts/package-linux.mjs
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **package.json**</summary>
+
+@@ lines 1-51 @@
+
+```
+{
+  "name": "k-downloader",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/electron/main.cjs",
+  "description": "Linux desktop downloader for public KHInsider album tracks",
+  "author": "kelmankenberg",
+  "homepage": "https://github.com/kelmankenberg/K-Downloader",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "build:gui": "node scripts/build-gui.mjs",
+    "package:linux": "node scripts/package-linux.mjs",
+    "package:deb": "node scripts/package-linux.mjs deb",
+    "package:appimage": "node scripts/package-linux.mjs AppImage",
+    "package:dir": "node scripts/package-linux.mjs dir",
+    "gui": "npm run build:gui && electron dist/electron/main.cjs",
+    "inspect": "tsx src/cli.ts inspect",
+    "download": "tsx src/cli.ts download",
+    "pretest": "npm run build:gui",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "dompurify": "^3.4.17",
+    "lucide": "^1.55.0",
+    "marked": "^18.1.1",
+    "parse5": "^7.3.0",
+    "playwright": "^1.55.0"
+  },
+  "overrides": {
+    "app-builder-lib": {
+      "@electron/get": "^5.1.0"
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "electron": "^44.7.0",
+    "electron-builder": "26.15.3",
+    "esbuild": "^0.28.2",
+    "tsx": "^4.19.0",
+    "typescript": "^5.8.0",
+    "vitest": "^5.0.4",
+    "yaml": "^2.9.1"
+  }
+}
+
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **.gitignore**</summary>
+
+@@ lines 1-6 @@
+
+```
+node_modules/
+dist/
+release/
+.packaging/
+*.part
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **build-gui.mjs**</summary>
+
+@@ lines 1-62 @@
+
+```
+import { cp, mkdir, readFile, rm } from "node:fs/promises";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { build } from "esbuild";
+
+const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const output = resolve(root, "dist");
+const changelog = await readFile(resolve(root, "changelog.md"), "utf8");
+const help = await readFile(resolve(root, "docs/HELP.md"), "utf8");
+const manifest = JSON.parse(await readFile(resolve(root, "package.json"), "utf8"));
+if (typeof manifest.version !== "string" || !manifest.version.trim()) throw new Error("package.json must contain a version");
+await rm(output, { recursive: true, force: true });
+await mkdir(resolve(output, "electron"), { recursive: true });
+await mkdir(resolve(output, "gui"), { recursive: true });
+await mkdir(resolve(output, "assets"), { recursive: true });
+
+await Promise.all([
+  build({
+    entryPoints: [resolve(root, "src/cli.ts")],
+    outfile: resolve(output, "cli.cjs"),
+    bundle: true,
+    platform: "node",
+    format: "cjs",
+    external: ["playwright", "parse5"],
+  }),
+  build({
+    entryPoints: [resolve(root, "src/electron/main.ts")],
+    outfile: resolve(output, "electron/main.cjs"),
+    bundle: true,
+    platform: "node",
+    format: "cjs",
+    external: ["electron", "playwright", "parse5"],
+  }),
+  build({
+    entryPoints: [resolve(root, "src/electron/preload.ts")],
+    outfile: resolve(output, "electron/preload.cjs"),
+    bundle: true,
+    platform: "node",
+    format: "cjs",
+    external: ["electron"],
+  }),
+  build({
+    entryPoints: [resolve(root, "src/renderer.ts")],
+    outfile: resolve(output, "gui/renderer.js"),
+    bundle: true,
+    platform: "browser",
+    format: "iife",
+    define: {
+      __CHANGELOG_MARKDOWN__: JSON.stringify(changelog),
+      __HELP_MARKDOWN__: JSON.stringify(help),
+      __APP_VERSION__: JSON.stringify(manifest.version),
+    },
+  }),
+]);
+
+await Promise.all([
+  cp(resolve(root, "gui/index.html"), resolve(output, "gui/index.html")),
+  cp(resolve(root, "gui/styles.css"), resolve(output, "gui/styles.css")),
+  cp(resolve(root, "assets/k-downloader.png"), resolve(output, "assets/k-downloader.png")),
+]);
+console.log("Built Electron main/preload and local renderer into dist/.");
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **linux-launcher.sh**</summary>
+
+@@ lines 1-1 @@
+
+```
+#!/bin/sh
+set -eu
+APP_DIR=$(dirname "$(readlink -f "$0")")
+export K_DOWNLOADER_CHROMIUM_PATH="$APP_DIR/resources/chromium/chrome"
+case "${1:-}" in
+  inspect|download|--help|help)
+    export ELECTRON_RUN_AS_NODE=1
+    exec "$APP_DIR/k-downloader-bin" "$APP_DIR/resources/app.asar/dist/cli.cjs" "$@"
+    ;;
+  *)
+    unset ELECTRON_RUN_AS_NODE
+    exec "$APP_DIR/k-downloader-bin" "$@"
+    ;;
+esac
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **electron-builder.config.cjs**</summary>
+
+@@ lines 1-1 @@
+
+```
+const { chmod, copyFile, rename } = require("node:fs/promises");
+const { resolve } = require("node:path");
+
+module.exports = {
+  appId: "com.kelmankenberg.kdownloader",
+  productName: "K-Downloader",
+  executableName: "k-downloader",
+  directories: { output: "release", buildResources: "assets" },
+  asar: true,
+  npmRebuild: false,
+  files: ["dist/**/*", "package.json"],
+  extraResources: [{ from: ".packaging/chromium", to: "chromium" }],
+  linux: {
+    target: ["deb", "AppImage"],
+    icon: "assets/k-downloader.png",
+    category: "AudioVideo",
+    synopsis: "Download public KHInsider soundtrack tracks",
+    desktop: { entry: { Name: "K-Downloader", StartupWMClass: "k-downloader", Terminal: "false" } },
+    artifactName: "K-Downloader-${version}-${arch}.${ext}",
+  },
+  deb: {
+    packageName: "k-downloader",
+    compression: "gz",
+    recommends: [],
+    depends: [
+      "libc6 (>= 2.35)", "libgtk-3-0 | libgtk-3-0t64", "libnotify4", "libnss3", "libnspr4",
+      "libxss1", "libxtst6", "xdg-utils", "libatspi2.0-0 | libatspi2.0-0t64", "libuuid1",
+      "libsecret-1-0", "libasound2 | libasound2t64", "libgbm1", "libxkbcommon0", "libdrm2",
+      "libxcomposite1", "libxdamage1", "libxrandr2", "libxfixes3", "libx11-6", "libxcb1",
+      "libxext6", "libxrender1", "libcups2 | libcups2t64", "libpango-1.0-0", "libcairo2",
+    ],
+  },
+  afterPack: async ({ appOutDir, electronPlatformName }) => {
+    if (electronPlatformName !== "linux") return;
+    await rename(resolve(appOutDir, "k-downloader"), resolve(appOutDir, "k-downloader-bin"));
+    await copyFile(resolve(__dirname, "scripts/linux-launcher.sh"), resolve(appOutDir, "k-downloader"));
+    await chmod(resolve(appOutDir, "k-downloader"), 0o755);
+  },
+};
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **package-linux.mjs**</summary>
+
+@@ lines 1-1 @@
+
+```
+import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
+import { createReadStream } from "node:fs";
+import { cp, mkdir, readFile, writeFile } from "node:fs/promises";
+import { createRequire } from "node:module";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { Arch, build, Platform } from "electron-builder";
+
+const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const require = createRequire(import.meta.url);
+const targets = process.argv.slice(2);
+if (process.platform !== "linux" || process.arch !== "x64") throw new Error("Packaging currently requires a Linux x64 build host.");
+if (targets.some((target) => !["deb", "AppImage", "dir"].includes(target))) throw new Error("Supported targets: deb, AppImage, dir");
+const selected = targets.length ? targets : ["deb", "AppImage"];
+const config = require(resolve(root, "electron-builder.config.cjs"));
+
+function command(file, args, options = {}) {
+  return execFileSync(file, args, { cwd: root, stdio: "inherit", ...options });
+}
+
+function maintainer() {
+  if (process.env.K_DOWNLOADER_MAINTAINER) return process.env.K_DOWNLOADER_MAINTAINER;
+  try {
+    const name = command("git", ["config", "user.name"], { encoding: "utf8", stdio: "pipe" }).trim();
+    const email = command("git", ["config", "user.email"], { encoding: "utf8", stdio: "pipe" }).trim();
+    if (name && email) return `${name} <${email}>`;
+  } catch {}
+  throw new Error("Set K_DOWNLOADER_MAINTAINER='Name <email>' or configure Git user.name/user.email for .deb metadata.");
+}
+
+const packageMaintainer = selected.includes("deb") ? maintainer() : undefined;
+command(process.execPath, [resolve(root, "node_modules/typescript/bin/tsc"), "--noEmit"]);
+command(process.execPath, [resolve(root, "scripts/build-gui.mjs")]);
+
+const browserEnv = { ...process.env, PLAYWRIGHT_BROWSERS_PATH: resolve(root, ".packaging/browser-cache") };
+command(process.execPath, [require.resolve("playwright/cli"), "install", "chromium", "--no-shell"], { env: browserEnv });
+const browserPath = command(process.execPath, ["-e", "console.log(require('playwright').chromium.executablePath())"], {
+  env: browserEnv, stdio: "pipe", encoding: "utf8",
+}).trim();
+await mkdir(resolve(root, ".packaging"), { recursive: true });
+await cp(dirname(browserPath), resolve(root, ".packaging/chromium"), { recursive: true, force: true });
+
+const electronExecutable = require("electron");
+const manifest = JSON.parse(await readFile(resolve(root, "package.json"), "utf8"));
+const artifacts = await build({
+  projectDir: root,
+  targets: Platform.LINUX.createTarget(selected, Arch.x64),
+  publish: "never",
+  config: {
+    ...config,
+    electronDist: dirname(electronExecutable),
+    electronVersion: require("electron/package.json").version,
+    ...(packageMaintainer ? { deb: { ...config.deb, maintainer: packageMaintainer } } : {}),
+  },
+});
+const checksums = [];
+for (const artifact of artifacts.filter((path) => path.endsWith(".deb") || path.endsWith(".AppImage"))) {
+  const hash = createHash("sha256");
+  for await (const chunk of createReadStream(artifact)) hash.update(chunk);
+  checksums.push(`${hash.digest("hex")}  ${artifact.split("/").at(-1)}`);
+}
+if (checksums.length) {
+  const filename = `K-Downloader-${manifest.version}-SHA256SUMS.txt`;
+  await writeFile(resolve(root, "release", filename), `${checksums.join("\n")}\n`);
+}
+console.log("Package output: release/ (nothing was published to GitHub).");
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm install && npm audit && npm run package:dir`
+
+Resolve the download-library override, verify the audit, and build an unpacked Linux app to test bundling before creating installers.
+
+```bash
+npm install && npm audit && npm run package:dir
+```
+
+**Result:**
+
+```
+
+up to date, audited 331 packages in 902ms
+
+61 packages are looking for funding
+  run `npm fund` for details
+
+8 moderate severity vulnerabilities
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+npm warn install-scripts 2 packages have install scripts not yet covered by allo
+wScripts:
+npm warn install-scripts   electron-winstaller@5.4.0 (install: node ./script/sel
+ect-7z-arch.js)
+npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+npm warn install-scripts
+npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install
+-scripts approve <pkg>` to allow.
+# npm audit report
+
+sprintf-js  *
+Severity: moderate
+sprintf-js vulnerable to denial of service through unbounded precision specifier
+s - https://github.com/advisories/GHSA-hp3w-g68c-fv3c
+fix available via `npm audit fix --force`
+Will install electron-builder@26.5.0, which is a breaking change
+node_modules/sprintf-js
+  roarr  <=2.15.4
+  Depends on vulnerable versions of sprintf-js
+  node_modules/roarr
+    global-agent  <=3.0.0
+    Depends on vulnerable versions of roarr
+    node_modules/global-agent
+      @electron/get  1.6.0 - 4.0.3
+      Depends on vulnerable versions of global-agent
+      node_modules/app-builder-lib/node_modules/@electron/get
+        app-builder-lib  26.6.0 - 27.0.0-alpha.2
+        Depends on vulnerable versions of @electron/get
+        Depends on vulnerable versions of dmg-builder
+        Depends on vulnerable versions of electron-builder-squirrel-windows
+        node_modules/app-builder-lib
+          dmg-builder  26.6.0 - 27.0.0-alpha.2
+          Depends on vulnerable versions of app-builder-lib
+          node_modules/dmg-builder
+            electron-builder  19.25.0 || 26.6.0 - 27.0.0-alpha.2
+            Depends on vulnerable versions of app-builder-lib
+            Depends on vulnerable versions of dmg-builder
+            node_modules/electron-builder
+          electron-builder-squirrel-windows  
+… (output truncated)
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+npm hasn’t applied the scoped override to the existing lockfile, so the audit stopped this validation before packaging ran. I’ll correct the dependency resolution, then rerun the unpacked build; the installer scripts themselves are now in place.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm ls @electron/get`
+
+Inspect why the builder's scoped download dependency override was not resolved.
+
+```bash
+npm ls @electron/get
+```
+
+**Result:**
+
+```
+k-downloader@0.1.0 /home/kel/dev/K-Downloader
+├─┬ electron-builder@26.15.3
+│ └─┬ app-builder-lib@26.15.3
+│   └── @electron/get@3.1.0 invalid: "^5.1.0" from node_modules/app-builder-lib
+└─┬ electron@44.7.0
+  └── @electron/get@5.1.0
+
+npm error code ELSPROBLEMS
+npm error invalid: @electron/get@3.1.0 /home/kel/dev/K-Downloader/node_modules/a
+pp-builder-lib/node_modules/@electron/get
+npm error A complete log of this run can be found in: /home/kel/.npm/_logs/2026-
+10-12T19_16_51_869Z-debug-0.log
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Read `package.json`
+
+**Input:**
+
+- endLine: `110`
+- filePath: `/home/kel/dev/K-Downloader/package.json`
+- startLine: `1`
+
+**Result:**
+
+```
+{
+  "name": "k-downloader",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/electron/main.cjs",
+  "description": "Linux desktop downloader for public KHInsider album tracks",
+  "author": "kelmankenberg",
+  "homepage": "https://github.com/kelmankenberg/K-Downloader",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "build:gui": "node scripts/build-gui.mjs",
+    "package:linux": "node scripts/package-linux.mjs",
+    "package:deb": "node scripts/package-linux.mjs deb",
+    "package:appimage": "node scripts/package-linux.mjs AppImage",
+    "package:dir": "node scripts/package-linux.mjs dir",
+    "gui": "npm run build:gui && electron dist/electron/main.cjs",
+    "inspect": "tsx src/cli.ts inspect",
+    "download": "tsx src/cli.ts download",
+    "pretest": "npm run build:gui",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "dompurify": "^3.4.17",
+    "lucide": "^1.55.0",
+    "marked": "^18.1.1",
+    "parse5": "^7.3.0",
+    "playwright": "^1.55.0"
+  },
+  "overrides": {
+    "app-builder-lib": {
+      "@electron/get": "^5.1.0"
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "electron": "^44.7.0",
+    "electron-builder": "26.15.3",
+    "esbuild": "^0.28.2",
+    "tsx": "^4.19.0",
+    "typescript": "^5.8.0",
+    "vitest": "^5.0.4",
+    "yaml": "^2.9.1"
+  }
+}
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm update @electron/get && npm audit && npm run package:dir`
+
+Reconcile the overridden download library in the lockfile, check advisories, and run the first unpacked package build.
+
+```bash
+npm update @electron/get && npm audit && npm run package:dir
+```
+
+**Result:**
+
+```
+
+up to date, audited 331 packages in 958ms
+
+61 packages are looking for funding
+  run `npm fund` for details
+
+8 moderate severity vulnerabilities
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+npm warn install-scripts 2 packages have install scripts not yet covered by allo
+wScripts:
+npm warn install-scripts   electron-winstaller@5.4.0 (install: node ./script/sel
+ect-7z-arch.js)
+npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+npm warn install-scripts
+npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install
+-scripts approve <pkg>` to allow.
+# npm audit report
+
+sprintf-js  *
+Severity: moderate
+sprintf-js vulnerable to denial of service through unbounded precision specifier
+s - https://github.com/advisories/GHSA-hp3w-g68c-fv3c
+fix available via `npm audit fix --force`
+Will install electron-builder@26.5.0, which is a breaking change
+node_modules/sprintf-js
+  roarr  <=2.15.4
+  Depends on vulnerable versions of sprintf-js
+  node_modules/roarr
+    global-agent  <=3.0.0
+    Depends on vulnerable versions of roarr
+    node_modules/global-agent
+      @electron/get  1.6.0 - 4.0.3
+      Depends on vulnerable versions of global-agent
+      node_modules/app-builder-lib/node_modules/@electron/get
+        app-builder-lib  26.6.0 - 27.0.0-alpha.2
+        Depends on vulnerable versions of @electron/get
+        Depends on vulnerable versions of dmg-builder
+        Depends on vulnerable versions of electron-builder-squirrel-windows
+        node_modules/app-builder-lib
+          dmg-builder  26.6.0 - 27.0.0-alpha.2
+          Depends on vulnerable versions of app-builder-lib
+          node_modules/dmg-builder
+            electron-builder  19.25.0 || 26.6.0 - 27.0.0-alpha.2
+            Depends on vulnerable versions of app-builder-lib
+            Depends on vulnerable versions of dmg-builder
+            node_modules/electron-builder
+          electron-builder-squirrel-windows  
+… (output truncated)
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The dependency tree shows npm retaining the old nested package despite the override. I’ll make the override explicit for every `@electron/get` copy and let npm rebuild the resolution. I won’t replace the lockfile manually or downgrade the builder.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="apply_patch"><details>
+<summary>Tool use: **apply_patch**</summary>
+
+Generating patch (10 lines) in `package.json`
+
+**Input:**
+
+- explanation: `Use a global explicit override so every builder/Electron download-library copy resolves to the patched version.`
+- input:
+
+```
+*** Begin Patch
+*** Update File: /home/kel/dev/K-Downloader/package.json
+@@
+   "overrides": {
+-    "app-builder-lib": {
+-      "@electron/get": "^5.1.0"
+-    }
++    "@electron/get": "^5.1.0"
+   },
+*** End Patch
+```
+
+
+**Result:**
+
+```
+The following files were successfully edited:
+/home/kel/dev/K-Downloader/package.json
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **package.json**</summary>
+
+@@ lines 1-49 @@
+
+```
+{
+  "name": "k-downloader",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/electron/main.cjs",
+  "description": "Linux desktop downloader for public KHInsider album tracks",
+  "author": "kelmankenberg",
+  "homepage": "https://github.com/kelmankenberg/K-Downloader",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "build:gui": "node scripts/build-gui.mjs",
+    "package:linux": "node scripts/package-linux.mjs",
+    "package:deb": "node scripts/package-linux.mjs deb",
+    "package:appimage": "node scripts/package-linux.mjs AppImage",
+    "package:dir": "node scripts/package-linux.mjs dir",
+    "gui": "npm run build:gui && electron dist/electron/main.cjs",
+    "inspect": "tsx src/cli.ts inspect",
+    "download": "tsx src/cli.ts download",
+    "pretest": "npm run build:gui",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "dompurify": "^3.4.17",
+    "lucide": "^1.55.0",
+    "marked": "^18.1.1",
+    "parse5": "^7.3.0",
+    "playwright": "^1.55.0"
+  },
+  "overrides": {
+    "@electron/get": "^5.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "electron": "^44.7.0",
+    "electron-builder": "26.15.3",
+    "esbuild": "^0.28.2",
+    "tsx": "^4.19.0",
+    "typescript": "^5.8.0",
+    "vitest": "^5.0.4",
+    "yaml": "^2.9.1"
+  }
+}
+
+```
+
+@@ lines 49-51 @@ (deleted)
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="task" data-tool-name="manage_todo_list"><details>
+<summary>Tool use: **manage_todo_list**</summary>
+
+Created 4 todos
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm install && npm dedupe && npm audit && npm run package:dir`
+
+Resolve and deduplicate the patched download dependency, verify advisories, and build the unpacked Linux application.
+
+```bash
+npm install && npm dedupe && npm audit && npm run package:dir
+```
+
+**Result:**
+
+```
+
+removed 50 packages, and audited 281 packages in 713ms
+
+45 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+npm warn install-scripts 2 packages have install scripts not yet covered by allo
+wScripts:
+npm warn install-scripts   electron-winstaller@5.4.0 (install: node ./script/sel
+ect-7z-arch.js)
+npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+npm warn install-scripts
+npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install
+-scripts approve <pkg>` to allow.
+
+removed 2 packages, changed 2 packages, and audited 279 packages in 2s
+
+44 packages are looking for funding
+  run `npm fund` for details
+
+found 0 vulnerabilities
+npm warn install-scripts 2 packages have install scripts not yet covered by allo
+wScripts:
+npm warn install-scripts   electron-winstaller@5.4.0 (install: node ./script/sel
+ect-7z-arch.js)
+npm warn install-scripts   esbuild@0.28.2 (postinstall: node install.js)
+npm warn install-scripts
+npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install
+-scripts approve <pkg>` to allow.
+found 0 vulnerabilities
+
+> k-downloader@0.1.0 package:dir
+> node scripts/package-linux.mjs dir
+
+Built Electron main/preload and local renderer into dist/.
+Error: Package subpath './cli' is not defined by "exports" in /home/kel/dev/K-Do
+wnloader/node_modules/playwright/package.json
+    at exportsNotFound (node:internal/modules/esm/resolve:315:10)
+    at packageExportsResolve (node:internal/modules/esm/resolve:663:9)
+    at resolveExports (node:internal/modules/cjs/loader:759:36)
+    at Module._findPath (node:internal/modules/cjs/loader:826:31)
+    at Module._resolveFilename (node:internal/modules/cjs/loader:1562:27)
+    at wrapResolveFilename (node:internal/modules/cjs/loader:1123:27)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1174:12)
+    at require.resolve (node:internal/modules/helpers:214:31)
+    at file:///home/kel/dev/K-Downloader/scripts/package-lin
+… (output truncated)
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The dependency resolution is fixed and the audit is clean. The unpacked build reached a script error: Playwright doesn’t export its CLI subpath. I’ll locate `cli.js` relative to the installed package manifest and rerun the same build.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **package-linux.mjs**</summary>
+
+@@ lines 1-69 @@
+
+```
+import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
+import { createReadStream } from "node:fs";
+import { cp, mkdir, readFile, writeFile } from "node:fs/promises";
+import { createRequire } from "node:module";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { Arch, build, Platform } from "electron-builder";
+
+const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const require = createRequire(import.meta.url);
+const targets = process.argv.slice(2);
+if (process.platform !== "linux" || process.arch !== "x64") throw new Error("Packaging currently requires a Linux x64 build host.");
+if (targets.some((target) => !["deb", "AppImage", "dir"].includes(target))) throw new Error("Supported targets: deb, AppImage, dir");
+const selected = targets.length ? targets : ["deb", "AppImage"];
+const config = require(resolve(root, "electron-builder.config.cjs"));
+
+function command(file, args, options = {}) {
+  return execFileSync(file, args, { cwd: root, stdio: "inherit", ...options });
+}
+
+function maintainer() {
+  if (process.env.K_DOWNLOADER_MAINTAINER) return process.env.K_DOWNLOADER_MAINTAINER;
+  try {
+    const name = command("git", ["config", "user.name"], { encoding: "utf8", stdio: "pipe" }).trim();
+    const email = command("git", ["config", "user.email"], { encoding: "utf8", stdio: "pipe" }).trim();
+    if (name && email) return `${name} <${email}>`;
+  } catch {}
+  throw new Error("Set K_DOWNLOADER_MAINTAINER='Name <email>' or configure Git user.name/user.email for .deb metadata.");
+}
+
+const packageMaintainer = selected.includes("deb") ? maintainer() : undefined;
+command(process.execPath, [resolve(root, "node_modules/typescript/bin/tsc"), "--noEmit"]);
+command(process.execPath, [resolve(root, "scripts/build-gui.mjs")]);
+
+const browserEnv = { ...process.env, PLAYWRIGHT_BROWSERS_PATH: resolve(root, ".packaging/browser-cache") };
+const playwrightCli = resolve(dirname(require.resolve("playwright/package.json")), "cli.js");
+command(process.execPath, [playwrightCli, "install", "chromium", "--no-shell"], { env: browserEnv });
+const browserPath = command(process.execPath, ["-e", "console.log(require('playwright').chromium.executablePath())"], {
+  env: browserEnv, stdio: "pipe", encoding: "utf8",
+}).trim();
+await mkdir(resolve(root, ".packaging"), { recursive: true });
+await cp(dirname(browserPath), resolve(root, ".packaging/chromium"), { recursive: true, force: true });
+
+const electronExecutable = require("electron");
+const manifest = JSON.parse(await readFile(resolve(root, "package.json"), "utf8"));
+const artifacts = await build({
+  projectDir: root,
+  targets: Platform.LINUX.createTarget(selected, Arch.x64),
+  publish: "never",
+  config: {
+    ...config,
+    electronDist: dirname(electronExecutable),
+    electronVersion: require("electron/package.json").version,
+    ...(packageMaintainer ? { deb: { ...config.deb, maintainer: packageMaintainer } } : {}),
+  },
+});
+const checksums = [];
+for (const artifact of artifacts.filter((path) => path.endsWith(".deb") || path.endsWith(".AppImage"))) {
+  const hash = createHash("sha256");
+  for await (const chunk of createReadStream(artifact)) hash.update(chunk);
+  checksums.push(`${hash.digest("hex")}  ${artifact.split("/").at(-1)}`);
+}
+if (checksums.length) {
+  const filename = `K-Downloader-${manifest.version}-SHA256SUMS.txt`;
+  await writeFile(resolve(root, "release", filename), `${checksums.join("\n")}\n`);
+}
+console.log("Package output: release/ (nothing was published to GitHub).");
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm run package:dir`
+
+Rerun the unpacked Linux build after fixing Playwright CLI resolution.
+
+```bash
+npm run package:dir
+```
+
+**Result:**
+
+```
+
+> k-downloader@0.1.0 package:dir
+> node scripts/package-linux.mjs dir
+
+Built Electron main/preload and local renderer into dist/.
+BEWARE: your OS is not officially supported by Playwright; downloading fallback
+build for ubuntu24.04-x64.
+Downloading Chrome for Testing 156.0.8078.4 (playwright chromium v1248) from htt
+ps://cdn.playwright.dev/builds/cft/156.0.8078.4/linux64/chrome-linux64.zip
+191.1 MiB [====================] 100% 0.0s
+Chrome for Testing 156.0.8078.4 (playwright chromium v1248) downloaded to /home/
+kel/dev/K-Downloader/.packaging/browser-cache/chromium-1248
+BEWARE: your OS is not officially supported by Playwright; downloading fallback
+build for ubuntu24.04-x64.
+Downloading FFmpeg (playwright ffmpeg v1013) from https://cdn.playwright.dev/dba
+zure/download/playwright/builds/ffmpeg/1013/ffmpeg-linux.zip
+2.2 MiB [====================] 100% 0.0s
+FFmpeg (playwright ffmpeg v1013) downloaded to /home/kel/dev/K-Downloader/.packa
+ging/browser-cache/ffmpeg-1013
+  • electron-builder  version=26.15.3 os=7.0.0-38-generic
+  • writing effective config  file=release/builder-effective-config.yaml
+  • skipped dependencies rebuild  reason=npmRebuild is set to false
+  • packaging       platform=linux arch=x64 electron=44.7.0 appOutDir=release/li
+nux-unpacked
+  • using custom unpacked Electron distribution  electronDist=node_modules/elect
+ron/dist
+  • copying unpacked Electron  source=/home/kel/dev/K-Downloader/node_modules/el
+ectron/dist destination=/home/kel/dev/K-Downloader/release/linux-unpacked
+  • searching for node modules  pm=npm searchDir=/home/kel/dev/K-Downloader
+Package output: release/ (nothing was published to GitHub).
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The unpacked application builds successfully with Chromium included. I’ll now test that directory directly: load the GUI from , launch the bundled browser, and run CLI help with display variables removed. If those pass, I’ll generate the `.deb` and AppImage files.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` node --input-type=module -e 'import \{ \_electron as electron \} from "playwrig...`
+
+Smoke-test the actual packaged GUI, packaged Playwright/browser resources, and embedded-Node CLI without requiring a display for help.
+
+```bash
+node --input-type=module -e 'import { _electron as electron } from "playwright"; import { execFileSync } from "node:child_process"; import { mkdtemp, rm } from "node:fs/promises"; import { resolve } from "node:path"; import { tmpdir } from "node:os"; const profile = await mkdtemp(resolve(tmpdir(), "k-downloader-package-smoke-")); const binary = resolve("release/linux-unpacked/k-downloader-bin"); const app = await electron.launch({ executablePath: binary, args: [`--user-data-dir=${profile}`] }); try { const page = await app.firstWindow(); await page.waitForFunction(() => document.documentElement.dataset.mode); const state = await app.evaluate(async ({ app }) => { const fs = require("node:fs"); const playwright = require(app.getAppPath() + "/node_modules/playwright"); const browser = await playwright.chromium.launch({ executablePath: process.env.K_DOWNLOADER_CHROMIUM_PATH, headless: true }); try { const page = await browser.newPage(); await page.setContent("<h1>Bundled browser works</h1>"); return { packaged: app.isPackaged, appPath: app.getAppPath(), browserExists: fs.existsSync(process.env.K_DOWNLOADER_CHROMIUM_PATH), browserTitle: await page.locator("h1").textContent() }; } finally { await browser.close(); } }); console.log(JSON.stringify(state)); if (!state.packaged || !state.browserExists) throw new Error("Incomplete package runtime"); await page.screenshot({path:"/tmp/k-downloader-packaged.png"}); } finally { await app.close(); await rm(profile,{recursive:true,force:true}); } const env = {...process.env}; delete env.DISPLAY; delete env.WAYLAND_DISPLAY; try { console.log(execFileSync(resolve("release/linux-unpacked/k-downloader"),["--help"],{env,encoding:"utf8",stdio:["ignore","pipe","pipe"]})); } catch (error) { console.log(error.stdout?.toString()); console.log(error.stderr?.toString()); if (error.status !== 2 || !error.stderr?.toString().includes("Usage:")) throw error; console.log("Packaged CLI help ran without a display (existing usage exit code: 2)."); }'
+```
+
+**Result:**
+
+```
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+electronApplication.evaluate: ReferenceError: require is not defined
+    at eval (eval at evaluate (:370:30), <anonymous>:1:33)
+    at UtilityScript.evaluate (<anonymous>:372:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+    at /home/kel/dev/K-Downloader/[eval1]:1:613 {
+  log: []
+}
+
+Node.js v26.8.1
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The packaged GUI opened, but the smoke-test callback failed because  isn’t available in Playwright’s main-process evaluation context. I’ll test the bundled browser through Electron’s embedded Node runtime instead; that also checks the runtime used by the packaged CLI.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` node --input-type=module -e 'import \{ \_electron as electron \} from "playwrig...`
+
+Verify packaged GUI metadata/resources and launch bundled Chromium and CLI via embedded Node, with no network requests.
+
+```bash
+node --input-type=module -e 'import { _electron as electron } from "playwright"; import { execFileSync } from "node:child_process"; import { existsSync } from "node:fs"; import { mkdtemp, rm } from "node:fs/promises"; import { resolve } from "node:path"; import { tmpdir } from "node:os"; const profile = await mkdtemp(resolve(tmpdir(), "k-downloader-package-smoke-")); const binary = resolve("release/linux-unpacked/k-downloader-bin"); const app = await electron.launch({ executablePath: binary, args: [`--user-data-dir=${profile}`] }); let state; try { const page = await app.firstWindow(); await page.waitForFunction(() => document.documentElement.dataset.mode); state = await app.evaluate(({ app }) => ({ packaged: app.isPackaged, appPath: app.getAppPath(), browserPath: process.env.K_DOWNLOADER_CHROMIUM_PATH })); console.log(JSON.stringify(state)); if (!state.packaged || !existsSync(state.browserPath)) throw new Error("Incomplete package runtime"); await page.screenshot({path:"/tmp/k-downloader-packaged.png"}); } finally { await app.close(); await rm(profile,{recursive:true,force:true}); } const env = {...process.env, ELECTRON_RUN_AS_NODE:"1"}; delete env.DISPLAY; delete env.WAYLAND_DISPLAY; const browserScript = `const {chromium}=require(${JSON.stringify(state.appPath + "/node_modules/playwright")}); (async()=>{const browser=await chromium.launch({executablePath:${JSON.stringify(state.browserPath)},headless:true});try{const page=await browser.newPage();await page.setContent("<h1>Bundled browser works</h1>");console.log(await page.locator("h1").textContent());}finally{await browser.close();}})().catch(error=>{console.error(error);process.exitCode=1});`; console.log(execFileSync(binary,["--eval",browserScript],{env,encoding:"utf8"})); try { console.log(execFileSync(resolve("release/linux-unpacked/k-downloader"),["--help"],{env,encoding:"utf8",stdio:["ignore","pipe","pipe"]})); } catch(error) { console.log(error.stderr?.toString()); if(error.status!==2 || !error.stderr?.toString().includes("Usage:")) throw error; console.log("Packaged CLI help ran without a display."); }'
+```
+
+**Result:**
+
+```
+kel@kel-EQ-Mint:~/dev/K-Downloader$  node --input-type=module -e 'import { _elec
+tron as electron } from "playwright"; import { execFileSync } from "node:child_p
+rocess"; import { existsSync } from "node:fs"; import { mkdtemp, rm } from "node
+:fs/promises"; import { resolve } from "node:path"; import { tmpdir } from "node
+:os"; const profile = await mkdtemp(resolve(tmpdir(), "k-downloader-package-smok
+e-")); const binary = resolve("release/linux-unpacked/k-downloader-bin"); const
+app = await electron.launch({ executablePath: binary, args: [`--user-data-dir=${
+profile}`] }); let state; try { const page = await app.firstWindow(); await page
+.waitForFunction(() => document.documentElement.dataset.mode); state = await app
+.evaluate(({ app }) => ({ packaged: app.isPackaged, appPath: app.getAppPath(), b
+rowserPath: process.env.K_DOWNLOADER_CHROMIUM_PATH })); console.log(JSON.stringi
+fy(state)); if (!state.packaged || !existsSync(state.browserPath)) throw new Err
+or("Incomplete package runtime"); await page.screenshot({path:"/tmp/k-downloader
+-packaged.png"}); } finally { await app.close(); await rm(profile,{recursive:tru
+e,force:true}); } const env = {...process.env, ELECTRON_RUN_AS_NODE:"1"}; delete
+ env.DISPLAY; delete env.WAYLAND_DISPLAY; const browserScript = `const {chromium
+}=require(${JSON.stringify(state.appPath + "/node_modules/playwright")}); (async
+()=>{const browser=await chromium.launch({executablePath:${JSON.stringify(state.
+browserPath)},headless:true});try{const page=await browser.newPage();await page.
+setContent("<h1>Bundled browser works</h1>");console.log(await page.locator("h1"
+).textContent());}finally{await browser.close();}})().catch(error=>{console.erro
+r(error);process.exitCode=1});`; console.log(execFileSync(binary,["--eval",brows
+erScript],{env,encoding:"utf8"})); try { console.log(execFileSync(resolve("relea
+se/linux-unpacked/k-downloader"),["--help"],{env,encoding:"utf8",stdio:["ignore"
+,"pipe","pipe"]})); } catch(error) { console.log(error.st
+… (output truncated)
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The standalone runtime checks pass: the packaged GUI loads from , bundled Chromium launches, and CLI help runs without display variables. I’ll fix the packaged CLI’s help text and success exit code, clear stale browser staging files between builds, then generate both installer formats.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **cli.ts**</summary>
+
+@@ lines 1-98 @@
+
+```
+import { inspectAlbum } from "./khinsider.js";
+import { planFormats } from "./formats.js";
+import type { FormatPolicy } from "./formats.js";
+import { downloadAlbum } from "./downloader.js";
+import { defaultOutputRoot } from "./output.js";
+import { resolve } from "node:path";
+
+function usage(exitCode = 2): never {
+  const inspect = process.env.K_DOWNLOADER_CHROMIUM_PATH ? "k-downloader inspect" : "npm run inspect --";
+  const download = process.env.K_DOWNLOADER_CHROMIUM_PATH ? "k-downloader download" : "npm run download --";
+  console.error(`Usage:\n  ${inspect} <album-url>\n  ${download} <album-url> [--format prefer-lossless|lossless-only|FORMAT] [--skip-unavailable] [--disc-label CD|Disc] [--output DIR]`);
+  process.exit(exitCode);
+}
+
+function printPlan(
+  album: Awaited<ReturnType<typeof inspectAlbum>>["album"],
+  tracks: Awaited<ReturnType<typeof inspectAlbum>>["tracks"],
+  policy: FormatPolicy,
+  discLabel: "CD" | "Disc" = "CD",
+): boolean {
+  const plan = planFormats(tracks, policy);
+  console.log(`Album: ${album.title}`);
+  console.log(`Tracks: ${album.tracks.length}${album.advertisedTrackCount ? ` / ${album.advertisedTrackCount}` : ""}`);
+  for (const selection of plan.tracks) {
+    const { track, selected, state, reason, fallback } = selection;
+    const disc = track.discNumber ? `${discLabel}${track.discNumber} · ` : "";
+    const prefix = `${disc}${String(track.number).padStart(2, "0")} - ${track.title}`;
+    if (selected) console.log(`${prefix}: ${selected.format}${fallback ? " (lossy fallback)" : ""}`);
+    else console.log(`${prefix}: ${state}${reason ? ` (${reason})` : ""}`);
+  }
+  return !plan.blocked;
+}
+
+async function inspectCommand(albumUrl: string, args: string[]): Promise<void> {
+  if (args.length > 0) usage();
+  const { album, tracks } = await inspectAlbum(albumUrl);
+  if (printPlan(album, tracks, { kind: "prefer-lossless" })) {
+    console.log("Format preview complete; no audio was downloaded.");
+  } else process.exitCode = 1;
+}
+
+async function downloadCommand(albumUrl: string, args: string[]): Promise<void> {
+  let format = "prefer-lossless";
+  let outputRoot = defaultOutputRoot();
+  let discLabel: "CD" | "Disc" = "CD";
+  let skipUnavailable = false;
+  for (let index = 0; index < args.length; index += 1) {
+    const arg = args[index];
+    if (arg === "--skip-unavailable") skipUnavailable = true;
+    else if (arg === "--format" || arg === "--output" || arg === "--disc-label") {
+      const value = args[index + 1];
+      if (!value) usage();
+      index += 1;
+      if (arg === "--format") format = value;
+      else if (arg === "--output") outputRoot = value;
+      else if (value === "CD" || value === "Disc") discLabel = value;
+      else throw new Error("--disc-label must be CD or Disc");
+    } else usage();
+  }
+  if (skipUnavailable && format.toLowerCase() === "prefer-lossless") {
+    throw new Error("--skip-unavailable is only valid with lossless-only or a specific --format");
+  }
+
+  const policy: FormatPolicy = format.toLowerCase() === "prefer-lossless"
+    ? { kind: "prefer-lossless" }
+    : format.toLowerCase() === "lossless-only"
+      ? { kind: "lossless-only", skipUnavailable }
+      : { kind: "specific", format, skipUnavailable };
+  const sourceAlbum = new URL(albumUrl).href;
+  const { album, tracks } = await inspectAlbum(sourceAlbum);
+  if (!printPlan(album, tracks, policy, discLabel)) {
+    console.error("No audio was downloaded. Resolve unavailable formats or explicitly pass --skip-unavailable.");
+    process.exitCode = 1;
+    return;
+  }
+
+  console.log(`\nDestination: ${outputRoot}`);
+  console.log("Starting sequential transfers...");
+  const result = await downloadAlbum({ sourceAlbum, album, tracks, outputRoot: resolve(outputRoot), policy, discLabel });
+  console.log(`\nAlbum result: ${result.state}`);
+  console.log(`Folder: ${result.directory}`);
+  if (result.state !== "complete") process.exitCode = 1;
+}
+
+async function main(): Promise<void> {
+  const [command, albumUrl, ...args] = process.argv.slice(2);
+  if (command === "--help" || command === "help" || albumUrl === "--help") usage(0);
+  if (!albumUrl) usage();
+  if (command === "inspect") await inspectCommand(albumUrl, args);
+  else if (command === "download") await downloadCommand(albumUrl, args);
+  else usage();
+}
+
+main().catch((error: unknown) => {
+  console.error(`K-Downloader failed: ${error instanceof Error ? error.message : String(error)}`);
+  process.exitCode = 1;
+});
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **package-linux.mjs**</summary>
+
+@@ lines 1-70 @@
+
+```
+import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
+import { createReadStream } from "node:fs";
+import { cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { createRequire } from "node:module";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { Arch, build, Platform } from "electron-builder";
+
+const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const require = createRequire(import.meta.url);
+const targets = process.argv.slice(2);
+if (process.platform !== "linux" || process.arch !== "x64") throw new Error("Packaging currently requires a Linux x64 build host.");
+if (targets.some((target) => !["deb", "AppImage", "dir"].includes(target))) throw new Error("Supported targets: deb, AppImage, dir");
+const selected = targets.length ? targets : ["deb", "AppImage"];
+const config = require(resolve(root, "electron-builder.config.cjs"));
+
+function command(file, args, options = {}) {
+  return execFileSync(file, args, { cwd: root, stdio: "inherit", ...options });
+}
+
+function maintainer() {
+  if (process.env.K_DOWNLOADER_MAINTAINER) return process.env.K_DOWNLOADER_MAINTAINER;
+  try {
+    const name = command("git", ["config", "user.name"], { encoding: "utf8", stdio: "pipe" }).trim();
+    const email = command("git", ["config", "user.email"], { encoding: "utf8", stdio: "pipe" }).trim();
+    if (name && email) return `${name} <${email}>`;
+  } catch {}
+  throw new Error("Set K_DOWNLOADER_MAINTAINER='Name <email>' or configure Git user.name/user.email for .deb metadata.");
+}
+
+const packageMaintainer = selected.includes("deb") ? maintainer() : undefined;
+command(process.execPath, [resolve(root, "node_modules/typescript/bin/tsc"), "--noEmit"]);
+command(process.execPath, [resolve(root, "scripts/build-gui.mjs")]);
+
+const browserEnv = { ...process.env, PLAYWRIGHT_BROWSERS_PATH: resolve(root, ".packaging/browser-cache") };
+const playwrightCli = resolve(dirname(require.resolve("playwright/package.json")), "cli.js");
+command(process.execPath, [playwrightCli, "install", "chromium", "--no-shell"], { env: browserEnv });
+const browserPath = command(process.execPath, ["-e", "console.log(require('playwright').chromium.executablePath())"], {
+  env: browserEnv, stdio: "pipe", encoding: "utf8",
+}).trim();
+await mkdir(resolve(root, ".packaging"), { recursive: true });
+await rm(resolve(root, ".packaging/chromium"), { recursive: true, force: true });
+await cp(dirname(browserPath), resolve(root, ".packaging/chromium"), { recursive: true, force: true });
+
+const electronExecutable = require("electron");
+const manifest = JSON.parse(await readFile(resolve(root, "package.json"), "utf8"));
+const artifacts = await build({
+  projectDir: root,
+  targets: Platform.LINUX.createTarget(selected, Arch.x64),
+  publish: "never",
+  config: {
+    ...config,
+    electronDist: dirname(electronExecutable),
+    electronVersion: require("electron/package.json").version,
+    ...(packageMaintainer ? { deb: { ...config.deb, maintainer: packageMaintainer } } : {}),
+  },
+});
+const checksums = [];
+for (const artifact of artifacts.filter((path) => path.endsWith(".deb") || path.endsWith(".AppImage"))) {
+  const hash = createHash("sha256");
+  for await (const chunk of createReadStream(artifact)) hash.update(chunk);
+  checksums.push(`${hash.digest("hex")}  ${artifact.split("/").at(-1)}`);
+}
+if (checksums.length) {
+  const filename = `K-Downloader-${manifest.version}-SHA256SUMS.txt`;
+  await writeFile(resolve(root, "release", filename), `${checksums.join("\n")}\n`);
+}
+console.log("Package output: release/ (nothing was published to GitHub).");
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm run package:linux`
+
+Build the actual Linux x64 Debian and AppImage distributables with bundled Chromium, launcher, icon, and checksums.
+
+```bash
+npm run package:linux
+```
+
+**Result:**
+
+```
+
+> k-downloader@0.1.0 package:linux
+> node scripts/package-linux.mjs
+
+Built Electron main/preload and local renderer into dist/.
+BEWARE: your OS is not officially supported by Playwright; downloading fallback
+build for ubuntu24.04-x64.
+BEWARE: your OS is not officially supported by Playwright; downloading fallback
+build for ubuntu24.04-x64.
+  • electron-builder  version=26.15.3 os=7.0.0-38-generic
+  • writing effective config  file=release/builder-effective-config.yaml
+  • skipped dependencies rebuild  reason=npmRebuild is set to false
+  • packaging       platform=linux arch=x64 electron=44.7.0 appOutDir=release/li
+nux-unpacked
+  • using custom unpacked Electron distribution  electronDist=node_modules/elect
+ron/dist
+  • copying unpacked Electron  source=/home/kel/dev/K-Downloader/node_modules/el
+ectron/dist destination=/home/kel/dev/K-Downloader/release/linux-unpacked
+  • searching for node modules  pm=npm searchDir=/home/kel/dev/K-Downloader
+  • building        target=AppImage arch=x64 file=release/K-Downloader-0.1.0-x86
+_64.AppImage
+  • electron uses desktopName as app_id / WM_CLASS for window association. Witho
+ut it desktop environments may not link running windows to this .desktop entry.
+Set desktopName in package.json and linux.syncDesktopName: true to fix.  reason=
+desktopName is not set in package.json docs=https://www.electron.build/linux#win
+dow-association-desktopname--syncdesktopname
+  • building embedded block map  file=release/K-Downloader-0.1.0-x86_64.AppImage
+  • building        target=deb arch=x64 file=release/K-Downloader-0.1.0-amd64.de
+b
+  • adding autoupdate files for: deb  resourceDir=release/linux-unpacked/resourc
+es
+  • electron uses desktopName as app_id / WM_CLASS for window association. Witho
+ut it desktop environments may not link running windows to this .desktop entry.
+Set desktopName in package.json and linux.syncDesktopName: true to fix.  reason=
+desktopName is not set in package.json docs=https://www.electron.build/linux#win
+dow-associ
+… (output truncated)
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+Both artifacts were generated: the `.deb`, AppImage, and checksum file are in `release`. The builder flagged a desktop-name association warning, so I’ll fix that metadata to keep the taskbar icon and launcher associated, then smoke-test the extracted artifacts without installing them system-wide.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="apply_patch"><details>
+<summary>Tool use: **apply_patch**</summary>
+
+Generating patch (80 lines) in `package.json`, `electron-builder.config.cjs`, `main.ts`, `test-packages.mjs`
+
+**Input:**
+
+- explanation: `Set matching Linux desktop metadata and add extracted-artifact smoke tests for GUI, bundled Help/browser, and display-independent CLI help.`
+- input:
+
+```
+*** Begin Patch
+*** Update File: /home/kel/dev/K-Downloader/package.json
+@@
+   "main": "dist/electron/main.cjs",
++  "desktopName": "k-downloader.desktop",
+@@
+     "package:dir": "node scripts/package-linux.mjs dir",
++    "test:packages": "node scripts/test-packages.mjs",
+*** Update File: /home/kel/dev/K-Downloader/electron-builder.config.cjs
+@@
+   linux: {
++    syncDesktopName: true,
+*** Update File: /home/kel/dev/K-Downloader/src/electron/main.ts
+@@
+ app.setName("K-Downloader");
++if (process.platform === "linux") app.setDesktopName("k-downloader.desktop");
+*** Add File: /home/kel/dev/K-Downloader/scripts/test-packages.mjs
++import { execFileSync } from "node:child_process";
++import { mkdtemp, readFile, readdir, rm } from "node:fs/promises";
++import { dirname, resolve } from "node:path";
++import { tmpdir } from "node:os";
++import { fileURLToPath } from "node:url";
++import { _electron as electron } from "playwright";
++
++const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
++const { version } = JSON.parse(await readFile(resolve(root, "package.json"), "utf8"));
++const temporary = await mkdtemp(resolve(tmpdir(), "k-downloader-artifacts-"));
++const env = { ...process.env, XDG_CURRENT_DESKTOP: "Test" };
++const headlessEnv = { ...env };
++delete headlessEnv.DISPLAY;
++delete headlessEnv.WAYLAND_DISPLAY;
++
++async function findBinary(directory) {
++  for (const entry of await readdir(directory, { withFileTypes: true })) {
++    const path = resolve(directory, entry.name);
++    if (entry.isFile() && entry.name === "k-downloader-bin") return path;
++    if (entry.isDirectory()) {
++      const found = await findBinary(path);
++      if (found) return found;
++    }
++  }
++}
++
++try {
++  const cases = [
++    { extension: "deb", artifact: `K-Downloader-${version}-amd64.deb` },
++    { extension: "AppImage", artifact: `K-Downloader-${version}-x86_64.AppImage` },
++  ];
++  for (const [index, item] of cases.entries()) {
++    const artifact = resolve(root, "release", item.artifact);
++    const directory = await mkdtemp(resolve(temporary, `${item.extension}-`));
++    if (item.extension === "deb") execFileSync("dpkg-deb", ["--extract", artifact, directory]);
++    else execFileSync(artifact, ["--appimage-extract"], { cwd: directory, stdio: "pipe", maxBuffer: 32 * 1024 * 1024 });
++    const binary = await findBinary(directory);
++    if (!binary) throw new Error(`Missing application executable in ${item.artifact}`);
++    const appDir = dirname(binary);
++    const cli = execFileSync(resolve(appDir, "k-downloader"), ["--help"], { env: headlessEnv, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
++    const app = await electron.launch({ executablePath: binary, args: [`--user-data-dir=${resolve(temporary, `profile-${index}`)}`], env });
++    let state;
++    try {
++      const page = await app.firstWindow();
++      await page.waitForFunction(() => document.documentElement.dataset.mode);
++      state = await app.evaluate(({ app }) => ({ packaged: app.isPackaged, appPath: app.getAppPath(), browserPath: process.env.K_DOWNLOADER_CHROMIUM_PATH }));
++      if (!state.packaged) throw new Error("Artifact did not start in packaged mode");
++      await page.getByRole("button", { name: "More options", exact: true }).click();
++      await page.getByRole("menuitem", { name: "Help", exact: true }).click();
++      if (await page.locator("#help-content details").count() < 12) throw new Error("Missing bundled Help");
++      await page.screenshot({ path: resolve(temporary, `${item.extension}-gui.png`) });
++    } finally {
++      await app.close();
++    }
++    const script = `const {chromium}=require(${JSON.stringify(`${state.appPath}/node_modules/playwright`)}); (async()=>{const browser=await chromium.launch({executablePath:${JSON.stringify(state.browserPath)},headless:true});try{const page=await browser.newPage();await page.setContent('<h1>Bundled Chromium</h1>');if(await page.locator('h1').textContent()!=='Bundled Chromium')throw new Error('Browser failed');}finally{await browser.close();}})().catch(error=>{console.error(error);process.exitCode=1});`;
++    execFileSync(binary, ["--eval", script], { env: { ...headlessEnv, ELECTRON_RUN_AS_NODE: "1" } });
++    console.log(`${item.artifact}: packaged GUI, Help, bundled Chromium, and CLI help passed without system installation.`);
++    if (!cli && !state) throw new Error("No smoke-test result");
++  }
++} finally {
++  await rm(temporary, { recursive: true, force: true });
++}
+*** End Patch
+```
+
+
+**Result:**
+
+```
+The following files were successfully edited:
+/home/kel/dev/K-Downloader/package.json
+/home/kel/dev/K-Downloader/electron-builder.config.cjs
+/home/kel/dev/K-Downloader/src/electron/main.ts
+/home/kel/dev/K-Downloader/scripts/test-packages.mjs
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **package.json**</summary>
+
+@@ lines 1-51 @@
+
+```
+{
+  "name": "k-downloader",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "dist/electron/main.cjs",
+  "desktopName": "k-downloader.desktop",
+  "description": "Linux desktop downloader for public KHInsider album tracks",
+  "author": "kelmankenberg",
+  "homepage": "https://github.com/kelmankenberg/K-Downloader",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "build:gui": "node scripts/build-gui.mjs",
+    "package:linux": "node scripts/package-linux.mjs",
+    "package:deb": "node scripts/package-linux.mjs deb",
+    "package:appimage": "node scripts/package-linux.mjs AppImage",
+    "package:dir": "node scripts/package-linux.mjs dir",
+    "test:packages": "node scripts/test-packages.mjs",
+    "gui": "npm run build:gui && electron dist/electron/main.cjs",
+    "inspect": "tsx src/cli.ts inspect",
+    "download": "tsx src/cli.ts download",
+    "pretest": "npm run build:gui",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "dompurify": "^3.4.17",
+    "lucide": "^1.55.0",
+    "marked": "^18.1.1",
+    "parse5": "^7.3.0",
+    "playwright": "^1.55.0"
+  },
+  "overrides": {
+    "@electron/get": "^5.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "electron": "^44.7.0",
+    "electron-builder": "26.15.3",
+    "esbuild": "^0.28.2",
+    "tsx": "^4.19.0",
+    "typescript": "^5.8.0",
+    "vitest": "^5.0.4",
+    "yaml": "^2.9.1"
+  }
+}
+
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **electron-builder.config.cjs**</summary>
+
+@@ lines 1-41 @@
+
+```
+const { chmod, copyFile, rename } = require("node:fs/promises");
+const { resolve } = require("node:path");
+
+module.exports = {
+  appId: "com.kelmankenberg.kdownloader",
+  productName: "K-Downloader",
+  executableName: "k-downloader",
+  directories: { output: "release", buildResources: "assets" },
+  asar: true,
+  npmRebuild: false,
+  files: ["dist/**/*", "package.json"],
+  extraResources: [{ from: ".packaging/chromium", to: "chromium" }],
+  linux: {
+    syncDesktopName: true,
+    target: ["deb", "AppImage"],
+    icon: "assets/k-downloader.png",
+    category: "AudioVideo",
+    synopsis: "Download public KHInsider soundtrack tracks",
+    desktop: { entry: { Name: "K-Downloader", StartupWMClass: "k-downloader", Terminal: "false" } },
+    artifactName: "K-Downloader-${version}-${arch}.${ext}",
+  },
+  deb: {
+    packageName: "k-downloader",
+    compression: "gz",
+    recommends: [],
+    depends: [
+      "libc6 (>= 2.35)", "libgtk-3-0 | libgtk-3-0t64", "libnotify4", "libnss3", "libnspr4",
+      "libxss1", "libxtst6", "xdg-utils", "libatspi2.0-0 | libatspi2.0-0t64", "libuuid1",
+      "libsecret-1-0", "libasound2 | libasound2t64", "libgbm1", "libxkbcommon0", "libdrm2",
+      "libxcomposite1", "libxdamage1", "libxrandr2", "libxfixes3", "libx11-6", "libxcb1",
+      "libxext6", "libxrender1", "libcups2 | libcups2t64", "libpango-1.0-0", "libcairo2",
+    ],
+  },
+  afterPack: async ({ appOutDir, electronPlatformName }) => {
+    if (electronPlatformName !== "linux") return;
+    await rename(resolve(appOutDir, "k-downloader"), resolve(appOutDir, "k-downloader-bin"));
+    await copyFile(resolve(__dirname, "scripts/linux-launcher.sh"), resolve(appOutDir, "k-downloader"));
+    await chmod(resolve(appOutDir, "k-downloader"), 0o755);
+  },
+};
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **main.ts**</summary>
+
+@@ lines 1-364 @@
+
+```
+import { app, BrowserWindow, dialog, ipcMain, Menu, nativeTheme, screen, shell } from "electron";
+import { readFileSync, writeFileSync, renameSync } from "node:fs";
+import { centeredBounds, parseWindowState, startupBounds } from "./window-state.js";
+import { monitorCinnamonTheme } from "./system-theme.js";
+import { resolve } from "node:path";
+import { downloadAlbum, type DownloadProgress } from "../downloader.js";
+import { planFormats } from "../formats.js";
+import { inspectAlbum, validateAlbumUrl, type AlbumPage, type DiscoveredTrack } from "../khinsider.js";
+import { defaultOutputRoot } from "../output.js";
+import type { GuiDownloadRequest, GuiFormatPolicy, GuiInspection, GuiInspectionState } from "../gui-types.js";
+
+type CachedInspection = {
+  sourceAlbum: string;
+  album: AlbumPage;
+  tracks: DiscoveredTrack[];
+};
+
+let mainWindow: BrowserWindow | undefined;
+let mainWindowReady = false;
+let duplicateLaunchPending = false;
+let instanceNoticeOpen = false;
+let cinnamonDark: boolean | undefined;
+let stopThemeMonitor: (() => void) | undefined;
+
+app.setName("K-Downloader");
+if (process.platform === "linux") app.setDesktopName("k-downloader.desktop");
+const primaryInstance = app.requestSingleInstanceLock();
+if (!primaryInstance) app.quit();
+else app.on("second-instance", () => {
+  duplicateLaunchPending = true;
+  void notifyExistingInstance();
+});
+
+function bringWindowForward(window: BrowserWindow): void {
+  if (window.isDestroyed()) return;
+  if (window.isMinimized()) window.restore();
+  window.show();
+  window.focus();
+}
+
+async function notifyExistingInstance(): Promise<void> {
+  const window = mainWindow;
+  if (!duplicateLaunchPending || instanceNoticeOpen || !mainWindowReady || !window || window.isDestroyed()) return;
+  duplicateLaunchPending = false;
+  instanceNoticeOpen = true;
+  bringWindowForward(window);
+  try {
+    await dialog.showMessageBox(window, {
+      type: "info",
+      title: "K-Downloader is already running",
+      message: "K-Downloader is already running.",
+      detail: "Only one instance can run. Continue in the existing window.",
+      buttons: ["Show running app"],
+      defaultId: 0,
+      noLink: true,
+    });
+    bringWindowForward(window);
+  } finally {
+    instanceNoticeOpen = false;
+    duplicateLaunchPending = false;
+  }
+}
+
+function systemThemeIsDark(): boolean {
+  return cinnamonDark ?? nativeTheme.shouldUseDarkColors;
+}
+
+function sendSystemTheme(): void {
+  if (mainWindow && !mainWindow.isDestroyed() && !mainWindow.webContents.isDestroyed()) {
+    mainWindow.webContents.send("appearance:system-theme", systemThemeIsDark());
+  }
+}
+
+const inspections = new Map<number, CachedInspection>();
+const downloads = new Map<number, AbortController>();
+const activeInspections = new Map<number, {
+  controller: AbortController;
+  setBrowserVisible?: (visible: boolean) => Promise<void>;
+  browserVisible: boolean;
+}>();
+
+function assertWindowSender(senderId: number): BrowserWindow {
+  if (!mainWindow || mainWindow.webContents.id !== senderId) throw new Error("Untrusted IPC sender");
+  return mainWindow;
+}
+
+function parseFormatPolicy(policy: unknown): GuiFormatPolicy {
+  if (typeof policy !== "object" || policy === null || !("kind" in policy)) {
+    throw new Error("Invalid format policy");
+  }
+  const value = policy as Record<string, unknown>;
+  const skipUnavailable = value.skipUnavailable === true;
+  if (value.kind === "prefer-lossless" && !skipUnavailable) return { kind: "prefer-lossless" };
+  if (value.kind === "lossless-only") return { kind: "lossless-only", skipUnavailable };
+  if (value.kind === "specific" && typeof value.format === "string" && /^[A-Za-z0-9.+-]{1,16}$/.test(value.format)) {
+    return { kind: "specific", format: value.format.toUpperCase(), skipUnavailable };
+  }
+  throw new Error("Invalid format policy");
+}
+
+function serializeInspection(cached: CachedInspection): GuiInspection {
+  return {
+    albumTitle: cached.album.title,
+    trackCount: cached.tracks.length,
+    tracks: cached.tracks.map((track) => ({
+      ...(track.discNumber === undefined ? {} : { discNumber: track.discNumber }),
+      number: track.number,
+      title: track.title,
+      formats: [...new Set(track.audioLinks.map(({ format }) => format))],
+    })),
+  };
+}
+
+function sendProgress(sender: Electron.WebContents, progress: DownloadProgress): void {
+  if (!sender.isDestroyed()) sender.send("album:progress", progress);
+}
+
+function sendInspectionState(sender: Electron.WebContents, state: GuiInspectionState): void {
+  if (!sender.isDestroyed()) sender.send("inspection:state", state);
+}
+
+function sendWindowState(window: BrowserWindow): void {
+  if (!window.webContents.isDestroyed()) {
+    window.webContents.send("window:state", { maximized: window.isMaximized() });
+  }
+}
+
+function registerIpc(): void {
+  ipcMain.handle("support:report-issue", async (event) => {
+    const window = assertWindowSender(event.sender.id);
+    const url = "https://github.com/kelmankenberg/K-Downloader/issues/new/choose";
+    try {
+      await shell.openExternal(url);
+    } catch {
+      await dialog.showMessageBox(window, {
+        type: "error",
+        title: "Could not open GitHub",
+        message: "Your browser could not be opened.",
+        detail: `Open this address manually to report an issue:\n${url}`,
+        buttons: ["OK"],
+      });
+    }
+  });
+  ipcMain.handle("window:restore-bounds", (event) => {
+    const window = assertWindowSender(event.sender.id);
+    const area = screen.getDisplayMatching(window.getBounds()).workArea;
+    if (window.isFullScreen()) window.setFullScreen(false);
+    if (window.isMaximized()) window.unmaximize();
+    window.setBounds(centeredBounds(area));
+    sendWindowState(window);
+  });
+
+  ipcMain.handle("window:zoom", (event, direction: unknown) => {
+    const window = assertWindowSender(event.sender.id);
+    if (direction !== "in" && direction !== "out" && direction !== "reset") throw new Error("Invalid zoom command");
+    const current = window.webContents.getZoomFactor();
+    const zoom = direction === "reset" ? 1 : Math.max(.5, Math.min(2, Math.round((current + (direction === "in" ? .1 : -.1)) * 10) / 10));
+    window.webContents.setZoomFactor(zoom);
+    return zoom;
+  });
+  ipcMain.handle("appearance:system-theme", (event) => {
+    assertWindowSender(event.sender.id);
+    return systemThemeIsDark();
+  });
+  ipcMain.handle("window:minimize", (event) => {
+    assertWindowSender(event.sender.id).minimize();
+  });
+
+  ipcMain.handle("window:toggle-maximize", (event) => {
+    const window = assertWindowSender(event.sender.id);
+    if (window.isMaximized()) window.unmaximize();
+    else window.maximize();
+    sendWindowState(window);
+    return window.isMaximized();
+  });
+
+  ipcMain.handle("window:close", (event) => {
+    assertWindowSender(event.sender.id).close();
+  });
+
+  ipcMain.handle("output:default", (event) => {
+    assertWindowSender(event.sender.id);
+    return defaultOutputRoot();
+  });
+
+  ipcMain.handle("output:choose", async (event) => {
+    const window = assertWindowSender(event.sender.id);
+    const result = await dialog.showOpenDialog(window, {
+      title: "Choose download folder",
+      defaultPath: defaultOutputRoot(),
+      properties: ["openDirectory", "createDirectory"],
+    });
+    return result.canceled ? undefined : result.filePaths[0];
+  });
+
+  ipcMain.handle("album:inspect", async (event, input: unknown) => {
+    assertWindowSender(event.sender.id);
+    if (typeof input !== "string" || input.length > 2048) throw new Error("Enter one valid album URL");
+    if (activeInspections.has(event.sender.id)) throw new Error("Album inspection is already active");
+    let sourceAlbum: string;
+    try {
+      sourceAlbum = validateAlbumUrl(input).href;
+    } catch {
+      throw new Error("Paste a valid HTTPS KHInsider album URL.");
+    }
+    const active: {
+      controller: AbortController;
+      setBrowserVisible?: (visible: boolean) => Promise<void>;
+      browserVisible: boolean;
+    } = { controller: new AbortController(), browserVisible: false };
+    inspections.delete(event.sender.id);
+    activeInspections.set(event.sender.id, active);
+    sendInspectionState(event.sender, { active: true, browserReady: false, browserVisible: false });
+    try {
+      const result = await inspectAlbum(sourceAlbum, {
+        signal: active.controller.signal,
+        onBrowserReady: (setBrowserVisible) => {
+          active.setBrowserVisible = setBrowserVisible;
+          sendInspectionState(event.sender, { active: true, browserReady: true, browserVisible: false });
+        },
+      });
+      const cached = { sourceAlbum, album: result.album, tracks: result.tracks };
+      inspections.set(event.sender.id, cached);
+      return serializeInspection(cached);
+    } catch (error) {
+      if (active.controller.signal.aborted) return undefined;
+      throw error;
+    } finally {
+      activeInspections.delete(event.sender.id);
+      sendInspectionState(event.sender, { active: false, browserReady: false, browserVisible: false });
+    }
+  });
+
+  ipcMain.handle("inspection:toggle-browser", async (event) => {
+    assertWindowSender(event.sender.id);
+    const active = activeInspections.get(event.sender.id);
+    if (!active?.setBrowserVisible) throw new Error("Inspection browser is not ready");
+    const browserVisible = !active.browserVisible;
+    await active.setBrowserVisible(browserVisible);
+    active.browserVisible = browserVisible;
+    sendInspectionState(event.sender, { active: true, browserReady: true, browserVisible });
+    return browserVisible;
+  });
+
+  ipcMain.handle("album:download", async (event, request: unknown) => {
+    const window = assertWindowSender(event.sender.id);
+    if (downloads.has(event.sender.id)) throw new Error("A download is already active");
+    if (typeof request !== "object" || request === null || !("outputRoot" in request)) {
+      throw new Error("Invalid download request");
+    }
+    const payload = request as GuiDownloadRequest;
+    if (typeof payload.outputRoot !== "string" || payload.outputRoot.length > 4096 || payload.outputRoot.includes("\0")) {
+      throw new Error("Invalid output folder");
+    }
+    if (payload.discLabel !== "CD" && payload.discLabel !== "Disc") throw new Error("Invalid disc folder label");
+    const cached = inspections.get(event.sender.id);
+    if (!cached) throw new Error("Inspect an album before starting a download");
+    const policy = parseFormatPolicy(payload.policy);
+    const plan = planFormats(cached.tracks, policy);
+    if (plan.blocked) throw new Error("The format preview has unavailable tracks; skip them explicitly or choose another policy");
+
+    const controller = new AbortController();
+    downloads.set(event.sender.id, controller);
+    try {
+      const result = await downloadAlbum({
+        ...cached,
+        outputRoot: resolve(payload.outputRoot),
+        policy,
+        discLabel: payload.discLabel,
+        signal: controller.signal,
+        onProgress: (progress) => sendProgress(window.webContents, progress),
+      });
+      return { state: result.state, directory: result.directory };
+    } finally {
+      downloads.delete(event.sender.id);
+    }
+  });
+
+  ipcMain.handle("album:cancel", (event) => {
+    assertWindowSender(event.sender.id);
+    activeInspections.get(event.sender.id)?.controller.abort();
+    downloads.get(event.sender.id)?.abort();
+  });
+}
+
+async function createWindow(): Promise<void> {
+  const statePath = resolve(app.getPath("userData"), "window-state.json");
+  let savedState;
+  try { savedState = parseWindowState(readFileSync(statePath, "utf8")); } catch {}
+  const displays = [screen.getPrimaryDisplay(), ...screen.getAllDisplays().filter((display) => display.id !== screen.getPrimaryDisplay().id)];
+  const window = new BrowserWindow({
+    frame: false,
+    autoHideMenuBar: true,
+    ...startupBounds(savedState, displays.map((display) => display.workArea)),
+    minWidth: 760,
+    minHeight: 620,
+    backgroundColor: "#101715",
+    title: "K-Downloader",
+    icon: resolve(__dirname, "../assets/k-downloader.png"),
+    webPreferences: {
+      preload: resolve(__dirname, "preload.cjs"),
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: true,
+    },
+  });
+  mainWindow = window;
+  const senderId = window.webContents.id;
+  window.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
+  window.webContents.on("will-navigate", (event, url) => {
+    if (!url.startsWith("file://")) event.preventDefault();
+  });
+  window.on("maximize", () => sendWindowState(window));
+  window.on("unmaximize", () => sendWindowState(window));
+  window.webContents.on("did-finish-load", () => sendWindowState(window));
+  window.on("close", () => {
+    try {
+      writeFileSync(`${statePath}.tmp`, JSON.stringify({ bounds: window.getNormalBounds(), maximized: window.isMaximized() }), { mode: 0o600 });
+      renameSync(`${statePath}.tmp`, statePath);
+    } catch (error) {
+      console.warn("Could not save window size and position:", error);
+    }
+  });
+  window.on("closed", () => {
+    inspections.delete(senderId);
+    activeInspections.get(senderId)?.controller.abort();
+    activeInspections.delete(senderId);
+    downloads.get(senderId)?.abort();
+    downloads.delete(senderId);
+    if (mainWindow === window) {
+      mainWindow = undefined;
+      mainWindowReady = false;
+    }
+  });
+  await window.loadFile(resolve(__dirname, "../gui/index.html"));
+  if (savedState?.maximized) window.maximize();
+  mainWindowReady = true;
+}
+
+app.whenReady().then(async () => {
+  if (!primaryInstance) return;
+  if (app.isPackaged) process.env.K_DOWNLOADER_CHROMIUM_PATH = resolve(process.resourcesPath, "chromium/chrome");
+  nativeTheme.themeSource = "system";
+  nativeTheme.on("updated", sendSystemTheme);
+  stopThemeMonitor = await monitorCinnamonTheme((dark) => {
+    cinnamonDark = dark;
+    sendSystemTheme();
+  });
+  Menu.setApplicationMenu(null);
+  registerIpc();
+  await createWindow();
+  await notifyExistingInstance();
+  app.on("activate", () => {
+    if (BrowserWindow.getAllWindows().length === 0) void createWindow();
+  });
+});
+
+app.on("will-quit", () => stopThemeMonitor?.());
+
+app.on("window-all-closed", () => {
+  for (const controller of downloads.values()) controller.abort();
+  if (process.platform !== "darwin") app.quit();
+});
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **test-packages.mjs**</summary>
+
+@@ lines 1-1 @@
+
+```
+import { execFileSync } from "node:child_process";
+import { mkdtemp, readFile, readdir, rm } from "node:fs/promises";
+import { dirname, resolve } from "node:path";
+import { tmpdir } from "node:os";
+import { fileURLToPath } from "node:url";
+import { _electron as electron } from "playwright";
+
+const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const { version } = JSON.parse(await readFile(resolve(root, "package.json"), "utf8"));
+const temporary = await mkdtemp(resolve(tmpdir(), "k-downloader-artifacts-"));
+const env = { ...process.env, XDG_CURRENT_DESKTOP: "Test" };
+const headlessEnv = { ...env };
+delete headlessEnv.DISPLAY;
+delete headlessEnv.WAYLAND_DISPLAY;
+
+async function findBinary(directory) {
+  for (const entry of await readdir(directory, { withFileTypes: true })) {
+    const path = resolve(directory, entry.name);
+    if (entry.isFile() && entry.name === "k-downloader-bin") return path;
+    if (entry.isDirectory()) {
+      const found = await findBinary(path);
+      if (found) return found;
+    }
+  }
+}
+
+try {
+  const cases = [
+    { extension: "deb", artifact: `K-Downloader-${version}-amd64.deb` },
+    { extension: "AppImage", artifact: `K-Downloader-${version}-x86_64.AppImage` },
+  ];
+  for (const [index, item] of cases.entries()) {
+    const artifact = resolve(root, "release", item.artifact);
+    const directory = await mkdtemp(resolve(temporary, `${item.extension}-`));
+    if (item.extension === "deb") execFileSync("dpkg-deb", ["--extract", artifact, directory]);
+    else execFileSync(artifact, ["--appimage-extract"], { cwd: directory, stdio: "pipe", maxBuffer: 32 * 1024 * 1024 });
+    const binary = await findBinary(directory);
+    if (!binary) throw new Error(`Missing application executable in ${item.artifact}`);
+    const appDir = dirname(binary);
+    const cli = execFileSync(resolve(appDir, "k-downloader"), ["--help"], { env: headlessEnv, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+    const app = await electron.launch({ executablePath: binary, args: [`--user-data-dir=${resolve(temporary, `profile-${index}`)}`], env });
+    let state;
+    try {
+      const page = await app.firstWindow();
+      await page.waitForFunction(() => document.documentElement.dataset.mode);
+      state = await app.evaluate(({ app }) => ({ packaged: app.isPackaged, appPath: app.getAppPath(), browserPath: process.env.K_DOWNLOADER_CHROMIUM_PATH }));
+      if (!state.packaged) throw new Error("Artifact did not start in packaged mode");
+      await page.getByRole("button", { name: "More options", exact: true }).click();
+      await page.getByRole("menuitem", { name: "Help", exact: true }).click();
+      if (await page.locator("#help-content details").count() < 12) throw new Error("Missing bundled Help");
+      await page.screenshot({ path: resolve(temporary, `${item.extension}-gui.png`) });
+    } finally {
+      await app.close();
+    }
+    const script = `const {chromium}=require(${JSON.stringify(`${state.appPath}/node_modules/playwright`)}); (async()=>{const browser=await chromium.launch({executablePath:${JSON.stringify(state.browserPath)},headless:true});try{const page=await browser.newPage();await page.setContent('<h1>Bundled Chromium</h1>');if(await page.locator('h1').textContent()!=='Bundled Chromium')throw new Error('Browser failed');}finally{await browser.close();}})().catch(error=>{console.error(error);process.exitCode=1});`;
+    execFileSync(binary, ["--eval", script], { env: { ...headlessEnv, ELECTRON_RUN_AS_NODE: "1" } });
+    console.log(`${item.artifact}: packaged GUI, Help, bundled Chromium, and CLI help passed without system installation.`);
+    if (!cli && !state) throw new Error("No smoke-test result");
+  }
+} finally {
+  await rm(temporary, { recursive: true, force: true });
+}
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm run package:linux && npm run test:packages`
+
+Rebuild with corrected desktop association and smoke-test both generated artifacts by extraction, without sudo or system installation.
+
+```bash
+npm run package:linux && npm run test:packages
+```
+
+**Result:**
+
+```
+
+> k-downloader@0.1.0 package:linux
+> node scripts/package-linux.mjs
+
+Built Electron main/preload and local renderer into dist/.
+BEWARE: your OS is not officially supported by Playwright; downloading fallback
+build for ubuntu24.04-x64.
+BEWARE: your OS is not officially supported by Playwright; downloading fallback
+build for ubuntu24.04-x64.
+  • electron-builder  version=26.15.3 os=7.0.0-38-generic
+  • writing effective config  file=release/builder-effective-config.yaml
+  • skipped dependencies rebuild  reason=npmRebuild is set to false
+  • packaging       platform=linux arch=x64 electron=44.7.0 appOutDir=release/li
+nux-unpacked
+  • using custom unpacked Electron distribution  electronDist=node_modules/elect
+ron/dist
+  • copying unpacked Electron  source=/home/kel/dev/K-Downloader/node_modules/el
+ectron/dist destination=/home/kel/dev/K-Downloader/release/linux-unpacked
+  • searching for node modules  pm=npm searchDir=/home/kel/dev/K-Downloader
+  • building        target=AppImage arch=x64 file=release/K-Downloader-0.1.0-x86
+_64.AppImage
+  • building embedded block map  file=release/K-Downloader-0.1.0-x86_64.AppImage
+  • building        target=deb arch=x64 file=release/K-Downloader-0.1.0-amd64.de
+b
+  • adding autoupdate files for: deb  resourceDir=release/linux-unpacked/resourc
+es
+Package output: release/ (nothing was published to GitHub).
+
+> k-downloader@0.1.0 test:packages
+> node scripts/test-packages.mjs
+
+K-Downloader-0.1.0-amd64.deb: packaged GUI, Help, bundled Chromium, and CLI help
+ passed without system installation.
+K-Downloader-0.1.0-x86_64.AppImage: packaged GUI, Help, bundled Chromium, and CL
+I help passed without system installation.
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+Both extracted artifacts passed the smoke tests: packaged GUI, embedded Help, bundled Chromium, and CLI help. No root access or system installation was needed. I’ll also test the AppImage’s own launcher, verify the checksums, and update the release guide now that binary packaging exists.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` ./release/K-Downloader-0.1.0-x86\_64.AppImage --appimage-extract-and-run --he...`
+
+Test the AppImage's actual launcher without FUSE, inspect Debian metadata/dependencies, and verify generated SHA-256 checksums.
+
+```bash
+./release/K-Downloader-0.1.0-x86_64.AppImage --appimage-extract-and-run --help && dpkg-deb --field release/K-Downloader-0.1.0-amd64.deb Package Version Architecture Depends && cd release && sha256sum -c K-Downloader-0.1.0-SHA256SUMS.txt
+```
+
+**Result:**
+
+```
+[Output too large (39KB). Full output saved to: /home/kel/.config/Code/copilot-terminal-output/copilot-terminal-output-0a25d3da-ff7a-4960-a617-9c0eca4467bf.txt]
+[Use readFile or grep to examine the full output.]
+
+kel@kel-EQ-Mint:~/dev/K-Downloader$  ./release/K-Downloader-0.1.0-x86_64.AppImag
+e --appimage-extract-and-run --help && dpkg-deb --field release/K-Downloader-0.1
+.0-amd64.deb Package Version Architecture Depends && cd release && sha256sum -c
+K-Downloader-0.1.0-SHA256SUMS.txt
+/tmp/appimage_extracted_963cd481f26b99240eaad06507c04010/.DirIcon
+/tmp/appimage_extracted_963cd481f26b99240eaad06507c04010/AppRun
+/tmp/appimage_extracted_963cd481f26b99240eaad06507c04010/LICENSE.electron.txt
+/tmp/appimage_ex
+
+[... middle of output truncated ...]
+
+3cd481f26b99240eaad06507c04010/resources/chromium/loca
+les/fi.pak
+/tmp/appimage_extracted_963cd481f26b99240eaad06507c04010/resources/chromium/loca
+les/fi_FEMININE.pak
+/tmp/appimage_extracted_963cd481f26b99240eaad06507c04010/resources/chromium/loca
+les/fi_MASCULINE.pak
+/tmp/appimage_extracted_963cd481f26b99240eaad06507c04010/resources/chromium/loca
+les/fi_NEUTER.pak
+/tmp/appimage_extracted_963cd481f26b99240eaad06507c04010/resources/chromium/loca
+les/fil.pak
+/tmp/appimage_extracted_963cd481f26b99240eaad06507c04010/resources/chromium/loca
+les/fil_FEMININE.pak
+/tmp/appimage_extracted_963cd481f26b99240eaad06507c04010/resources/chromium/loca
+les/fil_MASCULINE.pak
+/tmp/appimage_extracted_963cd481f26b99240eaad06507c04010/resources/chromium/loca
+les/fil_NEUTER.pak
+/tmp/appimage_extracted_963cd481f26b99240eaad06507c04010/resources/chromium/loca
+les/fr.pak
+/tmp/appimage_extracted_963cd481f26b99240eaad06507c04010/resources/chromium/loca
+les/fr_FEMININE.pak
+/tmp/appimage_extracted_963cd481f26b99240eaad06507c04010/resources/chromium/loca
+les/fr_MASCULINE.pak
+/tmp/appimage_extracted_963cd481f26b99240eaad06507c04010/resources/chromium/loca
+les/fr_NEUTER.pak
+/tmp/appimage_extracted_963cd481f26b99240eaad06507c04010/resources/chromium/loca
+les/gu
+… (output truncated)
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Read `BUILD_AND_RELEASE.md`
+
+**Input:**
+
+- endLine: `240`
+- filePath: `/home/kel/dev/K-Downloader/docs/BUILD_AND_RELEASE.md`
+- startLine: `1`
+
+**Result:**
+
+````
+# Build and GitHub Release Guide
+
+Run the commands below from the repository root. This guide describes the
+current implementation, not the planned installer packaging.
+
+## What Can Be Released Today
+
+The project supports a source-only GitHub release. GitHub provides source ZIP
+and tar archives automatically for its release tag. Users must install Node.js,
+npm dependencies, and Playwright Chromium before running the app.
+
+AppImage, Debian `.deb`, and Fedora `.rpm` packaging are not configured yet.
+There is no installer-building command or automated GitHub release workflow.
+Do not describe a source release as an installable Linux application package.
+
+The generated `dist/` directory contains Electron main/preload bundles and the
+local renderer assets. It is **not a standalone application**: it still depends
+on Electron, external Node packages, and Playwright's browser runtime. Uploading
+only `dist/` does not provide a runnable installer.
+
+## Prerequisites
+
+- Linux with a graphical desktop session for GUI and Electron tests.
+- Node.js 22 (22.12 or later), Node.js 24, or Node.js 26 or later, as required by
+  the installed Electron and Vitest toolchain. An older system Node may fail
+  even if it satisfies the application's declared Node.js 20 minimum.
+- npm, Git, and access to the target GitHub repository.
+- GitHub CLI (`gh`) for the command-line release steps, or the GitHub website.
+
+Check the environment:
+
+```sh
+node --version
+npm --version
+git --version
+gh --version
+gh auth status
+```
+
+If GitHub authentication is missing, run `gh auth login` and complete its browser
+or terminal flow directly. Never put passwords or tokens in commit messages,
+release notes, command arguments, or project files.
+
+## Install and Build
+
+Install the exact locked dependencies and the discovery browser:
+
+```sh
+npm ci
+npx playwright install chromium
+```
+
+Allow required package installation scripts according to your npm installation
+policy. Electron must have its platform binary installed befo
+… (output truncated)
+````
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Read `test-packages.mjs`, lines 26 to 62
+
+**Input:**
+
+- endLine: `90`
+- filePath: `/home/kel/dev/K-Downloader/scripts/test-packages.mjs`
+- startLine: `26`
+
+**Result:**
+
+```
+
+try {
+  const cases = [
+    { extension: "deb", artifact: `K-Downloader-${version}-amd64.deb` },
+    { extension: "AppImage", artifact: `K-Downloader-${version}-x86_64.AppImage` },
+  ];
+  for (const [index, item] of cases.entries()) {
+    const artifact = resolve(root, "release", item.artifact);
+    const directory = await mkdtemp(resolve(temporary, `${item.extension}-`));
+    if (item.extension === "deb") execFileSync("dpkg-deb", ["--extract", artifact, directory]);
+    else execFileSync(artifact, ["--appimage-extract"], { cwd: directory, stdio: "pipe", maxBuffer: 32 * 1024 * 1024 });
+    const binary = await findBinary(directory);
+    if (!binary) throw new Error(`Missing application executable in ${item.artifact}`);
+    const appDir = dirname(binary);
+    const cli = execFileSync(resolve(appDir, "k-downloader"), ["--help"], { env: headlessEnv, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+    const app = await electron.launch({ executablePath: binary, args: [`--user-data-dir=${resolve(temporary, `profile-${index}`)}`], env });
+    let state;
+    try {
+      const page = await app.firstWindow();
+      await page.waitForFunction(() => document.documentElement.dataset.mode);
+      state = await app.evaluate(({ app }) => ({ packaged: app.isPackaged, appPath: app.getAppPath(), browserPath: process.env.K_DOWNLOADER_CHROMIUM_PATH }));
+      if (!state.packaged) throw new Error("Artifact did not start in packaged mode");
+      await page.getByRole("button", { name: "More options", exact: true }).click();
+      await page.getByRole("menuitem", { name: "Help", exact: true }).click();
+      if (await page.locator("#help-content details").count() < 12) throw new Error("Missing bundled Help");
+      await page.screenshot({ path: resolve(temporary, `${item.extension}-gui.png`) });
+    } finally {
+      await app.close();
+    }
+    const script = `const {chromium}=require(${JSON.stringify(`${state.appPath}/node_modules/playwright`)}); (async()=>{const browser=await c
+… (output truncated)
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Read `README.md`, lines 1 to 18
+
+**Input:**
+
+- endLine: `18`
+- filePath: `/home/kel/dev/K-Downloader/README.md`
+- startLine: `1`
+
+**Result:**
+
+````
+# K-Downloader
+
+K-Downloader is a Linux-first KHInsider album downloader. The current slice
+implements public single-album discovery, format preview and policy, sequential
+streaming, and manifest-backed reruns. Multi-album queues, artwork, the GUI,
+optional account features, and packaging are not implemented yet.
+
+## Discovery check
+
+Requirements: Node.js 20 or newer, npm, and a graphical desktop session.
+
+```sh
+npm install
+npx playwright install chromium
+npm run inspect -- 'https://downloads.khinsider.com/game-soundtracks/album/unreal-ii-the-awakening-original-soundtrack'
+```
+
+The command opens a fresh visible Chromium context without a stored browser
+````
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Read `content.txt`, lines 1 to 70
+
+**Input:**
+
+- endLine: `70`
+- filePath: `/home/kel/.config/Code/User/workspaceStorage/a25c41716a3dec319dbc51e15d935e12/GitHub.copilot-chat/chat-session-resources/a83d1bed-20cb-4627-b96c-29c62da48c1a/call_00RLmbKfxx0NYgHAKiL0c8s6__vscode-1791822855892/content.txt`
+- startLine: `1`
+
+**Result:**
+
+```
+[Output too large (39KB). Full output saved to: /home/kel/.config/Code/copilot-terminal-output/copilot-terminal-output-0a25d3da-ff7a-4960-a617-9c0eca4467bf.txt]
+[Use readFile or grep to examine the full output.]
+
+kel@kel-EQ-Mint:~/dev/K-Downloader$  ./release/K-Downloader-0.1.0-x86_64.AppImag
+e --appimage-extract-and-run --help && dpkg-deb --field release/K-Downloader-0.1
+.0-amd64.deb Package Version Architecture Depends && cd release && sha256sum -c
+K-Downloader-0.1.0-SHA256SUMS.txt
+/tmp/appimage_extracted_963cd481f26b99240eaad06507c04010/.DirIcon
+/tmp/appimage_extracted_963cd481f26b99240eaad06507c04010/AppRun
+/tmp/appimage_extracted_963cd481f26b99240eaad06507c04010/LICENSE.electron.txt
+/tmp/appimage_ex
+
+[... middle of output truncated ...]
+
+3cd481f26b99240eaad06507c04010/resources/chromium/loca
+les/fi.pak
+/tmp/appimage_extracted_963cd481f26b99240eaad06507c04010/resources/chromium/loca
+les/fi_FEMININE.pak
+/tmp/appimage_extracted_963cd481f26b99240eaad06507c04010/resources/chromium/loca
+les/fi_MASCULINE.pak
+/tmp/appimage_extracted_963cd481f26b99240eaad06507c04010/resources/chromium/loca
+les/fi_NEUTER.pak
+/tmp/appimage_extracted_963cd481f26b99240eaad06507c04010/resources/chromium/loca
+les/fil.pak
+/tmp/appimage_extracted_963cd481f26b99240eaad06507c04010/resources/chromium/loca
+les/fil_FEMININE.pak
+/tmp/appimage_extracted_963cd481f26b99240eaad06507c04010/resources/chromium/loca
+les/fil_MASCULINE.pak
+/tmp/appimage_extracted_963cd481f26b99240eaad06507c04010/resources/chromium/loca
+les/fil_NEUTER.pak
+/tmp/appimage_extracted_963cd481f26b99240eaad06507c04010/resources/chromium/loca
+les/fr.pak
+/tmp/appimage_extracted_963cd481f26b99240eaad06507c04010/resources/chromium/loca
+les/fr_FEMININE.pak
+/tmp/appimage_extracted_963cd481f26b99240eaad06507c04010/resources/chromium/loca
+les/fr_MASCULINE.pak
+/tmp/appimage_extracted_963cd481f26b99240eaad06507c04010/resources/chromium/loca
+les/fr_NEUTER.pak
+/tmp/appimage_extracted_963cd481f26b99240eaad06507c04010/resources/chromium/loca
+les/gu
+… (output truncated)
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` tail -n 16 /home/kel/.config/Code/copilot-terminal-output/copilot-terminal-o...`
+
+Read the final launcher, package metadata, and checksum results from the verbose AppImage extraction output.
+
+```bash
+tail -n 16 /home/kel/.config/Code/copilot-terminal-output/copilot-terminal-output-0a25d3da-ff7a-4960-a617-9c0eca4467bf.txt
+```
+
+**Result:**
+
+```
+/tmp/appimage_extracted_963cd481f26b99240eaad06507c04010/version
+/tmp/appimage_extracted_963cd481f26b99240eaad06507c04010/vk_swiftshader_icd.json
+Usage:
+  k-downloader inspect <album-url>
+  k-downloader download <album-url> [--format prefer-lossless|lossless-only|FORM
+AT] [--skip-unavailable] [--disc-label CD|Disc] [--output DIR]
+Package: k-downloader
+Version: 0.1.0
+Architecture: amd64
+Depends: libc6 (>= 2.35), libgtk-3-0 | libgtk-3-0t64, libnotify4, libnss3, libns
+pr4, libxss1, libxtst6, xdg-utils, libatspi2.0-0 | libatspi2.0-0t64, libuuid1, l
+ibsecret-1-0, libasound2 | libasound2t64, libgbm1, libxkbcommon0, libdrm2, libxc
+omposite1, libxdamage1, libxrandr2, libxfixes3, libx11-6, libxcb1, libxext6, lib
+xrender1, libcups2 | libcups2t64, libpango-1.0-0, libcairo2
+K-Downloader-0.1.0-x86_64.AppImage: OK
+K-Downloader-0.1.0-amd64.deb: OKkel@kel-EQ-Mint:~/dev/K-Downloader/release$
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The AppImage’s own launcher also passes via extraction mode, and both checksums verify. Debian metadata shows the expected name, version, architecture, and dependencies. I’ll now replace the source-only release instructions with the packaging commands, maintainer metadata requirements, and the limits of what was tested.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **test-packages.mjs**</summary>
+
+@@ lines 1-65 @@
+
+```
+import { execFileSync, spawnSync } from "node:child_process";
+import { mkdtemp, readFile, readdir, rm } from "node:fs/promises";
+import { dirname, resolve } from "node:path";
+import { tmpdir } from "node:os";
+import { fileURLToPath } from "node:url";
+import { _electron as electron } from "playwright";
+
+const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const { version } = JSON.parse(await readFile(resolve(root, "package.json"), "utf8"));
+const temporary = await mkdtemp(resolve(tmpdir(), "k-downloader-artifacts-"));
+const env = { ...process.env, XDG_CURRENT_DESKTOP: "Test" };
+const headlessEnv = { ...env };
+delete headlessEnv.DISPLAY;
+delete headlessEnv.WAYLAND_DISPLAY;
+
+async function findBinary(directory) {
+  for (const entry of await readdir(directory, { withFileTypes: true })) {
+    const path = resolve(directory, entry.name);
+    if (entry.isFile() && entry.name === "k-downloader-bin") return path;
+    if (entry.isDirectory()) {
+      const found = await findBinary(path);
+      if (found) return found;
+    }
+  }
+}
+
+try {
+  const cases = [
+    { extension: "deb", artifact: `K-Downloader-${version}-amd64.deb` },
+    { extension: "AppImage", artifact: `K-Downloader-${version}-x86_64.AppImage` },
+  ];
+  for (const [index, item] of cases.entries()) {
+    const artifact = resolve(root, "release", item.artifact);
+    const directory = await mkdtemp(resolve(temporary, `${item.extension}-`));
+    if (item.extension === "deb") execFileSync("dpkg-deb", ["--extract", artifact, directory]);
+    else execFileSync(artifact, ["--appimage-extract"], { cwd: directory, stdio: "pipe", maxBuffer: 32 * 1024 * 1024 });
+    const binary = await findBinary(directory);
+    if (!binary) throw new Error(`Missing application executable in ${item.artifact}`);
+    const appDir = dirname(binary);
+    const cli = spawnSync(resolve(appDir, "k-downloader"), ["--help"], { env: headlessEnv, encoding: "utf8" });
+    if (cli.error || cli.status !== 0 || !cli.stderr.includes("k-downloader inspect")) {
+      throw new Error(`Packaged CLI help failed: ${cli.error?.message ?? cli.stderr}`);
+    }
+    const app = await electron.launch({ executablePath: binary, args: [`--user-data-dir=${resolve(temporary, `profile-${index}`)}`], env });
+    let state;
+    try {
+      const page = await app.firstWindow();
+      await page.waitForFunction(() => document.documentElement.dataset.mode);
+      state = await app.evaluate(({ app }) => ({ packaged: app.isPackaged, appPath: app.getAppPath(), browserPath: process.env.K_DOWNLOADER_CHROMIUM_PATH }));
+      if (!state.packaged) throw new Error("Artifact did not start in packaged mode");
+      await page.getByRole("button", { name: "More options", exact: true }).click();
+      await page.getByRole("menuitem", { name: "Help", exact: true }).click();
+      if (await page.locator("#help-content details").count() < 12) throw new Error("Missing bundled Help");
+      await page.screenshot({ path: resolve(temporary, `${item.extension}-gui.png`) });
+    } finally {
+      await app.close();
+    }
+    const script = `const {chromium}=require(${JSON.stringify(`${state.appPath}/node_modules/playwright`)}); (async()=>{const browser=await chromium.launch({executablePath:${JSON.stringify(state.browserPath)},headless:true});try{const page=await browser.newPage();await page.setContent('<h1>Bundled Chromium</h1>');if(await page.locator('h1').textContent()!=='Bundled Chromium')throw new Error('Browser failed');}finally{await browser.close();}})().catch(error=>{console.error(error);process.exitCode=1});`;
+    execFileSync(binary, ["--eval", script], { env: { ...headlessEnv, ELECTRON_RUN_AS_NODE: "1" } });
+    console.log(`${item.artifact}: packaged GUI, Help, bundled Chromium, and CLI help passed without system installation.`);
+  }
+} finally {
+  await rm(temporary, { recursive: true, force: true });
+}
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **BUILD_AND_RELEASE.md**</summary>
+
+@@ lines 1-294 @@
+
+````
+# Build and GitHub Release Guide
+
+Run the commands below from the repository root. This guide describes the
+current Linux packaging and release workflow.
+
+## What Can Be Released Today
+
+The project builds Linux x64 AppImage and Debian `.deb` artifacts, with Electron,
+production dependencies, Chromium, a desktop icon, and CLI support included.
+Recipients do not need npm or a separate Node.js/Playwright installation.
+Linux shared libraries and a graphical session are still required for discovery.
+
+Fedora `.rpm` and ARM packaging are not configured. Builds and extracted-artifact
+smoke tests have been verified on the development host; installed-package behavior
+and compatibility across distribution versions still require target-machine tests.
+The Chromium build is Playwright's Ubuntu 24.04 x64 fallback on this host.
+Do not claim certification for all Debian/Ubuntu versions based on package format.
+
+The generated `dist/` directory contains Electron main/preload bundles and the
+local renderer assets. It is **not a standalone application**: it still depends
+on Electron, external Node packages, and Playwright's browser runtime. Uploading
+only `dist/` does not provide a runnable installer.
+
+## Prerequisites
+
+- Linux x64 with a graphical desktop session for packaging and smoke tests.
+- Node.js 22 (22.12 or later), Node.js 24, or Node.js 26 or later, as required by
+  the installed Electron and Vitest toolchain. An older system Node may fail
+  even if it satisfies the application's declared Node.js 20 minimum.
+- npm, Git, and access to the target GitHub repository.
+- `dpkg-deb` for extracted Debian package smoke tests.
+- GitHub CLI (`gh`) for the command-line release steps, or the GitHub website.
+
+Check the environment:
+
+```sh
+node --version
+npm --version
+git --version
+gh --version
+gh auth status
+```
+
+If GitHub authentication is missing, run `gh auth login` and complete its browser
+or terminal flow directly. Never put passwords or tokens in commit messages,
+release notes, command arguments, or project files.
+
+## Install and Build
+
+Install the exact locked dependencies and the discovery browser:
+
+```sh
+npm ci
+npx playwright install chromium
+```
+
+Allow required package installation scripts according to your npm installation
+policy. Electron must have its platform binary installed before its tests or
+GUI can launch. A missing native library is a host setup issue; follow the
+runtime's supported dependency instructions rather than disabling its sandbox.
+
+Validate and generate the GUI:
+
+```sh
+npm test
+npm run build
+npm run build:gui
+npm audit
+```
+
+- `npm test` first builds the GUI, then runs unit, Chromium, and isolated
+  Electron regression tests. Tests make no live site requests or audio downloads.
+- `npm run build` performs a TypeScript check only; it does not emit an installer.
+- `npm run build:gui` recreates `dist/`, bundles the Electron and renderer code,
+  and copies the local HTML/CSS assets.
+- The GUI build embeds the root [changelog.md](../changelog.md) and the version
+  from [package.json](../package.json). Rebuild after changing either file.
+- Help content is embedded from [HELP.md](HELP.md). Its level-two headings
+  become expandable sections in the Help drawer. Rebuild after editing it.
+- The build copies [assets/k-downloader.png](../assets/k-downloader.png) into
+  `dist/assets/`; Electron uses it as the window/taskbar icon. Regenerate the
+  source icon with `node scripts/generate-icon.mjs` if the brand mark changes.
+- `npm audit` reports dependency advisories. Review and resolve release-blocking
+  issues; do not blindly apply a forced dependency upgrade.
+
+Launch the app for a manual smoke check:
+
+```sh
+npm run gui
+```
+
+Check startup/close, Settings navigation and appearance, keyboard shortcuts,
+changelog resizing, window restore, and saved geometry. Only test site discovery
+or real audio transfers when authorized; they are not required for building.
+
+## Build Installers
+
+Build both formats:
+
+```sh
+npm run package:linux
+```
+
+Or choose one output:
+
+```sh
+npm run package:deb
+npm run package:appimage
+npm run package:dir
+```
+
+The scripts type-check and rebuild the app, install the pinned Playwright
+Chromium into `.packaging/browser-cache/`, stage it outside `app.asar`, and run
+electron-builder. Browser and builder tools may be downloaded on the first run.
+`.packaging/` and `release/` are ignored build output, not source files to commit.
+
+For version 0.1.0, outputs are:
+
+```text
+release/K-Downloader-0.1.0-amd64.deb
+release/K-Downloader-0.1.0-x86_64.AppImage
+release/K-Downloader-0.1.0-SHA256SUMS.txt
+release/linux-unpacked/
+```
+
+Versioned filenames follow package.json. A single-target command writes checksums
+for its produced artifact; `package:linux` writes checksums for both formats.
+Nothing is uploaded or released automatically.
+
+Debian requires maintainer metadata. The script uses Git's configured user.name
+and user.email by default. These become public package metadata; review them
+before distributing. Override them explicitly with a real maintainer identity:
+
+```sh
+K_DOWNLOADER_MAINTAINER='Your Name <your-real-email@example.org>' npm run package:linux
+```
+
+Replace the example with your chosen identity. The manifest currently declares
+`UNLICENSED`; choose an appropriate distribution license before a public release
+if you intend to grant redistribution rights. Packaging does not choose a license
+or change existing copyright ownership for you.
+
+## Test the Artifacts
+
+```sh
+npm run test:packages
+cd release
+sha256sum -c K-Downloader-0.1.0-SHA256SUMS.txt
+```
+
+Adjust the checksum filename for the release version. Run from the repository
+root again for subsequent build commands. `test:packages` extracts both current
+artifacts to temporary directories and verifies packaged GUI/Help, Chromium,
+and CLI help without display variables. It makes no site requests, does not
+install system-wide, and cleans its temporary files. It requires a desktop
+session for the GUI portion. No sandbox-disabling flags are added.
+
+On a disposable target machine, also test real Debian installation/removal,
+desktop-launcher behavior, download destinations, and authorized discovery.
+Installing a `.deb` requires system privileges; do that manually, not as part
+of these automated smoke tests.
+
+For AppImage, mark it executable and launch it:
+
+```sh
+chmod +x release/K-Downloader-0.1.0-x86_64.AppImage
+./release/K-Downloader-0.1.0-x86_64.AppImage
+```
+
+If the host cannot mount AppImages via FUSE, extraction mode is available:
+
+```sh
+./release/K-Downloader-0.1.0-x86_64.AppImage --appimage-extract-and-run
+```
+
+The installed Debian launcher is `k-downloader`. The packaged CLI uses Electron's
+embedded Node runtime without opening the GUI:
+
+```sh
+k-downloader --help
+k-downloader inspect 'https://downloads.khinsider.com/game-soundtracks/album/ALBUM'
+k-downloader download 'https://downloads.khinsider.com/game-soundtracks/album/ALBUM'
+```
+
+An AppImage accepts the same CLI arguments. Help needs no display; inspection
+and download discovery still require a graphical session.
+
+## Prepare the Release Commit
+
+1. Check `git status` and review the intended diff. Exclude local settings,
+   session history, secrets, downloaded music, and generated dependencies/assets.
+   Use explicit file paths when staging; do not automatically stage everything.
+2. Decide the release version. The current app version is `0.1.0`; the first
+   release can use that version. For a subsequent release, update the root
+   manifest and lockfile without creating a tag automatically, for example:
+
+   ```sh
+   npm version 0.1.1 --no-git-tag-version
+   ```
+
+3. Replace the changelog's `Unreleased` heading for the released entries with
+   the selected version and release date, and leave a new `Unreleased` section
+   above it for future work. Keep the release notes accurate about unfinished
+   features and the graphical-session/browser requirements.
+4. Repeat the build/test checks and rebuild/test artifacts after version and
+  changelog updates. Release binaries must match the tagged source commit.
+5. Stage only intended release files, review, and commit. For example, when
+   these are the only changed release files:
+
+   ```sh
+   git add package.json package-lock.json changelog.md
+   git diff --cached
+   git diff --cached --check
+   git commit -m "chore: prepare release"
+   git push origin main
+   ```
+
+If `main` is protected, use the repository's pull-request workflow instead.
+Create the tag from the final merged, validated commit, not an unmerged branch.
+The application is marked `private` in its manifest; this workflow publishes to
+GitHub, not npm.
+
+## Tag and Create a Draft Release
+
+Ensure the selected commit and version are ready, and the tag does not already
+exist. The commands below derive the tag from the app's manifest:
+
+```sh
+VERSION=$(node -p "require('./package.json').version")
+TAG="v$VERSION"
+git status
+git ls-remote --tags origin "refs/tags/$TAG"
+```
+
+Stop if the remote tag already exists. Also stop if a local tag with that name
+exists (`git tag --list "$TAG"`); inspect it rather than moving or overwriting it.
+
+Create and push the annotated tag:
+
+```sh
+git tag -a "$TAG" -m "K-Downloader $VERSION"
+git push origin "$TAG"
+```
+
+Create a draft using the verified remote tag and the changelog as the initial
+notes source:
+
+```sh
+gh release create "$TAG" \
+  --repo kelmankenberg/K-Downloader \
+  --verify-tag \
+  --draft \
+  --title "K-Downloader $VERSION" \
+  --notes-file changelog.md
+```
+
+For experimental versions, also pass `--prerelease`. Review the draft notes:
+`--notes-file` includes the whole changelog, so trim older entries in the draft
+and identify the actual Linux architectures and distributions tested. Attach
+the validated artifacts and checksum file to the draft before publication:
+
+```sh
+gh release upload "$TAG" \
+  "release/K-Downloader-$VERSION-amd64.deb" \
+  "release/K-Downloader-$VERSION-x86_64.AppImage" \
+  "release/K-Downloader-$VERSION-SHA256SUMS.txt" \
+  --repo kelmankenberg/K-Downloader
+```
+
+## Publish and Verify
+
+Open the draft, review its tag, notes, and release type, then publish:
+
+```sh
+gh release view "$TAG" --repo kelmankenberg/K-Downloader --web
+gh release edit "$TAG" --repo kelmankenberg/K-Downloader --draft=false
+gh release view "$TAG" --repo kelmankenberg/K-Downloader
+```
+
+On the GitHub website, the equivalent is **Releases > Draft a new release**:
+select the pushed tag, enter the title/notes, save as draft, review, and publish.
+
+After publication, verify installer assets, checksums, and source archives are
+available and correspond to the selected tag. Download and verify the artifacts
+on each supported target. Do not assume development launch or extraction-only
+smoke testing proves installed-package compatibility.
+
+## Packaging Scope
+
+Linux x64 AppImage and `.deb` generation are implemented. Multi-distribution
+certification, ARM builds, `.rpm`, automatic updates, signing, and automated
+release publishing remain separate work. Do not upload builder debug files,
+unpacked directories, browser caches, or unrelated build output as installers.
+````
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **README.md**</summary>
+
+@@ lines 1-157 @@
+
+````
+# K-Downloader
+
+K-Downloader is a Linux-first KHInsider album downloader. The current slice
+implements public single-album discovery, format preview and policy, sequential
+streaming, manifest-backed reruns, an Electron GUI, and Linux x64 AppImage/.deb
+packaging. Multi-album queues, artwork, and optional account features are not
+implemented yet.
+
+## Discovery check
+
+Requirements: Node.js 20 or newer, npm, and a graphical desktop session.
+
+```sh
+npm install
+npx playwright install chromium
+npm run inspect -- 'https://downloads.khinsider.com/game-soundtracks/album/unreal-ii-the-awakening-original-soundtrack'
+```
+
+The command opens a fresh visible Chromium context without a stored browser
+profile, visits the album and track pages sequentially, and prints every
+track's discovered format selection. It does not sign in or download audio.
+Visible mode is currently needed: plain Node fetch and headless Chromium
+received HTTP 403 during feasibility checks, while a fresh visible Chromium
+context succeeded. No attempt is made to imitate a browser or evade a challenge.
+If access is denied or a challenge appears, stop and review the site's permitted
+access methods.
+
+## Download One Album
+
+The CLI previews the selected formats before starting any transfer. The default
+format policy prefers lossless, falling back to MP3 when needed. The default
+destination is `~/Music/K-Downloader`.
+
+```sh
+npm run download -- 'https://downloads.khinsider.com/game-soundtracks/album/unreal-ii-the-awakening-original-soundtrack'
+```
+
+Use `--format lossless-only` to block when a track has no lossless source. Add
+`--skip-unavailable` to explicitly skip those tracks and mark the album
+incomplete. A specific format such as `--format MP3` never silently substitutes
+another format. Use `--output /path/to/music` for another destination.
+
+Multi-disc albums are saved into per-disc folders such as `CD1/` and `CD2/`.
+The GUI offers `CD` and `Disc` folder labels; the CLI accepts
+`--disc-label CD` or `--disc-label Disc` and defaults to `CD`. Single-disc
+albums keep the flat album folder.
+
+Files are streamed through temporary `.part` files, validated, and moved into
+place without overwriting. A per-album manifest records completion so verified
+files can be skipped on rerun. Transfers are covered by local mocked tests; an
+authorized live audio download has not yet been run.
+
+## Desktop GUI
+
+Requirements: Node.js 20 or newer, npm, and a graphical Linux session.
+
+```sh
+npm install
+npx playwright install chromium
+npm run gui
+```
+
+Only one desktop instance runs per application profile. A second launch exits,
+restores the existing window if minimized, and shows an already-running
+confirmation with **Show running app** to focus that window.
+
+Paste one album URL and choose **Inspect album**. A Chromium inspection window
+starts minimized while an in-progress indicator appears in the app; click that
+indicator to show or hide the browser. Review the per-track format preview, choose the
+destination and format policy, then select **Download**. The default destination
+is `~/Music/K-Downloader`. **Cancel active download** stops the current transfer
+and prevents later tracks from starting.
+
+While inspection is running, the same button becomes **Cancel inspection**.
+It closes the inspection browser and stops scanning track pages, including
+during browser startup. A canceled inspection can be started again.
+
+Open **More > Settings** in the titlebar or press `Ctrl+,`. Under **Appearance**,
+select Light, Dark, or System mode and a Mint, Ocean, Amber, Rose, or Monochrome
+color theme. System follows desktop appearance changes; System + Mint is the
+default. Choices apply immediately and are saved locally across restarts.
+On Cinnamon, System mode follows the GTK theme (for example, Mint-Y versus
+Mint-Y-Dark); other desktops use Electron's native appearance notifications.
+Return with **Back to downloader** or press `Esc`.
+Settings has its own left navigation rail. **Appearance** retains the mode and
+theme controls; **Shortcuts** lists navigation, zoom, and changelog-resize
+commands with their key combinations. Switching pages preserves selections.
+
+**More > Restore Size/Position** restores the development default (1120x780)
+and centers the window on its current monitor. Window size, position, and
+maximized state are saved on close and restored on the next launch, with
+off-screen positions corrected if monitor arrangements change.
+
+**More > Changelog** opens a panel from the right. Drag its left edge to adjust
+the width up to 40% of the window; the focused resize handle also accepts arrow
+keys. Close it with its close button or `Esc`. Content is embedded from the root
+`changelog.md` during `npm run build:gui` (also run by `npm run gui`).
+
+**More > Help**, directly below Changelog, opens a matching right-side panel.
+Expand or collapse individual help sections, or use **Expand all** and
+**Collapse all**. It covers the GUI, CLI, formats, disc folders, cancellation,
+reruns, Settings, shortcuts, window controls, and troubleshooting. Resize its
+left edge up to 40%, and close with its button or `Esc`. Opening Help closes
+Changelog, and vice versa. Help is embedded from [docs/HELP.md](docs/HELP.md)
+during the GUI build and is available offline.
+
+Use `Ctrl+=` or `Ctrl++` to enlarge the UI, `Ctrl+-` to reduce it, and `Ctrl+0`
+to reset to 100%. `Ctrl+mousewheel` also changes scale. Zoom is limited to
+50%-200% and does not change the window's saved geometry.
+
+The GUI uses a context-isolated, sandboxed renderer with a narrow preload API.
+It currently supports one album per run; multi-album queues are not available yet.
+
+## Linux Packages
+
+On a Linux x64 build host with dependencies installed:
+
+```sh
+npm run package:linux
+npm run test:packages
+```
+
+The first command creates `.deb`, AppImage, and SHA-256 checksum files under
+`release/`, with Electron and Chromium included. To build separately, use
+`npm run package:deb` or `npm run package:appimage`; `npm run package:dir` creates
+an unpacked application. Recipients do not need npm or a separate Node runtime.
+The packaged `k-downloader` launcher supports `inspect`, `download`, and `--help`.
+
+See [docs/BUILD_AND_RELEASE.md](docs/BUILD_AND_RELEASE.md) for maintainer metadata,
+build prerequisites, installation/testing caveats, and GitHub release commands.
+Artifacts are smoke-tested on the build host, not certified across all Linux
+versions. Packaging does not automatically publish a GitHub release.
+
+## Issue Reporting
+
+Use **More > Report an Issue** to open the repository's GitHub issue chooser
+in your default browser. Choose **Bug Report** or **Feature Request**; a GitHub
+account is required. Include the app version from the More menu and relevant
+details. The app never uploads logs automatically. Remove credentials, cookies,
+tokens, signed media URLs, and private paths before submitting or attaching files.
+
+Repository administrators can follow [docs/GITHUB_ISSUES_SETUP.md](docs/GITHUB_ISSUES_SETUP.md)
+to enable Issues and activate the supplied templates on the default branch.
+
+## Development
+
+```sh
+npm test
+npm run build
+npm audit
+```
+
+Tests build the GUI first and use the installed Playwright Chromium and Electron
+for local appearance checks. The Electron checks require a graphical session
+and use an isolated profile. No desktop settings, site requests, or audio
+transfers are changed or made by those tests.
+````
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **HELP.md**</summary>
+
+@@ lines 1-241 @@
+
+````
+# K-Downloader Help
+
+## Getting Started
+
+1. Paste one KHInsider album URL into **Album source**. Use the album page,
+   not a track-page URL, media URL, or local folder path.
+2. Select **Inspect album** and wait for the format preview.
+3. Review available and selected formats for every track, including fallback
+   or unavailable tracks. Choose a destination and format policy.
+4. Select **Download**. Transfers run one track at a time.
+5. Review the album result and destination shown in the transfer footer.
+
+The desktop app requires a graphical Linux session. Public-track downloads
+need no site login. Use only audio you are authorized to download and respect
+the site's access policy. The current release accepts one album per run.
+
+## Album Inspection
+
+Use an HTTPS album URL beginning with
+`https://downloads.khinsider.com/game-soundtracks/album/`.
+
+Inspection reads the album's ordered track links, visits the individual track
+pages, and discovers each track's audio formats. It does not save album audio.
+The preview includes disc number, track number, title, available formats,
+selected format, and availability status.
+
+An animated **Inspection in progress** row appears during scanning. The
+Chromium inspection browser starts minimized, not headless. Select **Show
+browser** or **Hide browser** on that row to toggle its window. Closing the
+browser manually interrupts inspection; use **Cancel inspection** instead.
+
+Discovery can take time because pages are visited sequentially with pacing.
+If the site denies access or presents a challenge, stop rather than trying to
+bypass it. Download stays disabled until discovery and format selection allow it.
+
+## Audio Formats
+
+- **Prefer lossless** selects FLAC first, then ALAC or WAV when offered.
+  Without a lossless source it uses MP3 if offered, otherwise another discovered
+  source. The preview marks lossy fallback before transfers begin.
+- **Lossless only** never substitutes lossy audio. A track without a lossless
+  source blocks Download unless **Skip tracks without the selected format**
+  is explicitly checked.
+- **Specific format** options appear after inspection and reflect discovered
+  formats. Selecting one never silently substitutes another format.
+- **Skip tracks without the selected format** applies to lossless-only or
+  specific-format policies. Any skipped audio makes the album incomplete.
+
+The app saves the original bytes and matching extension. It does not transcode,
+rewrite metadata, or turn lossy audio into lossless audio. Formats may differ
+between tracks in the same album.
+
+## Destination and Disc Folders
+
+The default root is `~/Music/K-Downloader`. Type another root in **Save album
+under** or use the folder-picker button. The app creates an album-title folder
+under that root. Select the root, not a pre-created album folder, to avoid
+unintentional nesting.
+
+Track names use zero-padded within-disc numbers and sanitized titles, for
+example `01 - Intro.mp3`. Multi-disc albums go into separate **CD1**, **CD2**,
+and subsequent folders. The **Disc folder label** setting offers **CD** or
+**Disc** for multi-disc albums. Single-disc albums keep a flat album folder.
+
+Disc and track numbers are distinct; track numbering can restart on each disc.
+Identically titled albums are separated using their source identity where needed.
+Changing the root, label, or selected format on a rerun can change the output
+paths; existing completed audio is not moved automatically.
+
+## Downloads and Progress
+
+Download uses the inspected plan and selected destination. Tracks transfer
+sequentially. The footer reports the active track, completed-track count, album
+result, and destination. Long previews scroll inside the panel while the app's
+statusbar and transfer footer remain visible.
+
+Files stream to temporary `.part` files rather than being buffered entirely in
+memory. The writer checks the response and available length evidence before
+publishing the final file without overwriting. Small tracks are allowed; file
+size alone is not a quality judgment.
+
+A **complete** result means all selected tracks finished. **Incomplete** means
+tracks were explicitly skipped. **Failed** means one or more transfers failed;
+inspect the album manifest for recorded per-track errors. **Canceled** means
+the run was stopped. An access-denied or rate-limited transfer stops further
+track transfers for that album.
+
+## Canceling and Rerunning
+
+During scanning, the cancel button reads **Cancel inspection**. It closes the
+inspection browser and stops visiting track pages, including if cancellation
+is requested during browser startup. The app reports **Inspection canceled**
+and allows a fresh scan. A canceled scan cannot be used to start Download.
+
+During downloading, **Cancel active download** aborts the active transfer and
+prevents later tracks from starting. Closing the app also cancels active work.
+Completed files stay in place; a canceled partial transfer is not marked complete.
+
+Each album folder has `.download-manifest.json`, which records its source,
+selected formats, relative paths, states, and completed byte lengths. Inspect
+the same album and download again with the same output choices to retry missing
+or failed tracks. Completed files are skipped only when manifest evidence and
+their current sizes match. Existing unverified files are conflicts, not trusted
+downloads, and are not overwritten.
+
+Interrupted tracks restart from the beginning; byte-range continuation is not
+implemented. There is no automatic general retry/backoff workflow yet. Keep the
+manifest with the audio files for reruns.
+
+## Settings and Appearance
+
+Open **More > Settings** or press **Ctrl+,**. Its left rail offers **Appearance**
+and **Shortcuts**. Switching pages preserves the Appearance controls and choices.
+Use **Back to downloader** or **Esc** to return.
+
+- **Light** uses light surfaces; **Dark** uses dark surfaces.
+- **System** follows the desktop preference. On Cinnamon it follows the GTK
+  theme, such as Mint-Y versus Mint-Y-Dark; other desktops use Electron's native
+  appearance notifications.
+- **Mint**, **Ocean**, **Amber**, **Rose**, and **Monochrome** each support
+  light and dark palettes. Mint Dark matches the app's original green look.
+
+System + Mint is the default. Choices apply immediately and are saved locally
+across restarts. If saving is unavailable, an appearance warning explains that
+the changes apply only to the session. The taskbar icon retains the Mint K brand
+mark independently of the selected color theme.
+
+## Keyboard Shortcuts
+
+The **Settings > Shortcuts** page provides a grouped reference with keycaps.
+
+- **Ctrl+,** opens or closes Settings.
+- **Esc** closes the active More menu first, then an open Help/Changelog panel,
+  or Settings. Closing a drawer leaves the underlying Settings page intact.
+- **Ctrl+=** or **Ctrl++** enlarges the interface.
+- **Ctrl+-** reduces the interface.
+- **Ctrl+0** resets scale to 100%.
+- **Ctrl+mousewheel** adjusts scale. The range is 50%-200%; zoom does not change
+  the saved window geometry.
+- With a drawer's resize handle focused: **Left Arrow** widens it, **Right
+  Arrow** narrows it, **Home** selects the minimum width, and **End** selects 40%.
+
+Standard Tab/Shift+Tab move focus between controls. Press Enter or Space on a
+help section heading to expand or collapse it.
+
+## Window Controls and More Menu
+
+The custom titlebar contains the app mark/title, More menu, and minimize,
+maximize/restore, and close buttons. Drag the titlebar background to move the app.
+Window size, position, and maximized state are saved on close and restored at
+the next launch; off-screen positions are corrected if monitors change.
+
+**More > Restore Size/Position** returns to 1120x780 and centers on the current
+monitor (or fits the monitor if its work area is smaller). It also exits
+maximized state. Settings navigation does not alter the window geometry.
+
+The More menu also includes Settings, Changelog, Help, Report an Issue, and an informational
+app title/version footer. The version is read from the manifest during build.
+Only one desktop instance runs per application profile: another launch exits,
+restores the running window, and shows **Show running app** in its confirmation.
+
+## Help and Changelog Panels
+
+Select **More > Help** for this guide, or **More > Changelog** for development
+changes. Both panels slide from the right and leave the current workspace or
+Settings view intact. Opening one closes the other.
+
+Drag the panel's left edge to resize, up to 40% of the window width. The handle
+also supports the keyboard shortcuts listed above. Content scrolls independently
+of the header. Use the panel's Close button or **Esc** to dismiss it.
+
+Help section headings expand or collapse their content. **Expand all** and
+**Collapse all** affect every help section. Content is local and embedded at
+build time; no network request is needed to read either panel.
+
+## Command-Line Interface
+
+From an installed source checkout with dependencies and Playwright Chromium:
+
+```sh
+npm run inspect -- 'https://downloads.khinsider.com/game-soundtracks/album/ALBUM'
+npm run download -- 'https://downloads.khinsider.com/game-soundtracks/album/ALBUM'
+```
+
+Replace `ALBUM` with the album slug. `inspect` previews discovered formats and
+downloads no audio. `download` prints its format plan before transferring audio.
+
+Download options:
+
+- `--format prefer-lossless` (default), `--format lossless-only`, or an explicit
+  format such as `--format MP3`.
+- `--skip-unavailable` explicitly skips missing formats for lossless-only or a
+  specific format; it is not valid with prefer-lossless.
+- `--output /path/to/music` selects the output root.
+- `--disc-label CD` (default) or `--disc-label Disc` selects multi-disc labels.
+
+CLI failures, incomplete albums, and canceled results have nonzero exit status.
+The current discovery CLI also requires a graphical session because Chromium
+runs visibly, starting minimized. Login and multiple-album input are not supported.
+
+## Reporting Issues
+
+Select **More > Report an Issue** to open GitHub's issue chooser in your default
+browser. Choose **Bug Report** for a problem or **Feature Request** for an
+improvement. A GitHub account is required. Search existing issues before submitting.
+
+For bugs, include the version shown at the bottom of the More menu, Linux
+distribution/version, reproduction steps, expected behavior, and what actually
+happened. Screenshots and relevant sanitized logs are optional.
+
+Do not post passwords, session cookies, tokens, signed download URLs, private
+paths, or other sensitive information. The app does not collect or upload logs
+automatically. Reports may be publicly visible. If the browser cannot open, the
+app shows the GitHub URL so you can visit it manually.
+
+## Troubleshooting and Current Limits
+
+- **Invalid URL:** paste an HTTPS KHInsider album-page URL, not a media link
+  or filesystem path.
+- **HTTP 403 / access challenge:** stop and review permitted access. Plain Node
+  fetch and headless Chromium were denied during feasibility testing; the app
+  uses a normal visible Chromium context instead. It does not bypass challenges.
+- **HTTP 429:** the server is rate limiting. Respect its limits and wait before
+  manually retrying; do not start repeated scans to force access.
+- **Missing browser/runtime:** install dependencies and Playwright Chromium as
+  described in the repository README. Keep Electron's normal sandbox enabled.
+- **Permission or disk-full errors:** select a writable root and check free
+  space, then inspect and rerun after fixing the destination.
+- **File conflict:** retain existing audio; check the source, format, paths,
+  and manifest rather than deleting or overwriting unrelated files.
+- **System mode not changing:** select System in Appearance. Cinnamon follows
+  its GTK theme, not every desktop accent/wallpaper setting.
+
+The current implementation is Linux-first and single-album. Linux x64 AppImage
+and .deb builds include Electron and Chromium. The installed launcher supports
+`k-downloader inspect`, `k-downloader download`, and `k-downloader --help`.
+Distribution compatibility still requires target-machine testing.
+Multi-album queues, cover artwork, login/bulk downloads, .rpm/ARM packaging,
+automatic updates, tagging, transcoding, and player integration are not
+implemented. Build/release instructions are in the project's docs.
+````
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **changelog.md**</summary>
+
+@@ lines 1-62 @@
+
+```
+# Changelog
+
+## Unreleased
+
+### Added
+
+- Linux x64 AppImage and .deb packaging scripts with bundled Electron/Chromium,
+  desktop integration, embedded-Node CLI launchers, checksums, and artifact smoke tests.
+- Separate package:linux, package:deb, package:appimage, and package:dir commands.
+- Report an Issue menu command opening the fixed GitHub issue chooser in the
+	default browser, with a manual-link fallback if the browser cannot launch.
+- GitHub bug-report and feature-request forms with required details and privacy
+	acknowledgments, plus repository setup instructions.
+- Right-side Help panel under Changelog in the More menu, with expandable
+	feature guidance, bulk expand/collapse controls, resizing, and Escape support.
+- Offline Help content embedded from docs/HELP.md during GUI builds.
+- Mint K app icon matching the titlebar, included in the GUI build and used for
+	the Electron window/taskbar icon.
+- Single-instance desktop lock with an already-running confirmation and
+	restoration/focus of the existing window on another launch.
+- Settings left navigation rail with Appearance and Shortcuts pages.
+- Grouped shortcut reference with keycaps for navigation, interface zoom,
+  and focused changelog-panel resizing.
+- Public KHInsider album discovery and sequential audio downloads.
+- CLI and desktop GUI with format previews and lossless selection policies.
+- Multi-disc output folders with CD and Disc labels.
+- Manifest-backed reruns and safe, non-overwriting file transfers.
+- Cancel inspection during browser startup, navigation, or track scanning;
+	close the inspection browser and allow a fresh scan without an error.
+- Single animated inspection indicator with a browser visibility toggle.
+- Custom titlebar and More menu.
+- Settings with Light, Dark, and System appearance modes.
+- Mint, Ocean, Amber, Rose, and Monochrome color themes.
+- Cinnamon desktop appearance updates.
+- Persistent window size, position, and maximized state, with off-screen recovery
+	when monitor arrangements change.
+- Restore Size/Position command resets to 1120x780 and centers on the current monitor.
+- Right-side changelog drawer with drag and keyboard resizing up to 40% of the
+	window width, a close button, and Escape support.
+- Build-time changelog loading from the root changelog.md with sanitized Markdown rendering.
+- App title and version in the More menu, with the version read from package.json at build time.
+- Ctrl+0, Ctrl+minus, Ctrl+plus/equal, and Ctrl+mousewheel zoom controls, limited
+	to 50%-200% without changing saved window geometry.
+
+### Changed
+
+- Appearance controls retain their layout and selections when switching Settings pages.
+- Settings content scrolls independently of its navigation rail, header, and statusbar.
+- More menu order: Restore Size/Position, Settings, Changelog, Help, Report an Issue,
+  separator, app title/version.
+- Long Discovery Preview lists scroll inside the panel instead of expanding the app.
+- Setup and Settings content scroll independently while the bottom statusbar remains visible.
+
+### Fixed
+
+- Duplicate inspection status rows.
+- Empty preview space after discovery.
+- Statusbar visibility for long track lists.
+- Main-process exception when closing the window.
+- Inspection cancellation no longer produces an inspection-failure error or
+	leaves stale discovery results available for download.
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` cd /home/kel/dev/K-Downloader && npm run test:packages && npm test && npm ru...`
+
+Verify stricter CLI artifact checks, all application regressions, strict compilation, and the audited packaging dependency tree.
+
+```bash
+cd /home/kel/dev/K-Downloader && npm run test:packages && npm test && npm run build && npm audit
+```
+
+**Result:**
+
+```
+K-Downloader-0.1.0-amd64.deb: OKkel@kel-EQ-Mint:~/dev/K-Downloader/release$  cd
+/home/kel/dev/K-Downloader && npm run test:packages && npm test && npm run build
+ && npm audit
+
+> k-downloader@0.1.0 test:packages
+> node scripts/test-packages.mjs
+
+K-Downloader-0.1.0-amd64.deb: packaged GUI, Help, bundled Chromium, and CLI help
+ passed without system installation.
+K-Downloader-0.1.0-x86_64.AppImage: packaged GUI, Help, bundled Chromium, and CL
+I help passed without system installation.
+
+> k-downloader@0.1.0 pretest
+> npm run build:gui
+
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+
+> k-downloader@0.1.0 test
+> vitest run
+
+
+ RUN  v5.0.4 /home/kel/dev/K-Downloader
+
+
+ Test Files  8 passed (8)
+      Tests  37 passed (37)
+   Start at  14:29:47
+   Duration  7.96s (tests 81%, import 12%, transform 6%, worker 1%)
+
+
+> k-downloader@0.1.0 build
+> tsc --noEmit
+
+found 0 vulnerabilities
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+Both artifact smoke tests, all 37 app tests, the TypeScript check, and the audit pass. I’ll add a small regression for the packaging configuration and explicit browser path, then regenerate the installers so their embedded Help and changelog match the updated source.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **packaging.test.ts**</summary>
+
+@@ lines 1-1 @@
+
+```
+import { readFileSync } from "node:fs";
+import { createRequire } from "node:module";
+import { describe, expect, it } from "vitest";
+
+const require = createRequire(import.meta.url);
+const config = require("../electron-builder.config.cjs");
+const manifest = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"));
+
+describe("Linux packaging configuration", () => {
+  it("includes application entry, icon, and browser resources", () => {
+    expect(manifest.main).toBe("dist/electron/main.cjs");
+    expect(config.asar).toBe(true);
+    expect(config.extraResources).toContainEqual({ from: ".packaging/chromium", to: "chromium" });
+    expect(config.linux.target).toEqual(["deb", "AppImage"]);
+    expect(config.linux.icon).toBe("assets/k-downloader.png");
+    expect(config.linux.desktop.entry.StartupWMClass).toBe("k-downloader");
+    expect(manifest.desktopName).toBe("k-downloader.desktop");
+  });
+
+  it("provides both package targets and smoke testing commands", () => {
+    for (const name of ["package:linux", "package:deb", "package:appimage", "package:dir", "test:packages"]) {
+      expect(manifest.scripts[name]).toBeTruthy();
+    }
+  });
+
+  it("routes CLI through embedded Node and GUI through the sandboxed executable", () => {
+    const launcher = readFileSync(new URL("../scripts/linux-launcher.sh", import.meta.url), "utf8");
+    expect(launcher).toContain("ELECTRON_RUN_AS_NODE=1");
+    expect(launcher).toContain("resources/app.asar/dist/cli.cjs");
+    expect(launcher).toContain("resources/chromium/chrome");
+    expect(launcher).not.toContain("--no-sandbox");
+  });
+});
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **khinsider.test.ts**</summary>
+
+@@ lines 1-113 @@
+
+```
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { chromium, type Browser } from "playwright";
+import { inspectAlbum, parseAlbumPage, parseTrackPage, validateAlbumUrl } from "../src/khinsider.js";
+
+const albumUrl = new URL("https://downloads.khinsider.com/game-soundtracks/album/fixture-album");
+const albumHtml = readFileSync(fileURLToPath(new URL("./fixtures/album.html", import.meta.url)), "utf8");
+const multiDiscAlbumHtml = readFileSync(fileURLToPath(new URL("./fixtures/multi-disc-album.html", import.meta.url)), "utf8");
+const trackHtml = readFileSync(fileURLToPath(new URL("./fixtures/track.html", import.meta.url)), "utf8");
+
+describe("KHInsider page parsing", () => {
+  it("keeps ordered track-page links and ignores bulk and recommendation links", () => {
+    const result = parseAlbumPage(albumHtml, albumUrl);
+    expect(result.title).toBe("Fixture Album");
+    expect(result.advertisedTrackCount).toBe(2);
+    expect(result.tracks.map(({ number, title }) => [number, title])).toEqual([
+      [1, "Opening"],
+      [2, "Finale"],
+    ]);
+    expect(result.tracks.every(({ pageUrl }) => pageUrl.pathname.startsWith(`${albumUrl.pathname}/`))).toBe(true);
+  });
+
+  it("extracts only explicit audio-download links and their format", () => {
+    const result = parseTrackPage(trackHtml, new URL(`${albumUrl.href}/01-Opening.mp3`));
+    expect(result).toHaveLength(1);
+    expect(result[0].format).toBe("MP3");
+    expect(result[0].url.hostname).toBe("media.example.test");
+  });
+
+  it("keeps CD numbers separate from per-disc track numbers", () => {
+    const result = parseAlbumPage(
+      multiDiscAlbumHtml,
+      new URL("https://downloads.khinsider.com/game-soundtracks/album/multi-disc"),
+    );
+    expect(result.tracks.map(({ discNumber, number, title }) => [discNumber, number, title])).toEqual([
+      [1, 1, "Opening"],
+      [1, 2, "Menu"],
+      [2, 1, "Serenity"],
+      [2, 2, "Finale"],
+    ]);
+  });
+
+  it("rejects unrelated or insecure album URLs", () => {
+    expect(() => validateAlbumUrl("http://downloads.khinsider.com/game-soundtracks/album/test")).toThrow();
+    expect(() => validateAlbumUrl("https://example.com/game-soundtracks/album/test")).toThrow();
+  });
+});
+
+describe("inspection cancellation", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.unstubAllEnvs();
+  });
+
+  it("does not launch Chromium when already canceled", async () => {
+    const launch = vi.spyOn(chromium, "launch");
+    const controller = new AbortController();
+    controller.abort();
+    await expect(inspectAlbum(albumUrl.href, { signal: controller.signal })).rejects.toThrow();
+    expect(launch).not.toHaveBeenCalled();
+  });
+
+  it("closes a browser that finishes launching after Cancel was requested", async () => {
+    const controller = new AbortController();
+    let finishLaunch!: (browser: Browser) => void;
+    const browser = { newContext: vi.fn(), close: vi.fn(async () => {}) };
+    vi.spyOn(chromium, "launch").mockImplementation(() => new Promise((resolve) => { finishLaunch = resolve; }));
+    const run = inspectAlbum(albumUrl.href, { signal: controller.signal });
+    const rejection = expect(run).rejects.toThrow();
+    controller.abort();
+    finishLaunch(browser as unknown as Browser);
+    await rejection;
+    expect(browser.newContext).not.toHaveBeenCalled();
+    expect(browser.close).toHaveBeenCalled();
+  });
+
+  it("closes Chromium to interrupt active navigation and never starts track requests", async () => {
+    vi.stubEnv("K_DOWNLOADER_CHROMIUM_PATH", "/test/resources/chromium/chrome");
+    const controller = new AbortController();
+    let rejectNavigation!: (error: Error) => void;
+    let navigationStarted!: () => void;
+    const started = new Promise<void>((resolve) => { navigationStarted = resolve; });
+    const page = {
+      on: vi.fn(),
+      isClosed: () => false,
+      goto: vi.fn(() => new Promise((_, reject) => {
+        rejectNavigation = reject;
+        navigationStarted();
+      })),
+    };
+    const context = {
+      newPage: async () => page,
+      newCDPSession: async () => ({ send: async () => ({ windowId: 1 }) }),
+      close: vi.fn(async () => {}),
+    };
+    const browser = {
+      newContext: async () => context,
+      close: vi.fn(async () => { rejectNavigation?.(new Error("Browser closed")); }),
+    };
+    vi.spyOn(chromium, "launch").mockResolvedValue(browser as unknown as Browser);
+    const run = inspectAlbum(albumUrl.href, { signal: controller.signal });
+    const rejection = expect(run).rejects.toThrow("Browser closed");
+    await started;
+    controller.abort();
+    await rejection;
+    expect(browser.close).toHaveBeenCalled();
+    expect(context.close).toHaveBeenCalled();
+    expect(page.goto).toHaveBeenCalledTimes(1);
+    expect(chromium.launch).toHaveBeenCalledWith(expect.objectContaining({ executablePath: "/test/resources/chromium/chrome" }));
+  });
+});
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="task" data-tool-name="manage_todo_list"><details>
+<summary>Tool use: **manage_todo_list**</summary>
+
+Completed: *Add Linux packaging command for artifacts* (1/4)
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm test -- tests/packaging.test.ts tests/khinsider.test.ts && npm run build`
+
+Run packaging configuration and bundled browser-path regressions before the final artifact rebuild.
+
+```bash
+npm test -- tests/packaging.test.ts tests/khinsider.test.ts && npm run build
+```
+
+**Result:**
+
+```
+
+> k-downloader@0.1.0 pretest
+> npm run build:gui
+
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+
+> k-downloader@0.1.0 test
+> vitest run tests/packaging.test.ts tests/khinsider.test.ts
+
+
+ RUN  v5.0.4 /home/kel/dev/K-Downloader
+
+
+ Test Files  2 passed (2)
+      Tests  10 passed (10)
+   Start at  14:30:45
+   Duration  607ms (import 79%, transform 13%, tests 5%, worker 2%)
+
+
+> k-downloader@0.1.0 build
+> tsc --noEmit
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The packaging and browser-path regressions pass. I’m doing the final installer build now, followed by extracted-artifact smoke tests and the full suite. I’ll also check that the docs reference real scripts and files; nothing will be uploaded to GitHub.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm run package:linux && npm run test:packages && npm test && npm run build ...`
+
+Regenerate installers with current embedded content, test both artifacts, run all unit/UI regressions, compile, audit, and validate docs.
+
+```bash
+npm run package:linux && npm run test:packages && npm test && npm run build && npm audit && node --input-type=module -e 'import {readFileSync,existsSync} from "node:fs"; import {resolve,dirname} from "node:path"; const pkg=JSON.parse(readFileSync("package.json","utf8")); for(const name of ["README.md","docs/BUILD_AND_RELEASE.md"]){const text=readFileSync(name,"utf8");for(const [,script] of text.matchAll(/npm run ([\w:-]+)/g)){if(!pkg.scripts[script])throw new Error(`Unknown script ${script}`);}for(const [,link]of text.matchAll(/\]\(([^)]+)\)/g)){if(!link.includes("://")&&!existsSync(resolve(dirname(name),link)))throw new Error(`Missing link ${link}`);}}console.log("Packaging docs validated.");'
+```
+
+**Result:**
+
+```
+
+> k-downloader@0.1.0 package:linux
+> node scripts/package-linux.mjs
+
+Built Electron main/preload and local renderer into dist/.
+BEWARE: your OS is not officially supported by Playwright; downloading fallback
+build for ubuntu24.04-x64.
+BEWARE: your OS is not officially supported by Playwright; downloading fallback
+build for ubuntu24.04-x64.
+  • electron-builder  version=26.15.3 os=7.0.0-38-generic
+  • writing effective config  file=release/builder-effective-config.yaml
+  • skipped dependencies rebuild  reason=npmRebuild is set to false
+  • packaging       platform=linux arch=x64 electron=44.7.0 appOutDir=release/li
+nux-unpacked
+  • using custom unpacked Electron distribution  electronDist=node_modules/elect
+ron/dist
+  • copying unpacked Electron  source=/home/kel/dev/K-Downloader/node_modules/el
+ectron/dist destination=/home/kel/dev/K-Downloader/release/linux-unpacked
+  • searching for node modules  pm=npm searchDir=/home/kel/dev/K-Downloader
+  • building        target=AppImage arch=x64 file=release/K-Downloader-0.1.0-x86
+_64.AppImage
+  • building embedded block map  file=release/K-Downloader-0.1.0-x86_64.AppImage
+  • building        target=deb arch=x64 file=release/K-Downloader-0.1.0-amd64.de
+b
+  • adding autoupdate files for: deb  resourceDir=release/linux-unpacked/resourc
+es
+Package output: release/ (nothing was published to GitHub).
+
+> k-downloader@0.1.0 test:packages
+> node scripts/test-packages.mjs
+
+K-Downloader-0.1.0-amd64.deb: packaged GUI, Help, bundled Chromium, and CLI help
+ passed without system installation.
+K-Downloader-0.1.0-x86_64.AppImage: packaged GUI, Help, bundled Chromium, and CL
+I help passed without system installation.
+
+> k-downloader@0.1.0 pretest
+> npm run build:gui
+
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+
+> k-downloader@0.1.0 test
+> vitest run
+
+
+ RUN  v5.0.4 /home/kel/dev/K-Downloader
+
+
+ Test Files  9 passed (9)
+      Tests  40 passed (40)
+   Start at  14:33:
+… (output truncated)
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="get_errors"><details>
+<summary>Tool use: **get_errors**</summary>
+
+Checked `electron-builder.config.cjs`, `package-linux.mjs`, `test-packages.mjs`, `khinsider.ts`, `main.ts`, `cli.ts`, `packaging.test.ts`, no problems found
+
+**Input:**
+
+- filePaths:
+
+```
+[
+  "/home/kel/dev/K-Downloader/electron-builder.config.cjs",
+  "/home/kel/dev/K-Downloader/scripts/package-linux.mjs",
+  "/home/kel/dev/K-Downloader/scripts/test-packages.mjs",
+  "/home/kel/dev/K-Downloader/src/khinsider.ts",
+  "/home/kel/dev/K-Downloader/src/electron/main.ts",
+  "/home/kel/dev/K-Downloader/src/cli.ts",
+  "/home/kel/dev/K-Downloader/tests/packaging.test.ts"
+]
+```
+
+
+**Result:**
+
+```
+<errors path="/home/kel/dev/K-Downloader/electron-builder.config.cjs">
+No errors found
+</errors>
+<errors path="/home/kel/dev/K-Downloader/scripts/package-linux.mjs">
+No errors found
+</errors>
+<errors path="/home/kel/dev/K-Downloader/scripts/test-packages.mjs">
+No errors found
+</errors>
+<errors path="/home/kel/dev/K-Downloader/src/khinsider.ts">
+No errors found
+</errors>
+<errors path="/home/kel/dev/K-Downloader/src/electron/main.ts">
+No errors found
+</errors>
+<errors path="/home/kel/dev/K-Downloader/src/cli.ts">
+No errors found
+</errors>
+<errors path="/home/kel/dev/K-Downloader/tests/packaging.test.ts">
+No errors found
+</errors>
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+Created and successfully built the Linux x64 packages.
+
+```sh
+npm run package:linux     # Both formats
+npm run package:deb       # Debian only
+npm run package:appimage  # AppImage only
+```
+
+Artifacts:
+- `release/K-Downloader-0.1.0-amd64.deb`
+- `release/K-Downloader-0.1.0-x86_64.AppImage`
+
+Both include Electron and Chromium and passed extracted-artifact smoke tests. All 40 tests pass; audit is clean. System installation and broader distribution compatibility remain unverified.
+
+Instructions are in `docs/BUILD_AND_RELEASE.md`.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="task" data-tool-name="manage_todo_list"><details>
+<summary>Tool use: **manage_todo_list**</summary>
+
+Starting: *Add artifact scripts with CLI support* (4/4)
+</details></tool-use>
+
+---
+
+_**User (2026-10-12 20:01:44Z)**_
+
+We need a link to 'https://downloads.khinsider.com/' next (right side) to the 'KHInsider album URL' label
+
+---
+
+_**Agent (copilot/auto)**_
+
+I’ll add a small KHInsider link to the right of the album URL label and have it open in the default browser. I’ll use the existing fixed-URL IPC pattern and check that the label row still fits at the minimum window size.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="search" data-tool-name="grep_search"><details>
+<summary>Tool use: **grep_search**</summary>
+
+Searched for regex `reportIssue|support:report-issue|album-url|label \{` (`**/{src/electron/main.ts,src/electron/preload.ts,src/gui-types.ts,src/renderer.ts,gui/index.html,gui/styles.css}`), 14 results
+
+**Input:**
+
+- includePattern: `{src/electron/main.ts,src/electron/preload.ts,src/gui-types.ts,src/renderer.ts,gui/index.html,gui/styles.css}`
+- isRegexp: `true`
+- query: `reportIssue|support:report-issue|album-url|label \{`
+
+**Result:**
+
+```
+Found 14 matches in 6 files for "reportIssue|support:report-issue|album-url|label \{"
+
+gui/index.html
+66:          <label for="album-url">KHInsider album URL</label>
+67:          <textarea id="album-url" rows="3" spellcheck="false" placeholder="https://downloads.khinsider.com/game-soundtracks/album/…"></textarea>
+
+gui/styles.css
+118:.mode-label { display: flex; align-items: center; gap: 9px; color: var(--muted); font-size: 11px; }
+154:label { display: block; color: var(--ink); font-size: 11px; font-weight: 700; margin: 0 0 8px; }
+220:.progress-label { display: flex; justify-content: space-between; gap: 14px; margin-bottom: 9px; color: var(--dim); font-size: 9px; }
+232:.mode-options label { position: relative; margin: 0; cursor: pointer; }
+238:.theme-options label { position: relative; min-width: 90px; display: flex; align-items: center; gap: 9px; margin: 0; padding: 8px 4px; cursor: pointer; }
+
+src/electron/main.ts
+129:  ipcMain.handle("support:report-issue", async (event) => {
+
+src/electron/preload.ts
+5:  reportIssue: () => ipcRenderer.invoke("support:report-issue"),
+
+src/gui-types.ts
+45:  reportIssue: () => Promise<void>;
+
+src/renderer.ts
+17:const albumInput = document.querySelector<HTMLTextAreaElement>("#album-url")!;
+50:const reportIssueMenuItem = document.querySelector<HTMLButtonElement>("#report-issue-menu-item")!;
+238:reportIssueMenuItem.addEventListener("click", () => {
+240:  void window.kDownloader.reportIssue();
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Read `main.ts`, lines 124 to 163
+
+**Input:**
+
+- endLine: `163`
+- filePath: `/home/kel/dev/K-Downloader/src/electron/main.ts`
+- startLine: `124`
+
+**Result:**
+
+```
+    window.webContents.send("window:state", { maximized: window.isMaximized() });
+  }
+}
+
+function registerIpc(): void {
+  ipcMain.handle("support:report-issue", async (event) => {
+    const window = assertWindowSender(event.sender.id);
+    const url = "https://github.com/kelmankenberg/K-Downloader/issues/new/choose";
+    try {
+      await shell.openExternal(url);
+    } catch {
+      await dialog.showMessageBox(window, {
+        type: "error",
+        title: "Could not open GitHub",
+        message: "Your browser could not be opened.",
+        detail: `Open this address manually to report an issue:\n${url}`,
+        buttons: ["OK"],
+      });
+    }
+  });
+  ipcMain.handle("window:restore-bounds", (event) => {
+    const window = assertWindowSender(event.sender.id);
+    const area = screen.getDisplayMatching(window.getBounds()).workArea;
+    if (window.isFullScreen()) window.setFullScreen(false);
+    if (window.isMaximized()) window.unmaximize();
+    window.setBounds(centeredBounds(area));
+    sendWindowState(window);
+  });
+
+  ipcMain.handle("window:zoom", (event, direction: unknown) => {
+    const window = assertWindowSender(event.sender.id);
+    if (direction !== "in" && direction !== "out" && direction !== "reset") throw new Error("Invalid zoom command");
+    const current = window.webContents.getZoomFactor();
+    const zoom = direction === "reset" ? 1 : Math.max(.5, Math.min(2, Math.round((current + (direction === "in" ? .1 : -.1)) * 10) / 10));
+    window.webContents.setZoomFactor(zoom);
+    return zoom;
+  });
+  ipcMain.handle("appearance:system-theme", (event) => {
+    assertWindowSender(event.sender.id);
+    return systemThemeIsDark();
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Read `window-state.test.ts`, lines 48 to 105
+
+**Input:**
+
+- endLine: `105`
+- filePath: `/home/kel/dev/K-Downloader/tests/window-state.test.ts`
+- startLine: `48`
+
+**Result:**
+
+```
+      expect(icon.size).toEqual({ width: 512, height: 512 });
+      expect(icon.firstAlpha).toBe(255);
+      expect(icon.clippedAlpha).toBe(0);
+      expect(await readFile(resolve("dist/assets/k-downloader.png"))).toEqual(await readFile(resolve("assets/k-downloader.png")));
+      await page.getByRole("button", { name: "More options", exact: true }).click();
+      expect((await page.getByRole("menuitem").allTextContents()).map((text) => text.replace(/\s+/g, " ").trim())).toEqual([
+        "Restore Size/Position", "Settings Ctrl+,", "Changelog", "Help", "Report an Issue",
+      ]);
+      const manifest = JSON.parse(await readFile(resolve("package.json"), "utf8"));
+      expect(await page.locator("#menu-app-version").textContent()).toBe(manifest.version);
+      expect(await page.locator(".more-menu-info").innerText()).toContain("K-Downloader");
+      expect(await page.locator(".more-menu-separator").isVisible()).toBe(true);
+      await app.evaluate(({ shell }) => {
+        Reflect.set(globalThis, "supportUrls", []);
+        shell.openExternal = async (url) => { Reflect.get(globalThis, "supportUrls").push(url); };
+      });
+      await page.getByRole("menuitem", { name: "Report an Issue", exact: true }).click();
+      expect(await app.evaluate(() => Reflect.get(globalThis, "supportUrls"))).toEqual([
+        "https://github.com/kelmankenberg/K-Downloader/issues/new/choose",
+      ]);
+      expect(await page.locator("#more-menu").isVisible()).toBe(false);
+      expect(await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows().length)).toBe(1);
+      await app.evaluate(({ shell, dialog }) => {
+        shell.openExternal = async () => { throw new Error("No browser available"); };
+        dialog.showMessageBox = async (...args: unknown[]) => {
+          Reflect.set(globalThis, "supportError", args.at(-1));
+          return { response: 0, checkboxChecked: false };
+        };
+      });
+      await page.getByRole("button", { name: "More options", exact: true }).cli
+… (output truncated)
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The label is currently a single block. I’ll put it in a compact row with a “KHInsider” external link on the right. The main process will open only the fixed site URL, with a manual-link dialog if the browser can’t launch.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **index.html**</summary>
+
+@@ lines 1-251 @@
+
+```
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'" />
+    <title>K-Downloader</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script defer src="./renderer.js"></script>
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <div class="brand-lockup">
+          <div class="app-icon" aria-hidden="true">K</div>
+          <div class="brand-name">K-Downloader</div>
+        </div>
+        <div class="titlebar-actions">
+          <div id="more-menu-wrap" class="more-menu-wrap">
+            <button id="more-button" class="window-control more-button" type="button" aria-label="More options" title="More options" aria-haspopup="menu" aria-expanded="false">
+              <i data-lucide="ellipsis-vertical" aria-hidden="true"></i>
+            </button>
+            <div id="more-menu" class="more-menu" role="menu" aria-label="More options" hidden>
+              <button id="restore-bounds-menu-item" class="more-menu-item" type="button" role="menuitem">
+                <i data-lucide="scan" aria-hidden="true"></i>
+                <span>Restore Size/Position</span>
+              </button>
+              <button id="settings-menu-item" class="more-menu-item" type="button" role="menuitem">
+                <i data-lucide="settings" aria-hidden="true"></i>
+                <span>Settings</span>
+                <kbd>Ctrl+,</kbd>
+              </button>
+              <button id="changelog-menu-item" class="more-menu-item" type="button" role="menuitem">
+                <i data-lucide="scroll-text" aria-hidden="true"></i>
+                <span>Changelog</span>
+              </button>
+              <button id="help-menu-item" class="more-menu-item" type="button" role="menuitem">
+                <i data-lucide="circle-help" aria-hidden="true"></i>
+                <span>Help</span>
+              </button>
+              <button id="report-issue-menu-item" class="more-menu-item" type="button" role="menuitem">
+                <i data-lucide="bug" aria-hidden="true"></i>
+                <span>Report an Issue</span>
+              </button>
+              <div class="more-menu-separator" role="separator"></div>
+              <div class="more-menu-info"><span>K-Downloader</span><span id="menu-app-version"></span></div>
+            </div>
+          </div>
+          <nav class="window-controls" aria-label="Window controls">
+          <button id="minimize-window" class="window-control" type="button" aria-label="Minimize window" title="Minimize">
+            <i data-lucide="minus" aria-hidden="true"></i>
+          </button>
+          <button id="maximize-window" class="window-control" type="button" aria-label="Maximize window" title="Maximize">
+            <i data-lucide="square" aria-hidden="true"></i>
+          </button>
+          <button id="close-window" class="window-control close-control" type="button" aria-label="Close window" title="Close">
+            <i data-lucide="x" aria-hidden="true"></i>
+          </button>
+          </nav>
+        </div>
+      </header>
+
+      <section id="workspace" class="workspace">
+        <aside class="control-panel" aria-label="Download setup">
+          <div class="section-heading"><span class="section-index">01</span><h1>Album source</h1></div>
+          <div class="album-url-label-row">
+            <label for="album-url">KHInsider album URL</label>
+            <a id="khinsider-link" href="https://downloads.khinsider.com/" title="Open KHInsider in your browser" aria-label="Open KHInsider website">
+              <span>KHInsider</span><i data-lucide="external-link" aria-hidden="true"></i>
+            </a>
+          </div>
+          <textarea id="album-url" rows="3" spellcheck="false" placeholder="https://downloads.khinsider.com/game-soundtracks/album/…"></textarea>
+          <div class="microcopy">Inspection opens a separate visible Chromium window. No login is used.</div>
+
+          <div class="section-heading destination-heading"><span class="section-index">02</span><h2>Destination</h2></div>
+          <label for="output-root">Save album under</label>
+          <div class="path-control">
+            <input id="output-root" type="text" spellcheck="false" />
+            <button id="browse-button" class="icon-button" type="button" aria-label="Choose download folder" title="Choose download folder">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 6.5h6l2 2H20a1 1 0 0 1 1 1v8.8a1.7 1.7 0 0 1-1.7 1.7H4.7A1.7 1.7 0 0 1 3 18.3V7a.5.5 0 0 1 .5-.5Z"/><path d="M12 12v5m-2.5-2.5h5"/></svg>
+            </button>
+          </div>
+
+          <div class="section-heading format-heading"><span class="section-index">03</span><h2>Format policy</h2></div>
+          <label for="format-policy">Choose source audio</label>
+          <select id="format-policy">
+            <option value="prefer-lossless">Prefer lossless</option>
+            <option value="lossless-only">Lossless only</option>
+          </select>
+          <label class="check-row" for="skip-unavailable">
+            <input id="skip-unavailable" type="checkbox" disabled />
+            <span>Skip tracks without the selected format</span>
+          </label>
+          <div id="disc-label-setting" class="disc-label-setting" hidden>
+            <label for="disc-label">Disc folder label</label>
+            <select id="disc-label">
+              <option value="CD">CD1, CD2, …</option>
+              <option value="Disc">Disc1, Disc2, …</option>
+            </select>
+          </div>
+
+          <div class="action-row">
+            <button id="inspect-button" class="secondary-button" type="button">Inspect album</button>
+            <button id="download-button" class="primary-button" type="button" disabled>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v11m0 0 4-4m-4 4-4-4M5 17v3h14v-3"/></svg>
+              Download
+            </button>
+          </div>
+          <button id="cancel-button" class="cancel-button" type="button" disabled>Cancel active download</button>
+          <p id="error-text" class="error-text" role="alert"></p>
+        </aside>
+
+        <section class="results-panel" aria-label="Album preview and progress">
+          <div class="results-header">
+            <div>
+              <div class="eyebrow">DISCOVERY PREVIEW</div>
+              <h2 id="album-title">No album inspected</h2>
+            </div>
+            <div class="track-count" id="track-count">Waiting</div>
+          </div>
+
+          <div class="status-strip">
+            <span id="status-dot" class="status-dot" data-tone="idle"></span>
+            <span id="status-text">Paste an album URL to begin</span>
+          </div>
+          <button id="inspection-indicator" class="inspection-indicator" type="button" hidden disabled aria-pressed="false">
+            <i data-lucide="loader-circle" class="inspection-spinner" aria-hidden="true"></i>
+            <span role="status">Inspection in progress</span>
+            <span id="inspection-indicator-text" class="inspection-indicator-action">Starting browser…</span>
+          </button>
+
+          <div id="empty-state" class="empty-state">
+            <div class="empty-glyph" aria-hidden="true"><span></span><span></span><span></span></div>
+            <div class="empty-title">Ready for an album</div>
+            <div class="empty-note">Track formats and fallback choices appear here before transfer.</div>
+          </div>
+
+          <div class="table-wrap">
+            <table id="track-table" hidden>
+              <thead><tr><th>Disc</th><th>#</th><th>Track</th><th>Available</th><th>Selected</th><th>Status</th></tr></thead>
+              <tbody id="track-rows"></tbody>
+            </table>
+          </div>
+
+          <footer class="progress-footer">
+            <div class="progress-label"><span>TRANSFER</span><span id="progress-text">No active transfer</span></div>
+            <progress id="download-progress" value="0" max="1"></progress>
+          </footer>
+        </section>
+      </section>
+      <section id="settings-view" class="settings-view" aria-labelledby="settings-heading" hidden>
+        <header class="settings-header">
+          <h1 id="settings-heading">Settings</h1>
+          <button id="close-settings" class="settings-close-button" type="button">
+            <i data-lucide="arrow-left" aria-hidden="true"></i>
+            <span>Back to downloader</span>
+          </button>
+        </header>
+        <div class="settings-layout">
+          <nav class="settings-nav" aria-label="Settings navigation">
+            <button id="appearance-nav" class="settings-nav-item" type="button" aria-current="page" aria-controls="appearance-page">
+              <i data-lucide="palette" aria-hidden="true"></i><span>Appearance</span>
+            </button>
+            <button id="shortcuts-nav" class="settings-nav-item" type="button" aria-controls="shortcuts-page">
+              <i data-lucide="keyboard" aria-hidden="true"></i><span>Shortcuts</span>
+            </button>
+          </nav>
+          <div class="settings-content">
+        <section id="appearance-page" class="appearance-section" aria-labelledby="appearance-heading">
+          <h2 id="appearance-heading">Appearance</h2>
+          <fieldset class="appearance-setting">
+            <legend>Mode</legend>
+            <div class="mode-options">
+              <label><input type="radio" name="appearance-mode" value="light" /><span>Light</span></label>
+              <label><input type="radio" name="appearance-mode" value="dark" /><span>Dark</span></label>
+              <label><input type="radio" name="appearance-mode" value="system" checked /><span>System</span></label>
+            </div>
+          </fieldset>
+          <fieldset class="appearance-setting">
+            <legend>Color theme</legend>
+            <div class="theme-options">
+              <label><input type="radio" name="color-theme" value="mint" checked /><span class="theme-swatch swatch-mint"></span><span>Mint</span></label>
+              <label><input type="radio" name="color-theme" value="ocean" /><span class="theme-swatch swatch-ocean"></span><span>Ocean</span></label>
+              <label><input type="radio" name="color-theme" value="amber" /><span class="theme-swatch swatch-amber"></span><span>Amber</span></label>
+              <label><input type="radio" name="color-theme" value="rose" /><span class="theme-swatch swatch-rose"></span><span>Rose</span></label>
+              <label><input type="radio" name="color-theme" value="monochrome" /><span class="theme-swatch swatch-monochrome"></span><span>Monochrome</span></label>
+            </div>
+          </fieldset>
+          <p id="appearance-storage-status" class="error-text" role="status"></p>
+        </section>
+        <section id="shortcuts-page" class="shortcuts-section" aria-labelledby="shortcuts-heading" hidden>
+          <h2 id="shortcuts-heading">Shortcuts</h2>
+          <section class="shortcut-group" aria-labelledby="navigation-shortcuts-heading">
+            <h3 id="navigation-shortcuts-heading">Navigation</h3>
+            <dl class="shortcut-list">
+              <div class="shortcut-row"><dt>Open or close Settings</dt><dd><kbd>Ctrl</kbd><span>+</span><kbd>,</kbd></dd></div>
+              <div class="shortcut-row"><dt>Close the active menu, Help, Changelog, or Settings</dt><dd><kbd>Esc</kbd></dd></div>
+            </dl>
+          </section>
+          <section class="shortcut-group" aria-labelledby="zoom-shortcuts-heading">
+            <h3 id="zoom-shortcuts-heading">Interface Scale</h3>
+            <dl class="shortcut-list">
+              <div class="shortcut-row"><dt>Zoom in</dt><dd><kbd>Ctrl</kbd><span>+</span><kbd>=</kbd><span class="key-alternative">or</span><kbd>Ctrl</kbd><span>+</span><kbd>+</kbd></dd></div>
+              <div class="shortcut-row"><dt>Zoom out</dt><dd><kbd>Ctrl</kbd><span>+</span><kbd>-</kbd></dd></div>
+              <div class="shortcut-row"><dt>Reset to 100%</dt><dd><kbd>Ctrl</kbd><span>+</span><kbd>0</kbd></dd></div>
+              <div class="shortcut-row"><dt>Zoom with the mouse</dt><dd><kbd>Ctrl</kbd><span>+</span><kbd>Mousewheel</kbd></dd></div>
+            </dl>
+          </section>
+          <section class="shortcut-group" aria-labelledby="changelog-shortcuts-heading">
+            <h3 id="changelog-shortcuts-heading">Help and Changelog Panels</h3>
+            <p class="shortcut-context">When the resize handle is focused</p>
+            <dl class="shortcut-list">
+              <div class="shortcut-row"><dt>Widen panel</dt><dd><kbd>Left Arrow</kbd></dd></div>
+              <div class="shortcut-row"><dt>Narrow panel</dt><dd><kbd>Right Arrow</kbd></dd></div>
+              <div class="shortcut-row"><dt>Minimum panel width</dt><dd><kbd>Home</kbd></dd></div>
+              <div class="shortcut-row"><dt>Maximum panel width (40%)</dt><dd><kbd>End</kbd></dd></div>
+            </dl>
+          </section>
+        </section>
+          </div>
+        </div>
+      </section>
+      <aside id="changelog-drawer" class="changelog-drawer" data-open="false" aria-labelledby="changelog-heading" inert>
+        <div id="changelog-resize" class="changelog-resize" role="separator" tabindex="0" aria-label="Changelog panel width" aria-orientation="vertical" aria-valuemin="24" aria-valuemax="40" aria-valuenow="32"></div>
+        <header class="changelog-header">
+          <h2 id="changelog-heading">Changelog</h2>
+          <button id="close-changelog" class="drawer-close-button" type="button" aria-label="Close changelog" title="Close changelog">
+            <i data-lucide="x" aria-hidden="true"></i>
+          </button>
+        </header>
+        <div id="changelog-content" class="changelog-content"></div>
+      </aside>
+      <aside id="help-drawer" class="changelog-drawer help-drawer" data-open="false" aria-labelledby="help-heading" inert>
+        <div id="help-resize" class="changelog-resize" role="separator" tabindex="0" aria-label="Help panel width" aria-orientation="vertical" aria-valuemin="24" aria-valuemax="40" aria-valuenow="32"></div>
+        <header class="changelog-header">
+          <h2 id="help-heading">Help</h2>
+          <button id="close-help" class="drawer-close-button" type="button" aria-label="Close help" title="Close help">
+            <i data-lucide="x" aria-hidden="true"></i>
+          </button>
+        </header>
+        <div class="help-actions">
+          <button id="expand-help" type="button">Expand all</button>
+          <button id="collapse-help" type="button">Collapse all</button>
+        </div>
+        <div id="help-content" class="changelog-content help-content"></div>
+      </aside>
+      <footer class="app-footer"><span>Original audio bytes · no transcoding</span><span>LOCAL SESSION</span></footer>
+    </main>
+  </body>
+</html>
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **styles.css**</summary>
+
+@@ lines 1-308 @@
+
+```
+:root {
+  color-scheme: dark;
+  --ink: #e8efec;
+  --muted: #91a09b;
+  --dim: #60716b;
+  --line: #2c3a35;
+  --panel: #17211d;
+  --panel-raised: #1d2a25;
+  --ground: #101715;
+  --mint: #b3f06c;
+  --mint-dark: #83bd42;
+  --coral: #f28568;
+  --blue: #80bac5;
+  --field: #101815;
+  --hover: #293630;
+  --accent-text: #152018;
+  --warning: #d5b675;
+  --close-hover: #c94343;
+  --shadow: rgba(0, 0, 0, .38);
+  font-family: "DejaVu Sans", "Noto Sans", sans-serif;
+  color: var(--ink);
+  background: var(--ground);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+:root[data-mode="light"] {
+  color-scheme: light;
+  --ink: #202b26;
+  --muted: #52635b;
+  --dim: #5d6e66;
+  --line: #ced9d2;
+  --panel: #ffffff;
+  --panel-raised: #eaf0ec;
+  --ground: #f3f6f4;
+  --field: #ffffff;
+  --hover: #dde7e1;
+  --mint: #356a19;
+  --mint-dark: #356a19;
+  --accent-text: #ffffff;
+  --coral: #b33f2c;
+  --blue: #286b79;
+  --warning: #855c10;
+  --shadow: rgba(26, 42, 32, .16);
+}
+
+:root[data-theme="ocean"] { --mint: #76dbd3; --mint-dark: #76dbd3; }
+:root[data-theme="amber"] { --mint: #f0cd72; --mint-dark: #f0cd72; }
+:root[data-theme="rose"] { --mint: #f4a2bd; --mint-dark: #f4a2bd; }
+:root[data-theme="monochrome"] { --mint: #d3d9dd; --mint-dark: #d3d9dd; }
+:root[data-mode="light"][data-theme="ocean"] { --mint: #006c68; --mint-dark: #006c68; }
+:root[data-mode="light"][data-theme="amber"] { --mint: #805c05; --mint-dark: #805c05; }
+:root[data-mode="light"][data-theme="rose"] { --mint: #a03058; --mint-dark: #a03058; }
+:root[data-mode="light"][data-theme="monochrome"] { --mint: #46515a; --mint-dark: #46515a; }
+:root[data-theme="ocean"], :root[data-theme="amber"], :root[data-theme="rose"], :root[data-theme="monochrome"] {
+  --ink: #e9ecee;
+  --muted: #a0a8ad;
+  --dim: #929da4;
+  --line: #363c40;
+  --panel: #1c2023;
+  --panel-raised: #282d31;
+  --ground: #141719;
+  --field: #171b1e;
+  --hover: #353c41;
+  --accent-text: #161c20;
+}
+:root[data-mode="light"][data-theme="ocean"], :root[data-mode="light"][data-theme="amber"], :root[data-mode="light"][data-theme="rose"], :root[data-mode="light"][data-theme="monochrome"] {
+  --ink: #242a2e;
+  --muted: #566169;
+  --dim: #5b6770;
+  --line: #ced5da;
+  --panel: #ffffff;
+  --panel-raised: #edf0f2;
+  --ground: #f5f6f7;
+  --field: #ffffff;
+  --hover: #e0e6ea;
+  --accent-text: #ffffff;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-width: 0;
+  height: 100vh;
+  overflow: hidden;
+  background:
+    linear-gradient(115deg, color-mix(in srgb, var(--mint) 5%, transparent), transparent 44%),
+    var(--ground);
+}
+button, input, textarea, select { font: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: .42; }
+
+.app-shell { height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+.topbar { height: 46px; flex: 0 0 46px; padding: 0 0 0 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); background: var(--panel); -webkit-app-region: drag; user-select: none; }
+.brand-lockup { height: 100%; display: flex; align-items: center; gap: 9px; }
+.app-icon { width: 23px; height: 23px; display: grid; place-items: center; background: var(--mint); color: var(--accent-text); font-size: 15px; font-weight: 800; clip-path: polygon(0 0, 100% 0, 100% 72%, 72% 100%, 0 100%); }
+.brand-name { font-size: 12px; font-weight: 800; }
+.titlebar-actions { height: 100%; display: flex; align-items: stretch; -webkit-app-region: no-drag; }
+.more-menu-wrap { position: relative; height: 100%; }
+.window-controls { height: 100%; display: flex; -webkit-app-region: no-drag; }
+.window-control { width: 46px; height: 100%; display: grid; place-items: center; border: 0; border-radius: 0; color: var(--muted); background: transparent; }
+.window-control:hover { color: var(--ink); background: var(--hover); }
+.window-control.close-control:hover { color: white; background: var(--close-hover); }
+.window-control svg { width: 14px; height: 14px; stroke-width: 1.6; }
+.window-control:focus-visible { outline: 1px solid var(--mint); outline-offset: -3px; }
+.more-menu { position: absolute; z-index: 20; top: calc(100% + 5px); right: 0; width: 224px; padding: 5px; border: 1px solid var(--line); border-radius: 4px; background: var(--panel-raised); box-shadow: 0 12px 28px var(--shadow); }
+.more-menu[hidden] { display: none; }
+.more-menu-item { width: 100%; min-height: 36px; padding: 0 9px; display: flex; align-items: center; gap: 10px; border: 0; border-radius: 2px; color: var(--ink); background: transparent; text-align: left; font-size: 11px; }
+.more-menu-item:hover, .more-menu-item:focus-visible { background: var(--hover); outline: none; }
+.more-menu-item svg { width: 15px; height: 15px; color: var(--muted); stroke-width: 1.7; }
+.more-menu-item kbd { margin-left: auto; color: var(--muted); font-family: "DejaVu Sans Mono", monospace; font-size: 9px; }
+.more-menu-separator { margin: 5px 4px; border-top: 1px solid var(--line); }
+.more-menu-info { min-height: 32px; padding: 0 9px; display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--muted); font-size: 10px; }
+#menu-app-version { font-family: "DejaVu Sans Mono", monospace; }
+.brand-subtitle, .eyebrow, .section-index, .mode-label, .progress-label, .app-footer { font-family: "DejaVu Sans Mono", monospace; letter-spacing: 0; }
+.brand-subtitle { margin-top: 3px; color: var(--dim); font-size: 9px; }
+.mode-label { display: flex; align-items: center; gap: 9px; color: var(--muted); font-size: 11px; }
+.mode-dot { width: 7px; height: 7px; background: var(--mint); border-radius: 50%; }
+
+.workspace { width: min(1440px, 100%); margin: 0 auto; padding: 28px 32px 24px; flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(300px, 370px) minmax(380px, 1fr); grid-template-rows: minmax(0, 1fr); gap: 18px; overflow: hidden; }
+.workspace[hidden], .settings-view[hidden] { display: none; }
+.settings-view { width: min(1440px, 100%); flex: 1; min-height: 0; display: flex; flex-direction: column; margin: 0 auto; padding: 28px 32px 24px; overflow: hidden; }
+.settings-header { min-height: 56px; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); }
+.settings-header h1 { margin: 0; font-size: 18px; }
+.settings-close-button { min-height: 34px; padding: 0 10px; display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 3px; color: var(--ink); background: var(--panel-raised); font-size: 11px; }
+.settings-close-button:hover { border-color: var(--blue); background: var(--hover); }
+.settings-close-button svg { width: 15px; height: 15px; }
+.settings-layout { flex: 1; min-height: 0; display: grid; grid-template-columns: 180px minmax(0, 1fr); }
+.settings-nav { padding: 24px 14px 24px 0; border-right: 1px solid var(--line); overflow: auto; }
+.settings-nav-item { width: 100%; min-height: 40px; display: flex; align-items: center; gap: 10px; padding: 0 12px; margin-bottom: 4px; border: 0; border-radius: 3px; background: transparent; color: var(--muted); text-align: left; font-size: 12px; }
+.settings-nav-item:hover { background: var(--hover); color: var(--ink); }
+.settings-nav-item[aria-current="page"] { background: color-mix(in srgb, var(--mint) 12%, var(--panel)); color: var(--mint); }
+.settings-nav-item:focus-visible { outline: 2px solid var(--blue); outline-offset: -2px; }
+.settings-nav-item svg { width: 16px; height: 16px; flex: 0 0 16px; }
+.settings-content { min-width: 0; min-height: 0; padding: 0 28px; overflow: auto; }
+.appearance-section[hidden], .shortcuts-section[hidden] { display: none; }
+.shortcuts-section { max-width: 740px; padding: 28px 0; }
+.shortcuts-section h2 { margin: 0 0 24px; font-size: 15px; }
+.shortcut-group { margin: 0 0 28px; }
+.shortcut-group h3 { margin: 0 0 10px; color: var(--muted); font-size: 11px; font-weight: 700; }
+.shortcut-list { margin: 0; }
+.shortcut-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding: 13px 0; border-bottom: 1px solid var(--line); font-size: 12px; }
+.shortcut-row dt { flex: 1 1 180px; line-height: 1.5; }
+.shortcut-row dd { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin: 0; color: var(--muted); }
+.shortcut-row kbd { min-width: 26px; min-height: 26px; display: inline-grid; place-items: center; padding: 3px 7px; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; color: var(--ink); background: var(--panel-raised); font-family: "DejaVu Sans Mono", monospace; font-size: 10px; }
+.key-alternative { padding: 0 4px; font-size: 10px; }
+.shortcut-context { margin: 0 0 6px; color: var(--muted); font-size: 10px; }
+.control-panel, .results-panel { border: 1px solid var(--line); background: linear-gradient(155deg, var(--panel-raised), var(--panel) 65%); }
+.control-panel { padding: 24px; align-self: start; max-height: 100%; min-height: 0; overflow: auto; }
+.section-heading { display: flex; align-items: baseline; gap: 10px; margin: 0 0 18px; }
+.section-heading h1, .section-heading h2 { margin: 0; font-size: 14px; font-weight: 700; }
+.section-index { color: var(--mint); font-size: 10px; }
+label { display: block; color: var(--ink); font-size: 11px; font-weight: 700; margin: 0 0 8px; }
+.album-url-label-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+.album-url-label-row label { margin: 0; }
+#khinsider-link { display: inline-flex; align-items: center; gap: 4px; color: var(--mint); font-size: 10px; text-decoration: none; }
+#khinsider-link:hover { text-decoration: underline; }
+#khinsider-link:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+#khinsider-link svg { width: 12px; height: 12px; }
+textarea, input[type="text"], select { width: 100%; border: 1px solid var(--line); border-radius: 3px; color: var(--ink); background: var(--field); outline: none; }
+textarea { min-height: 88px; resize: vertical; padding: 12px; font-family: "DejaVu Sans Mono", monospace; font-size: 11px; line-height: 1.7; }
+input[type="text"], select { min-height: 38px; padding: 0 10px; font-size: 11px; }
+textarea:focus, input[type="text"]:focus, select:focus { border-color: var(--mint-dark); box-shadow: 0 0 0 2px color-mix(in srgb, var(--mint) 15%, transparent); }
+.microcopy { margin: 7px 0 0; color: var(--dim); font-size: 10px; line-height: 1.5; }
+.destination-heading { margin-top: 25px; }
+.format-heading { margin-top: 25px; }
+.path-control { display: flex; gap: 7px; }
+.path-control input { min-width: 0; font-family: "DejaVu Sans Mono", monospace; font-size: 10px; }
+.icon-button { width: 40px; flex: 0 0 40px; border: 1px solid var(--line); border-radius: 3px; color: var(--mint); background: var(--panel-raised); }
+.icon-button svg, .primary-button svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; vertical-align: middle; }
+.check-row { display: flex; align-items: center; gap: 8px; margin-top: 11px; color: var(--muted); font-size: 10px; font-weight: 500; }
+.check-row input { accent-color: var(--mint-dark); }
+.disc-label-setting { margin-top: 14px; }
+.action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 24px; }
+.primary-button, .secondary-button { min-height: 41px; border-radius: 3px; font-size: 11px; font-weight: 800; }
+.primary-button { display: flex; justify-content: center; align-items: center; gap: 8px; border: 1px solid var(--mint); color: var(--accent-text); background: var(--mint); }
+.primary-button:hover:not(:disabled) { background: color-mix(in srgb, var(--mint) 88%, var(--ink)); }
+.secondary-button { border: 1px solid var(--line); color: var(--ink); background: var(--panel-raised); }
+.secondary-button:hover:not(:disabled) { border-color: var(--blue); }
+.cancel-button { display: block; margin: 10px 0 0 auto; padding: 5px 0; border: 0; color: var(--coral); background: transparent; font-size: 10px; }
+.error-text { min-height: 0; margin: 10px 0 0; color: var(--coral); font-size: 11px; line-height: 1.5; overflow-wrap: anywhere; }
+
+.results-panel { min-width: 0; min-height: 0; display: flex; flex-direction: column; overflow: hidden; }
+.results-header, .status-strip, .inspection-indicator, .progress-footer { flex-shrink: 0; }
+.results-header { padding: 23px 24px 18px; display: flex; justify-content: space-between; align-items: end; border-bottom: 1px solid var(--line); }
+.eyebrow { color: var(--mint); font-size: 9px; }
+.results-header h2 { margin: 7px 0 0; font-size: 17px; line-height: 1.35; }
+.track-count { padding: 6px 8px; border: 1px solid var(--line); color: var(--muted); font-family: "DM Mono", monospace; font-size: 10px; white-space: nowrap; }
+.status-strip { min-height: 39px; display: flex; align-items: center; gap: 9px; padding: 0 24px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 10px; }
+.status-strip[hidden] { display: none; }
+.status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--dim); }
+.status-dot[data-tone="working"] { background: var(--blue); box-shadow: 0 0 0 4px color-mix(in srgb, var(--blue) 12%, transparent); }
+.status-dot[data-tone="success"] { background: var(--mint); }
+.status-dot[data-tone="error"] { background: var(--coral); }
+.inspection-indicator { width: 100%; min-height: 42px; padding: 0 24px; display: flex; align-items: center; gap: 9px; border: 0; border-bottom: 1px solid var(--line); color: var(--blue); background: color-mix(in srgb, var(--blue) 7%, transparent); text-align: left; font-size: 10px; }
+.inspection-indicator[hidden] { display: none; }
+.inspection-indicator:disabled { opacity: 1; }
+.inspection-spinner { width: 14px; height: 14px; flex: 0 0 14px; animation: inspection-spin .9s linear infinite; }
+@keyframes inspection-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .inspection-spinner { animation: none; } }
+.inspection-indicator:not(:disabled):hover { background: color-mix(in srgb, var(--blue) 13%, transparent); }
+.inspection-indicator-action { margin-left: auto; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+.empty-state { min-height: 0; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 36px; text-align: center; }
+.empty-state[hidden] { display: none; }
+.empty-glyph { height: 36px; display: flex; align-items: end; gap: 4px; margin-bottom: 18px; }
+.empty-glyph span { width: 5px; height: 16px; background: var(--mint-dark); opacity: .6; }
+.empty-glyph span:nth-child(2) { height: 30px; background: var(--blue); opacity: .8; }
+.empty-glyph span:nth-child(3) { height: 22px; background: var(--coral); opacity: .75; }
+.empty-title { font-size: 13px; font-weight: 700; }
+.empty-note { max-width: 250px; margin-top: 8px; color: var(--dim); font-size: 10px; line-height: 1.6; }
+.table-wrap { min-height: 0; flex: 1; overflow: auto; }
+table { width: 100%; border-collapse: collapse; text-align: left; font-size: 10px; }
+thead { position: sticky; top: 0; z-index: 1; background: var(--panel-raised); }
+th { padding: 10px 9px; color: var(--muted); font-family: "DM Mono", monospace; font-size: 9px; font-weight: 400; }
+td { padding: 9px; border-top: 1px solid var(--line); }
+tbody tr:hover { background: var(--hover); }
+.track-number { width: 42px; color: var(--dim); font-family: "DejaVu Sans Mono", monospace; }
+.track-title { min-width: 120px; font-weight: 700; }
+.track-formats { color: var(--muted); }
+.track-choice { color: var(--mint); font-family: "DejaVu Sans Mono", monospace; }
+.track-state { color: var(--muted); white-space: nowrap; }
+.track-state[data-state="unavailable"] { color: var(--coral); }
+.track-state[data-state="skipped"] { color: var(--warning); }
+.progress-footer { padding: 14px 24px 18px; border-top: 1px solid var(--line); }
+.progress-label { display: flex; justify-content: space-between; gap: 14px; margin-bottom: 9px; color: var(--dim); font-size: 9px; }
+#progress-text { color: var(--muted); text-align: right; overflow-wrap: anywhere; }
+progress { width: 100%; height: 4px; border: 0; border-radius: 0; appearance: none; }
+progress::-webkit-progress-bar { background: var(--line); }
+progress::-webkit-progress-value { background: linear-gradient(90deg, var(--blue), var(--mint)); }
+.app-footer { flex: 0 0 40px; min-height: 40px; padding: 0 32px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--line); color: var(--dim); font-size: 9px; }
+
+.appearance-section { max-width: 660px; padding: 28px 0; }
+.appearance-section h2 { margin: 0 0 24px; font-size: 15px; }
+.appearance-setting { margin: 0 0 28px; padding: 0; border: 0; }
+.appearance-setting legend { margin-bottom: 12px; font-size: 12px; font-weight: 700; }
+.mode-options { display: inline-flex; padding: 3px; border: 1px solid var(--line); border-radius: 4px; background: var(--panel); }
+.mode-options label { position: relative; margin: 0; cursor: pointer; }
+.mode-options input, .theme-options input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.mode-options span { min-width: 92px; min-height: 36px; display: grid; place-items: center; border-radius: 2px; color: var(--muted); }
+.mode-options input:checked + span { background: var(--mint); color: var(--accent-text); }
+.mode-options input:focus-visible + span { outline: 2px solid var(--blue); outline-offset: 2px; }
+.theme-options { display: flex; flex-wrap: wrap; gap: 12px; }
+.theme-options label { position: relative; min-width: 90px; display: flex; align-items: center; gap: 9px; margin: 0; padding: 8px 4px; cursor: pointer; }
+.theme-swatch { flex: 0 0 24px; width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--line); }
+.swatch-mint { background: #b3f06c; }
+.swatch-ocean { background: #76dbd3; }
+.swatch-amber { background: #f0cd72; }
+.swatch-rose { background: #f4a2bd; }
+.swatch-monochrome { background: #d3d9dd; }
+:root[data-mode="light"] .swatch-mint { background: #356a19; }
+:root[data-mode="light"] .swatch-ocean { background: #006c68; }
+:root[data-mode="light"] .swatch-amber { background: #805c05; }
+:root[data-mode="light"] .swatch-rose { background: #a03058; }
+:root[data-mode="light"] .swatch-monochrome { background: #46515a; }
+.theme-options input:checked + .theme-swatch { outline: 2px solid var(--mint); outline-offset: 3px; }
+.theme-options input:focus-visible + .theme-swatch { outline: 2px solid var(--blue); outline-offset: 3px; }
+
+.changelog-drawer { position: fixed; z-index: 15; top: 46px; right: 0; bottom: 40px; width: 32vw; min-width: min(260px, 40vw); max-width: 40vw; display: flex; flex-direction: column; border-left: 1px solid var(--line); background: var(--panel); box-shadow: -10px 0 24px var(--shadow); transform: translateX(100%); visibility: hidden; transition: transform .2s ease, visibility .2s; }
+.changelog-drawer[data-open="true"] { transform: translateX(0); visibility: visible; }
+.changelog-resize { position: absolute; left: -4px; top: 0; bottom: 0; width: 8px; cursor: ew-resize; touch-action: none; }
+.changelog-resize:hover, .changelog-resize:focus-visible { background: color-mix(in srgb, var(--mint) 30%, transparent); outline: none; }
+.changelog-header { flex: 0 0 58px; display: flex; align-items: center; justify-content: space-between; padding: 0 18px; border-bottom: 1px solid var(--line); }
+.changelog-header h2 { margin: 0; font-size: 15px; }
+.drawer-close-button { width: 32px; height: 32px; display: grid; place-items: center; border: 0; color: var(--ink); background: transparent; }
+.drawer-close-button:hover { background: var(--hover); }
+.drawer-close-button svg { width: 16px; height: 16px; }
+.changelog-content { flex: 1; min-height: 0; overflow: auto; padding: 16px 22px; font-size: 12px; line-height: 1.7; overflow-wrap: anywhere; }
+.changelog-content h1 { font-size: 18px; margin-top: 0; }
+.changelog-content h2 { font-size: 15px; }
+.changelog-content h3 { font-size: 13px; color: var(--mint); }
+.changelog-content ul { padding-left: 18px; }
+.changelog-content li { margin: 6px 0; }
+.changelog-content a { color: var(--mint); }
+.changelog-content pre { overflow: auto; }
+.help-actions { flex-shrink: 0; display: flex; justify-content: flex-end; gap: 12px; padding: 12px 18px; border-bottom: 1px solid var(--line); }
+.help-actions button { border: 0; padding: 4px 0; background: transparent; color: var(--mint); font-size: 11px; }
+.help-actions button:hover { text-decoration: underline; }
+.help-content { padding: 0 18px 16px; }
+.help-section { border-bottom: 1px solid var(--line); }
+.help-section summary { cursor: pointer; padding: 14px 0; color: var(--ink); font-size: 12px; font-weight: 700; }
+.help-section summary::marker { color: var(--mint); }
+.help-section summary:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.help-section-body { padding-bottom: 12px; color: var(--muted); }
+.help-section-body strong { color: var(--ink); }
+.help-section-body p { margin: 0 0 12px; }
+.help-section-body ol { padding-left: 20px; }
+.help-section-body code { font-size: 10px; }
+@media (prefers-reduced-motion: reduce) { .changelog-drawer { transition: none; } }
+
+@media (max-width: 720px) {
+  .workspace { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, .9fr) minmax(0, 1.1fr); padding: 12px; }
+  .control-panel { width: 100%; }
+  .settings-view { padding: 16px; }
+  .settings-header { gap: 12px; }
+  .settings-layout { grid-template-columns: 135px minmax(0, 1fr); }
+  .settings-content { padding: 0 14px; }
+  .settings-nav { padding-right: 8px; }
+  .app-footer { padding: 0 12px; gap: 8px; }
+}
+
+@media (min-width: 721px) and (max-width: 920px) {
+  .workspace { grid-template-columns: minmax(260px, 320px) minmax(360px, 1fr); padding: 18px; gap: 12px; }
+  .control-panel { padding: 18px; }
+  .results-header, .status-strip, .progress-footer { padding-left: 16px; padding-right: 16px; }
+  th, td { padding-left: 7px; padding-right: 7px; }
+}
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **gui-types.ts**</summary>
+
+@@ lines 1-70 @@
+
+```
+export type GuiFormatPolicy =
+  | { kind: "prefer-lossless" }
+  | { kind: "lossless-only"; skipUnavailable: boolean }
+  | { kind: "specific"; format: string; skipUnavailable: boolean };
+
+export type GuiTrack = {
+  discNumber?: number;
+  number: number;
+  title: string;
+  formats: string[];
+};
+
+export type GuiInspection = {
+  albumTitle: string;
+  trackCount: number;
+  tracks: GuiTrack[];
+};
+
+export type GuiInspectionState = {
+  active: boolean;
+  browserReady: boolean;
+  browserVisible: boolean;
+};
+
+export type GuiWindowState = {
+  maximized: boolean;
+};
+
+export type GuiProgress = {
+  stage: "track-start" | "track-complete" | "track-failed" | "canceled";
+  number: number;
+  title: string;
+  completedTracks: number;
+  totalTracks: number;
+  bytesReceived?: number;
+};
+
+export type GuiDownloadRequest = {
+  policy: GuiFormatPolicy;
+  outputRoot: string;
+  discLabel: "CD" | "Disc";
+};
+
+export type KDownloaderApi = {
+  openKhinsider: () => Promise<void>;
+  reportIssue: () => Promise<void>;
+  restoreWindowBounds: () => Promise<void>;
+  zoom: (direction: "in" | "out" | "reset") => Promise<number>;
+  systemTheme: () => Promise<boolean>;
+  onSystemTheme: (listener: (dark: boolean) => void) => () => void;
+  minimizeWindow: () => Promise<void>;
+  toggleMaximizeWindow: () => Promise<boolean>;
+  closeWindow: () => Promise<void>;
+  onWindowState: (listener: (state: GuiWindowState) => void) => () => void;
+  defaultOutputRoot: () => Promise<string>;
+  chooseOutput: () => Promise<string | undefined>;
+  inspect: (albumUrl: string) => Promise<GuiInspection | undefined>;
+  toggleInspectionBrowser: () => Promise<boolean>;
+  onInspectionState: (listener: (state: GuiInspectionState) => void) => () => void;
+  download: (request: GuiDownloadRequest) => Promise<{ state: string; directory: string }>;
+  cancel: () => Promise<void>;
+  onProgress: (listener: (progress: GuiProgress) => void) => () => void;
+};
+
+declare global {
+  interface Window {
+    kDownloader: KDownloaderApi;
+  }
+}
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **preload.ts**</summary>
+
+@@ lines 1-42 @@
+
+```
+import { contextBridge, ipcRenderer } from "electron";
+import type { GuiDownloadRequest, GuiInspectionState, GuiProgress, GuiWindowState, KDownloaderApi } from "../gui-types.js";
+
+const api: KDownloaderApi = {
+  openKhinsider: () => ipcRenderer.invoke("source:open-khinsider"),
+  reportIssue: () => ipcRenderer.invoke("support:report-issue"),
+  restoreWindowBounds: () => ipcRenderer.invoke("window:restore-bounds"),
+  zoom: (direction) => ipcRenderer.invoke("window:zoom", direction),
+  systemTheme: () => ipcRenderer.invoke("appearance:system-theme"),
+  onSystemTheme: (listener: (dark: boolean) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, dark: boolean) => listener(dark);
+    ipcRenderer.on("appearance:system-theme", handler);
+    return () => ipcRenderer.removeListener("appearance:system-theme", handler);
+  },
+  minimizeWindow: () => ipcRenderer.invoke("window:minimize"),
+  toggleMaximizeWindow: () => ipcRenderer.invoke("window:toggle-maximize"),
+  closeWindow: () => ipcRenderer.invoke("window:close"),
+  onWindowState: (listener: (state: GuiWindowState) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, state: GuiWindowState) => listener(state);
+    ipcRenderer.on("window:state", handler);
+    return () => ipcRenderer.removeListener("window:state", handler);
+  },
+  defaultOutputRoot: () => ipcRenderer.invoke("output:default"),
+  chooseOutput: () => ipcRenderer.invoke("output:choose"),
+  inspect: (albumUrl: string) => ipcRenderer.invoke("album:inspect", albumUrl),
+  toggleInspectionBrowser: () => ipcRenderer.invoke("inspection:toggle-browser"),
+  onInspectionState: (listener: (state: GuiInspectionState) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, state: GuiInspectionState) => listener(state);
+    ipcRenderer.on("inspection:state", handler);
+    return () => ipcRenderer.removeListener("inspection:state", handler);
+  },
+  download: (request: GuiDownloadRequest) => ipcRenderer.invoke("album:download", request),
+  cancel: () => ipcRenderer.invoke("album:cancel"),
+  onProgress: (listener: (progress: GuiProgress) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, progress: GuiProgress) => listener(progress);
+    ipcRenderer.on("album:progress", handler);
+    return () => ipcRenderer.removeListener("album:progress", handler);
+  },
+};
+
+contextBridge.exposeInMainWorld("kDownloader", api);
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **main.ts**</summary>
+
+@@ lines 1-379 @@
+
+```
+import { app, BrowserWindow, dialog, ipcMain, Menu, nativeTheme, screen, shell } from "electron";
+import { readFileSync, writeFileSync, renameSync } from "node:fs";
+import { centeredBounds, parseWindowState, startupBounds } from "./window-state.js";
+import { monitorCinnamonTheme } from "./system-theme.js";
+import { resolve } from "node:path";
+import { downloadAlbum, type DownloadProgress } from "../downloader.js";
+import { planFormats } from "../formats.js";
+import { inspectAlbum, validateAlbumUrl, type AlbumPage, type DiscoveredTrack } from "../khinsider.js";
+import { defaultOutputRoot } from "../output.js";
+import type { GuiDownloadRequest, GuiFormatPolicy, GuiInspection, GuiInspectionState } from "../gui-types.js";
+
+type CachedInspection = {
+  sourceAlbum: string;
+  album: AlbumPage;
+  tracks: DiscoveredTrack[];
+};
+
+let mainWindow: BrowserWindow | undefined;
+let mainWindowReady = false;
+let duplicateLaunchPending = false;
+let instanceNoticeOpen = false;
+let cinnamonDark: boolean | undefined;
+let stopThemeMonitor: (() => void) | undefined;
+
+app.setName("K-Downloader");
+if (process.platform === "linux") app.setDesktopName("k-downloader.desktop");
+const primaryInstance = app.requestSingleInstanceLock();
+if (!primaryInstance) app.quit();
+else app.on("second-instance", () => {
+  duplicateLaunchPending = true;
+  void notifyExistingInstance();
+});
+
+function bringWindowForward(window: BrowserWindow): void {
+  if (window.isDestroyed()) return;
+  if (window.isMinimized()) window.restore();
+  window.show();
+  window.focus();
+}
+
+async function notifyExistingInstance(): Promise<void> {
+  const window = mainWindow;
+  if (!duplicateLaunchPending || instanceNoticeOpen || !mainWindowReady || !window || window.isDestroyed()) return;
+  duplicateLaunchPending = false;
+  instanceNoticeOpen = true;
+  bringWindowForward(window);
+  try {
+    await dialog.showMessageBox(window, {
+      type: "info",
+      title: "K-Downloader is already running",
+      message: "K-Downloader is already running.",
+      detail: "Only one instance can run. Continue in the existing window.",
+      buttons: ["Show running app"],
+      defaultId: 0,
+      noLink: true,
+    });
+    bringWindowForward(window);
+  } finally {
+    instanceNoticeOpen = false;
+    duplicateLaunchPending = false;
+  }
+}
+
+function systemThemeIsDark(): boolean {
+  return cinnamonDark ?? nativeTheme.shouldUseDarkColors;
+}
+
+function sendSystemTheme(): void {
+  if (mainWindow && !mainWindow.isDestroyed() && !mainWindow.webContents.isDestroyed()) {
+    mainWindow.webContents.send("appearance:system-theme", systemThemeIsDark());
+  }
+}
+
+const inspections = new Map<number, CachedInspection>();
+const downloads = new Map<number, AbortController>();
+const activeInspections = new Map<number, {
+  controller: AbortController;
+  setBrowserVisible?: (visible: boolean) => Promise<void>;
+  browserVisible: boolean;
+}>();
+
+function assertWindowSender(senderId: number): BrowserWindow {
+  if (!mainWindow || mainWindow.webContents.id !== senderId) throw new Error("Untrusted IPC sender");
+  return mainWindow;
+}
+
+function parseFormatPolicy(policy: unknown): GuiFormatPolicy {
+  if (typeof policy !== "object" || policy === null || !("kind" in policy)) {
+    throw new Error("Invalid format policy");
+  }
+  const value = policy as Record<string, unknown>;
+  const skipUnavailable = value.skipUnavailable === true;
+  if (value.kind === "prefer-lossless" && !skipUnavailable) return { kind: "prefer-lossless" };
+  if (value.kind === "lossless-only") return { kind: "lossless-only", skipUnavailable };
+  if (value.kind === "specific" && typeof value.format === "string" && /^[A-Za-z0-9.+-]{1,16}$/.test(value.format)) {
+    return { kind: "specific", format: value.format.toUpperCase(), skipUnavailable };
+  }
+  throw new Error("Invalid format policy");
+}
+
+function serializeInspection(cached: CachedInspection): GuiInspection {
+  return {
+    albumTitle: cached.album.title,
+    trackCount: cached.tracks.length,
+    tracks: cached.tracks.map((track) => ({
+      ...(track.discNumber === undefined ? {} : { discNumber: track.discNumber }),
+      number: track.number,
+      title: track.title,
+      formats: [...new Set(track.audioLinks.map(({ format }) => format))],
+    })),
+  };
+}
+
+function sendProgress(sender: Electron.WebContents, progress: DownloadProgress): void {
+  if (!sender.isDestroyed()) sender.send("album:progress", progress);
+}
+
+function sendInspectionState(sender: Electron.WebContents, state: GuiInspectionState): void {
+  if (!sender.isDestroyed()) sender.send("inspection:state", state);
+}
+
+function sendWindowState(window: BrowserWindow): void {
+  if (!window.webContents.isDestroyed()) {
+    window.webContents.send("window:state", { maximized: window.isMaximized() });
+  }
+}
+
+function registerIpc(): void {
+  ipcMain.handle("source:open-khinsider", async (event) => {
+    const window = assertWindowSender(event.sender.id);
+    const url = "https://downloads.khinsider.com/";
+    try {
+      await shell.openExternal(url);
+    } catch {
+      await dialog.showMessageBox(window, {
+        type: "error",
+        title: "Could not open KHInsider",
+        message: "Your browser could not be opened.",
+        detail: `Open this address manually:\n${url}`,
+        buttons: ["OK"],
+      });
+    }
+  });
+  ipcMain.handle("support:report-issue", async (event) => {
+    const window = assertWindowSender(event.sender.id);
+    const url = "https://github.com/kelmankenberg/K-Downloader/issues/new/choose";
+    try {
+      await shell.openExternal(url);
+    } catch {
+      await dialog.showMessageBox(window, {
+        type: "error",
+        title: "Could not open GitHub",
+        message: "Your browser could not be opened.",
+        detail: `Open this address manually to report an issue:\n${url}`,
+        buttons: ["OK"],
+      });
+    }
+  });
+  ipcMain.handle("window:restore-bounds", (event) => {
+    const window = assertWindowSender(event.sender.id);
+    const area = screen.getDisplayMatching(window.getBounds()).workArea;
+    if (window.isFullScreen()) window.setFullScreen(false);
+    if (window.isMaximized()) window.unmaximize();
+    window.setBounds(centeredBounds(area));
+    sendWindowState(window);
+  });
+
+  ipcMain.handle("window:zoom", (event, direction: unknown) => {
+    const window = assertWindowSender(event.sender.id);
+    if (direction !== "in" && direction !== "out" && direction !== "reset") throw new Error("Invalid zoom command");
+    const current = window.webContents.getZoomFactor();
+    const zoom = direction === "reset" ? 1 : Math.max(.5, Math.min(2, Math.round((current + (direction === "in" ? .1 : -.1)) * 10) / 10));
+    window.webContents.setZoomFactor(zoom);
+    return zoom;
+  });
+  ipcMain.handle("appearance:system-theme", (event) => {
+    assertWindowSender(event.sender.id);
+    return systemThemeIsDark();
+  });
+  ipcMain.handle("window:minimize", (event) => {
+    assertWindowSender(event.sender.id).minimize();
+  });
+
+  ipcMain.handle("window:toggle-maximize", (event) => {
+    const window = assertWindowSender(event.sender.id);
+    if (window.isMaximized()) window.unmaximize();
+    else window.maximize();
+    sendWindowState(window);
+    return window.isMaximized();
+  });
+
+  ipcMain.handle("window:close", (event) => {
+    assertWindowSender(event.sender.id).close();
+  });
+
+  ipcMain.handle("output:default", (event) => {
+    assertWindowSender(event.sender.id);
+    return defaultOutputRoot();
+  });
+
+  ipcMain.handle("output:choose", async (event) => {
+    const window = assertWindowSender(event.sender.id);
+    const result = await dialog.showOpenDialog(window, {
+      title: "Choose download folder",
+      defaultPath: defaultOutputRoot(),
+      properties: ["openDirectory", "createDirectory"],
+    });
+    return result.canceled ? undefined : result.filePaths[0];
+  });
+
+  ipcMain.handle("album:inspect", async (event, input: unknown) => {
+    assertWindowSender(event.sender.id);
+    if (typeof input !== "string" || input.length > 2048) throw new Error("Enter one valid album URL");
+    if (activeInspections.has(event.sender.id)) throw new Error("Album inspection is already active");
+    let sourceAlbum: string;
+    try {
+      sourceAlbum = validateAlbumUrl(input).href;
+    } catch {
+      throw new Error("Paste a valid HTTPS KHInsider album URL.");
+    }
+    const active: {
+      controller: AbortController;
+      setBrowserVisible?: (visible: boolean) => Promise<void>;
+      browserVisible: boolean;
+    } = { controller: new AbortController(), browserVisible: false };
+    inspections.delete(event.sender.id);
+    activeInspections.set(event.sender.id, active);
+    sendInspectionState(event.sender, { active: true, browserReady: false, browserVisible: false });
+    try {
+      const result = await inspectAlbum(sourceAlbum, {
+        signal: active.controller.signal,
+        onBrowserReady: (setBrowserVisible) => {
+          active.setBrowserVisible = setBrowserVisible;
+          sendInspectionState(event.sender, { active: true, browserReady: true, browserVisible: false });
+        },
+      });
+      const cached = { sourceAlbum, album: result.album, tracks: result.tracks };
+      inspections.set(event.sender.id, cached);
+      return serializeInspection(cached);
+    } catch (error) {
+      if (active.controller.signal.aborted) return undefined;
+      throw error;
+    } finally {
+      activeInspections.delete(event.sender.id);
+      sendInspectionState(event.sender, { active: false, browserReady: false, browserVisible: false });
+    }
+  });
+
+  ipcMain.handle("inspection:toggle-browser", async (event) => {
+    assertWindowSender(event.sender.id);
+    const active = activeInspections.get(event.sender.id);
+    if (!active?.setBrowserVisible) throw new Error("Inspection browser is not ready");
+    const browserVisible = !active.browserVisible;
+    await active.setBrowserVisible(browserVisible);
+    active.browserVisible = browserVisible;
+    sendInspectionState(event.sender, { active: true, browserReady: true, browserVisible });
+    return browserVisible;
+  });
+
+  ipcMain.handle("album:download", async (event, request: unknown) => {
+    const window = assertWindowSender(event.sender.id);
+    if (downloads.has(event.sender.id)) throw new Error("A download is already active");
+    if (typeof request !== "object" || request === null || !("outputRoot" in request)) {
+      throw new Error("Invalid download request");
+    }
+    const payload = request as GuiDownloadRequest;
+    if (typeof payload.outputRoot !== "string" || payload.outputRoot.length > 4096 || payload.outputRoot.includes("\0")) {
+      throw new Error("Invalid output folder");
+    }
+    if (payload.discLabel !== "CD" && payload.discLabel !== "Disc") throw new Error("Invalid disc folder label");
+    const cached = inspections.get(event.sender.id);
+    if (!cached) throw new Error("Inspect an album before starting a download");
+    const policy = parseFormatPolicy(payload.policy);
+    const plan = planFormats(cached.tracks, policy);
+    if (plan.blocked) throw new Error("The format preview has unavailable tracks; skip them explicitly or choose another policy");
+
+    const controller = new AbortController();
+    downloads.set(event.sender.id, controller);
+    try {
+      const result = await downloadAlbum({
+        ...cached,
+        outputRoot: resolve(payload.outputRoot),
+        policy,
+        discLabel: payload.discLabel,
+        signal: controller.signal,
+        onProgress: (progress) => sendProgress(window.webContents, progress),
+      });
+      return { state: result.state, directory: result.directory };
+    } finally {
+      downloads.delete(event.sender.id);
+    }
+  });
+
+  ipcMain.handle("album:cancel", (event) => {
+    assertWindowSender(event.sender.id);
+    activeInspections.get(event.sender.id)?.controller.abort();
+    downloads.get(event.sender.id)?.abort();
+  });
+}
+
+async function createWindow(): Promise<void> {
+  const statePath = resolve(app.getPath("userData"), "window-state.json");
+  let savedState;
+  try { savedState = parseWindowState(readFileSync(statePath, "utf8")); } catch {}
+  const displays = [screen.getPrimaryDisplay(), ...screen.getAllDisplays().filter((display) => display.id !== screen.getPrimaryDisplay().id)];
+  const window = new BrowserWindow({
+    frame: false,
+    autoHideMenuBar: true,
+    ...startupBounds(savedState, displays.map((display) => display.workArea)),
+    minWidth: 760,
+    minHeight: 620,
+    backgroundColor: "#101715",
+    title: "K-Downloader",
+    icon: resolve(__dirname, "../assets/k-downloader.png"),
+    webPreferences: {
+      preload: resolve(__dirname, "preload.cjs"),
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: true,
+    },
+  });
+  mainWindow = window;
+  const senderId = window.webContents.id;
+  window.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
+  window.webContents.on("will-navigate", (event, url) => {
+    if (!url.startsWith("file://")) event.preventDefault();
+  });
+  window.on("maximize", () => sendWindowState(window));
+  window.on("unmaximize", () => sendWindowState(window));
+  window.webContents.on("did-finish-load", () => sendWindowState(window));
+  window.on("close", () => {
+    try {
+      writeFileSync(`${statePath}.tmp`, JSON.stringify({ bounds: window.getNormalBounds(), maximized: window.isMaximized() }), { mode: 0o600 });
+      renameSync(`${statePath}.tmp`, statePath);
+    } catch (error) {
+      console.warn("Could not save window size and position:", error);
+    }
+  });
+  window.on("closed", () => {
+    inspections.delete(senderId);
+    activeInspections.get(senderId)?.controller.abort();
+    activeInspections.delete(senderId);
+    downloads.get(senderId)?.abort();
+    downloads.delete(senderId);
+    if (mainWindow === window) {
+      mainWindow = undefined;
+      mainWindowReady = false;
+    }
+  });
+  await window.loadFile(resolve(__dirname, "../gui/index.html"));
+  if (savedState?.maximized) window.maximize();
+  mainWindowReady = true;
+}
+
+app.whenReady().then(async () => {
+  if (!primaryInstance) return;
+  if (app.isPackaged) process.env.K_DOWNLOADER_CHROMIUM_PATH = resolve(process.resourcesPath, "chromium/chrome");
+  nativeTheme.themeSource = "system";
+  nativeTheme.on("updated", sendSystemTheme);
+  stopThemeMonitor = await monitorCinnamonTheme((dark) => {
+    cinnamonDark = dark;
+    sendSystemTheme();
+  });
+  Menu.setApplicationMenu(null);
+  registerIpc();
+  await createWindow();
+  await notifyExistingInstance();
+  app.on("activate", () => {
+    if (BrowserWindow.getAllWindows().length === 0) void createWindow();
+  });
+});
+
+app.on("will-quit", () => stopThemeMonitor?.());
+
+app.on("window-all-closed", () => {
+  for (const controller of downloads.values()) controller.abort();
+  if (process.platform !== "darwin") app.quit();
+});
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **renderer.ts**</summary>
+
+@@ lines 1-395 @@
+
+```
+import type { GuiFormatPolicy, GuiInspection, GuiInspectionState, GuiProgress, GuiTrack } from "./gui-types.js";
+import { ArrowLeft, Bug, CircleHelp, Copy, createIcons, EllipsisVertical, ExternalLink, Keyboard, LoaderCircle, Minus, Palette, Scan, ScrollText, Settings, Square, X } from "lucide";
+import { initializeAppearance } from "./appearance.js";
+import { initializeChangelog } from "./changelog.js";
+import { initializeHelp } from "./help.js";
+
+declare const __APP_VERSION__: string;
+document.querySelector<HTMLElement>("#menu-app-version")!.textContent = __APP_VERSION__;
+
+initializeAppearance();
+
+const windowIcons = { ArrowLeft, Bug, CircleHelp, Copy, EllipsisVertical, ExternalLink, Keyboard, LoaderCircle, Minus, Palette, Scan, ScrollText, Settings, Square, X };
+createIcons({ icons: windowIcons });
+const changelog = initializeChangelog();
+const help = initializeHelp();
+
+const albumInput = document.querySelector<HTMLTextAreaElement>("#album-url")!;
+document.querySelector("#khinsider-link")!.addEventListener("click", (event) => {
+  event.preventDefault();
+  void window.kDownloader.openKhinsider();
+});
+const outputInput = document.querySelector<HTMLInputElement>("#output-root")!;
+const formatSelect = document.querySelector<HTMLSelectElement>("#format-policy")!;
+const discLabelSelect = document.querySelector<HTMLSelectElement>("#disc-label")!;
+const discLabelSetting = document.querySelector<HTMLElement>("#disc-label-setting")!;
+const skipInput = document.querySelector<HTMLInputElement>("#skip-unavailable")!;
+const inspectButton = document.querySelector<HTMLButtonElement>("#inspect-button")!;
+const downloadButton = document.querySelector<HTMLButtonElement>("#download-button")!;
+const cancelButton = document.querySelector<HTMLButtonElement>("#cancel-button")!;
+const browseButton = document.querySelector<HTMLButtonElement>("#browse-button")!;
+const tableBody = document.querySelector<HTMLTableSectionElement>("#track-rows")!;
+const albumTitle = document.querySelector<HTMLElement>("#album-title")!;
+const trackCount = document.querySelector<HTMLElement>("#track-count")!;
+const statusText = document.querySelector<HTMLElement>("#status-text")!;
+const statusDot = document.querySelector<HTMLElement>("#status-dot")!;
+const statusStrip = document.querySelector<HTMLElement>(".status-strip")!;
+const inspectionIndicator = document.querySelector<HTMLButtonElement>("#inspection-indicator")!;
+const inspectionIndicatorText = document.querySelector<HTMLElement>("#inspection-indicator-text")!;
+const progress = document.querySelector<HTMLProgressElement>("#download-progress")!;
+const progressText = document.querySelector<HTMLElement>("#progress-text")!;
+const emptyState = document.querySelector<HTMLElement>("#empty-state")!;
+const trackTable = document.querySelector<HTMLTableElement>("#track-table")!;
+const errorText = document.querySelector<HTMLElement>("#error-text")!;
+const minimizeWindowButton = document.querySelector<HTMLButtonElement>("#minimize-window")!;
+const maximizeWindowButton = document.querySelector<HTMLButtonElement>("#maximize-window")!;
+const closeWindowButton = document.querySelector<HTMLButtonElement>("#close-window")!;
+const moreMenuWrap = document.querySelector<HTMLElement>("#more-menu-wrap")!;
+const moreButton = document.querySelector<HTMLButtonElement>("#more-button")!;
+const moreMenu = document.querySelector<HTMLElement>("#more-menu")!;
+const settingsMenuItem = document.querySelector<HTMLButtonElement>("#settings-menu-item")!;
+const restoreBoundsMenuItem = document.querySelector<HTMLButtonElement>("#restore-bounds-menu-item")!;
+const changelogMenuItem = document.querySelector<HTMLButtonElement>("#changelog-menu-item")!;
+const helpMenuItem = document.querySelector<HTMLButtonElement>("#help-menu-item")!;
+const reportIssueMenuItem = document.querySelector<HTMLButtonElement>("#report-issue-menu-item")!;
+const workspaceView = document.querySelector<HTMLElement>("#workspace")!;
+const settingsView = document.querySelector<HTMLElement>("#settings-view")!;
+const closeSettingsButton = document.querySelector<HTMLButtonElement>("#close-settings")!;
+const appearanceNav = document.querySelector<HTMLButtonElement>("#appearance-nav")!;
+const shortcutsNav = document.querySelector<HTMLButtonElement>("#shortcuts-nav")!;
+const appearancePage = document.querySelector<HTMLElement>("#appearance-page")!;
+const shortcutsPage = document.querySelector<HTMLElement>("#shortcuts-page")!;
+
+let inspection: GuiInspection | undefined;
+let busy = false;
+let inspecting = false;
+let inspectionCancelRequested = false;
+let inspectionBrowserVisible = false;
+let settingsOpen = false;
+
+function updateInspectionIndicator(state: GuiInspectionState): void {
+  inspectionBrowserVisible = state.browserVisible;
+  statusStrip.hidden = state.active;
+  inspectionIndicator.hidden = !state.active;
+  inspectionIndicator.disabled = !state.browserReady;
+  inspectionIndicator.setAttribute("aria-pressed", String(state.browserVisible));
+  inspectionIndicatorText.textContent = state.browserReady
+    ? state.browserVisible ? "Hide browser" : "Show browser"
+    : "Starting browser…";
+}
+
+function closeMoreMenu(): void {
+  moreMenu.hidden = true;
+  moreButton.setAttribute("aria-expanded", "false");
+}
+
+function setSettingsOpen(open: boolean): void {
+  settingsOpen = open;
+  workspaceView.hidden = open;
+  settingsView.hidden = !open;
+  closeMoreMenu();
+  if (open) closeSettingsButton.focus();
+  else albumInput.focus();
+}
+
+function selectSettingsPage(page: "appearance" | "shortcuts"): void {
+  appearancePage.hidden = page !== "appearance";
+  shortcutsPage.hidden = page !== "shortcuts";
+  if (page === "appearance") {
+    appearanceNav.setAttribute("aria-current", "page");
+    shortcutsNav.removeAttribute("aria-current");
+  } else {
+    shortcutsNav.setAttribute("aria-current", "page");
+    appearanceNav.removeAttribute("aria-current");
+  }
+  document.querySelector<HTMLElement>(".settings-content")!.scrollTop = 0;
+}
+
+function updateMaximizeButton(maximized: boolean): void {
+  const label = maximized ? "Restore window" : "Maximize window";
+  maximizeWindowButton.setAttribute("aria-label", label);
+  maximizeWindowButton.title = label;
+  maximizeWindowButton.innerHTML = `<i data-lucide="${maximized ? "copy" : "square"}" aria-hidden="true"></i>`;
+  createIcons({ icons: windowIcons });
+}
+
+function isValidAlbumUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" &&
+      url.hostname.toLowerCase() === "downloads.khinsider.com" &&
+      url.pathname.startsWith("/game-soundtracks/album/") &&
+      !url.username && !url.password;
+  } catch {
+    return false;
+  }
+}
+
+function setStatus(label: string, tone: "idle" | "working" | "success" | "error" = "idle"): void {
+  statusText.textContent = label;
+  statusDot.dataset.tone = tone;
+}
+
+function selectedFormat(track: GuiTrack): { format?: string; state: string; fallback: boolean } {
+  const value = formatSelect.value;
+  if (value === "prefer-lossless") {
+    const lossless = ["FLAC", "ALAC", "WAV"].find((format) => track.formats.includes(format));
+    if (lossless) return { format: lossless, state: "Ready", fallback: false };
+    const lossy = track.formats.find((format) => format === "MP3") ?? track.formats[0];
+    return lossy
+      ? { format: lossy, state: "Ready", fallback: true }
+      : { state: "Unavailable", fallback: false };
+  }
+  const requested = value === "lossless-only" ? ["FLAC", "ALAC", "WAV"].find((format) => track.formats.includes(format)) : value.slice("format:".length);
+  if (requested && track.formats.includes(requested)) return { format: requested, state: "Ready", fallback: false };
+  return skipInput.checked
+    ? { state: "Skipped", fallback: false }
+    : { state: "Unavailable", fallback: false };
+}
+
+function renderTracks(): void {
+  if (!inspection) return;
+  const rows = inspection.tracks.map((track) => {
+    const selected = selectedFormat(track);
+    const row = document.createElement("tr");
+    row.innerHTML = `<td class="track-disc"></td><td class="track-number"></td><td class="track-title"></td><td class="track-formats"></td><td class="track-choice"></td><td class="track-state"></td>`;
+    row.querySelector(".track-disc")!.textContent = track.discNumber === undefined ? "-" : `${discLabelSelect.value}${track.discNumber}`;
+    row.querySelector(".track-number")!.textContent = String(track.number).padStart(2, "0");
+    row.querySelector(".track-title")!.textContent = track.title;
+    row.querySelector(".track-formats")!.textContent = track.formats.join(", ") || "None found";
+    row.querySelector(".track-choice")!.textContent = selected.format ?? "-";
+    const state = row.querySelector<HTMLElement>(".track-state")!;
+    state.textContent = selected.state;
+    state.dataset.state = selected.state.toLowerCase();
+    if (selected.fallback) state.textContent += " · fallback";
+    return row;
+  });
+  tableBody.replaceChildren(...rows);
+  const blocked = inspection.tracks.some((track) => selectedFormat(track).state === "Unavailable");
+  downloadButton.disabled = busy || blocked;
+  trackCount.textContent = `${inspection.trackCount} tracks`;
+  emptyState.hidden = true;
+  trackTable.hidden = false;
+}
+
+function currentPolicy(): GuiFormatPolicy {
+  if (formatSelect.value === "prefer-lossless") return { kind: "prefer-lossless" };
+  if (formatSelect.value === "lossless-only") return { kind: "lossless-only", skipUnavailable: skipInput.checked };
+  return { kind: "specific", format: formatSelect.value.slice("format:".length), skipUnavailable: skipInput.checked };
+}
+
+function updateFormatOptions(): void {
+  if (!inspection) return;
+  const formats = [...new Set(inspection.tracks.flatMap((track) => track.formats))].sort();
+  const discs = [...new Set(inspection.tracks.flatMap((track) => track.discNumber === undefined ? [] : [track.discNumber]))];
+  discLabelSetting.hidden = discs.length < 2;
+  const previous = formatSelect.value;
+  formatSelect.querySelectorAll("option[data-discovered]").forEach((option) => option.remove());
+  for (const format of formats) {
+    const option = document.createElement("option");
+    option.value = `format:${format}`;
+    option.textContent = `Specific format: ${format}`;
+    option.dataset.discovered = "true";
+    formatSelect.append(option);
+  }
+  if ([...formatSelect.options].some((option) => option.value === previous)) formatSelect.value = previous;
+  renderTracks();
+}
+
+function setBusy(value: boolean): void {
+  busy = value;
+  inspectButton.disabled = value;
+  browseButton.disabled = value;
+  albumInput.disabled = value;
+  outputInput.disabled = value;
+  formatSelect.disabled = value;
+  discLabelSelect.disabled = value;
+  skipInput.disabled = value || formatSelect.value === "prefer-lossless";
+  cancelButton.disabled = !value;
+  cancelButton.textContent = inspecting ? "Cancel inspection" : "Cancel active download";
+  if (inspection) renderTracks();
+}
+
+minimizeWindowButton.addEventListener("click", () => { void window.kDownloader.minimizeWindow(); });
+maximizeWindowButton.addEventListener("click", async () => {
+  const maximized = await window.kDownloader.toggleMaximizeWindow();
+  updateMaximizeButton(maximized);
+});
+closeWindowButton.addEventListener("click", () => { void window.kDownloader.closeWindow(); });
+window.kDownloader.onWindowState(({ maximized }) => updateMaximizeButton(maximized));
+
+moreButton.addEventListener("click", () => {
+  moreMenu.hidden = !moreMenu.hidden;
+  moreButton.setAttribute("aria-expanded", String(!moreMenu.hidden));
+});
+settingsMenuItem.addEventListener("click", () => setSettingsOpen(true));
+appearanceNav.addEventListener("click", () => selectSettingsPage("appearance"));
+shortcutsNav.addEventListener("click", () => selectSettingsPage("shortcuts"));
+restoreBoundsMenuItem.addEventListener("click", () => {
+  closeMoreMenu();
+  void window.kDownloader.restoreWindowBounds();
+});
+changelogMenuItem.addEventListener("click", () => {
+  closeMoreMenu();
+  help.close();
+  changelog.open();
+});
+helpMenuItem.addEventListener("click", () => {
+  closeMoreMenu();
+  changelog.close();
+  help.open();
+});
+reportIssueMenuItem.addEventListener("click", () => {
+  closeMoreMenu();
+  void window.kDownloader.reportIssue();
+});
+closeSettingsButton.addEventListener("click", () => setSettingsOpen(false));
+document.addEventListener("click", (event) => {
+  if (!moreMenuWrap.contains(event.target as Node)) closeMoreMenu();
+});
+document.addEventListener("keydown", (event) => {
+  if (event.ctrlKey && ["0", "-", "_", "=", "+"].includes(event.key)) {
+    event.preventDefault();
+    const direction = event.key === "0" ? "reset" : ["-", "_"].includes(event.key) ? "out" : "in";
+    void window.kDownloader.zoom(direction);
+  } else if ((event.ctrlKey || event.metaKey) && event.key === ",") {
+    event.preventDefault();
+    setSettingsOpen(!settingsOpen);
+  } else if (event.key === "Escape") {
+    if (!moreMenu.hidden) {
+      closeMoreMenu();
+      moreButton.focus();
+    } else if (help.isOpen()) help.close();
+    else if (changelog.isOpen()) changelog.close();
+    else if (settingsOpen) setSettingsOpen(false);
+  }
+});
+document.addEventListener("wheel", (event) => {
+  if (!event.ctrlKey || event.deltaY === 0) return;
+  event.preventDefault();
+  void window.kDownloader.zoom(event.deltaY < 0 ? "in" : "out");
+}, { passive: false });
+
+inspectButton.addEventListener("click", async () => {
+  errorText.textContent = "";
+  const albumUrl = albumInput.value.trim();
+  if (!isValidAlbumUrl(albumUrl)) {
+    errorText.textContent = "Paste a valid HTTPS KHInsider album URL.";
+    setStatus("Album URL required", "error");
+    albumInput.focus();
+    return;
+  }
+  inspection = undefined;
+  downloadButton.disabled = true;
+  tableBody.replaceChildren();
+  trackTable.hidden = true;
+  emptyState.hidden = false;
+  inspecting = true;
+  inspectionCancelRequested = false;
+  setBusy(true);
+  updateInspectionIndicator({ active: true, browserReady: false, browserVisible: false });
+  try {
+    inspection = await window.kDownloader.inspect(albumUrl);
+    if (!inspection) {
+      setStatus("Inspection canceled");
+      return;
+    }
+    albumTitle.textContent = inspection.albumTitle;
+    updateFormatOptions();
+    setStatus("Preview ready", "success");
+  } catch (error) {
+    if (inspectionCancelRequested) setStatus("Inspection canceled");
+    else {
+      errorText.textContent = error instanceof Error ? error.message : String(error);
+      setStatus("Inspection failed", "error");
+    }
+  } finally {
+    inspecting = false;
+    inspectionCancelRequested = false;
+    updateInspectionIndicator({ active: false, browserReady: false, browserVisible: false });
+    setBusy(false);
+    if (inspection) renderTracks();
+  }
+});
+
+inspectionIndicator.addEventListener("click", async () => {
+  if (inspectionIndicator.disabled) return;
+  try {
+    inspectionBrowserVisible = await window.kDownloader.toggleInspectionBrowser();
+    inspectionIndicator.setAttribute("aria-pressed", String(inspectionBrowserVisible));
+    inspectionIndicatorText.textContent = inspectionBrowserVisible ? "Hide browser" : "Show browser";
+  } catch (error) {
+    errorText.textContent = error instanceof Error ? error.message : String(error);
+  }
+});
+
+window.kDownloader.onInspectionState(updateInspectionIndicator);
+
+browseButton.addEventListener("click", async () => {
+  const selected = await window.kDownloader.chooseOutput();
+  if (selected) outputInput.value = selected;
+});
+
+formatSelect.addEventListener("change", () => {
+  skipInput.disabled = busy || formatSelect.value === "prefer-lossless";
+  renderTracks();
+});
+discLabelSelect.addEventListener("change", renderTracks);
+skipInput.addEventListener("change", renderTracks);
+
+downloadButton.addEventListener("click", async () => {
+  if (!inspection) return;
+  errorText.textContent = "";
+  progress.value = 0;
+  progressText.textContent = "Preparing album";
+  setBusy(true);
+  setStatus("Downloading", "working");
+  try {
+    const result = await window.kDownloader.download({
+      policy: currentPolicy(),
+      outputRoot: outputInput.value,
+      discLabel: discLabelSelect.value === "Disc" ? "Disc" : "CD",
+    });
+    progress.value = inspection.trackCount;
+    progress.max = inspection.trackCount;
+    progressText.textContent = `${result.state} · ${result.directory}`;
+    setStatus(result.state === "complete" ? "Download complete" : result.state, result.state === "complete" ? "success" : "error");
+  } catch (error) {
+    errorText.textContent = error instanceof Error ? error.message : String(error);
+    setStatus("Download failed", "error");
+  } finally {
+    setBusy(false);
+  }
+});
+
+cancelButton.addEventListener("click", async () => {
+  cancelButton.disabled = true;
+  const cancelingInspection = inspecting;
+  if (cancelingInspection) {
+    inspectionCancelRequested = true;
+    inspectionIndicator.disabled = true;
+    inspectionIndicatorText.textContent = "Canceling…";
+  } else setStatus("Canceling active track…", "working");
+  try {
+    await window.kDownloader.cancel();
+  } catch (error) {
+    errorText.textContent = error instanceof Error ? error.message : String(error);
+    inspectionCancelRequested = false;
+    cancelButton.disabled = !busy;
+  }
+});
+
+window.kDownloader.onProgress((event: GuiProgress) => {
+  progress.max = event.totalTracks;
+  progress.value = event.completedTracks;
+  progressText.textContent = event.stage === "track-start"
+    ? `Downloading ${String(event.number).padStart(2, "0")} · ${event.title}`
+    : event.stage === "track-complete"
+      ? `Completed ${event.completedTracks} of ${event.totalTracks} tracks`
+      : event.stage === "track-failed"
+        ? `Failed ${String(event.number).padStart(2, "0")} · ${event.title}`
+        : "Canceled";
+});
+
+void window.kDownloader.defaultOutputRoot().then((value) => { outputInput.value = value; });
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm run build && npm test -- tests/window-state.test.ts`
+
+Type-check the website-link IPC and verify the existing desktop renderer workflows still pass.
+
+```bash
+npm run build && npm test -- tests/window-state.test.ts
+```
+
+**Result:**
+
+```
+
+> k-downloader@0.1.0 build
+> tsc --noEmit
+
+
+> k-downloader@0.1.0 pretest
+> npm run build:gui
+
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+
+> k-downloader@0.1.0 test
+> vitest run tests/window-state.test.ts
+
+
+ RUN  v5.0.4 /home/kel/dev/K-Downloader
+
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  15:02:45
+   Duration  6.23s (tests 94%, import 6%)
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The link builds and the existing desktop tests pass. I’ll now test the exact URL, confirm it opens externally without navigating the app, and check that it sits beside the label at both window sizes. I’ll also add a brief Help note.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **window-state.test.ts**</summary>
+
+@@ lines 1-266 @@
+
+```
+import { describe, expect, it } from "vitest";
+import { centeredBounds, parseWindowState, startupBounds } from "../src/electron/window-state.js";
+import { _electron as electron } from "playwright";
+import { createRequire } from "node:module";
+import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { resolve } from "node:path";
+import { spawn, type ChildProcess } from "node:child_process";
+
+const screen = { x: 0, y: 0, width: 1920, height: 1080 };
+
+describe("window geometry", () => {
+  it("centers the default development size", () => {
+    expect(centeredBounds(screen)).toEqual({ x: 400, y: 150, width: 1120, height: 780 });
+  });
+  it("rejects malformed state and preserves valid bounds", () => {
+    expect(parseWindowState("bad")).toBeUndefined();
+    expect(parseWindowState('{"bounds":{"x":0}}')).toBeUndefined();
+    const state = { bounds: { x: 50, y: 60, width: 900, height: 700 }, maximized: true };
+    expect(startupBounds(parseWindowState(JSON.stringify(state)), [screen])).toEqual(state.bounds);
+  });
+  it("recenters off-screen state and clamps partly visible windows", () => {
+    expect(startupBounds({ bounds: { x: 3000, y: 2000, width: 900, height: 700 }, maximized: false }, [screen])).toEqual(centeredBounds(screen));
+    expect(startupBounds({ bounds: { x: 1800, y: 900, width: 900, height: 700 }, maximized: false }, [screen])).toEqual({ x: 1020, y: 380, width: 900, height: 700 });
+  });
+});
+
+describe("desktop More menu and zoom", () => {
+  it("renders and resizes the changelog, zooms, and persists window bounds", async () => {
+    const userData = await mkdtemp(resolve(tmpdir(), "k-downloader-window-test-"));
+    const require = createRequire(import.meta.url);
+    const launch = () => electron.launch({
+      executablePath: require("electron"),
+      args: [resolve("dist/electron/main.cjs"), `--user-data-dir=${userData}`],
+      env: { ...process.env, XDG_CURRENT_DESKTOP: "Test" },
+    });
+    let app = await launch();
+    try {
+      let page = await app.firstWindow();
+      page.setDefaultTimeout(5_000);
+      await page.waitForFunction(() => document.documentElement.dataset.mode);
+      const icon = await app.evaluate(({ nativeImage }) => {
+        const image = nativeImage.createFromPath("dist/assets/k-downloader.png");
+        const bitmap = image.getBitmap();
+        return { empty: image.isEmpty(), size: image.getSize(), firstAlpha: bitmap[3], clippedAlpha: bitmap[bitmap.length - 1] };
+      });
+      expect(icon.empty).toBe(false);
+      expect(icon.size).toEqual({ width: 512, height: 512 });
+      expect(icon.firstAlpha).toBe(255);
+      expect(icon.clippedAlpha).toBe(0);
+      expect(await readFile(resolve("dist/assets/k-downloader.png"))).toEqual(await readFile(resolve("assets/k-downloader.png")));
+      await page.getByRole("button", { name: "More options", exact: true }).click();
+      expect((await page.getByRole("menuitem").allTextContents()).map((text) => text.replace(/\s+/g, " ").trim())).toEqual([
+        "Restore Size/Position", "Settings Ctrl+,", "Changelog", "Help", "Report an Issue",
+      ]);
+      const manifest = JSON.parse(await readFile(resolve("package.json"), "utf8"));
+      expect(await page.locator("#menu-app-version").textContent()).toBe(manifest.version);
+      expect(await page.locator(".more-menu-info").innerText()).toContain("K-Downloader");
+      expect(await page.locator(".more-menu-separator").isVisible()).toBe(true);
+      await app.evaluate(({ shell }) => {
+        Reflect.set(globalThis, "supportUrls", []);
+        shell.openExternal = async (url) => { Reflect.get(globalThis, "supportUrls").push(url); };
+      });
+      const sourceLink = page.getByRole("link", { name: "Open KHInsider website", exact: true });
+      expect(await sourceLink.getAttribute("href")).toBe("https://downloads.khinsider.com/");
+      const appUrl = page.url();
+      await sourceLink.click();
+      expect(await app.evaluate(() => Reflect.get(globalThis, "supportUrls"))).toEqual(["https://downloads.khinsider.com/"]);
+      expect(page.url()).toBe(appUrl);
+      for (const [width, height] of [[760, 620], [1120, 780]]) {
+        await app.evaluate(({ BrowserWindow }, size) => BrowserWindow.getAllWindows()[0].setSize(size.width, size.height), { width, height });
+        const labelBounds = await page.locator(".album-url-label-row label").boundingBox();
+        const linkBounds = await sourceLink.boundingBox();
+        if (!labelBounds || !linkBounds) throw new Error("Missing label/link layout");
+        expect(linkBounds.x).toBeGreaterThanOrEqual(labelBounds.x + labelBounds.width);
+        expect(Math.abs(linkBounds.y - labelBounds.y)).toBeLessThan(5);
+        await page.screenshot({ path: `/tmp/k-downloader-site-link-${width}.png` });
+      }
+      await page.getByRole("button", { name: "More options", exact: true }).click();
+      await page.getByRole("menuitem", { name: "Report an Issue", exact: true }).click();
+      expect(await app.evaluate(() => Reflect.get(globalThis, "supportUrls"))).toEqual([
+        "https://downloads.khinsider.com/",
+        "https://github.com/kelmankenberg/K-Downloader/issues/new/choose",
+      ]);
+      expect(await page.locator("#more-menu").isVisible()).toBe(false);
+      expect(await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows().length)).toBe(1);
+      await app.evaluate(({ shell, dialog }) => {
+        shell.openExternal = async () => { throw new Error("No browser available"); };
+        dialog.showMessageBox = async (...args: unknown[]) => {
+          Reflect.set(globalThis, "supportError", args.at(-1));
+          return { response: 0, checkboxChecked: false };
+        };
+      });
+      await sourceLink.click();
+      const sourceError = await app.evaluate(() => Reflect.get(globalThis, "supportError"));
+      expect(sourceError.title).toBe("Could not open KHInsider");
+      expect(sourceError.detail).toContain("https://downloads.khinsider.com/");
+      await page.getByRole("button", { name: "More options", exact: true }).click();
+      await page.getByRole("menuitem", { name: "Report an Issue", exact: true }).click();
+      const supportError = await app.evaluate(() => Reflect.get(globalThis, "supportError"));
+      expect(supportError.message).toBe("Your browser could not be opened.");
+      expect(supportError.detail).toContain("https://github.com/kelmankenberg/K-Downloader/issues/new/choose");
+      await page.getByRole("button", { name: "More options", exact: true }).click();
+      await page.getByRole("menuitem", { name: "Changelog", exact: true }).click();
+      await page.locator("#changelog-drawer").waitFor({ state: "visible" });
+      await page.waitForFunction(() => new DOMMatrixReadOnly(getComputedStyle(document.querySelector("#changelog-drawer")!).transform).m41 === 0);
+      expect(await page.locator("#changelog-content").innerText()).toContain("Persistent window size");
+      await page.getByRole("separator", { name: "Changelog panel width" }).focus();
+      await page.keyboard.press("End");
+      expect(await page.locator("#changelog-drawer").evaluate((element) => element.getBoundingClientRect().width / innerWidth)).toBeCloseTo(.4, 2);
+      const handle = await page.locator("#changelog-resize").boundingBox();
+      if (!handle) throw new Error("Changelog resize handle is not visible");
+      await page.mouse.move(handle.x + handle.width / 2, handle.y + 40);
+      await page.mouse.down();
+      await page.mouse.move(1, handle.y + 40);
+      await page.mouse.up();
+      expect(await page.locator("#changelog-drawer").evaluate((element) => element.getBoundingClientRect().width / innerWidth)).toBeCloseTo(.4, 2);
+      await page.screenshot({ path: "/tmp/k-downloader-changelog.png" });
+      await page.keyboard.press("Escape");
+      expect(await page.locator("#changelog-drawer").getAttribute("data-open")).toBe("false");
+      await page.getByRole("button", { name: "More options", exact: true }).click();
+      await page.getByRole("menuitem", { name: "Changelog", exact: true }).click();
+      await page.getByRole("button", { name: "Close changelog", exact: true }).click();
+      await page.keyboard.press("Control+Comma");
+      await page.getByRole("button", { name: "More options", exact: true }).click();
+      await page.getByRole("menuitem", { name: "Help", exact: true }).click();
+      await page.locator("#help-drawer").waitFor({ state: "visible" });
+      await page.waitForFunction(() => new DOMMatrixReadOnly(getComputedStyle(document.querySelector("#help-drawer")!).transform).m41 === 0);
+      expect(await page.locator("#help-content summary").allTextContents()).toEqual([
+        "Getting Started", "Album Inspection", "Audio Formats", "Destination and Disc Folders",
+        "Downloads and Progress", "Canceling and Rerunning", "Settings and Appearance",
+        "Keyboard Shortcuts", "Window Controls and More Menu", "Help and Changelog Panels",
+        "Command-Line Interface", "Reporting Issues", "Troubleshooting and Current Limits",
+      ]);
+      expect(await page.locator("#help-content details[open]").count()).toBe(1);
+      await page.locator("#help-content summary").first().click();
+      expect(await page.locator("#help-content details[open]").count()).toBe(0);
+      await page.locator("#help-content summary").first().focus();
+      await page.keyboard.press("Enter");
+      expect(await page.locator("#help-content details[open]").count()).toBe(1);
+      await page.getByRole("button", { name: "Expand all", exact: true }).click();
+      expect(await page.locator("#help-content details[open]").count()).toBe(13);
+      await page.getByRole("button", { name: "Collapse all", exact: true }).click();
+      expect(await page.locator("#help-content details[open]").count()).toBe(0);
+      await page.getByRole("separator", { name: "Help panel width" }).focus();
+      await page.keyboard.press("End");
+      expect(await page.locator("#help-drawer").evaluate((element) => element.getBoundingClientRect().width / innerWidth)).toBeCloseTo(.4, 2);
+      const helpHandle = await page.locator("#help-resize").boundingBox();
+      if (!helpHandle) throw new Error("Help resize handle is not visible");
+      await page.mouse.move(helpHandle.x + helpHandle.width / 2, helpHandle.y + 50);
+      await page.mouse.down();
+      await page.mouse.move(1, helpHandle.y + 50);
+      await page.mouse.up();
+      expect(await page.locator("#help-drawer").evaluate((element) => element.getBoundingClientRect().width / innerWidth)).toBeCloseTo(.4, 2);
+      await page.locator("#help-content summary").first().click();
+      await page.screenshot({ path: "/tmp/k-downloader-help-1120.png" });
+      await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].setSize(760, 620));
+      await page.screenshot({ path: "/tmp/k-downloader-help-760.png" });
+      expect(await page.locator("#help-content").evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
+      await page.keyboard.press("Escape");
+      expect(await page.locator("#help-drawer").getAttribute("data-open")).toBe("false");
+      expect(await page.locator("#settings-view").isVisible()).toBe(true);
+      await page.getByRole("button", { name: "More options", exact: true }).click();
+      await page.getByRole("menuitem", { name: "Help", exact: true }).click();
+      await page.getByRole("button", { name: "Close help", exact: true }).click();
+      expect(await page.locator("#help-drawer").getAttribute("data-open")).toBe("false");
+      await page.getByRole("button", { name: "More options", exact: true }).click();
+      await page.getByRole("menuitem", { name: "Help", exact: true }).click();
+      await page.getByRole("button", { name: "More options", exact: true }).click();
+      await page.getByRole("menuitem", { name: "Changelog", exact: true }).click();
+      expect(await page.locator("#help-drawer").getAttribute("data-open")).toBe("false");
+      expect(await page.locator("#changelog-drawer").getAttribute("data-open")).toBe("true");
+      await page.keyboard.press("Escape");
+      await page.keyboard.press("Escape");
+      await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].setSize(1120, 780));
+      const zoom = () => app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].webContents.getZoomFactor());
+      await page.keyboard.press("Control+Equal");
+      await expect.poll(zoom).toBeCloseTo(1.1);
+      await page.keyboard.press("Control+Minus");
+      await expect.poll(zoom).toBeCloseTo(1);
+      await page.keyboard.down("Control");
+      await page.mouse.wheel(0, -100);
+      await page.keyboard.up("Control");
+      await expect.poll(zoom).toBeCloseTo(1.1);
+      await page.keyboard.press("Control+0");
+      await expect.poll(zoom).toBe(1);
+      const moved = await app.evaluate(({ BrowserWindow }) => {
+        const window = BrowserWindow.getAllWindows()[0];
+        window.setBounds({ x: 80, y: 90, width: 900, height: 700 });
+        return window.getBounds();
+      });
+      const closing = app.waitForEvent("close");
+      await page.getByRole("button", { name: "Close window", exact: true }).click();
+      await closing;
+      expect(JSON.parse(await readFile(resolve(userData, "window-state.json"), "utf8")).bounds).toEqual(moved);
+      app = await launch();
+      page = await app.firstWindow();
+      await page.waitForFunction(() => document.documentElement.dataset.mode);
+      expect(await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].getBounds())).toEqual(moved);
+      await page.keyboard.press("Control+Comma");
+      expect(await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].getBounds())).toEqual(moved);
+      await page.keyboard.press("Escape");
+      await page.getByRole("button", { name: "Maximize window", exact: true }).click();
+      await expect.poll(() => app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].isMaximized())).toBe(true);
+      await page.getByRole("button", { name: "More options", exact: true }).click();
+      await page.getByRole("menuitem", { name: "Restore Size/Position", exact: true }).click();
+      await expect.poll(() => app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].isMaximized())).toBe(false);
+      const restored = await app.evaluate(({ BrowserWindow, screen }) => {
+        const window = BrowserWindow.getAllWindows()[0];
+        return { bounds: window.getBounds(), area: screen.getDisplayMatching(window.getBounds()).workArea };
+      });
+      expect(restored.bounds).toEqual(centeredBounds(restored.area));
+    } finally {
+      await app.close();
+      await rm(userData, { recursive: true, force: true });
+    }
+  }, 30_000);
+});
+
+describe("single-instance desktop", () => {
+  it("rejects a second launch, restores the primary window, and shows a confirmation", async () => {
+    const userData = await mkdtemp(resolve(tmpdir(), "k-downloader-instance-test-"));
+    const require = createRequire(import.meta.url);
+    const executablePath: string = require("electron");
+    const args = [resolve("dist/electron/main.cjs"), `--user-data-dir=${userData}`];
+    const env = { ...process.env, XDG_CURRENT_DESKTOP: "Test" };
+    const primary = await electron.launch({ executablePath, args, env });
+    let secondary: ChildProcess | undefined;
+    try {
+      const page = await primary.firstWindow();
+      await page.waitForFunction(() => document.documentElement.dataset.mode);
+      await primary.evaluate(({ dialog, BrowserWindow }) => {
+        Reflect.set(globalThis, "singleInstanceNotices", []);
+        dialog.showMessageBox = async (...args: unknown[]) => {
+          Reflect.get(globalThis, "singleInstanceNotices").push(args.at(-1));
+          return { response: 0, checkboxChecked: false };
+        };
+        BrowserWindow.getAllWindows()[0].minimize();
+      });
+      await expect.poll(() => primary.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].isMinimized())).toBe(true);
+      secondary = spawn(executablePath, args, { env, stdio: "ignore" });
+      const exitCode = await new Promise<number | null>((resolve, reject) => {
+        secondary!.once("error", reject);
+        secondary!.once("close", resolve);
+      });
+      expect(exitCode).toBe(0);
+      await expect.poll(() => primary.evaluate(() => Reflect.get(globalThis, "singleInstanceNotices").length)).toBe(1);
+      await expect.poll(() => primary.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].isMinimized())).toBe(false);
+      await expect.poll(() => primary.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].isFocused())).toBe(true);
+      const state = await primary.evaluate(({ BrowserWindow }) => ({
+        windowCount: BrowserWindow.getAllWindows().length,
+        visible: BrowserWindow.getAllWindows()[0].isVisible(),
+        notice: Reflect.get(globalThis, "singleInstanceNotices")[0],
+      }));
+      expect(state.windowCount).toBe(1);
+      expect(state.visible).toBe(true);
+      expect(state.notice.message).toBe("K-Downloader is already running.");
+      expect(state.notice.buttons).toEqual(["Show running app"]);
+    } finally {
+      if (secondary && secondary.exitCode === null) secondary.kill();
+      await primary.close();
+      await rm(userData, { recursive: true, force: true });
+    }
+  }, 30_000);
+});
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **appearance.test.ts**</summary>
+
+@@ lines 1-286 @@
+
+```
+import { describe, expect, it } from "vitest";
+import { appearanceModes, colorThemes, defaultAppearance, parseAppearance, resolvedMode } from "../src/appearance.js";
+import { chromium, _electron as electron } from "playwright";
+import { pathToFileURL } from "node:url";
+import { resolve } from "node:path";
+import { createRequire } from "node:module";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { cinnamonThemeIsDark } from "../src/electron/system-theme.js";
+import type { GuiInspectionState } from "../src/gui-types.js";
+
+describe("appearance preferences", () => {
+  it("defaults to System and Mint for absent or malformed settings", () => {
+    for (const raw of [null, "broken", "null", "[]", '{"mode":"invalid","theme":"invalid"}']) {
+      expect(parseAppearance(raw)).toEqual(defaultAppearance);
+    }
+  });
+
+  it("round-trips every supported mode and theme", () => {
+    for (const mode of appearanceModes) for (const theme of colorThemes) {
+      expect(parseAppearance(JSON.stringify({ mode, theme }))).toEqual({ mode, theme });
+    }
+  });
+
+  it("follows the system only in System mode", () => {
+    expect(resolvedMode("system", true)).toBe("dark");
+    expect(resolvedMode("system", false)).toBe("light");
+    expect(resolvedMode("light", true)).toBe("light");
+    expect(resolvedMode("dark", false)).toBe("dark");
+  });
+
+  it("recognizes Cinnamon GTK light and dark theme names", () => {
+    expect(cinnamonThemeIsDark("'Mint-Y'\n")).toBe(false);
+    expect(cinnamonThemeIsDark("'Mint-Y-Dark'\n")).toBe(true);
+    expect(cinnamonThemeIsDark("'Mint-Y-Dark-Aqua'\n")).toBe(true);
+    expect(cinnamonThemeIsDark("'Adwaita-dark'\n")).toBe(true);
+    expect(cinnamonThemeIsDark("unrecognized output")).toBeUndefined();
+  });
+});
+
+describe("appearance controls in Chromium", () => {
+  it("applies appearance preferences and keeps statusbars visible with a long preview", async () => {
+    const browser = await chromium.launch({ headless: true });
+    try {
+      const page = await browser.newPage({ viewport: { width: 1120, height: 780 }, colorScheme: "light" });
+      page.setDefaultTimeout(5_000);
+      const errors: string[] = [];
+      page.on("pageerror", (error) => errors.push(error.message));
+      await page.addInitScript(() => {
+        let inspectionListener: ((state: GuiInspectionState) => void) | undefined;
+        let browserVisible = false;
+        window.kDownloader = {
+          openKhinsider: async () => {},
+          reportIssue: async () => {},
+          restoreWindowBounds: async () => {},
+          zoom: async () => 1,
+          systemTheme: async () => matchMedia("(prefers-color-scheme: dark)").matches,
+          onSystemTheme: (listener) => {
+            const media = matchMedia("(prefers-color-scheme: dark)");
+            const handler = () => listener(media.matches);
+            media.addEventListener("change", handler);
+            return () => media.removeEventListener("change", handler);
+          },
+          defaultOutputRoot: async () => "/tmp/K-Downloader",
+          chooseOutput: async () => undefined,
+          inspect: async () => {
+            let canceled = false;
+            browserVisible = false;
+            inspectionListener?.({ active: true, browserReady: true, browserVisible });
+            try {
+              await new Promise<void>((complete, fail) => {
+                window.addEventListener("finish-inspection", (event) => {
+                  if ((event as CustomEvent).detail === "fail") fail(new Error("Mock inspection failed"));
+                  else {
+                    canceled = (event as CustomEvent).detail === "cancel";
+                    complete();
+                  }
+                }, { once: true });
+              });
+            } finally {
+              inspectionListener?.({ active: false, browserReady: false, browserVisible: false });
+            }
+            if (canceled) return undefined;
+            return {
+            albumTitle: "Large multi-disc fixture",
+            trackCount: 200,
+            tracks: Array.from({ length: 200 }, (_, index) => ({
+              discNumber: Math.floor(index / 100) + 1,
+              number: index % 100 + 1,
+              title: `Track ${index + 1}`,
+              formats: ["MP3", "FLAC"],
+            })),
+            };
+          },
+          download: async () => ({ state: "complete", directory: "/tmp" }),
+          cancel: async () => {
+            window.dispatchEvent(new CustomEvent("finish-inspection", { detail: "cancel" }));
+          },
+          minimizeWindow: async () => {},
+          toggleMaximizeWindow: async () => false,
+          closeWindow: async () => {},
+          toggleInspectionBrowser: async () => {
+            browserVisible = !browserVisible;
+            inspectionListener?.({ active: true, browserReady: true, browserVisible });
+            return browserVisible;
+          },
+          onInspectionState: (listener) => {
+            inspectionListener = listener;
+            return () => { inspectionListener = undefined; };
+          },
+          onProgress: () => () => {},
+          onWindowState: () => () => {},
+        };
+      });
+      await page.goto(pathToFileURL(resolve("dist/gui/index.html")).href);
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "light");
+      await page.keyboard.press("Control+Comma");
+      await page.locator("#settings-view").waitFor({ state: "visible" });
+      expect(await page.locator("#appearance-nav").getAttribute("aria-current")).toBe("page");
+      const initialSelection = await page.getByRole("radio", { name: "System", exact: true }).isChecked();
+      await page.getByRole("button", { name: "Shortcuts", exact: true }).click();
+      expect(await page.locator("#shortcuts-page").isVisible()).toBe(true);
+      expect(await page.locator("#appearance-page").isVisible()).toBe(false);
+      expect(await page.locator("#shortcuts-nav").getAttribute("aria-current")).toBe("page");
+      expect(await page.locator(".shortcut-row dt").allTextContents()).toEqual([
+        "Open or close Settings",
+        "Close the active menu, Help, Changelog, or Settings",
+        "Zoom in", "Zoom out", "Reset to 100%", "Zoom with the mouse",
+        "Widen panel", "Narrow panel", "Minimum panel width", "Maximum panel width (40%)",
+      ]);
+      for (const viewport of [{ width: 1120, height: 780 }, { width: 760, height: 620 }]) {
+        await page.setViewportSize(viewport);
+        await page.screenshot({ path: `/tmp/k-downloader-shortcuts-${viewport.width}.png` });
+        expect(await page.evaluate(() => {
+          const content = document.querySelector<HTMLElement>(".settings-content")!;
+          const footer = document.querySelector<HTMLElement>(".app-footer")!.getBoundingClientRect();
+          return content.scrollWidth <= content.clientWidth && footer.bottom === innerHeight;
+        })).toBe(true);
+      }
+      await page.getByRole("button", { name: "Appearance", exact: true }).click();
+      expect(await page.getByRole("radio", { name: "System", exact: true }).isChecked()).toBe(initialSelection);
+      expect(await page.locator("#shortcuts-page").isVisible()).toBe(false);
+      await page.setViewportSize({ width: 1120, height: 780 });
+      for (const mode of ["light", "dark"] as const) {
+        await page.getByRole("radio", { name: new RegExp(`^${mode}$`, "i") }).check();
+        const accents = new Set<string>();
+        for (const theme of colorThemes) {
+          await page.getByRole("radio", { name: new RegExp(`^${theme}$`, "i") }).check();
+          const palette = await page.evaluate(() => {
+            const styles = getComputedStyle(document.documentElement);
+            return {
+              mode: document.documentElement.dataset.mode,
+              theme: document.documentElement.dataset.theme,
+              accent: styles.getPropertyValue("--mint").trim(),
+              surface: styles.getPropertyValue("--panel").trim(),
+              scheme: styles.colorScheme,
+            };
+          });
+          expect(palette.mode).toBe(mode);
+          expect(palette.theme).toBe(theme);
+          expect(palette.scheme).toBe(mode);
+          expect(palette.surface).not.toBe(palette.accent);
+          accents.add(palette.accent);
+        }
+        expect(accents.size).toBe(5);
+      }
+      await page.reload();
+      await page.waitForFunction(() => document.documentElement.dataset.theme === "monochrome");
+      expect(await page.locator("html").getAttribute("data-mode")).toBe("dark");
+      await page.keyboard.press("Control+Comma");
+      await page.getByRole("radio", { name: "System", exact: true }).check();
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "light");
+      await page.emulateMedia({ colorScheme: "dark" });
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "dark");
+      await page.getByRole("radio", { name: "Light", exact: true }).check();
+      await page.emulateMedia({ colorScheme: "light" });
+      await page.emulateMedia({ colorScheme: "dark" });
+      expect(await page.locator("html").getAttribute("data-mode")).toBe("light");
+      await page.screenshot({ path: "/tmp/k-downloader-appearance-light.png" });
+      await page.setViewportSize({ width: 760, height: 620 });
+      await page.getByRole("radio", { name: "Dark", exact: true }).check();
+      await page.getByRole("radio", { name: "Mint", exact: true }).check();
+      await page.screenshot({ path: "/tmp/k-downloader-appearance-dark.png" });
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      await page.keyboard.press("Escape");
+      await page.locator("#workspace").waitFor({ state: "visible" });
+      await page.locator("#album-url").fill("https://downloads.khinsider.com/game-soundtracks/album/fixture");
+      await page.getByRole("button", { name: "Inspect album", exact: true }).click();
+      await page.getByRole("button", { name: "Cancel inspection", exact: true }).click();
+      await page.waitForFunction(() => document.querySelector("#status-text")?.textContent === "Inspection canceled");
+      expect(await page.locator("#inspection-indicator").isVisible()).toBe(false);
+      expect(await page.locator(".status-strip").isVisible()).toBe(true);
+      expect(await page.locator("#inspect-button").isEnabled()).toBe(true);
+      expect(await page.locator("#download-button").isEnabled()).toBe(false);
+      expect(await page.locator("#error-text").textContent()).toBe("");
+      await page.getByRole("button", { name: "Inspect album", exact: true }).click();
+      await page.locator("#inspection-indicator").waitFor({ state: "visible" });
+      expect(await page.getByText("Inspection in progress", { exact: true }).filter({ visible: true }).count()).toBe(1);
+      expect(await page.locator(".status-strip").isVisible()).toBe(false);
+      expect(await page.locator(".inspection-spinner").evaluate((element) => {
+        const animation = element.getAnimations()[0];
+        return animation?.playState === "running" && animation.effect?.getTiming().iterations === Infinity;
+      })).toBe(true);
+      await page.screenshot({ path: "/tmp/k-downloader-single-inspection-indicator.png" });
+      await page.locator("#inspection-indicator").click();
+      expect(await page.locator("#inspection-indicator-text").textContent()).toBe("Hide browser");
+      await page.locator("#inspection-indicator").click();
+      expect(await page.locator("#inspection-indicator-text").textContent()).toBe("Show browser");
+      await page.evaluate(() => window.dispatchEvent(new CustomEvent("finish-inspection")));
+      await page.waitForFunction(() => document.querySelectorAll("#track-rows tr").length === 200);
+      expect(await page.locator("#inspection-indicator").isVisible()).toBe(false);
+      expect(await page.locator(".status-strip").isVisible()).toBe(true);
+      expect(await page.locator("#status-text").textContent()).toBe("Preview ready");
+      for (const viewport of [{ width: 760, height: 620 }, { width: 1120, height: 780 }]) {
+        await page.setViewportSize(viewport);
+        const measure = () => page.evaluate(() => {
+          const footer = document.querySelector<HTMLElement>(".app-footer")!.getBoundingClientRect();
+          const transfer = document.querySelector<HTMLElement>(".progress-footer")!.getBoundingClientRect();
+          const table = document.querySelector<HTMLElement>(".table-wrap")!;
+          return {
+            footerTop: footer.top,
+            footerBottom: footer.bottom,
+            transferBottom: transfer.bottom,
+            listScrolls: table.scrollHeight > table.clientHeight,
+            pageHeight: document.documentElement.scrollHeight,
+            listScrollTop: table.scrollTop,
+          };
+        });
+        const initial = await measure();
+        expect(initial.footerBottom).toBe(viewport.height);
+        expect(initial.transferBottom).toBeLessThanOrEqual(initial.footerTop);
+        expect(initial.pageHeight).toBe(viewport.height);
+        expect(initial.listScrolls).toBe(true);
+        await page.locator(".table-wrap").evaluate((element) => { element.scrollTop = element.scrollHeight; });
+        const scrolled = await measure();
+        expect(scrolled.listScrollTop).toBeGreaterThan(0);
+        expect(scrolled.footerBottom).toBe(initial.footerBottom);
+        expect(scrolled.transferBottom).toBe(initial.transferBottom);
+        await page.screenshot({ path: `/tmp/k-downloader-long-preview-${viewport.width}.png` });
+      }
+      await page.getByRole("button", { name: "Inspect album", exact: true }).click();
+      await page.locator("#inspection-indicator").waitFor({ state: "visible" });
+      await page.evaluate(() => window.dispatchEvent(new CustomEvent("finish-inspection", { detail: "fail" })));
+      await page.waitForFunction(() => document.querySelector("#status-text")?.textContent === "Inspection failed");
+      expect(await page.locator("#inspection-indicator").isVisible()).toBe(false);
+      expect(await page.locator(".status-strip").isVisible()).toBe(true);
+      expect(errors).toEqual([]);
+    } finally {
+      await browser.close();
+    }
+  }, 30_000);
+});
+
+describe("Electron native theme updates", () => {
+  it("updates System mode through preload but preserves explicit Light and Dark", async () => {
+    const userData = await mkdtemp(resolve(tmpdir(), "k-downloader-theme-test-"));
+    const require = createRequire(import.meta.url);
+    const app = await electron.launch({
+      executablePath: require("electron"),
+      args: [resolve("dist/electron/main.cjs"), `--user-data-dir=${userData}`],
+      env: { ...process.env, XDG_CURRENT_DESKTOP: "Test" },
+    });
+    try {
+      const page = await app.firstWindow();
+      await page.waitForFunction(() => document.documentElement.dataset.mode);
+      await page.keyboard.press("Control+Comma");
+      await page.getByRole("radio", { name: "System", exact: true }).check();
+      await app.evaluate(({ nativeTheme }) => { nativeTheme.themeSource = "dark"; });
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "dark");
+      await app.evaluate(({ nativeTheme }) => { nativeTheme.themeSource = "light"; });
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "light");
+      await page.getByRole("radio", { name: "Dark", exact: true }).check();
+      await app.evaluate(({ nativeTheme }) => { nativeTheme.themeSource = "light"; });
+      expect(await page.locator("html").getAttribute("data-mode")).toBe("dark");
+      await page.getByRole("radio", { name: "Light", exact: true }).check();
+      await app.evaluate(({ nativeTheme }) => { nativeTheme.themeSource = "dark"; });
+      expect(await page.locator("html").getAttribute("data-mode")).toBe("light");
+      await page.getByRole("radio", { name: "System", exact: true }).check();
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "dark");
+    } finally {
+      await app.close();
+      await rm(userData, { recursive: true, force: true });
+    }
+  }, 30_000);
+});
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **HELP.md**</summary>
+
+@@ lines 1-244 @@
+
+````
+# K-Downloader Help
+
+## Getting Started
+
+1. Paste one KHInsider album URL into **Album source**. Use the album page,
+   not a track-page URL, media URL, or local folder path.
+2. Select **Inspect album** and wait for the format preview.
+3. Review available and selected formats for every track, including fallback
+   or unavailable tracks. Choose a destination and format policy.
+4. Select **Download**. Transfers run one track at a time.
+5. Review the album result and destination shown in the transfer footer.
+
+The desktop app requires a graphical Linux session. Public-track downloads
+need no site login. Use only audio you are authorized to download and respect
+the site's access policy. The current release accepts one album per run.
+
+The **KHInsider** link to the right of the album URL label opens the website
+in your default browser, where you can find and copy an album-page URL.
+
+## Album Inspection
+
+Use an HTTPS album URL beginning with
+`https://downloads.khinsider.com/game-soundtracks/album/`.
+
+Inspection reads the album's ordered track links, visits the individual track
+pages, and discovers each track's audio formats. It does not save album audio.
+The preview includes disc number, track number, title, available formats,
+selected format, and availability status.
+
+An animated **Inspection in progress** row appears during scanning. The
+Chromium inspection browser starts minimized, not headless. Select **Show
+browser** or **Hide browser** on that row to toggle its window. Closing the
+browser manually interrupts inspection; use **Cancel inspection** instead.
+
+Discovery can take time because pages are visited sequentially with pacing.
+If the site denies access or presents a challenge, stop rather than trying to
+bypass it. Download stays disabled until discovery and format selection allow it.
+
+## Audio Formats
+
+- **Prefer lossless** selects FLAC first, then ALAC or WAV when offered.
+  Without a lossless source it uses MP3 if offered, otherwise another discovered
+  source. The preview marks lossy fallback before transfers begin.
+- **Lossless only** never substitutes lossy audio. A track without a lossless
+  source blocks Download unless **Skip tracks without the selected format**
+  is explicitly checked.
+- **Specific format** options appear after inspection and reflect discovered
+  formats. Selecting one never silently substitutes another format.
+- **Skip tracks without the selected format** applies to lossless-only or
+  specific-format policies. Any skipped audio makes the album incomplete.
+
+The app saves the original bytes and matching extension. It does not transcode,
+rewrite metadata, or turn lossy audio into lossless audio. Formats may differ
+between tracks in the same album.
+
+## Destination and Disc Folders
+
+The default root is `~/Music/K-Downloader`. Type another root in **Save album
+under** or use the folder-picker button. The app creates an album-title folder
+under that root. Select the root, not a pre-created album folder, to avoid
+unintentional nesting.
+
+Track names use zero-padded within-disc numbers and sanitized titles, for
+example `01 - Intro.mp3`. Multi-disc albums go into separate **CD1**, **CD2**,
+and subsequent folders. The **Disc folder label** setting offers **CD** or
+**Disc** for multi-disc albums. Single-disc albums keep a flat album folder.
+
+Disc and track numbers are distinct; track numbering can restart on each disc.
+Identically titled albums are separated using their source identity where needed.
+Changing the root, label, or selected format on a rerun can change the output
+paths; existing completed audio is not moved automatically.
+
+## Downloads and Progress
+
+Download uses the inspected plan and selected destination. Tracks transfer
+sequentially. The footer reports the active track, completed-track count, album
+result, and destination. Long previews scroll inside the panel while the app's
+statusbar and transfer footer remain visible.
+
+Files stream to temporary `.part` files rather than being buffered entirely in
+memory. The writer checks the response and available length evidence before
+publishing the final file without overwriting. Small tracks are allowed; file
+size alone is not a quality judgment.
+
+A **complete** result means all selected tracks finished. **Incomplete** means
+tracks were explicitly skipped. **Failed** means one or more transfers failed;
+inspect the album manifest for recorded per-track errors. **Canceled** means
+the run was stopped. An access-denied or rate-limited transfer stops further
+track transfers for that album.
+
+## Canceling and Rerunning
+
+During scanning, the cancel button reads **Cancel inspection**. It closes the
+inspection browser and stops visiting track pages, including if cancellation
+is requested during browser startup. The app reports **Inspection canceled**
+and allows a fresh scan. A canceled scan cannot be used to start Download.
+
+During downloading, **Cancel active download** aborts the active transfer and
+prevents later tracks from starting. Closing the app also cancels active work.
+Completed files stay in place; a canceled partial transfer is not marked complete.
+
+Each album folder has `.download-manifest.json`, which records its source,
+selected formats, relative paths, states, and completed byte lengths. Inspect
+the same album and download again with the same output choices to retry missing
+or failed tracks. Completed files are skipped only when manifest evidence and
+their current sizes match. Existing unverified files are conflicts, not trusted
+downloads, and are not overwritten.
+
+Interrupted tracks restart from the beginning; byte-range continuation is not
+implemented. There is no automatic general retry/backoff workflow yet. Keep the
+manifest with the audio files for reruns.
+
+## Settings and Appearance
+
+Open **More > Settings** or press **Ctrl+,**. Its left rail offers **Appearance**
+and **Shortcuts**. Switching pages preserves the Appearance controls and choices.
+Use **Back to downloader** or **Esc** to return.
+
+- **Light** uses light surfaces; **Dark** uses dark surfaces.
+- **System** follows the desktop preference. On Cinnamon it follows the GTK
+  theme, such as Mint-Y versus Mint-Y-Dark; other desktops use Electron's native
+  appearance notifications.
+- **Mint**, **Ocean**, **Amber**, **Rose**, and **Monochrome** each support
+  light and dark palettes. Mint Dark matches the app's original green look.
+
+System + Mint is the default. Choices apply immediately and are saved locally
+across restarts. If saving is unavailable, an appearance warning explains that
+the changes apply only to the session. The taskbar icon retains the Mint K brand
+mark independently of the selected color theme.
+
+## Keyboard Shortcuts
+
+The **Settings > Shortcuts** page provides a grouped reference with keycaps.
+
+- **Ctrl+,** opens or closes Settings.
+- **Esc** closes the active More menu first, then an open Help/Changelog panel,
+  or Settings. Closing a drawer leaves the underlying Settings page intact.
+- **Ctrl+=** or **Ctrl++** enlarges the interface.
+- **Ctrl+-** reduces the interface.
+- **Ctrl+0** resets scale to 100%.
+- **Ctrl+mousewheel** adjusts scale. The range is 50%-200%; zoom does not change
+  the saved window geometry.
+- With a drawer's resize handle focused: **Left Arrow** widens it, **Right
+  Arrow** narrows it, **Home** selects the minimum width, and **End** selects 40%.
+
+Standard Tab/Shift+Tab move focus between controls. Press Enter or Space on a
+help section heading to expand or collapse it.
+
+## Window Controls and More Menu
+
+The custom titlebar contains the app mark/title, More menu, and minimize,
+maximize/restore, and close buttons. Drag the titlebar background to move the app.
+Window size, position, and maximized state are saved on close and restored at
+the next launch; off-screen positions are corrected if monitors change.
+
+**More > Restore Size/Position** returns to 1120x780 and centers on the current
+monitor (or fits the monitor if its work area is smaller). It also exits
+maximized state. Settings navigation does not alter the window geometry.
+
+The More menu also includes Settings, Changelog, Help, Report an Issue, and an informational
+app title/version footer. The version is read from the manifest during build.
+Only one desktop instance runs per application profile: another launch exits,
+restores the running window, and shows **Show running app** in its confirmation.
+
+## Help and Changelog Panels
+
+Select **More > Help** for this guide, or **More > Changelog** for development
+changes. Both panels slide from the right and leave the current workspace or
+Settings view intact. Opening one closes the other.
+
+Drag the panel's left edge to resize, up to 40% of the window width. The handle
+also supports the keyboard shortcuts listed above. Content scrolls independently
+of the header. Use the panel's Close button or **Esc** to dismiss it.
+
+Help section headings expand or collapse their content. **Expand all** and
+**Collapse all** affect every help section. Content is local and embedded at
+build time; no network request is needed to read either panel.
+
+## Command-Line Interface
+
+From an installed source checkout with dependencies and Playwright Chromium:
+
+```sh
+npm run inspect -- 'https://downloads.khinsider.com/game-soundtracks/album/ALBUM'
+npm run download -- 'https://downloads.khinsider.com/game-soundtracks/album/ALBUM'
+```
+
+Replace `ALBUM` with the album slug. `inspect` previews discovered formats and
+downloads no audio. `download` prints its format plan before transferring audio.
+
+Download options:
+
+- `--format prefer-lossless` (default), `--format lossless-only`, or an explicit
+  format such as `--format MP3`.
+- `--skip-unavailable` explicitly skips missing formats for lossless-only or a
+  specific format; it is not valid with prefer-lossless.
+- `--output /path/to/music` selects the output root.
+- `--disc-label CD` (default) or `--disc-label Disc` selects multi-disc labels.
+
+CLI failures, incomplete albums, and canceled results have nonzero exit status.
+The current discovery CLI also requires a graphical session because Chromium
+runs visibly, starting minimized. Login and multiple-album input are not supported.
+
+## Reporting Issues
+
+Select **More > Report an Issue** to open GitHub's issue chooser in your default
+browser. Choose **Bug Report** for a problem or **Feature Request** for an
+improvement. A GitHub account is required. Search existing issues before submitting.
+
+For bugs, include the version shown at the bottom of the More menu, Linux
+distribution/version, reproduction steps, expected behavior, and what actually
+happened. Screenshots and relevant sanitized logs are optional.
+
+Do not post passwords, session cookies, tokens, signed download URLs, private
+paths, or other sensitive information. The app does not collect or upload logs
+automatically. Reports may be publicly visible. If the browser cannot open, the
+app shows the GitHub URL so you can visit it manually.
+
+## Troubleshooting and Current Limits
+
+- **Invalid URL:** paste an HTTPS KHInsider album-page URL, not a media link
+  or filesystem path.
+- **HTTP 403 / access challenge:** stop and review permitted access. Plain Node
+  fetch and headless Chromium were denied during feasibility testing; the app
+  uses a normal visible Chromium context instead. It does not bypass challenges.
+- **HTTP 429:** the server is rate limiting. Respect its limits and wait before
+  manually retrying; do not start repeated scans to force access.
+- **Missing browser/runtime:** install dependencies and Playwright Chromium as
+  described in the repository README. Keep Electron's normal sandbox enabled.
+- **Permission or disk-full errors:** select a writable root and check free
+  space, then inspect and rerun after fixing the destination.
+- **File conflict:** retain existing audio; check the source, format, paths,
+  and manifest rather than deleting or overwriting unrelated files.
+- **System mode not changing:** select System in Appearance. Cinnamon follows
+  its GTK theme, not every desktop accent/wallpaper setting.
+
+The current implementation is Linux-first and single-album. Linux x64 AppImage
+and .deb builds include Electron and Chromium. The installed launcher supports
+`k-downloader inspect`, `k-downloader download`, and `k-downloader --help`.
+Distribution compatibility still requires target-machine testing.
+Multi-album queues, cover artwork, login/bulk downloads, .rpm/ARM packaging,
+automatic updates, tagging, transcoding, and player integration are not
+implemented. Build/release instructions are in the project's docs.
+````
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **changelog.md**</summary>
+
+@@ lines 1-63 @@
+
+```
+# Changelog
+
+## Unreleased
+
+### Added
+
+- KHInsider website link beside the album URL label, opening in the default browser.
+- Linux x64 AppImage and .deb packaging scripts with bundled Electron/Chromium,
+  desktop integration, embedded-Node CLI launchers, checksums, and artifact smoke tests.
+- Separate package:linux, package:deb, package:appimage, and package:dir commands.
+- Report an Issue menu command opening the fixed GitHub issue chooser in the
+	default browser, with a manual-link fallback if the browser cannot launch.
+- GitHub bug-report and feature-request forms with required details and privacy
+	acknowledgments, plus repository setup instructions.
+- Right-side Help panel under Changelog in the More menu, with expandable
+	feature guidance, bulk expand/collapse controls, resizing, and Escape support.
+- Offline Help content embedded from docs/HELP.md during GUI builds.
+- Mint K app icon matching the titlebar, included in the GUI build and used for
+	the Electron window/taskbar icon.
+- Single-instance desktop lock with an already-running confirmation and
+	restoration/focus of the existing window on another launch.
+- Settings left navigation rail with Appearance and Shortcuts pages.
+- Grouped shortcut reference with keycaps for navigation, interface zoom,
+  and focused changelog-panel resizing.
+- Public KHInsider album discovery and sequential audio downloads.
+- CLI and desktop GUI with format previews and lossless selection policies.
+- Multi-disc output folders with CD and Disc labels.
+- Manifest-backed reruns and safe, non-overwriting file transfers.
+- Cancel inspection during browser startup, navigation, or track scanning;
+	close the inspection browser and allow a fresh scan without an error.
+- Single animated inspection indicator with a browser visibility toggle.
+- Custom titlebar and More menu.
+- Settings with Light, Dark, and System appearance modes.
+- Mint, Ocean, Amber, Rose, and Monochrome color themes.
+- Cinnamon desktop appearance updates.
+- Persistent window size, position, and maximized state, with off-screen recovery
+	when monitor arrangements change.
+- Restore Size/Position command resets to 1120x780 and centers on the current monitor.
+- Right-side changelog drawer with drag and keyboard resizing up to 40% of the
+	window width, a close button, and Escape support.
+- Build-time changelog loading from the root changelog.md with sanitized Markdown rendering.
+- App title and version in the More menu, with the version read from package.json at build time.
+- Ctrl+0, Ctrl+minus, Ctrl+plus/equal, and Ctrl+mousewheel zoom controls, limited
+	to 50%-200% without changing saved window geometry.
+
+### Changed
+
+- Appearance controls retain their layout and selections when switching Settings pages.
+- Settings content scrolls independently of its navigation rail, header, and statusbar.
+- More menu order: Restore Size/Position, Settings, Changelog, Help, Report an Issue,
+  separator, app title/version.
+- Long Discovery Preview lists scroll inside the panel instead of expanding the app.
+- Setup and Settings content scroll independently while the bottom statusbar remains visible.
+
+### Fixed
+
+- Duplicate inspection status rows.
+- Empty preview space after discovery.
+- Statusbar visibility for long track lists.
+- Main-process exception when closing the window.
+- Inspection cancellation no longer produces an inspection-failure error or
+	leaves stale discovery results available for download.
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm test -- tests/window-state.test.ts tests/appearance.test.ts && npm run b...`
+
+Verify the new external website link and label layout in Electron and existing Settings/preview behavior.
+
+```bash
+npm test -- tests/window-state.test.ts tests/appearance.test.ts && npm run build
+```
+
+**Result:**
+
+```
+
+> k-downloader@0.1.0 pretest
+> npm run build:gui
+
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+
+> k-downloader@0.1.0 test
+> vitest run tests/window-state.test.ts tests/appearance.test.ts
+
+
+ RUN  v5.0.4 /home/kel/dev/K-Downloader
+
+
+ Test Files  2 passed (2)
+      Tests  11 passed (11)
+   Start at  15:03:30
+   Duration  6.67s (tests 92%, import 7%, transform 1%)
+
+
+> k-downloader@0.1.0 build
+> tsc --noEmit
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The tests confirm the link opens the fixed KHInsider URL externally, keeps the app on its local page, and stays aligned beside the label at both sizes. The fallback dialog also passes. I’ll review the screenshots and diagnostics, then open the updated GUI.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="get_errors"><details>
+<summary>Tool use: **get_errors**</summary>
+
+Checked `main.ts`, `preload.ts`, `renderer.ts`, `styles.css`, `window-state.test.ts`, no problems found
+
+**Input:**
+
+- filePaths:
+
+```
+[
+  "/home/kel/dev/K-Downloader/src/electron/main.ts",
+  "/home/kel/dev/K-Downloader/src/electron/preload.ts",
+  "/home/kel/dev/K-Downloader/src/renderer.ts",
+  "/home/kel/dev/K-Downloader/gui/styles.css",
+  "/home/kel/dev/K-Downloader/tests/window-state.test.ts"
+]
+```
+
+
+**Result:**
+
+```
+<errors path="/home/kel/dev/K-Downloader/src/electron/main.ts">
+No errors found
+</errors>
+<errors path="/home/kel/dev/K-Downloader/src/electron/preload.ts">
+No errors found
+</errors>
+<errors path="/home/kel/dev/K-Downloader/src/renderer.ts">
+No errors found
+</errors>
+<errors path="/home/kel/dev/K-Downloader/gui/styles.css">
+No errors found
+</errors>
+<errors path="/home/kel/dev/K-Downloader/tests/window-state.test.ts">
+No errors found
+</errors>
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="view_image"><details>
+<summary>Tool use: **view_image**</summary>
+
+Viewed image `k-downloader-site-link-760.png`
+
+**Input:**
+
+- filePath: `/tmp/k-downloader-site-link-760.png`
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="view_image"><details>
+<summary>Tool use: **view_image**</summary>
+
+Viewed image `k-downloader-site-link-1120.png`
+
+**Input:**
+
+- filePath: `/tmp/k-downloader-site-link-1120.png`
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="task" data-tool-name="manage_todo_list"><details>
+<summary>Tool use: **manage_todo_list**</summary>
+
+Created 2 todos
+</details></tool-use>
+
+---
+
+_**User (2026-10-12 20:04:03Z)**_
+
+when you run tests, the app flashes on the screen many quick times
+
+---
+
+_**Agent (copilot/auto)**_
+
+Yes. Several tests launch real Electron windows, so they briefly appear on your desktop.
+
+The best fix is to run those GUI tests under **Xvfb**, a separate virtual display. That preserves realistic GUI testing without flashing windows on your screen. Regular `npm run gui` would still open normally.

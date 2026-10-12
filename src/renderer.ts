@@ -1,5 +1,5 @@
 import type { GuiFormatPolicy, GuiInspection, GuiInspectionState, GuiProgress, GuiTrack } from "./gui-types.js";
-import { ArrowLeft, Bug, CircleHelp, Copy, createIcons, EllipsisVertical, Keyboard, LoaderCircle, Minus, Palette, Scan, ScrollText, Settings, Square, X } from "lucide";
+import { ArrowLeft, Bug, CircleHelp, Copy, createIcons, EllipsisVertical, ExternalLink, Keyboard, LoaderCircle, Minus, Palette, Scan, ScrollText, Settings, Square, X } from "lucide";
 import { initializeAppearance } from "./appearance.js";
 import { initializeChangelog } from "./changelog.js";
 import { initializeHelp } from "./help.js";
@@ -9,12 +9,16 @@ document.querySelector<HTMLElement>("#menu-app-version")!.textContent = __APP_VE
 
 initializeAppearance();
 
-const windowIcons = { ArrowLeft, Bug, CircleHelp, Copy, EllipsisVertical, Keyboard, LoaderCircle, Minus, Palette, Scan, ScrollText, Settings, Square, X };
+const windowIcons = { ArrowLeft, Bug, CircleHelp, Copy, EllipsisVertical, ExternalLink, Keyboard, LoaderCircle, Minus, Palette, Scan, ScrollText, Settings, Square, X };
 createIcons({ icons: windowIcons });
 const changelog = initializeChangelog();
 const help = initializeHelp();
 
 const albumInput = document.querySelector<HTMLTextAreaElement>("#album-url")!;
+document.querySelector("#khinsider-link")!.addEventListener("click", (event) => {
+  event.preventDefault();
+  void window.kDownloader.openKhinsider();
+});
 const outputInput = document.querySelector<HTMLInputElement>("#output-root")!;
 const formatSelect = document.querySelector<HTMLSelectElement>("#format-policy")!;
 const discLabelSelect = document.querySelector<HTMLSelectElement>("#disc-label")!;
