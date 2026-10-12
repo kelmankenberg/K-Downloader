@@ -1,7 +1,15 @@
 import { contextBridge, ipcRenderer } from "electron";
-import type { GuiDownloadRequest, GuiInspectionState, GuiProgress, KDownloaderApi } from "../gui-types.js";
+import type { GuiDownloadRequest, GuiInspectionState, GuiProgress, GuiWindowState, KDownloaderApi } from "../gui-types.js";
 
 const api: KDownloaderApi = {
+  minimizeWindow: () => ipcRenderer.invoke("window:minimize"),
+  toggleMaximizeWindow: () => ipcRenderer.invoke("window:toggle-maximize"),
+  closeWindow: () => ipcRenderer.invoke("window:close"),
+  onWindowState: (listener: (state: GuiWindowState) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, state: GuiWindowState) => listener(state);
+    ipcRenderer.on("window:state", handler);
+    return () => ipcRenderer.removeListener("window:state", handler);
+  },
   defaultOutputRoot: () => ipcRenderer.invoke("output:default"),
   chooseOutput: () => ipcRenderer.invoke("output:choose"),
   inspect: (albumUrl: string) => ipcRenderer.invoke("album:inspect", albumUrl),

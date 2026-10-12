@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, ipcMain } from "electron";
+import { app, BrowserWindow, dialog, ipcMain, Menu } from "electron";
 import { resolve } from "node:path";
 import { downloadAlbum, type DownloadProgress } from "../downloader.js";
 import { planFormats } from "../formats.js";
@@ -61,7 +61,29 @@ function sendInspectionState(sender: Electron.WebContents, state: GuiInspectionS
   if (!sender.isDestroyed()) sender.send("inspection:state", state);
 }
 
+function sendWindowState(window: BrowserWindow): void {
+  if (!window.webContents.isDestroyed()) {
+    window.webContents.send("window:state", { maximized: window.isMaximized() });
+  }
+}
+
 function registerIpc(): void {
+  ipcMain.handle("window:minimize", (event) => {
+    assertWindowSender(event.sender.id).minimize();
+  });
+
+  ipcMain.handle("window:toggle-maximize", (event) => {
+    const window = assertWindowSender(event.sender.id);
+    if (window.isMaximized()) window.unmaximize();
+    else window.maximize();
+    sendWindowState(window);
+    return window.isMaximized();
+  });
+
+  ipcMain.handle("window:close", (event) => {
+    assertWindowSender(event.sender.id).close();
+  });
+
   ipcMain.handle("output:default", (event) => {
     assertWindowSender(event.sender.id);
     return defaultOutputRoot();
@@ -164,6 +186,8 @@ function registerIpc(): void {
 
 async function createWindow(): Promise<void> {
   const window = new BrowserWindow({
+    frame: false,
+    autoHideMenuBar: true,
     width: 1120,
     height: 780,
     minWidth: 760,
@@ -183,6 +207,9 @@ async function createWindow(): Promise<void> {
   window.webContents.on("will-navigate", (event, url) => {
     if (!url.startsWith("file://")) event.preventDefault();
   });
+  window.on("maximize", () => sendWindowState(window));
+  window.on("unmaximize", () => sendWindowState(window));
+  window.webContents.on("did-finish-load", () => sendWindowState(window));
   window.on("closed", () => {
     inspections.delete(senderId);
     activeInspections.get(senderId)?.controller.abort();
@@ -196,6 +223,7 @@ async function createWindow(): Promise<void> {
 
 app.whenReady().then(async () => {
   app.setName("K-Downloader");
+  Menu.setApplicationMenu(null);
   registerIpc();
   await createWindow();
   app.on("activate", () => {

@@ -12,13 +12,20 @@
     <main class="app-shell">
       <header class="topbar">
         <div class="brand-lockup">
-          <div class="brand-mark" aria-hidden="true">K</div>
-          <div>
-            <div class="brand-name">K-Downloader</div>
-            <div class="brand-subtitle">SOUNDTRACK ARCHIVE</div>
-          </div>
+          <div class="app-icon" aria-hidden="true">K</div>
+          <div class="brand-name">K-Downloader</div>
         </div>
-        <div class="mode-label"><span class="mode-dot"></span> Public track mode</div>
+        <nav class="window-controls" aria-label="Window controls">
+          <button id="minimize-window" class="window-control" type="button" aria-label="Minimize window" title="Minimize">
+            <i data-lucide="minus" aria-hidden="true"></i>
+          </button>
+          <button id="maximize-window" class="window-control" type="button" aria-label="Maximize window" title="Maximize">
+            <i data-lucide="square" aria-hidden="true"></i>
+          </button>
+          <button id="close-window" class="window-control close-control" type="button" aria-label="Close window" title="Close">
+            <i data-lucide="x" aria-hidden="true"></i>
+          </button>
+        </nav>
       </header>
 
       <section class="workspace">

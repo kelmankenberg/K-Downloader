@@ -33,10 +33,16 @@ button { cursor: pointer; }
 button:disabled { cursor: not-allowed; opacity: .42; }
 
 .app-shell { min-height: 100vh; display: flex; flex-direction: column; }
-.topbar { height: 74px; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); background: rgba(18, 26, 23, .82); }
-.brand-lockup { display: flex; align-items: center; gap: 12px; }
-.brand-mark { width: 34px; height: 34px; display: grid; place-items: center; background: var(--mint); color: #152018; font-size: 21px; font-weight: 800; clip-path: polygon(0 0, 100% 0, 100% 72%, 72% 100%, 0 100%); }
-.brand-name { font-size: 15px; font-weight: 800; }
+.topbar { height: 46px; flex: 0 0 46px; padding: 0 0 0 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); background: rgba(18, 26, 23, .96); -webkit-app-region: drag; user-select: none; }
+.brand-lockup { height: 100%; display: flex; align-items: center; gap: 9px; }
+.app-icon { width: 23px; height: 23px; display: grid; place-items: center; background: var(--mint); color: #152018; font-size: 15px; font-weight: 800; clip-path: polygon(0 0, 100% 0, 100% 72%, 72% 100%, 0 100%); }
+.brand-name { font-size: 12px; font-weight: 800; }
+.window-controls { height: 100%; display: flex; -webkit-app-region: no-drag; }
+.window-control { width: 46px; height: 100%; display: grid; place-items: center; border: 0; border-radius: 0; color: #b8c5bf; background: transparent; }
+.window-control:hover { color: var(--ink); background: #293630; }
+.window-control.close-control:hover { color: white; background: #c94343; }
+.window-control svg { width: 14px; height: 14px; stroke-width: 1.6; }
+.window-control:focus-visible { outline: 1px solid var(--mint); outline-offset: -3px; }
 .brand-subtitle, .eyebrow, .section-index, .mode-label, .progress-label, .app-footer { font-family: "DejaVu Sans Mono", monospace; letter-spacing: 0; }
 .brand-subtitle { margin-top: 3px; color: var(--dim); font-size: 9px; }
 .mode-label { display: flex; align-items: center; gap: 9px; color: #bac8c1; font-size: 11px; }

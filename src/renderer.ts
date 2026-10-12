@@ -1,4 +1,8 @@
 import type { GuiFormatPolicy, GuiInspection, GuiInspectionState, GuiProgress, GuiTrack } from "./gui-types.js";
+import { Copy, createIcons, Minus, Square, X } from "lucide";
+
+const windowIcons = { Copy, Minus, Square, X };
+createIcons({ icons: windowIcons });
 
 const albumInput = document.querySelector<HTMLTextAreaElement>("#album-url")!;
 const outputInput = document.querySelector<HTMLInputElement>("#output-root")!;
@@ -22,10 +26,21 @@ const progressText = document.querySelector<HTMLElement>("#progress-text")!;
 const emptyState = document.querySelector<HTMLElement>("#empty-state")!;
 const trackTable = document.querySelector<HTMLTableElement>("#track-table")!;
 const errorText = document.querySelector<HTMLElement>("#error-text")!;
+const minimizeWindowButton = document.querySelector<HTMLButtonElement>("#minimize-window")!;
+const maximizeWindowButton = document.querySelector<HTMLButtonElement>("#maximize-window")!;
+const closeWindowButton = document.querySelector<HTMLButtonElement>("#close-window")!;
 
 let inspection: GuiInspection | undefined;
 let busy = false;
 let inspectionBrowserVisible = false;
+
+function updateMaximizeButton(maximized: boolean): void {
+  const label = maximized ? "Restore window" : "Maximize window";
+  maximizeWindowButton.setAttribute("aria-label", label);
+  maximizeWindowButton.title = label;
+  maximizeWindowButton.innerHTML = `<i data-lucide="${maximized ? "copy" : "square"}" aria-hidden="true"></i>`;
+  createIcons({ icons: windowIcons });
+}
 
 function isValidAlbumUrl(value: string): boolean {
   try {
@@ -122,6 +137,14 @@ function setBusy(value: boolean): void {
   cancelButton.disabled = !value;
   if (inspection) renderTracks();
 }
+
+minimizeWindowButton.addEventListener("click", () => { void window.kDownloader.minimizeWindow(); });
+maximizeWindowButton.addEventListener("click", async () => {
+  const maximized = await window.kDownloader.toggleMaximizeWindow();
+  updateMaximizeButton(maximized);
+});
+closeWindowButton.addEventListener("click", () => { void window.kDownloader.closeWindow(); });
+window.kDownloader.onWindowState(({ maximized }) => updateMaximizeButton(maximized));
 
 inspectButton.addEventListener("click", async () => {
   errorText.textContent = "";

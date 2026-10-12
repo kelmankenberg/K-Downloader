@@ -22,6 +22,10 @@ export type GuiInspectionState = {
   browserVisible: boolean;
 };
 
+export type GuiWindowState = {
+  maximized: boolean;
+};
+
 export type GuiProgress = {
   stage: "track-start" | "track-complete" | "track-failed" | "canceled";
   number: number;
@@ -38,6 +42,10 @@ export type GuiDownloadRequest = {
 };
 
 export type KDownloaderApi = {
+  minimizeWindow: () => Promise<void>;
+  toggleMaximizeWindow: () => Promise<boolean>;
+  closeWindow: () => Promise<void>;
+  onWindowState: (listener: (state: GuiWindowState) => void) => () => void;
   defaultOutputRoot: () => Promise<string>;
   chooseOutput: () => Promise<string | undefined>;
   inspect: (albumUrl: string) => Promise<GuiInspection>;
