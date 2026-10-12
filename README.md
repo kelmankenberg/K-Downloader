@@ -77,6 +77,9 @@ default. Choices apply immediately and are saved locally across restarts.
 On Cinnamon, System mode follows the GTK theme (for example, Mint-Y versus
 Mint-Y-Dark); other desktops use Electron's native appearance notifications.
 Return with **Back to downloader** or press `Esc`.
+Settings has its own left navigation rail. **Appearance** retains the mode and
+theme controls; **Shortcuts** lists navigation, zoom, and changelog-resize
+commands with their key combinations. Switching pages preserves selections.
 
 **More > Restore Size/Position** restores the development default (1120x780)
 and centers the window on its current monitor. Window size, position, and

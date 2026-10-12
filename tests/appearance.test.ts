@@ -114,6 +114,31 @@ describe("appearance controls in Chromium", () => {
       await page.waitForFunction(() => document.documentElement.dataset.mode === "light");
       await page.keyboard.press("Control+Comma");
       await page.locator("#settings-view").waitFor({ state: "visible" });
+      expect(await page.locator("#appearance-nav").getAttribute("aria-current")).toBe("page");
+      const initialSelection = await page.getByRole("radio", { name: "System", exact: true }).isChecked();
+      await page.getByRole("button", { name: "Shortcuts", exact: true }).click();
+      expect(await page.locator("#shortcuts-page").isVisible()).toBe(true);
+      expect(await page.locator("#appearance-page").isVisible()).toBe(false);
+      expect(await page.locator("#shortcuts-nav").getAttribute("aria-current")).toBe("page");
+      expect(await page.locator(".shortcut-row dt").allTextContents()).toEqual([
+        "Open or close Settings",
+        "Close the active menu, Changelog, or Settings",
+        "Zoom in", "Zoom out", "Reset to 100%", "Zoom with the mouse",
+        "Widen panel", "Narrow panel", "Minimum panel width", "Maximum panel width (40%)",
+      ]);
+      for (const viewport of [{ width: 1120, height: 780 }, { width: 760, height: 620 }]) {
+        await page.setViewportSize(viewport);
+        await page.screenshot({ path: `/tmp/k-downloader-shortcuts-${viewport.width}.png` });
+        expect(await page.evaluate(() => {
+          const content = document.querySelector<HTMLElement>(".settings-content")!;
+          const footer = document.querySelector<HTMLElement>(".app-footer")!.getBoundingClientRect();
+          return content.scrollWidth <= content.clientWidth && footer.bottom === innerHeight;
+        })).toBe(true);
+      }
+      await page.getByRole("button", { name: "Appearance", exact: true }).click();
+      expect(await page.getByRole("radio", { name: "System", exact: true }).isChecked()).toBe(initialSelection);
+      expect(await page.locator("#shortcuts-page").isVisible()).toBe(false);
+      await page.setViewportSize({ width: 1120, height: 780 });
       for (const mode of ["light", "dark"] as const) {
         await page.getByRole("radio", { name: new RegExp(`^${mode}$`, "i") }).check();
         const accents = new Set<string>();

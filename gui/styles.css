@@ -120,12 +120,32 @@ button:disabled { cursor: not-allowed; opacity: .42; }
 
 .workspace { width: min(1440px, 100%); margin: 0 auto; padding: 28px 32px 24px; flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(300px, 370px) minmax(380px, 1fr); grid-template-rows: minmax(0, 1fr); gap: 18px; overflow: hidden; }
 .workspace[hidden], .settings-view[hidden] { display: none; }
-.settings-view { width: min(1440px, 100%); flex: 1; min-height: 0; margin: 0 auto; padding: 28px 32px 24px; overflow: auto; }
-.settings-header { min-height: 56px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); }
+.settings-view { width: min(1440px, 100%); flex: 1; min-height: 0; display: flex; flex-direction: column; margin: 0 auto; padding: 28px 32px 24px; overflow: hidden; }
+.settings-header { min-height: 56px; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); }
 .settings-header h1 { margin: 0; font-size: 18px; }
 .settings-close-button { min-height: 34px; padding: 0 10px; display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 3px; color: var(--ink); background: var(--panel-raised); font-size: 11px; }
 .settings-close-button:hover { border-color: var(--blue); background: var(--hover); }
 .settings-close-button svg { width: 15px; height: 15px; }
+.settings-layout { flex: 1; min-height: 0; display: grid; grid-template-columns: 180px minmax(0, 1fr); }
+.settings-nav { padding: 24px 14px 24px 0; border-right: 1px solid var(--line); overflow: auto; }
+.settings-nav-item { width: 100%; min-height: 40px; display: flex; align-items: center; gap: 10px; padding: 0 12px; margin-bottom: 4px; border: 0; border-radius: 3px; background: transparent; color: var(--muted); text-align: left; font-size: 12px; }
+.settings-nav-item:hover { background: var(--hover); color: var(--ink); }
+.settings-nav-item[aria-current="page"] { background: color-mix(in srgb, var(--mint) 12%, var(--panel)); color: var(--mint); }
+.settings-nav-item:focus-visible { outline: 2px solid var(--blue); outline-offset: -2px; }
+.settings-nav-item svg { width: 16px; height: 16px; flex: 0 0 16px; }
+.settings-content { min-width: 0; min-height: 0; padding: 0 28px; overflow: auto; }
+.appearance-section[hidden], .shortcuts-section[hidden] { display: none; }
+.shortcuts-section { max-width: 740px; padding: 28px 0; }
+.shortcuts-section h2 { margin: 0 0 24px; font-size: 15px; }
+.shortcut-group { margin: 0 0 28px; }
+.shortcut-group h3 { margin: 0 0 10px; color: var(--muted); font-size: 11px; font-weight: 700; }
+.shortcut-list { margin: 0; }
+.shortcut-row { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; padding: 13px 0; border-bottom: 1px solid var(--line); font-size: 12px; }
+.shortcut-row dt { flex: 1 1 180px; line-height: 1.5; }
+.shortcut-row dd { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin: 0; color: var(--muted); }
+.shortcut-row kbd { min-width: 26px; min-height: 26px; display: inline-grid; place-items: center; padding: 3px 7px; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; color: var(--ink); background: var(--panel-raised); font-family: "DejaVu Sans Mono", monospace; font-size: 10px; }
+.key-alternative { padding: 0 4px; font-size: 10px; }
+.shortcut-context { margin: 0 0 6px; color: var(--muted); font-size: 10px; }
 .control-panel, .results-panel { border: 1px solid var(--line); background: linear-gradient(155deg, var(--panel-raised), var(--panel) 65%); }
 .control-panel { padding: 24px; align-self: start; max-height: 100%; min-height: 0; overflow: auto; }
 .section-heading { display: flex; align-items: baseline; gap: 10px; margin: 0 0 18px; }
@@ -254,6 +274,9 @@ progress::-webkit-progress-value { background: linear-gradient(90deg, var(--blue
   .control-panel { width: 100%; }
   .settings-view { padding: 16px; }
   .settings-header { gap: 12px; }
+  .settings-layout { grid-template-columns: 135px minmax(0, 1fr); }
+  .settings-content { padding: 0 14px; }
+  .settings-nav { padding-right: 8px; }
   .app-footer { padding: 0 12px; gap: 8px; }
 }
 

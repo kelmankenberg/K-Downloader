@@ -4,6 +4,9 @@
 
 ### Added
 
+- Settings left navigation rail with Appearance and Shortcuts pages.
+- Grouped shortcut reference with keycaps for navigation, interface zoom,
+  and focused changelog-panel resizing.
 - Public KHInsider album discovery and sequential audio downloads.
 - CLI and desktop GUI with format previews and lossless selection policies.
 - Multi-disc output folders with CD and Disc labels.
@@ -27,6 +30,8 @@
 
 ### Changed
 
+- Appearance controls retain their layout and selections when switching Settings pages.
+- Settings content scrolls independently of its navigation rail, header, and statusbar.
 - More menu order: Restore Size/Position, Settings, Changelog, separator, app title/version.
 - Long Discovery Preview lists scroll inside the panel instead of expanding the app.
 - Setup and Settings content scroll independently while the bottom statusbar remains visible.

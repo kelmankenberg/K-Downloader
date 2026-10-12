@@ -143,7 +143,17 @@
             <span>Back to downloader</span>
           </button>
         </header>
-        <section class="appearance-section" aria-labelledby="appearance-heading">
+        <div class="settings-layout">
+          <nav class="settings-nav" aria-label="Settings navigation">
+            <button id="appearance-nav" class="settings-nav-item" type="button" aria-current="page" aria-controls="appearance-page">
+              <i data-lucide="palette" aria-hidden="true"></i><span>Appearance</span>
+            </button>
+            <button id="shortcuts-nav" class="settings-nav-item" type="button" aria-controls="shortcuts-page">
+              <i data-lucide="keyboard" aria-hidden="true"></i><span>Shortcuts</span>
+            </button>
+          </nav>
+          <div class="settings-content">
+        <section id="appearance-page" class="appearance-section" aria-labelledby="appearance-heading">
           <h2 id="appearance-heading">Appearance</h2>
           <fieldset class="appearance-setting">
             <legend>Mode</legend>
@@ -165,6 +175,37 @@
           </fieldset>
           <p id="appearance-storage-status" class="error-text" role="status"></p>
         </section>
+        <section id="shortcuts-page" class="shortcuts-section" aria-labelledby="shortcuts-heading" hidden>
+          <h2 id="shortcuts-heading">Shortcuts</h2>
+          <section class="shortcut-group" aria-labelledby="navigation-shortcuts-heading">
+            <h3 id="navigation-shortcuts-heading">Navigation</h3>
+            <dl class="shortcut-list">
+              <div class="shortcut-row"><dt>Open or close Settings</dt><dd><kbd>Ctrl</kbd><span>+</span><kbd>,</kbd></dd></div>
+              <div class="shortcut-row"><dt>Close the active menu, Changelog, or Settings</dt><dd><kbd>Esc</kbd></dd></div>
+            </dl>
+          </section>
+          <section class="shortcut-group" aria-labelledby="zoom-shortcuts-heading">
+            <h3 id="zoom-shortcuts-heading">Interface Scale</h3>
+            <dl class="shortcut-list">
+              <div class="shortcut-row"><dt>Zoom in</dt><dd><kbd>Ctrl</kbd><span>+</span><kbd>=</kbd><span class="key-alternative">or</span><kbd>Ctrl</kbd><span>+</span><kbd>+</kbd></dd></div>
+              <div class="shortcut-row"><dt>Zoom out</dt><dd><kbd>Ctrl</kbd><span>+</span><kbd>-</kbd></dd></div>
+              <div class="shortcut-row"><dt>Reset to 100%</dt><dd><kbd>Ctrl</kbd><span>+</span><kbd>0</kbd></dd></div>
+              <div class="shortcut-row"><dt>Zoom with the mouse</dt><dd><kbd>Ctrl</kbd><span>+</span><kbd>Mousewheel</kbd></dd></div>
+            </dl>
+          </section>
+          <section class="shortcut-group" aria-labelledby="changelog-shortcuts-heading">
+            <h3 id="changelog-shortcuts-heading">Changelog Panel</h3>
+            <p class="shortcut-context">When the resize handle is focused</p>
+            <dl class="shortcut-list">
+              <div class="shortcut-row"><dt>Widen panel</dt><dd><kbd>Left Arrow</kbd></dd></div>
+              <div class="shortcut-row"><dt>Narrow panel</dt><dd><kbd>Right Arrow</kbd></dd></div>
+              <div class="shortcut-row"><dt>Minimum panel width</dt><dd><kbd>Home</kbd></dd></div>
+              <div class="shortcut-row"><dt>Maximum panel width (40%)</dt><dd><kbd>End</kbd></dd></div>
+            </dl>
+          </section>
+        </section>
+          </div>
+        </div>
       </section>
       <aside id="changelog-drawer" class="changelog-drawer" data-open="false" aria-labelledby="changelog-heading" inert>
         <div id="changelog-resize" class="changelog-resize" role="separator" tabindex="0" aria-label="Changelog panel width" aria-orientation="vertical" aria-valuemin="24" aria-valuemax="40" aria-valuenow="32"></div>

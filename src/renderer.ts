@@ -1,5 +1,5 @@
 import type { GuiFormatPolicy, GuiInspection, GuiInspectionState, GuiProgress, GuiTrack } from "./gui-types.js";
-import { ArrowLeft, Copy, createIcons, EllipsisVertical, LoaderCircle, Minus, Scan, ScrollText, Settings, Square, X } from "lucide";
+import { ArrowLeft, Copy, createIcons, EllipsisVertical, Keyboard, LoaderCircle, Minus, Palette, Scan, ScrollText, Settings, Square, X } from "lucide";
 import { initializeAppearance } from "./appearance.js";
 import { initializeChangelog } from "./changelog.js";
 
@@ -8,7 +8,7 @@ document.querySelector<HTMLElement>("#menu-app-version")!.textContent = __APP_VE
 
 initializeAppearance();
 
-const windowIcons = { ArrowLeft, Copy, EllipsisVertical, LoaderCircle, Minus, Scan, ScrollText, Settings, Square, X };
+const windowIcons = { ArrowLeft, Copy, EllipsisVertical, Keyboard, LoaderCircle, Minus, Palette, Scan, ScrollText, Settings, Square, X };
 createIcons({ icons: windowIcons });
 const changelog = initializeChangelog();
 
@@ -47,6 +47,10 @@ const changelogMenuItem = document.querySelector<HTMLButtonElement>("#changelog-
 const workspaceView = document.querySelector<HTMLElement>("#workspace")!;
 const settingsView = document.querySelector<HTMLElement>("#settings-view")!;
 const closeSettingsButton = document.querySelector<HTMLButtonElement>("#close-settings")!;
+const appearanceNav = document.querySelector<HTMLButtonElement>("#appearance-nav")!;
+const shortcutsNav = document.querySelector<HTMLButtonElement>("#shortcuts-nav")!;
+const appearancePage = document.querySelector<HTMLElement>("#appearance-page")!;
+const shortcutsPage = document.querySelector<HTMLElement>("#shortcuts-page")!;
 
 let inspection: GuiInspection | undefined;
 let busy = false;
@@ -78,6 +82,19 @@ function setSettingsOpen(open: boolean): void {
   closeMoreMenu();
   if (open) closeSettingsButton.focus();
   else albumInput.focus();
+}
+
+function selectSettingsPage(page: "appearance" | "shortcuts"): void {
+  appearancePage.hidden = page !== "appearance";
+  shortcutsPage.hidden = page !== "shortcuts";
+  if (page === "appearance") {
+    appearanceNav.setAttribute("aria-current", "page");
+    shortcutsNav.removeAttribute("aria-current");
+  } else {
+    shortcutsNav.setAttribute("aria-current", "page");
+    appearanceNav.removeAttribute("aria-current");
+  }
+  document.querySelector<HTMLElement>(".settings-content")!.scrollTop = 0;
 }
 
 function updateMaximizeButton(maximized: boolean): void {
@@ -198,6 +215,8 @@ moreButton.addEventListener("click", () => {
   moreButton.setAttribute("aria-expanded", String(!moreMenu.hidden));
 });
 settingsMenuItem.addEventListener("click", () => setSettingsOpen(true));
+appearanceNav.addEventListener("click", () => selectSettingsPage("appearance"));
+shortcutsNav.addEventListener("click", () => selectSettingsPage("shortcuts"));
 restoreBoundsMenuItem.addEventListener("click", () => {
   closeMoreMenu();
   void window.kDownloader.restoreWindowBounds();
