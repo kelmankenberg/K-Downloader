@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'" />
+    <title>K-Downloader</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script defer src="./renderer.js"></script>
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <div class="brand-lockup">
+          <div class="brand-mark" aria-hidden="true">K</div>
+          <div>
+            <div class="brand-name">K-Downloader</div>
+            <div class="brand-subtitle">SOUNDTRACK ARCHIVE</div>
+          </div>
+        </div>
+        <div class="mode-label"><span class="mode-dot"></span> Public track mode</div>
+      </header>
+
+      <section class="workspace">
+        <aside class="control-panel" aria-label="Download setup">
+          <div class="section-heading"><span class="section-index">01</span><h1>Album source</h1></div>
+          <label for="album-url">KHInsider album URL</label>
+          <textarea id="album-url" rows="3" spellcheck="false" placeholder="https://downloads.khinsider.com/game-soundtracks/album/…"></textarea>
+          <div class="microcopy">Inspection opens a separate visible Chromium window. No login is used.</div>
+
+          <div class="section-heading destination-heading"><span class="section-index">02</span><h2>Destination</h2></div>
+          <label for="output-root">Save album under</label>
+          <div class="path-control">
+            <input id="output-root" type="text" spellcheck="false" />
+            <button id="browse-button" class="icon-button" type="button" aria-label="Choose download folder" title="Choose download folder">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 6.5h6l2 2H20a1 1 0 0 1 1 1v8.8a1.7 1.7 0 0 1-1.7 1.7H4.7A1.7 1.7 0 0 1 3 18.3V7a.5.5 0 0 1 .5-.5Z"/><path d="M12 12v5m-2.5-2.5h5"/></svg>
+            </button>
+          </div>
+
+          <div class="section-heading format-heading"><span class="section-index">03</span><h2>Format policy</h2></div>
+          <label for="format-policy">Choose source audio</label>
+          <select id="format-policy">
+            <option value="prefer-lossless">Prefer lossless</option>
+            <option value="lossless-only">Lossless only</option>
+          </select>
+          <label class="check-row" for="skip-unavailable">
+            <input id="skip-unavailable" type="checkbox" disabled />
+            <span>Skip tracks without the selected format</span>
+          </label>
+          <div id="disc-label-setting" class="disc-label-setting" hidden>
+            <label for="disc-label">Disc folder label</label>
+            <select id="disc-label">
+              <option value="CD">CD1, CD2, …</option>
+              <option value="Disc">Disc1, Disc2, …</option>
+            </select>
+          </div>
+
+          <div class="action-row">
+            <button id="inspect-button" class="secondary-button" type="button">Inspect album</button>
+            <button id="download-button" class="primary-button" type="button" disabled>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v11m0 0 4-4m-4 4-4-4M5 17v3h14v-3"/></svg>
+              Download
+            </button>
+          </div>
+          <button id="cancel-button" class="cancel-button" type="button" disabled>Cancel active download</button>
+          <p id="error-text" class="error-text" role="alert"></p>
+        </aside>
+
+        <section class="results-panel" aria-label="Album preview and progress">
+          <div class="results-header">
+            <div>
+              <div class="eyebrow">DISCOVERY PREVIEW</div>
+              <h2 id="album-title">No album inspected</h2>
+            </div>
+            <div class="track-count" id="track-count">Waiting</div>
+          </div>
+
+          <div class="status-strip">
+            <span id="status-dot" class="status-dot" data-tone="idle"></span>
+            <span id="status-text">Paste an album URL to begin</span>
+          </div>
+          <button id="inspection-indicator" class="inspection-indicator" type="button" hidden disabled aria-pressed="false">
+            <span class="status-dot" data-tone="working"></span>
+            <span>Inspection in progress</span>
+            <span id="inspection-indicator-text" class="inspection-indicator-action">Starting browser…</span>
+          </button>
+
+          <div id="empty-state" class="empty-state">
+            <div class="empty-glyph" aria-hidden="true"><span></span><span></span><span></span></div>
+            <div class="empty-title">Ready for an album</div>
+            <div class="empty-note">Track formats and fallback choices appear here before transfer.</div>
+          </div>
+
+          <div class="table-wrap">
+            <table id="track-table" hidden>
+              <thead><tr><th>Disc</th><th>#</th><th>Track</th><th>Available</th><th>Selected</th><th>Status</th></tr></thead>
+              <tbody id="track-rows"></tbody>
+            </table>
+          </div>
+
+          <footer class="progress-footer">
+            <div class="progress-label"><span>TRANSFER</span><span id="progress-text">No active transfer</span></div>
+            <progress id="download-progress" value="0" max="1"></progress>
+          </footer>
+        </section>
+      </section>
+      <footer class="app-footer"><span>Original audio bytes · no transcoding</span><span>LOCAL SESSION</span></footer>
+    </main>
+  </body>
+</html>

@@ -1,0 +1,29 @@
+{
+  "name": "k-downloader",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "build:gui": "node scripts/build-gui.mjs",
+    "gui": "npm run build:gui && electron dist/electron/main.cjs",
+    "inspect": "tsx src/cli.ts inspect",
+    "download": "tsx src/cli.ts download",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "parse5": "^7.3.0",
+    "playwright": "^1.55.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "electron": "^44.7.0",
+    "esbuild": "^0.28.2",
+    "tsx": "^4.19.0",
+    "typescript": "^5.8.0",
+    "vitest": "^5.0.4"
+  }
+}
