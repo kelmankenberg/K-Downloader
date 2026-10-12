@@ -22047,3 +22047,3834 @@ Very good. LEt's add the following:
 - in the top toolbar next to the Minimize button, add a More (kebab) menu with a Settings menu item.
 - The SEttings menu item should show the typical gear icon and also show the keyboard shortcut for it (Ctrl+,)
 - Add a Settings page that replaces the displayed 'main content' (Album source, Discovery Preview). It should be blank for the moment but have a suitable Setting title on the page. It should also have a button to close the SEttings page as well as close using the Esc key.
+
+---
+
+_**Agent (copilot/auto)**_
+
+That’s a completion notice from the earlier GUI run, not an error. Its build succeeded; the Settings-enabled GUI was launched separately afterward.
+
+---
+
+_**User (2026-10-12 16:21:06Z)**_
+
+[Terminal 983c36fd-ca08-4064-95dc-0b9ebd3b373b notification: command completed. The terminal has been cleaned up.]
+Terminal output:
+kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+
+> k-downloader@0.1.0 gui
+> npm run build:gui && electron dist/electron/main.cjs
+
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+---
+
+_**User (2026-10-12 16:21:20Z)**_
+
+[Terminal 5e9010e6-f303-4bb5-904b-0258e687aee4 notification: command completed. The terminal has been cleaned up.]
+Terminal output:
+kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+
+> k-downloader@0.1.0 gui
+> npm run build:gui && electron dist/electron/main.cjs
+
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+[3054150:1012/111149.712504:ERROR:gpu/command_buffer/service/gpu_persistent_cache.cc:137] Persistent cache error: 1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+---
+
+_**Agent (copilot/auto)**_
+
+The Settings GUI run has now exited. Its build succeeded; the GPU persistent-cache warning is an Electron warning, not a build failure. Reopen the app with `npm run gui`.
+
+I suggest separating **Mode** from **Color Theme**:
+
+- **Mode:** Light, Dark, or System. System follows the desktop preference.
+- **Color Theme:** Each theme has matching light and dark palettes, so switching modes preserves its identity.
+
+For the first theme set:
+
+| Theme | Accent | Light Surface | Dark Surface |
+|---|---|---|---|
+| **Mint** | Leaf green | Cool white | Charcoal green, matching the current UI |
+| **Ocean** | Teal | Pale gray | Neutral charcoal |
+| **Amber** | Gold | White | Graphite |
+| **Rose** | Raspberry | Soft gray | Near-black |
+| **Monochrome** | Graphite / silver | White | Charcoal |
+
+I’d default to **System + Mint**. In Appearance, use a three-way segmented control for mode and labeled color swatches for themes. Each palette should adjust backgrounds, text, 
+
+I suggest separating **Mode** from **Color Theme**:
+
+- **Mode:** Light, Dark, or System. System follows the desktop preference.
+- **Color Theme:** Each theme has matching light and dark palettes, so switching modes preserves its identity.
+
+For the first theme set:
+
+| Theme | Accent | Light Surface | Dark Surface |
+|---|---|---|---|
+| **Mint** | Leaf green | Cool white | Charcoal green, matching the current UI |
+| **Ocean** | Teal | Pale gray | Neutral charcoal |
+| **Amber** | Gold | White | Graphite |
+| **Rose** | Raspberry | Soft gray | Near-black |
+| **Monochrome** | Graphite / silver | White | Charcoal |
+
+I’d default to **System + Mint**. In Appearance, use a three-way segmented control for mode and labeled color swatches for themes. Each palette should adjust backgrounds, text, borders, hover/focus states, and button contrast, not just the accent. Error and warning colors should remain recognizable across themes.
+
+Selections should persist across restarts. Does this theme set work for you?
+
+---
+
+_**User (2026-10-12 16:22:58Z)**_
+
+goiod. now in Settings, I want to add an Appearance section. This should have options for selecting Light, Dark and System modes. I will also want to include theming color options that honor the light and dark modes also.
+Suggest color themes before implementation.
+
+---
+
+_**User (2026-10-12 16:34:59Z)**_
+
+goiod. now in Settings, I want to add an Appearance section. This should have options for selecting Light, Dark and System modes. I will also want to include theming color options that honor the light and dark modes also.
+Suggest color themes before implementation.
+
+---
+
+_**Agent (copilot/auto)**_
+
+<think><details><summary>Thought Process</summary>
+I’ll add Appearance controls for Light, Dark, and System plus the five color themes, defaulting to System + Mint. I’ll also persist the choices and replace fixed UI colors with palette tokens so the whole app responds to mode changes.
+
+The Settings view can keep the downloader mounted while showing Appearance, so changing a theme won’t discard the current album preview. I’ll store these non-sensitive preferences locally, validate saved values, and listen for desktop color-scheme changes only when System mode is selected.
+</details></think>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **appearance.ts**</summary>
+
+@@ lines 1-1 @@
+
+```
+export const appearanceModes = ["light", "dark", "system"] as const;
+export const colorThemes = ["mint", "ocean", "amber", "rose", "monochrome"] as const;
+export type Appearance = {
+  mode: typeof appearanceModes[number];
+  theme: typeof colorThemes[number];
+};
+
+export const defaultAppearance: Appearance = { mode: "system", theme: "mint" };
+export const appearanceStorageKey = "k-downloader.appearance";
+
+export function parseAppearance(raw: string | null): Appearance {
+  try {
+    const value = JSON.parse(raw ?? "null");
+    return {
+      mode: appearanceModes.includes(value?.mode) ? value.mode : defaultAppearance.mode,
+      theme: colorThemes.includes(value?.theme) ? value.theme : defaultAppearance.theme,
+    };
+  } catch {
+    return { ...defaultAppearance };
+  }
+}
+
+export function resolvedMode(mode: Appearance["mode"], systemDark: boolean): "light" | "dark" {
+  return mode === "system" ? systemDark ? "dark" : "light" : mode;
+}
+
+export function initializeAppearance(): void {
+  let preferences = { ...defaultAppearance };
+  try {
+    preferences = parseAppearance(localStorage.getItem(appearanceStorageKey));
+  } catch {
+    // Storage can be unavailable in restricted browser contexts.
+  }
+  const systemScheme = matchMedia("(prefers-color-scheme: dark)");
+  const modeInputs = document.querySelectorAll<HTMLInputElement>('input[name="appearance-mode"]');
+  const themeInputs = document.querySelectorAll<HTMLInputElement>('input[name="color-theme"]');
+  const storageStatus = document.querySelector<HTMLElement>("#appearance-storage-status");
+
+  function apply(): void {
+    document.documentElement.dataset.mode = resolvedMode(preferences.mode, systemScheme.matches);
+    document.documentElement.dataset.theme = preferences.theme;
+    modeInputs.forEach((input) => { input.checked = input.value === preferences.mode; });
+    themeInputs.forEach((input) => { input.checked = input.value === preferences.theme; });
+  }
+
+  function save(): void {
+    apply();
+    try {
+      localStorage.setItem(appearanceStorageKey, JSON.stringify(preferences));
+      if (storageStatus) storageStatus.textContent = "";
+    } catch {
+      if (storageStatus) storageStatus.textContent = "Appearance could not be saved. Changes apply to this session only.";
+    }
+  }
+
+  modeInputs.forEach((input) => input.addEventListener("change", () => {
+    preferences.mode = input.value as Appearance["mode"];
+    save();
+  }));
+  themeInputs.forEach((input) => input.addEventListener("change", () => {
+    preferences.theme = input.value as Appearance["theme"];
+    save();
+  }));
+  systemScheme.addEventListener("change", apply);
+  apply();
+}
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **renderer.ts**</summary>
+
+@@ lines 1-304 @@
+
+```
+import type { GuiFormatPolicy, GuiInspection, GuiInspectionState, GuiProgress, GuiTrack } from "./gui-types.js";
+import { ArrowLeft, Copy, createIcons, EllipsisVertical, Minus, Settings, Square, X } from "lucide";
+import { initializeAppearance } from "./appearance.js";
+
+initializeAppearance();
+
+const windowIcons = { ArrowLeft, Copy, EllipsisVertical, Minus, Settings, Square, X };
+createIcons({ icons: windowIcons });
+
+const albumInput = document.querySelector<HTMLTextAreaElement>("#album-url")!;
+const outputInput = document.querySelector<HTMLInputElement>("#output-root")!;
+const formatSelect = document.querySelector<HTMLSelectElement>("#format-policy")!;
+const discLabelSelect = document.querySelector<HTMLSelectElement>("#disc-label")!;
+const discLabelSetting = document.querySelector<HTMLElement>("#disc-label-setting")!;
+const skipInput = document.querySelector<HTMLInputElement>("#skip-unavailable")!;
+const inspectButton = document.querySelector<HTMLButtonElement>("#inspect-button")!;
+const downloadButton = document.querySelector<HTMLButtonElement>("#download-button")!;
+const cancelButton = document.querySelector<HTMLButtonElement>("#cancel-button")!;
+const browseButton = document.querySelector<HTMLButtonElement>("#browse-button")!;
+const tableBody = document.querySelector<HTMLTableSectionElement>("#track-rows")!;
+const albumTitle = document.querySelector<HTMLElement>("#album-title")!;
+const trackCount = document.querySelector<HTMLElement>("#track-count")!;
+const statusText = document.querySelector<HTMLElement>("#status-text")!;
+const statusDot = document.querySelector<HTMLElement>("#status-dot")!;
+const inspectionIndicator = document.querySelector<HTMLButtonElement>("#inspection-indicator")!;
+const inspectionIndicatorText = document.querySelector<HTMLElement>("#inspection-indicator-text")!;
+const progress = document.querySelector<HTMLProgressElement>("#download-progress")!;
+const progressText = document.querySelector<HTMLElement>("#progress-text")!;
+const emptyState = document.querySelector<HTMLElement>("#empty-state")!;
+const trackTable = document.querySelector<HTMLTableElement>("#track-table")!;
+const errorText = document.querySelector<HTMLElement>("#error-text")!;
+const minimizeWindowButton = document.querySelector<HTMLButtonElement>("#minimize-window")!;
+const maximizeWindowButton = document.querySelector<HTMLButtonElement>("#maximize-window")!;
+const closeWindowButton = document.querySelector<HTMLButtonElement>("#close-window")!;
+const moreMenuWrap = document.querySelector<HTMLElement>("#more-menu-wrap")!;
+const moreButton = document.querySelector<HTMLButtonElement>("#more-button")!;
+const moreMenu = document.querySelector<HTMLElement>("#more-menu")!;
+const settingsMenuItem = document.querySelector<HTMLButtonElement>("#settings-menu-item")!;
+const workspaceView = document.querySelector<HTMLElement>("#workspace")!;
+const settingsView = document.querySelector<HTMLElement>("#settings-view")!;
+const closeSettingsButton = document.querySelector<HTMLButtonElement>("#close-settings")!;
+
+let inspection: GuiInspection | undefined;
+let busy = false;
+let inspectionBrowserVisible = false;
+let settingsOpen = false;
+
+function closeMoreMenu(): void {
+  moreMenu.hidden = true;
+  moreButton.setAttribute("aria-expanded", "false");
+}
+
+function setSettingsOpen(open: boolean): void {
+  settingsOpen = open;
+  workspaceView.hidden = open;
+  settingsView.hidden = !open;
+  closeMoreMenu();
+  if (open) closeSettingsButton.focus();
+  else albumInput.focus();
+}
+
+function updateMaximizeButton(maximized: boolean): void {
+  const label = maximized ? "Restore window" : "Maximize window";
+  maximizeWindowButton.setAttribute("aria-label", label);
+  maximizeWindowButton.title = label;
+  maximizeWindowButton.innerHTML = `<i data-lucide="${maximized ? "copy" : "square"}" aria-hidden="true"></i>`;
+  createIcons({ icons: windowIcons });
+}
+
+function isValidAlbumUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" &&
+      url.hostname.toLowerCase() === "downloads.khinsider.com" &&
+      url.pathname.startsWith("/game-soundtracks/album/") &&
+      !url.username && !url.password;
+  } catch {
+    return false;
+  }
+}
+
+function setStatus(label: string, tone: "idle" | "working" | "success" | "error" = "idle"): void {
+  statusText.textContent = label;
+  statusDot.dataset.tone = tone;
+}
+
+function selectedFormat(track: GuiTrack): { format?: string; state: string; fallback: boolean } {
+  const value = formatSelect.value;
+  if (value === "prefer-lossless") {
+    const lossless = ["FLAC", "ALAC", "WAV"].find((format) => track.formats.includes(format));
+    if (lossless) return { format: lossless, state: "Ready", fallback: false };
+    const lossy = track.formats.find((format) => format === "MP3") ?? track.formats[0];
+    return lossy
+      ? { format: lossy, state: "Ready", fallback: true }
+      : { state: "Unavailable", fallback: false };
+  }
+  const requested = value === "lossless-only" ? ["FLAC", "ALAC", "WAV"].find((format) => track.formats.includes(format)) : value.slice("format:".length);
+  if (requested && track.formats.includes(requested)) return { format: requested, state: "Ready", fallback: false };
+  return skipInput.checked
+    ? { state: "Skipped", fallback: false }
+    : { state: "Unavailable", fallback: false };
+}
+
+function renderTracks(): void {
+  if (!inspection) return;
+  const rows = inspection.tracks.map((track) => {
+    const selected = selectedFormat(track);
+    const row = document.createElement("tr");
+    row.innerHTML = `<td class="track-disc"></td><td class="track-number"></td><td class="track-title"></td><td class="track-formats"></td><td class="track-choice"></td><td class="track-state"></td>`;
+    row.querySelector(".track-disc")!.textContent = track.discNumber === undefined ? "-" : `${discLabelSelect.value}${track.discNumber}`;
+    row.querySelector(".track-number")!.textContent = String(track.number).padStart(2, "0");
+    row.querySelector(".track-title")!.textContent = track.title;
+    row.querySelector(".track-formats")!.textContent = track.formats.join(", ") || "None found";
+    row.querySelector(".track-choice")!.textContent = selected.format ?? "-";
+    const state = row.querySelector<HTMLElement>(".track-state")!;
+    state.textContent = selected.state;
+    state.dataset.state = selected.state.toLowerCase();
+    if (selected.fallback) state.textContent += " · fallback";
+    return row;
+  });
+  tableBody.replaceChildren(...rows);
+  const blocked = inspection.tracks.some((track) => selectedFormat(track).state === "Unavailable");
+  downloadButton.disabled = busy || blocked;
+  trackCount.textContent = `${inspection.trackCount} tracks`;
+  emptyState.hidden = true;
+  trackTable.hidden = false;
+}
+
+function currentPolicy(): GuiFormatPolicy {
+  if (formatSelect.value === "prefer-lossless") return { kind: "prefer-lossless" };
+  if (formatSelect.value === "lossless-only") return { kind: "lossless-only", skipUnavailable: skipInput.checked };
+  return { kind: "specific", format: formatSelect.value.slice("format:".length), skipUnavailable: skipInput.checked };
+}
+
+function updateFormatOptions(): void {
+  if (!inspection) return;
+  const formats = [...new Set(inspection.tracks.flatMap((track) => track.formats))].sort();
+  const discs = [...new Set(inspection.tracks.flatMap((track) => track.discNumber === undefined ? [] : [track.discNumber]))];
+  discLabelSetting.hidden = discs.length < 2;
+  const previous = formatSelect.value;
+  formatSelect.querySelectorAll("option[data-discovered]").forEach((option) => option.remove());
+  for (const format of formats) {
+    const option = document.createElement("option");
+    option.value = `format:${format}`;
+    option.textContent = `Specific format: ${format}`;
+    option.dataset.discovered = "true";
+    formatSelect.append(option);
+  }
+  if ([...formatSelect.options].some((option) => option.value === previous)) formatSelect.value = previous;
+  renderTracks();
+}
+
+function setBusy(value: boolean): void {
+  busy = value;
+  inspectButton.disabled = value;
+  browseButton.disabled = value;
+  albumInput.disabled = value;
+  outputInput.disabled = value;
+  formatSelect.disabled = value;
+  discLabelSelect.disabled = value;
+  skipInput.disabled = value || formatSelect.value === "prefer-lossless";
+  cancelButton.disabled = !value;
+  if (inspection) renderTracks();
+}
+
+minimizeWindowButton.addEventListener("click", () => { void window.kDownloader.minimizeWindow(); });
+maximizeWindowButton.addEventListener("click", async () => {
+  const maximized = await window.kDownloader.toggleMaximizeWindow();
+  updateMaximizeButton(maximized);
+});
+closeWindowButton.addEventListener("click", () => { void window.kDownloader.closeWindow(); });
+window.kDownloader.onWindowState(({ maximized }) => updateMaximizeButton(maximized));
+
+moreButton.addEventListener("click", () => {
+  moreMenu.hidden = !moreMenu.hidden;
+  moreButton.setAttribute("aria-expanded", String(!moreMenu.hidden));
+});
+settingsMenuItem.addEventListener("click", () => setSettingsOpen(true));
+closeSettingsButton.addEventListener("click", () => setSettingsOpen(false));
+document.addEventListener("click", (event) => {
+  if (!moreMenuWrap.contains(event.target as Node)) closeMoreMenu();
+});
+document.addEventListener("keydown", (event) => {
+  if ((event.ctrlKey || event.metaKey) && event.key === ",") {
+    event.preventDefault();
+    setSettingsOpen(!settingsOpen);
+  } else if (event.key === "Escape") {
+    if (settingsOpen) setSettingsOpen(false);
+    else if (!moreMenu.hidden) {
+      closeMoreMenu();
+      moreButton.focus();
+    }
+  }
+});
+
+inspectButton.addEventListener("click", async () => {
+  errorText.textContent = "";
+  const albumUrl = albumInput.value.trim();
+  if (!isValidAlbumUrl(albumUrl)) {
+    errorText.textContent = "Paste a valid HTTPS KHInsider album URL.";
+    setStatus("Album URL required", "error");
+    albumInput.focus();
+    return;
+  }
+  inspection = undefined;
+  downloadButton.disabled = true;
+  tableBody.replaceChildren();
+  trackTable.hidden = true;
+  emptyState.hidden = false;
+  setBusy(true);
+  setStatus("Inspection in progress", "working");
+  try {
+    inspection = await window.kDownloader.inspect(albumUrl);
+    albumTitle.textContent = inspection.albumTitle;
+    updateFormatOptions();
+    setStatus("Preview ready", "success");
+  } catch (error) {
+    errorText.textContent = error instanceof Error ? error.message : String(error);
+    setStatus("Inspection failed", "error");
+  } finally {
+    setBusy(false);
+    if (inspection) renderTracks();
+  }
+});
+
+inspectionIndicator.addEventListener("click", async () => {
+  if (inspectionIndicator.disabled) return;
+  try {
+    inspectionBrowserVisible = await window.kDownloader.toggleInspectionBrowser();
+    inspectionIndicator.setAttribute("aria-pressed", String(inspectionBrowserVisible));
+    inspectionIndicatorText.textContent = inspectionBrowserVisible ? "Hide browser" : "Show browser";
+  } catch (error) {
+    errorText.textContent = error instanceof Error ? error.message : String(error);
+  }
+});
+
+window.kDownloader.onInspectionState((state: GuiInspectionState) => {
+  inspectionBrowserVisible = state.browserVisible;
+  inspectionIndicator.hidden = !state.active;
+  inspectionIndicator.disabled = !state.browserReady;
+  inspectionIndicator.setAttribute("aria-pressed", String(state.browserVisible));
+  inspectionIndicatorText.textContent = state.browserReady
+    ? state.browserVisible ? "Hide browser" : "Show browser"
+    : "Starting browser…";
+  if (state.active) setStatus("Inspection in progress", "working");
+});
+
+browseButton.addEventListener("click", async () => {
+  const selected = await window.kDownloader.chooseOutput();
+  if (selected) outputInput.value = selected;
+});
+
+formatSelect.addEventListener("change", () => {
+  skipInput.disabled = busy || formatSelect.value === "prefer-lossless";
+  renderTracks();
+});
+discLabelSelect.addEventListener("change", renderTracks);
+skipInput.addEventListener("change", renderTracks);
+
+downloadButton.addEventListener("click", async () => {
+  if (!inspection) return;
+  errorText.textContent = "";
+  progress.value = 0;
+  progressText.textContent = "Preparing album";
+  setBusy(true);
+  setStatus("Downloading", "working");
+  try {
+    const result = await window.kDownloader.download({
+      policy: currentPolicy(),
+      outputRoot: outputInput.value,
+      discLabel: discLabelSelect.value === "Disc" ? "Disc" : "CD",
+    });
+    progress.value = inspection.trackCount;
+    progress.max = inspection.trackCount;
+    progressText.textContent = `${result.state} · ${result.directory}`;
+    setStatus(result.state === "complete" ? "Download complete" : result.state, result.state === "complete" ? "success" : "error");
+  } catch (error) {
+    errorText.textContent = error instanceof Error ? error.message : String(error);
+    setStatus("Download failed", "error");
+  } finally {
+    setBusy(false);
+  }
+});
+
+cancelButton.addEventListener("click", async () => {
+  cancelButton.disabled = true;
+  await window.kDownloader.cancel();
+  setStatus("Canceling active track…", "working");
+});
+
+window.kDownloader.onProgress((event: GuiProgress) => {
+  progress.max = event.totalTracks;
+  progress.value = event.completedTracks;
+  progressText.textContent = event.stage === "track-start"
+    ? `Downloading ${String(event.number).padStart(2, "0")} · ${event.title}`
+    : event.stage === "track-complete"
+      ? `Completed ${event.completedTracks} of ${event.totalTracks} tracks`
+      : event.stage === "track-failed"
+        ? `Failed ${String(event.number).padStart(2, "0")} · ${event.title}`
+        : "Canceled";
+});
+
+void window.kDownloader.defaultOutputRoot().then((value) => { outputInput.value = value; });
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **index.html**</summary>
+
+@@ lines 1-163 @@
+
+```
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'" />
+    <title>K-Downloader</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script defer src="./renderer.js"></script>
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <div class="brand-lockup">
+          <div class="app-icon" aria-hidden="true">K</div>
+          <div class="brand-name">K-Downloader</div>
+        </div>
+        <div class="titlebar-actions">
+          <div id="more-menu-wrap" class="more-menu-wrap">
+            <button id="more-button" class="window-control more-button" type="button" aria-label="More options" title="More options" aria-haspopup="menu" aria-expanded="false">
+              <i data-lucide="ellipsis-vertical" aria-hidden="true"></i>
+            </button>
+            <div id="more-menu" class="more-menu" role="menu" aria-label="More options" hidden>
+              <button id="settings-menu-item" class="more-menu-item" type="button" role="menuitem">
+                <i data-lucide="settings" aria-hidden="true"></i>
+                <span>Settings</span>
+                <kbd>Ctrl+,</kbd>
+              </button>
+            </div>
+          </div>
+          <nav class="window-controls" aria-label="Window controls">
+          <button id="minimize-window" class="window-control" type="button" aria-label="Minimize window" title="Minimize">
+            <i data-lucide="minus" aria-hidden="true"></i>
+          </button>
+          <button id="maximize-window" class="window-control" type="button" aria-label="Maximize window" title="Maximize">
+            <i data-lucide="square" aria-hidden="true"></i>
+          </button>
+          <button id="close-window" class="window-control close-control" type="button" aria-label="Close window" title="Close">
+            <i data-lucide="x" aria-hidden="true"></i>
+          </button>
+          </nav>
+        </div>
+      </header>
+
+      <section id="workspace" class="workspace">
+        <aside class="control-panel" aria-label="Download setup">
+          <div class="section-heading"><span class="section-index">01</span><h1>Album source</h1></div>
+          <label for="album-url">KHInsider album URL</label>
+          <textarea id="album-url" rows="3" spellcheck="false" placeholder="https://downloads.khinsider.com/game-soundtracks/album/…"></textarea>
+          <div class="microcopy">Inspection opens a separate visible Chromium window. No login is used.</div>
+
+          <div class="section-heading destination-heading"><span class="section-index">02</span><h2>Destination</h2></div>
+          <label for="output-root">Save album under</label>
+          <div class="path-control">
+            <input id="output-root" type="text" spellcheck="false" />
+            <button id="browse-button" class="icon-button" type="button" aria-label="Choose download folder" title="Choose download folder">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.5 6.5h6l2 2H20a1 1 0 0 1 1 1v8.8a1.7 1.7 0 0 1-1.7 1.7H4.7A1.7 1.7 0 0 1 3 18.3V7a.5.5 0 0 1 .5-.5Z"/><path d="M12 12v5m-2.5-2.5h5"/></svg>
+            </button>
+          </div>
+
+          <div class="section-heading format-heading"><span class="section-index">03</span><h2>Format policy</h2></div>
+          <label for="format-policy">Choose source audio</label>
+          <select id="format-policy">
+            <option value="prefer-lossless">Prefer lossless</option>
+            <option value="lossless-only">Lossless only</option>
+          </select>
+          <label class="check-row" for="skip-unavailable">
+            <input id="skip-unavailable" type="checkbox" disabled />
+            <span>Skip tracks without the selected format</span>
+          </label>
+          <div id="disc-label-setting" class="disc-label-setting" hidden>
+            <label for="disc-label">Disc folder label</label>
+            <select id="disc-label">
+              <option value="CD">CD1, CD2, …</option>
+              <option value="Disc">Disc1, Disc2, …</option>
+            </select>
+          </div>
+
+          <div class="action-row">
+            <button id="inspect-button" class="secondary-button" type="button">Inspect album</button>
+            <button id="download-button" class="primary-button" type="button" disabled>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v11m0 0 4-4m-4 4-4-4M5 17v3h14v-3"/></svg>
+              Download
+            </button>
+          </div>
+          <button id="cancel-button" class="cancel-button" type="button" disabled>Cancel active download</button>
+          <p id="error-text" class="error-text" role="alert"></p>
+        </aside>
+
+        <section class="results-panel" aria-label="Album preview and progress">
+          <div class="results-header">
+            <div>
+              <div class="eyebrow">DISCOVERY PREVIEW</div>
+              <h2 id="album-title">No album inspected</h2>
+            </div>
+            <div class="track-count" id="track-count">Waiting</div>
+          </div>
+
+          <div class="status-strip">
+            <span id="status-dot" class="status-dot" data-tone="idle"></span>
+            <span id="status-text">Paste an album URL to begin</span>
+          </div>
+          <button id="inspection-indicator" class="inspection-indicator" type="button" hidden disabled aria-pressed="false">
+            <span class="status-dot" data-tone="working"></span>
+            <span>Inspection in progress</span>
+            <span id="inspection-indicator-text" class="inspection-indicator-action">Starting browser…</span>
+          </button>
+
+          <div id="empty-state" class="empty-state">
+            <div class="empty-glyph" aria-hidden="true"><span></span><span></span><span></span></div>
+            <div class="empty-title">Ready for an album</div>
+            <div class="empty-note">Track formats and fallback choices appear here before transfer.</div>
+          </div>
+
+          <div class="table-wrap">
+            <table id="track-table" hidden>
+              <thead><tr><th>Disc</th><th>#</th><th>Track</th><th>Available</th><th>Selected</th><th>Status</th></tr></thead>
+              <tbody id="track-rows"></tbody>
+            </table>
+          </div>
+
+          <footer class="progress-footer">
+            <div class="progress-label"><span>TRANSFER</span><span id="progress-text">No active transfer</span></div>
+            <progress id="download-progress" value="0" max="1"></progress>
+          </footer>
+        </section>
+      </section>
+      <section id="settings-view" class="settings-view" aria-labelledby="settings-heading" hidden>
+        <header class="settings-header">
+          <h1 id="settings-heading">Settings</h1>
+          <button id="close-settings" class="settings-close-button" type="button">
+            <i data-lucide="arrow-left" aria-hidden="true"></i>
+            <span>Back to downloader</span>
+          </button>
+        </header>
+        <section class="appearance-section" aria-labelledby="appearance-heading">
+          <h2 id="appearance-heading">Appearance</h2>
+          <fieldset class="appearance-setting">
+            <legend>Mode</legend>
+            <div class="mode-options">
+              <label><input type="radio" name="appearance-mode" value="light" /><span>Light</span></label>
+              <label><input type="radio" name="appearance-mode" value="dark" /><span>Dark</span></label>
+              <label><input type="radio" name="appearance-mode" value="system" checked /><span>System</span></label>
+            </div>
+          </fieldset>
+          <fieldset class="appearance-setting">
+            <legend>Color theme</legend>
+            <div class="theme-options">
+              <label><input type="radio" name="color-theme" value="mint" checked /><span class="theme-swatch swatch-mint"></span><span>Mint</span></label>
+              <label><input type="radio" name="color-theme" value="ocean" /><span class="theme-swatch swatch-ocean"></span><span>Ocean</span></label>
+              <label><input type="radio" name="color-theme" value="amber" /><span class="theme-swatch swatch-amber"></span><span>Amber</span></label>
+              <label><input type="radio" name="color-theme" value="rose" /><span class="theme-swatch swatch-rose"></span><span>Rose</span></label>
+              <label><input type="radio" name="color-theme" value="monochrome" /><span class="theme-swatch swatch-monochrome"></span><span>Monochrome</span></label>
+            </div>
+          </fieldset>
+          <p id="appearance-storage-status" class="error-text" role="status"></p>
+        </section>
+      </section>
+      <footer class="app-footer"><span>Original audio bytes · no transcoding</span><span>LOCAL SESSION</span></footer>
+    </main>
+  </body>
+</html>
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **appearance.test.ts**</summary>
+
+@@ lines 1-1 @@
+
+```
+import { describe, expect, it } from "vitest";
+import { appearanceModes, colorThemes, defaultAppearance, parseAppearance, resolvedMode } from "../src/appearance.js";
+
+describe("appearance preferences", () => {
+  it("defaults to System and Mint for absent or malformed settings", () => {
+    for (const raw of [null, "broken", "null", "[]", '{"mode":"invalid","theme":"invalid"}']) {
+      expect(parseAppearance(raw)).toEqual(defaultAppearance);
+    }
+  });
+
+  it("round-trips every supported mode and theme", () => {
+    for (const mode of appearanceModes) for (const theme of colorThemes) {
+      expect(parseAppearance(JSON.stringify({ mode, theme }))).toEqual({ mode, theme });
+    }
+  });
+
+  it("follows the system only in System mode", () => {
+    expect(resolvedMode("system", true)).toBe("dark");
+    expect(resolvedMode("system", false)).toBe("light");
+    expect(resolvedMode("light", true)).toBe("light");
+    expect(resolvedMode("dark", false)).toBe("dark");
+  });
+});
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm test -- tests/appearance.test.ts && npm run build`
+
+Check saved-preference validation and mode resolution before styling the theme palettes.
+
+```bash
+npm test -- tests/appearance.test.ts && npm run build
+```
+
+**Result:**
+
+```
+
+> k-downloader@0.1.0 test
+> vitest run tests/appearance.test.ts
+
+
+ RUN  v5.0.4 /home/kel/dev/K-Downloader
+
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  11:37:08
+   Duration  229ms (transform 64%, import 24%, tests 6%, worker 5%)
+
+
+> k-downloader@0.1.0 build
+> tsc --noEmit
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+Preference validation and mode resolution pass. Next I’ll give each theme paired light/dark accents and mode-aware surfaces, text, borders, and interaction states. Error and warning colors will stay distinct from the selected theme.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **styles.css**</summary>
+
+@@ lines 1-224 @@
+
+```
+:root {
+  color-scheme: dark;
+  --ink: #e8efec;
+  --muted: #91a09b;
+  --dim: #60716b;
+  --line: #2c3a35;
+  --panel: #17211d;
+  --panel-raised: #1d2a25;
+  --ground: #101715;
+  --mint: #b3f06c;
+  --mint-dark: #83bd42;
+  --coral: #f28568;
+  --blue: #80bac5;
+  --field: #101815;
+  --hover: #293630;
+  --accent-text: #152018;
+  --warning: #d5b675;
+  --close-hover: #c94343;
+  --shadow: rgba(0, 0, 0, .38);
+  font-family: "DejaVu Sans", "Noto Sans", sans-serif;
+  color: var(--ink);
+  background: var(--ground);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+:root[data-mode="light"] {
+  color-scheme: light;
+  --ink: #202b26;
+  --muted: #52635b;
+  --dim: #5d6e66;
+  --line: #ced9d2;
+  --panel: #ffffff;
+  --panel-raised: #eaf0ec;
+  --ground: #f3f6f4;
+  --field: #ffffff;
+  --hover: #dde7e1;
+  --mint: #356a19;
+  --mint-dark: #356a19;
+  --accent-text: #ffffff;
+  --coral: #b33f2c;
+  --blue: #286b79;
+  --warning: #855c10;
+  --shadow: rgba(26, 42, 32, .16);
+}
+
+:root[data-theme="ocean"] { --mint: #76dbd3; --mint-dark: #76dbd3; }
+:root[data-theme="amber"] { --mint: #f0cd72; --mint-dark: #f0cd72; }
+:root[data-theme="rose"] { --mint: #f4a2bd; --mint-dark: #f4a2bd; }
+:root[data-theme="monochrome"] { --mint: #d3d9dd; --mint-dark: #d3d9dd; }
+:root[data-mode="light"][data-theme="ocean"] { --mint: #006c68; --mint-dark: #006c68; }
+:root[data-mode="light"][data-theme="amber"] { --mint: #805c05; --mint-dark: #805c05; }
+:root[data-mode="light"][data-theme="rose"] { --mint: #a03058; --mint-dark: #a03058; }
+:root[data-mode="light"][data-theme="monochrome"] { --mint: #46515a; --mint-dark: #46515a; }
+:root[data-theme="ocean"], :root[data-theme="amber"], :root[data-theme="rose"], :root[data-theme="monochrome"] {
+  --ink: #e9ecee;
+  --muted: #a0a8ad;
+  --dim: #929da4;
+  --line: #363c40;
+  --panel: #1c2023;
+  --panel-raised: #282d31;
+  --ground: #141719;
+  --field: #171b1e;
+  --hover: #353c41;
+  --accent-text: #161c20;
+}
+:root[data-mode="light"][data-theme="ocean"], :root[data-mode="light"][data-theme="amber"], :root[data-mode="light"][data-theme="rose"], :root[data-mode="light"][data-theme="monochrome"] {
+  --ink: #242a2e;
+  --muted: #566169;
+  --dim: #5b6770;
+  --line: #ced5da;
+  --panel: #ffffff;
+  --panel-raised: #edf0f2;
+  --ground: #f5f6f7;
+  --field: #ffffff;
+  --hover: #e0e6ea;
+  --accent-text: #ffffff;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-width: 720px;
+  min-height: 100vh;
+  background:
+    linear-gradient(115deg, color-mix(in srgb, var(--mint) 5%, transparent), transparent 44%),
+    var(--ground);
+}
+button, input, textarea, select { font: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: .42; }
+
+.app-shell { min-height: 100vh; display: flex; flex-direction: column; }
+.topbar { height: 46px; flex: 0 0 46px; padding: 0 0 0 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); background: var(--panel); -webkit-app-region: drag; user-select: none; }
+.brand-lockup { height: 100%; display: flex; align-items: center; gap: 9px; }
+.app-icon { width: 23px; height: 23px; display: grid; place-items: center; background: var(--mint); color: var(--accent-text); font-size: 15px; font-weight: 800; clip-path: polygon(0 0, 100% 0, 100% 72%, 72% 100%, 0 100%); }
+.brand-name { font-size: 12px; font-weight: 800; }
+.titlebar-actions { height: 100%; display: flex; align-items: stretch; -webkit-app-region: no-drag; }
+.more-menu-wrap { position: relative; height: 100%; }
+.window-controls { height: 100%; display: flex; -webkit-app-region: no-drag; }
+.window-control { width: 46px; height: 100%; display: grid; place-items: center; border: 0; border-radius: 0; color: var(--muted); background: transparent; }
+.window-control:hover { color: var(--ink); background: var(--hover); }
+.window-control.close-control:hover { color: white; background: var(--close-hover); }
+.window-control svg { width: 14px; height: 14px; stroke-width: 1.6; }
+.window-control:focus-visible { outline: 1px solid var(--mint); outline-offset: -3px; }
+.more-menu { position: absolute; z-index: 20; top: calc(100% + 5px); right: 0; width: 224px; padding: 5px; border: 1px solid var(--line); border-radius: 4px; background: var(--panel-raised); box-shadow: 0 12px 28px var(--shadow); }
+.more-menu[hidden] { display: none; }
+.more-menu-item { width: 100%; min-height: 36px; padding: 0 9px; display: flex; align-items: center; gap: 10px; border: 0; border-radius: 2px; color: var(--ink); background: transparent; text-align: left; font-size: 11px; }
+.more-menu-item:hover, .more-menu-item:focus-visible { background: var(--hover); outline: none; }
+.more-menu-item svg { width: 15px; height: 15px; color: var(--muted); stroke-width: 1.7; }
+.more-menu-item kbd { margin-left: auto; color: var(--muted); font-family: "DejaVu Sans Mono", monospace; font-size: 9px; }
+.brand-subtitle, .eyebrow, .section-index, .mode-label, .progress-label, .app-footer { font-family: "DejaVu Sans Mono", monospace; letter-spacing: 0; }
+.brand-subtitle { margin-top: 3px; color: var(--dim); font-size: 9px; }
+.mode-label { display: flex; align-items: center; gap: 9px; color: var(--muted); font-size: 11px; }
+.mode-dot { width: 7px; height: 7px; background: var(--mint); border-radius: 50%; }
+
+.workspace { width: min(1440px, 100%); margin: 0 auto; padding: 28px 32px 24px; flex: 1; display: grid; grid-template-columns: minmax(300px, 370px) minmax(380px, 1fr); gap: 18px; }
+.workspace[hidden], .settings-view[hidden] { display: none; }
+.settings-view { width: min(1440px, 100%); flex: 1; margin: 0 auto; padding: 28px 32px 24px; }
+.settings-header { min-height: 56px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); }
+.settings-header h1 { margin: 0; font-size: 18px; }
+.settings-close-button { min-height: 34px; padding: 0 10px; display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 3px; color: var(--ink); background: var(--panel-raised); font-size: 11px; }
+.settings-close-button:hover { border-color: var(--blue); background: var(--hover); }
+.settings-close-button svg { width: 15px; height: 15px; }
+.control-panel, .results-panel { border: 1px solid var(--line); background: linear-gradient(155deg, var(--panel-raised), var(--panel) 65%); }
+.control-panel { padding: 24px; align-self: start; }
+.section-heading { display: flex; align-items: baseline; gap: 10px; margin: 0 0 18px; }
+.section-heading h1, .section-heading h2 { margin: 0; font-size: 14px; font-weight: 700; }
+.section-index { color: var(--mint); font-size: 10px; }
+label { display: block; color: var(--ink); font-size: 11px; font-weight: 700; margin: 0 0 8px; }
+textarea, input[type="text"], select { width: 100%; border: 1px solid var(--line); border-radius: 3px; color: var(--ink); background: var(--field); outline: none; }
+textarea { min-height: 88px; resize: vertical; padding: 12px; font-family: "DejaVu Sans Mono", monospace; font-size: 11px; line-height: 1.7; }
+input[type="text"], select { min-height: 38px; padding: 0 10px; font-size: 11px; }
+textarea:focus, input[type="text"]:focus, select:focus { border-color: var(--mint-dark); box-shadow: 0 0 0 2px color-mix(in srgb, var(--mint) 15%, transparent); }
+.microcopy { margin: 7px 0 0; color: var(--dim); font-size: 10px; line-height: 1.5; }
+.destination-heading { margin-top: 25px; }
+.format-heading { margin-top: 25px; }
+.path-control { display: flex; gap: 7px; }
+.path-control input { min-width: 0; font-family: "DejaVu Sans Mono", monospace; font-size: 10px; }
+.icon-button { width: 40px; flex: 0 0 40px; border: 1px solid var(--line); border-radius: 3px; color: var(--mint); background: var(--panel-raised); }
+.icon-button svg, .primary-button svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; vertical-align: middle; }
+.check-row { display: flex; align-items: center; gap: 8px; margin-top: 11px; color: var(--muted); font-size: 10px; font-weight: 500; }
+.check-row input { accent-color: var(--mint-dark); }
+.disc-label-setting { margin-top: 14px; }
+.action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 24px; }
+.primary-button, .secondary-button { min-height: 41px; border-radius: 3px; font-size: 11px; font-weight: 800; }
+.primary-button { display: flex; justify-content: center; align-items: center; gap: 8px; border: 1px solid var(--mint); color: var(--accent-text); background: var(--mint); }
+.primary-button:hover:not(:disabled) { background: color-mix(in srgb, var(--mint) 88%, var(--ink)); }
+.secondary-button { border: 1px solid var(--line); color: var(--ink); background: var(--panel-raised); }
+.secondary-button:hover:not(:disabled) { border-color: var(--blue); }
+.cancel-button { display: block; margin: 10px 0 0 auto; padding: 5px 0; border: 0; color: var(--coral); background: transparent; font-size: 10px; }
+.error-text { min-height: 0; margin: 10px 0 0; color: var(--coral); font-size: 11px; line-height: 1.5; overflow-wrap: anywhere; }
+
+.results-panel { min-width: 0; display: flex; flex-direction: column; }
+.results-header { padding: 23px 24px 18px; display: flex; justify-content: space-between; align-items: end; border-bottom: 1px solid var(--line); }
+.eyebrow { color: var(--mint); font-size: 9px; }
+.results-header h2 { margin: 7px 0 0; font-size: 17px; line-height: 1.35; }
+.track-count { padding: 6px 8px; border: 1px solid var(--line); color: var(--muted); font-family: "DM Mono", monospace; font-size: 10px; white-space: nowrap; }
+.status-strip { min-height: 39px; display: flex; align-items: center; gap: 9px; padding: 0 24px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 10px; }
+.status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--dim); }
+.status-dot[data-tone="working"] { background: var(--blue); box-shadow: 0 0 0 4px color-mix(in srgb, var(--blue) 12%, transparent); }
+.status-dot[data-tone="success"] { background: var(--mint); }
+.status-dot[data-tone="error"] { background: var(--coral); }
+.inspection-indicator { width: 100%; min-height: 42px; padding: 0 24px; display: flex; align-items: center; gap: 9px; border: 0; border-bottom: 1px solid var(--line); color: var(--blue); background: color-mix(in srgb, var(--blue) 7%, transparent); text-align: left; font-size: 10px; }
+.inspection-indicator[hidden] { display: none; }
+.inspection-indicator:not(:disabled):hover { background: color-mix(in srgb, var(--blue) 13%, transparent); }
+.inspection-indicator-action { margin-left: auto; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+.empty-state { min-height: 280px; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 36px; text-align: center; }
+.empty-state[hidden] { display: none; }
+.empty-glyph { height: 36px; display: flex; align-items: end; gap: 4px; margin-bottom: 18px; }
+.empty-glyph span { width: 5px; height: 16px; background: var(--mint-dark); opacity: .6; }
+.empty-glyph span:nth-child(2) { height: 30px; background: var(--blue); opacity: .8; }
+.empty-glyph span:nth-child(3) { height: 22px; background: var(--coral); opacity: .75; }
+.empty-title { font-size: 13px; font-weight: 700; }
+.empty-note { max-width: 250px; margin-top: 8px; color: var(--dim); font-size: 10px; line-height: 1.6; }
+.table-wrap { min-height: 0; flex: 1; overflow: auto; }
+table { width: 100%; border-collapse: collapse; text-align: left; font-size: 10px; }
+thead { position: sticky; top: 0; z-index: 1; background: var(--panel-raised); }
+th { padding: 10px 9px; color: var(--muted); font-family: "DM Mono", monospace; font-size: 9px; font-weight: 400; }
+td { padding: 9px; border-top: 1px solid var(--line); }
+tbody tr:hover { background: var(--hover); }
+.track-number { width: 42px; color: var(--dim); font-family: "DejaVu Sans Mono", monospace; }
+.track-title { min-width: 120px; font-weight: 700; }
+.track-formats { color: var(--muted); }
+.track-choice { color: var(--mint); font-family: "DejaVu Sans Mono", monospace; }
+.track-state { color: var(--muted); white-space: nowrap; }
+.track-state[data-state="unavailable"] { color: var(--coral); }
+.track-state[data-state="skipped"] { color: var(--warning); }
+.progress-footer { padding: 14px 24px 18px; border-top: 1px solid var(--line); }
+.progress-label { display: flex; justify-content: space-between; gap: 14px; margin-bottom: 9px; color: var(--dim); font-size: 9px; }
+#progress-text { color: var(--muted); text-align: right; overflow-wrap: anywhere; }
+progress { width: 100%; height: 4px; border: 0; border-radius: 0; appearance: none; }
+progress::-webkit-progress-bar { background: var(--line); }
+progress::-webkit-progress-value { background: linear-gradient(90deg, var(--blue), var(--mint)); }
+.app-footer { min-height: 40px; padding: 0 32px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--line); color: var(--dim); font-size: 9px; }
+
+.appearance-section { max-width: 660px; padding: 28px 0; }
+.appearance-section h2 { margin: 0 0 24px; font-size: 15px; }
+.appearance-setting { margin: 0 0 28px; padding: 0; border: 0; }
+.appearance-setting legend { margin-bottom: 12px; font-size: 12px; font-weight: 700; }
+.mode-options { display: inline-flex; padding: 3px; border: 1px solid var(--line); border-radius: 4px; background: var(--panel); }
+.mode-options label { position: relative; margin: 0; cursor: pointer; }
+.mode-options input, .theme-options input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.mode-options span { min-width: 92px; min-height: 36px; display: grid; place-items: center; border-radius: 2px; color: var(--muted); }
+.mode-options input:checked + span { background: var(--mint); color: var(--accent-text); }
+.mode-options input:focus-visible + span { outline: 2px solid var(--blue); outline-offset: 2px; }
+.theme-options { display: flex; flex-wrap: wrap; gap: 12px; }
+.theme-options label { position: relative; min-width: 90px; display: flex; align-items: center; gap: 9px; margin: 0; padding: 8px 4px; cursor: pointer; }
+.theme-swatch { flex: 0 0 24px; width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--line); }
+.swatch-mint { background: #83bd42; }
+.swatch-ocean { background: #008b83; }
+.swatch-amber { background: #ce9e28; }
+.swatch-rose { background: #c7507b; }
+.swatch-monochrome { background: #77848f; }
+.theme-options input:checked + .theme-swatch { outline: 2px solid var(--mint); outline-offset: 3px; }
+.theme-options input:focus-visible + .theme-swatch { outline: 2px solid var(--blue); outline-offset: 3px; }
+
+@media (max-width: 920px) {
+  .workspace { grid-template-columns: minmax(260px, 320px) minmax(360px, 1fr); padding: 18px; gap: 12px; }
+  .control-panel { padding: 18px; }
+  .results-header, .status-strip, .progress-footer { padding-left: 16px; padding-right: 16px; }
+  th, td { padding-left: 7px; padding-right: 7px; }
+}
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm run build && npm run build:gui && npm test -- tests/appearance.test.ts`
+
+Type-check, bundle, and validate the appearance slice after introducing the light/dark palettes.
+
+```bash
+npm run build && npm run build:gui && npm test -- tests/appearance.test.ts
+```
+
+**Result:**
+
+```
+
+> k-downloader@0.1.0 build
+> tsc --noEmit
+
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+
+> k-downloader@0.1.0 test
+> vitest run tests/appearance.test.ts
+
+
+ RUN  v5.0.4 /home/kel/dev/K-Downloader
+
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  11:38:18
+   Duration  173ms (import 41%, transform 27%, tests 16%, worker 15%, environmen
+t 1%)
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The palettes compile and bundle successfully. I’ll now use Chromium to check all ten theme/mode combinations, saved preferences after reload, and System mode switching. I’ll also capture the Settings layout at the app’s minimum and normal window widths.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **appearance.ts**</summary>
+
+@@ lines 1-65 @@
+
+```
+export const appearanceModes = ["light", "dark", "system"] as const;
+export const colorThemes = ["mint", "ocean", "amber", "rose", "monochrome"] as const;
+export type Appearance = {
+  mode: typeof appearanceModes[number];
+  theme: typeof colorThemes[number];
+};
+
+export const defaultAppearance: Appearance = { mode: "system", theme: "mint" };
+export const appearanceStorageKey = "k-downloader.appearance";
+
+export function parseAppearance(raw: string | null): Appearance {
+  try {
+    const value = JSON.parse(raw ?? "null");
+    return {
+      mode: appearanceModes.includes(value?.mode) ? value.mode : defaultAppearance.mode,
+      theme: colorThemes.includes(value?.theme) ? value.theme : defaultAppearance.theme,
+    };
+  } catch {
+    return { ...defaultAppearance };
+  }
+}
+
+export function resolvedMode(mode: Appearance["mode"], systemDark: boolean): "light" | "dark" {
+  return mode === "system" ? systemDark ? "dark" : "light" : mode;
+}
+
+export function initializeAppearance(): void {
+  let preferences = { ...defaultAppearance };
+  try {
+    preferences = parseAppearance(localStorage.getItem(appearanceStorageKey));
+  } catch {}
+  const systemScheme = matchMedia("(prefers-color-scheme: dark)");
+  const modeInputs = document.querySelectorAll<HTMLInputElement>('input[name="appearance-mode"]');
+  const themeInputs = document.querySelectorAll<HTMLInputElement>('input[name="color-theme"]');
+  const storageStatus = document.querySelector<HTMLElement>("#appearance-storage-status");
+
+  function apply(): void {
+    document.documentElement.dataset.mode = resolvedMode(preferences.mode, systemScheme.matches);
+    document.documentElement.dataset.theme = preferences.theme;
+    modeInputs.forEach((input) => { input.checked = input.value === preferences.mode; });
+    themeInputs.forEach((input) => { input.checked = input.value === preferences.theme; });
+  }
+
+  function save(): void {
+    apply();
+    try {
+      localStorage.setItem(appearanceStorageKey, JSON.stringify(preferences));
+      if (storageStatus) storageStatus.textContent = "";
+    } catch {
+      if (storageStatus) storageStatus.textContent = "Appearance could not be saved. Changes apply to this session only.";
+    }
+  }
+
+  modeInputs.forEach((input) => input.addEventListener("change", () => {
+    preferences.mode = input.value as Appearance["mode"];
+    save();
+  }));
+  themeInputs.forEach((input) => input.addEventListener("change", () => {
+    preferences.theme = input.value as Appearance["theme"];
+    save();
+  }));
+  systemScheme.addEventListener("change", apply);
+  apply();
+}
+```
+
+@@ lines 65-67 @@ (deleted)
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **appearance.test.ts**</summary>
+
+@@ lines 1-104 @@
+
+```
+import { describe, expect, it } from "vitest";
+import { appearanceModes, colorThemes, defaultAppearance, parseAppearance, resolvedMode } from "../src/appearance.js";
+import { chromium } from "playwright";
+import { pathToFileURL } from "node:url";
+import { resolve } from "node:path";
+
+describe("appearance preferences", () => {
+  it("defaults to System and Mint for absent or malformed settings", () => {
+    for (const raw of [null, "broken", "null", "[]", '{"mode":"invalid","theme":"invalid"}']) {
+      expect(parseAppearance(raw)).toEqual(defaultAppearance);
+    }
+  });
+
+  it("round-trips every supported mode and theme", () => {
+    for (const mode of appearanceModes) for (const theme of colorThemes) {
+      expect(parseAppearance(JSON.stringify({ mode, theme }))).toEqual({ mode, theme });
+    }
+  });
+
+  it("follows the system only in System mode", () => {
+    expect(resolvedMode("system", true)).toBe("dark");
+    expect(resolvedMode("system", false)).toBe("light");
+    expect(resolvedMode("light", true)).toBe("light");
+    expect(resolvedMode("dark", false)).toBe("dark");
+  });
+});
+
+describe("appearance controls in Chromium", () => {
+  it("applies every palette, persists preferences, and responds to System mode", async () => {
+    const browser = await chromium.launch({ headless: true });
+    try {
+      const page = await browser.newPage({ viewport: { width: 1120, height: 780 }, colorScheme: "light" });
+      const errors: string[] = [];
+      page.on("pageerror", (error) => errors.push(error.message));
+      await page.addInitScript(() => {
+        window.kDownloader = {
+          defaultOutputRoot: async () => "/tmp/K-Downloader",
+          chooseOutput: async () => undefined,
+          inspect: async () => ({ albumTitle: "Fixture", trackCount: 0, tracks: [] }),
+          download: async () => ({ state: "complete", directory: "/tmp" }),
+          cancel: async () => {},
+          minimizeWindow: async () => {},
+          toggleMaximizeWindow: async () => false,
+          closeWindow: async () => {},
+          toggleInspectionBrowser: async () => false,
+          onInspectionState: () => () => {},
+          onProgress: () => () => {},
+          onWindowState: () => () => {},
+        };
+      });
+      await page.goto(pathToFileURL(resolve("dist/gui/index.html")).href);
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "light");
+      await page.keyboard.press("Control+Comma");
+      await page.locator("#settings-view").waitFor({ state: "visible" });
+      for (const mode of ["light", "dark"] as const) {
+        await page.getByRole("radio", { name: mode, exact: true }).check();
+        const accents = new Set<string>();
+        for (const theme of colorThemes) {
+          await page.getByRole("radio", { name: theme, exact: true }).check();
+          const palette = await page.evaluate(() => {
+            const styles = getComputedStyle(document.documentElement);
+            return {
+              mode: document.documentElement.dataset.mode,
+              theme: document.documentElement.dataset.theme,
+              accent: styles.getPropertyValue("--mint").trim(),
+              surface: styles.getPropertyValue("--panel").trim(),
+              scheme: styles.colorScheme,
+            };
+          });
+          expect(palette.mode).toBe(mode);
+          expect(palette.theme).toBe(theme);
+          expect(palette.scheme).toBe(mode);
+          expect(palette.surface).not.toBe(palette.accent);
+          accents.add(palette.accent);
+        }
+        expect(accents.size).toBe(5);
+      }
+      await page.reload();
+      await page.waitForFunction(() => document.documentElement.dataset.theme === "monochrome");
+      expect(await page.locator("html").getAttribute("data-mode")).toBe("dark");
+      await page.keyboard.press("Control+Comma");
+      await page.getByRole("radio", { name: "System", exact: true }).check();
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "light");
+      await page.emulateMedia({ colorScheme: "dark" });
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "dark");
+      await page.getByRole("radio", { name: "Light", exact: true }).check();
+      await page.emulateMedia({ colorScheme: "light" });
+      await page.emulateMedia({ colorScheme: "dark" });
+      expect(await page.locator("html").getAttribute("data-mode")).toBe("light");
+      await page.screenshot({ path: "/tmp/k-downloader-appearance-light.png" });
+      await page.setViewportSize({ width: 760, height: 620 });
+      await page.getByRole("radio", { name: "Dark", exact: true }).check();
+      await page.getByRole("radio", { name: "Mint", exact: true }).check();
+      await page.screenshot({ path: "/tmp/k-downloader-appearance-dark.png" });
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      await page.keyboard.press("Escape");
+      await page.locator("#workspace").waitFor({ state: "visible" });
+      expect(errors).toEqual([]);
+    } finally {
+      await browser.close();
+    }
+  }, 30_000);
+});
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Created 5 todos
+
+**Input:**
+
+- endLine: `240`
+- filePath: `/home/kel/dev/K-Downloader/gui/styles.css`
+- startLine: `1`
+
+**Result:**
+
+```
+:root {
+  color-scheme: dark;
+  --ink: #e8efec;
+  --muted: #91a09b;
+  --dim: #60716b;
+  --line: #2c3a35;
+  --panel: #17211d;
+  --panel-raised: #1d2a25;
+  --ground: #101715;
+  --mint: #b3f06c;
+  --mint-dark: #83bd42;
+  --coral: #f28568;
+  --blue: #80bac5;
+  font-family: "DejaVu Sans", "Noto Sans", sans-serif;
+  color: var(--ink);
+  background: var(--ground);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-width: 720px;
+  min-height: 100vh;
+  background:
+    linear-gradient(115deg, rgba(111, 148, 126, .07), transparent 44%),
+    radial-gradient(ellipse at 95% 100%, rgba(86, 135, 143, .08), transparent 36%),
+    var(--ground);
+}
+button, input, textarea, select { font: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: .42; }
+
+.app-shell { min-height: 100vh; display: flex; flex-direction: column; }
+.topbar { height: 46px; flex: 0 0 46px; padding: 0 0 0 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); background: rgba(18, 26, 23, .96); -webkit-app-region: drag; user-select: none; }
+.brand-lockup { height: 100%; display: flex; align-items: center; gap: 9px; }
+.app-icon { width: 23px; height: 23px; display: grid; place-items: center; background: var(--mint); color: #152018; font-size: 15px; font-weight: 800; clip-path: polygon(0 0, 100% 0, 100% 72%, 72% 100%, 0 100%); }
+.brand-name { font-size: 12px; font-weight: 800; }
+.titlebar-actions { height: 100%; display: flex; align-items: stretch; -webkit-app-region: no-drag; }
+.more-menu-wrap { position: relative; height: 100%; }
+.window-controls { height: 100%; display: flex; -webkit-app-region: no-drag; }
+.window-control { width: 46px; height: 100%; display: grid; place-items: center; border: 0; border-radius: 0; color: #b8c5bf; background: transparent; }
+.window-control:hover { color: var(--ink); background: #293630; }
+.window-control.close-control:hover { c
+… (output truncated)
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm run build:gui && npm test -- tests/appearance.test.ts`
+
+Run the browser-scoped appearance validation against the rebuilt GUI.
+
+```bash
+npm run build:gui && npm test -- tests/appearance.test.ts
+```
+
+**Result:**
+
+```
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+
+> k-downloader@0.1.0 test
+> vitest run tests/appearance.test.ts
+
+
+ RUN  v5.0.4 /home/kel/dev/K-Downloader
+
+ ❯ tests/appearance.test.ts (4 tests | 1 failed) 30007ms
+   ❯ appearance controls in Chromium (1)
+     × applies every palette, persists preferences, and responds to System mode
+30002ms
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/appearance.test.ts > appearance controls in Chromium > applies ever
+y palette, persists preferences, and responds to System mode
+Error: Test timed out in 30000ms.
+If this is a long-running test, pass a timeout value as the last argument or con
+figure it globally with "testTimeout".
+ ❯ tests/appearance.test.ts:29:3
+     27|
+     28| describe("appearance controls in Chromium", () => {
+     29|   it("applies every palette, persists preferences, and responds to Sys…
+       |   ^
+     30|     const browser = await chromium.launch({ headless: true });
+     31|     try {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 3 passed (4)
+   Start at  11:38:53
+   Duration  30.64s (tests 98%, import 1%)
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The browser test timed out while locating a control; the preference unit tests still pass. I’ll correct the test to match the capitalized labels, add shorter per-action timeouts for clearer failures, and rerun it.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **appearance.test.ts**</summary>
+
+@@ lines 1-105 @@
+
+```
+import { describe, expect, it } from "vitest";
+import { appearanceModes, colorThemes, defaultAppearance, parseAppearance, resolvedMode } from "../src/appearance.js";
+import { chromium } from "playwright";
+import { pathToFileURL } from "node:url";
+import { resolve } from "node:path";
+
+describe("appearance preferences", () => {
+  it("defaults to System and Mint for absent or malformed settings", () => {
+    for (const raw of [null, "broken", "null", "[]", '{"mode":"invalid","theme":"invalid"}']) {
+      expect(parseAppearance(raw)).toEqual(defaultAppearance);
+    }
+  });
+
+  it("round-trips every supported mode and theme", () => {
+    for (const mode of appearanceModes) for (const theme of colorThemes) {
+      expect(parseAppearance(JSON.stringify({ mode, theme }))).toEqual({ mode, theme });
+    }
+  });
+
+  it("follows the system only in System mode", () => {
+    expect(resolvedMode("system", true)).toBe("dark");
+    expect(resolvedMode("system", false)).toBe("light");
+    expect(resolvedMode("light", true)).toBe("light");
+    expect(resolvedMode("dark", false)).toBe("dark");
+  });
+});
+
+describe("appearance controls in Chromium", () => {
+  it("applies every palette, persists preferences, and responds to System mode", async () => {
+    const browser = await chromium.launch({ headless: true });
+    try {
+      const page = await browser.newPage({ viewport: { width: 1120, height: 780 }, colorScheme: "light" });
+      page.setDefaultTimeout(5_000);
+      const errors: string[] = [];
+      page.on("pageerror", (error) => errors.push(error.message));
+      await page.addInitScript(() => {
+        window.kDownloader = {
+          defaultOutputRoot: async () => "/tmp/K-Downloader",
+          chooseOutput: async () => undefined,
+          inspect: async () => ({ albumTitle: "Fixture", trackCount: 0, tracks: [] }),
+          download: async () => ({ state: "complete", directory: "/tmp" }),
+          cancel: async () => {},
+          minimizeWindow: async () => {},
+          toggleMaximizeWindow: async () => false,
+          closeWindow: async () => {},
+          toggleInspectionBrowser: async () => false,
+          onInspectionState: () => () => {},
+          onProgress: () => () => {},
+          onWindowState: () => () => {},
+        };
+      });
+      await page.goto(pathToFileURL(resolve("dist/gui/index.html")).href);
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "light");
+      await page.keyboard.press("Control+Comma");
+      await page.locator("#settings-view").waitFor({ state: "visible" });
+      for (const mode of ["light", "dark"] as const) {
+        await page.getByRole("radio", { name: new RegExp(`^${mode}$`, "i") }).check();
+        const accents = new Set<string>();
+        for (const theme of colorThemes) {
+          await page.getByRole("radio", { name: new RegExp(`^${theme}$`, "i") }).check();
+          const palette = await page.evaluate(() => {
+            const styles = getComputedStyle(document.documentElement);
+            return {
+              mode: document.documentElement.dataset.mode,
+              theme: document.documentElement.dataset.theme,
+              accent: styles.getPropertyValue("--mint").trim(),
+              surface: styles.getPropertyValue("--panel").trim(),
+              scheme: styles.colorScheme,
+            };
+          });
+          expect(palette.mode).toBe(mode);
+          expect(palette.theme).toBe(theme);
+          expect(palette.scheme).toBe(mode);
+          expect(palette.surface).not.toBe(palette.accent);
+          accents.add(palette.accent);
+        }
+        expect(accents.size).toBe(5);
+      }
+      await page.reload();
+      await page.waitForFunction(() => document.documentElement.dataset.theme === "monochrome");
+      expect(await page.locator("html").getAttribute("data-mode")).toBe("dark");
+      await page.keyboard.press("Control+Comma");
+      await page.getByRole("radio", { name: "System", exact: true }).check();
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "light");
+      await page.emulateMedia({ colorScheme: "dark" });
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "dark");
+      await page.getByRole("radio", { name: "Light", exact: true }).check();
+      await page.emulateMedia({ colorScheme: "light" });
+      await page.emulateMedia({ colorScheme: "dark" });
+      expect(await page.locator("html").getAttribute("data-mode")).toBe("light");
+      await page.screenshot({ path: "/tmp/k-downloader-appearance-light.png" });
+      await page.setViewportSize({ width: 760, height: 620 });
+      await page.getByRole("radio", { name: "Dark", exact: true }).check();
+      await page.getByRole("radio", { name: "Mint", exact: true }).check();
+      await page.screenshot({ path: "/tmp/k-downloader-appearance-dark.png" });
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      await page.keyboard.press("Escape");
+      await page.locator("#workspace").waitFor({ state: "visible" });
+      expect(errors).toEqual([]);
+    } finally {
+      await browser.close();
+    }
+  }, 30_000);
+});
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm test -- tests/appearance.test.ts`
+
+Repeat the focused Chromium appearance check after correcting radio label matching.
+
+```bash
+npm test -- tests/appearance.test.ts
+```
+
+**Result:**
+
+```
+
+> k-downloader@0.1.0 test
+> vitest run tests/appearance.test.ts
+
+
+ RUN  v5.0.4 /home/kel/dev/K-Downloader
+
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  11:39:40
+   Duration  1.73s (tests 71%, import 26%, transform 2%)
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+All ten palettes, reload persistence, and System mode switching pass in Chromium. I’ll review the two layout screenshots and make sure the browser test builds its renderer first, so it also works on a clean checkout without an existing build.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Read `package.json`
+
+**Input:**
+
+- endLine: `80`
+- filePath: `/home/kel/dev/K-Downloader/package.json`
+- startLine: `1`
+
+**Result:**
+
+```
+{
+  "name": "k-downloader",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "build:gui": "node scripts/build-gui.mjs",
+    "gui": "npm run build:gui && electron dist/electron/main.cjs",
+    "inspect": "tsx src/cli.ts inspect",
+    "download": "tsx src/cli.ts download",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "lucide": "^1.55.0",
+    "parse5": "^7.3.0",
+    "playwright": "^1.55.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "electron": "^44.7.0",
+    "esbuild": "^0.28.2",
+    "tsx": "^4.19.0",
+    "typescript": "^5.8.0",
+    "vitest": "^5.0.4"
+  }
+}
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="view_image"><details>
+<summary>Tool use: **view_image**</summary>
+
+Viewed image `k-downloader-appearance-light.png`
+
+**Input:**
+
+- filePath: `/tmp/k-downloader-appearance-light.png`
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="view_image"><details>
+<summary>Tool use: **view_image**</summary>
+
+Viewed image `k-downloader-appearance-dark.png`
+
+**Input:**
+
+- filePath: `/tmp/k-downloader-appearance-dark.png`
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The screenshots show the controls fitting at both window sizes without overlap, and Mint Dark retains the current green palette. I’ll finish by making swatch colors mode-aware, documenting Appearance, and adding the renderer build as a test prerequisite.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="apply_patch"><details>
+<summary>Tool use: **apply_patch**</summary>
+
+Generating patch (39 lines) in `package.json`, `styles.css`, `README.md`
+
+**Input:**
+
+- explanation: `Make swatches reflect light/dark palettes, ensure browser tests build fresh assets, and document Appearance preferences.`
+- input:
+
+````
+*** Begin Patch
+*** Update File: /home/kel/dev/K-Downloader/package.json
+@@
+     "download": "tsx src/cli.ts download",
++    "pretest": "npm run build:gui",
+     "test": "vitest run"
+*** Update File: /home/kel/dev/K-Downloader/gui/styles.css
+@@
+-.swatch-mint { background: #83bd42; }
+-.swatch-ocean { background: #008b83; }
+-.swatch-amber { background: #ce9e28; }
+-.swatch-rose { background: #c7507b; }
+-.swatch-monochrome { background: #77848f; }
++.swatch-mint { background: #b3f06c; }
++.swatch-ocean { background: #76dbd3; }
++.swatch-amber { background: #f0cd72; }
++.swatch-rose { background: #f4a2bd; }
++.swatch-monochrome { background: #d3d9dd; }
++:root[data-mode="light"] .swatch-mint { background: #356a19; }
++:root[data-mode="light"] .swatch-ocean { background: #006c68; }
++:root[data-mode="light"] .swatch-amber { background: #805c05; }
++:root[data-mode="light"] .swatch-rose { background: #a03058; }
++:root[data-mode="light"] .swatch-monochrome { background: #46515a; }
+*** Update File: /home/kel/dev/K-Downloader/README.md
+@@
+-Open **More > Settings** in the titlebar or press `Ctrl+,`. The Settings view is
+-currently a placeholder; return with **Back to downloader** or press `Esc`.
++Open **More > Settings** in the titlebar or press `Ctrl+,`. Under **Appearance**,
++select Light, Dark, or System mode and a Mint, Ocean, Amber, Rose, or Monochrome
++color theme. System follows desktop appearance changes; System + Mint is the
++default. Choices apply immediately and are saved locally across restarts.
++Return with **Back to downloader** or press `Esc`.
+@@
+ npm audit
+ ```
++
++Tests build the GUI first and use the installed Playwright Chromium for local
++appearance checks. No site requests or audio transfers are made by those tests.
+*** End Patch
+````
+
+
+**Result:**
+
+```
+The following files were successfully edited:
+/home/kel/dev/K-Downloader/package.json
+/home/kel/dev/K-Downloader/gui/styles.css
+/home/kel/dev/K-Downloader/README.md
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **package.json**</summary>
+
+@@ lines 1-33 @@
+
+```
+{
+  "name": "k-downloader",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "build:gui": "node scripts/build-gui.mjs",
+    "gui": "npm run build:gui && electron dist/electron/main.cjs",
+    "inspect": "tsx src/cli.ts inspect",
+    "download": "tsx src/cli.ts download",
+    "pretest": "npm run build:gui",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "lucide": "^1.55.0",
+    "parse5": "^7.3.0",
+    "playwright": "^1.55.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "electron": "^44.7.0",
+    "esbuild": "^0.28.2",
+    "tsx": "^4.19.0",
+    "typescript": "^5.8.0",
+    "vitest": "^5.0.4"
+  }
+}
+
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **styles.css**</summary>
+
+@@ lines 1-229 @@
+
+```
+:root {
+  color-scheme: dark;
+  --ink: #e8efec;
+  --muted: #91a09b;
+  --dim: #60716b;
+  --line: #2c3a35;
+  --panel: #17211d;
+  --panel-raised: #1d2a25;
+  --ground: #101715;
+  --mint: #b3f06c;
+  --mint-dark: #83bd42;
+  --coral: #f28568;
+  --blue: #80bac5;
+  --field: #101815;
+  --hover: #293630;
+  --accent-text: #152018;
+  --warning: #d5b675;
+  --close-hover: #c94343;
+  --shadow: rgba(0, 0, 0, .38);
+  font-family: "DejaVu Sans", "Noto Sans", sans-serif;
+  color: var(--ink);
+  background: var(--ground);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+:root[data-mode="light"] {
+  color-scheme: light;
+  --ink: #202b26;
+  --muted: #52635b;
+  --dim: #5d6e66;
+  --line: #ced9d2;
+  --panel: #ffffff;
+  --panel-raised: #eaf0ec;
+  --ground: #f3f6f4;
+  --field: #ffffff;
+  --hover: #dde7e1;
+  --mint: #356a19;
+  --mint-dark: #356a19;
+  --accent-text: #ffffff;
+  --coral: #b33f2c;
+  --blue: #286b79;
+  --warning: #855c10;
+  --shadow: rgba(26, 42, 32, .16);
+}
+
+:root[data-theme="ocean"] { --mint: #76dbd3; --mint-dark: #76dbd3; }
+:root[data-theme="amber"] { --mint: #f0cd72; --mint-dark: #f0cd72; }
+:root[data-theme="rose"] { --mint: #f4a2bd; --mint-dark: #f4a2bd; }
+:root[data-theme="monochrome"] { --mint: #d3d9dd; --mint-dark: #d3d9dd; }
+:root[data-mode="light"][data-theme="ocean"] { --mint: #006c68; --mint-dark: #006c68; }
+:root[data-mode="light"][data-theme="amber"] { --mint: #805c05; --mint-dark: #805c05; }
+:root[data-mode="light"][data-theme="rose"] { --mint: #a03058; --mint-dark: #a03058; }
+:root[data-mode="light"][data-theme="monochrome"] { --mint: #46515a; --mint-dark: #46515a; }
+:root[data-theme="ocean"], :root[data-theme="amber"], :root[data-theme="rose"], :root[data-theme="monochrome"] {
+  --ink: #e9ecee;
+  --muted: #a0a8ad;
+  --dim: #929da4;
+  --line: #363c40;
+  --panel: #1c2023;
+  --panel-raised: #282d31;
+  --ground: #141719;
+  --field: #171b1e;
+  --hover: #353c41;
+  --accent-text: #161c20;
+}
+:root[data-mode="light"][data-theme="ocean"], :root[data-mode="light"][data-theme="amber"], :root[data-mode="light"][data-theme="rose"], :root[data-mode="light"][data-theme="monochrome"] {
+  --ink: #242a2e;
+  --muted: #566169;
+  --dim: #5b6770;
+  --line: #ced5da;
+  --panel: #ffffff;
+  --panel-raised: #edf0f2;
+  --ground: #f5f6f7;
+  --field: #ffffff;
+  --hover: #e0e6ea;
+  --accent-text: #ffffff;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-width: 720px;
+  min-height: 100vh;
+  background:
+    linear-gradient(115deg, color-mix(in srgb, var(--mint) 5%, transparent), transparent 44%),
+    var(--ground);
+}
+button, input, textarea, select { font: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: .42; }
+
+.app-shell { min-height: 100vh; display: flex; flex-direction: column; }
+.topbar { height: 46px; flex: 0 0 46px; padding: 0 0 0 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); background: var(--panel); -webkit-app-region: drag; user-select: none; }
+.brand-lockup { height: 100%; display: flex; align-items: center; gap: 9px; }
+.app-icon { width: 23px; height: 23px; display: grid; place-items: center; background: var(--mint); color: var(--accent-text); font-size: 15px; font-weight: 800; clip-path: polygon(0 0, 100% 0, 100% 72%, 72% 100%, 0 100%); }
+.brand-name { font-size: 12px; font-weight: 800; }
+.titlebar-actions { height: 100%; display: flex; align-items: stretch; -webkit-app-region: no-drag; }
+.more-menu-wrap { position: relative; height: 100%; }
+.window-controls { height: 100%; display: flex; -webkit-app-region: no-drag; }
+.window-control { width: 46px; height: 100%; display: grid; place-items: center; border: 0; border-radius: 0; color: var(--muted); background: transparent; }
+.window-control:hover { color: var(--ink); background: var(--hover); }
+.window-control.close-control:hover { color: white; background: var(--close-hover); }
+.window-control svg { width: 14px; height: 14px; stroke-width: 1.6; }
+.window-control:focus-visible { outline: 1px solid var(--mint); outline-offset: -3px; }
+.more-menu { position: absolute; z-index: 20; top: calc(100% + 5px); right: 0; width: 224px; padding: 5px; border: 1px solid var(--line); border-radius: 4px; background: var(--panel-raised); box-shadow: 0 12px 28px var(--shadow); }
+.more-menu[hidden] { display: none; }
+.more-menu-item { width: 100%; min-height: 36px; padding: 0 9px; display: flex; align-items: center; gap: 10px; border: 0; border-radius: 2px; color: var(--ink); background: transparent; text-align: left; font-size: 11px; }
+.more-menu-item:hover, .more-menu-item:focus-visible { background: var(--hover); outline: none; }
+.more-menu-item svg { width: 15px; height: 15px; color: var(--muted); stroke-width: 1.7; }
+.more-menu-item kbd { margin-left: auto; color: var(--muted); font-family: "DejaVu Sans Mono", monospace; font-size: 9px; }
+.brand-subtitle, .eyebrow, .section-index, .mode-label, .progress-label, .app-footer { font-family: "DejaVu Sans Mono", monospace; letter-spacing: 0; }
+.brand-subtitle { margin-top: 3px; color: var(--dim); font-size: 9px; }
+.mode-label { display: flex; align-items: center; gap: 9px; color: var(--muted); font-size: 11px; }
+.mode-dot { width: 7px; height: 7px; background: var(--mint); border-radius: 50%; }
+
+.workspace { width: min(1440px, 100%); margin: 0 auto; padding: 28px 32px 24px; flex: 1; display: grid; grid-template-columns: minmax(300px, 370px) minmax(380px, 1fr); gap: 18px; }
+.workspace[hidden], .settings-view[hidden] { display: none; }
+.settings-view { width: min(1440px, 100%); flex: 1; margin: 0 auto; padding: 28px 32px 24px; }
+.settings-header { min-height: 56px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); }
+.settings-header h1 { margin: 0; font-size: 18px; }
+.settings-close-button { min-height: 34px; padding: 0 10px; display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 3px; color: var(--ink); background: var(--panel-raised); font-size: 11px; }
+.settings-close-button:hover { border-color: var(--blue); background: var(--hover); }
+.settings-close-button svg { width: 15px; height: 15px; }
+.control-panel, .results-panel { border: 1px solid var(--line); background: linear-gradient(155deg, var(--panel-raised), var(--panel) 65%); }
+.control-panel { padding: 24px; align-self: start; }
+.section-heading { display: flex; align-items: baseline; gap: 10px; margin: 0 0 18px; }
+.section-heading h1, .section-heading h2 { margin: 0; font-size: 14px; font-weight: 700; }
+.section-index { color: var(--mint); font-size: 10px; }
+label { display: block; color: var(--ink); font-size: 11px; font-weight: 700; margin: 0 0 8px; }
+textarea, input[type="text"], select { width: 100%; border: 1px solid var(--line); border-radius: 3px; color: var(--ink); background: var(--field); outline: none; }
+textarea { min-height: 88px; resize: vertical; padding: 12px; font-family: "DejaVu Sans Mono", monospace; font-size: 11px; line-height: 1.7; }
+input[type="text"], select { min-height: 38px; padding: 0 10px; font-size: 11px; }
+textarea:focus, input[type="text"]:focus, select:focus { border-color: var(--mint-dark); box-shadow: 0 0 0 2px color-mix(in srgb, var(--mint) 15%, transparent); }
+.microcopy { margin: 7px 0 0; color: var(--dim); font-size: 10px; line-height: 1.5; }
+.destination-heading { margin-top: 25px; }
+.format-heading { margin-top: 25px; }
+.path-control { display: flex; gap: 7px; }
+.path-control input { min-width: 0; font-family: "DejaVu Sans Mono", monospace; font-size: 10px; }
+.icon-button { width: 40px; flex: 0 0 40px; border: 1px solid var(--line); border-radius: 3px; color: var(--mint); background: var(--panel-raised); }
+.icon-button svg, .primary-button svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; vertical-align: middle; }
+.check-row { display: flex; align-items: center; gap: 8px; margin-top: 11px; color: var(--muted); font-size: 10px; font-weight: 500; }
+.check-row input { accent-color: var(--mint-dark); }
+.disc-label-setting { margin-top: 14px; }
+.action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 24px; }
+.primary-button, .secondary-button { min-height: 41px; border-radius: 3px; font-size: 11px; font-weight: 800; }
+.primary-button { display: flex; justify-content: center; align-items: center; gap: 8px; border: 1px solid var(--mint); color: var(--accent-text); background: var(--mint); }
+.primary-button:hover:not(:disabled) { background: color-mix(in srgb, var(--mint) 88%, var(--ink)); }
+.secondary-button { border: 1px solid var(--line); color: var(--ink); background: var(--panel-raised); }
+.secondary-button:hover:not(:disabled) { border-color: var(--blue); }
+.cancel-button { display: block; margin: 10px 0 0 auto; padding: 5px 0; border: 0; color: var(--coral); background: transparent; font-size: 10px; }
+.error-text { min-height: 0; margin: 10px 0 0; color: var(--coral); font-size: 11px; line-height: 1.5; overflow-wrap: anywhere; }
+
+.results-panel { min-width: 0; display: flex; flex-direction: column; }
+.results-header { padding: 23px 24px 18px; display: flex; justify-content: space-between; align-items: end; border-bottom: 1px solid var(--line); }
+.eyebrow { color: var(--mint); font-size: 9px; }
+.results-header h2 { margin: 7px 0 0; font-size: 17px; line-height: 1.35; }
+.track-count { padding: 6px 8px; border: 1px solid var(--line); color: var(--muted); font-family: "DM Mono", monospace; font-size: 10px; white-space: nowrap; }
+.status-strip { min-height: 39px; display: flex; align-items: center; gap: 9px; padding: 0 24px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 10px; }
+.status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--dim); }
+.status-dot[data-tone="working"] { background: var(--blue); box-shadow: 0 0 0 4px color-mix(in srgb, var(--blue) 12%, transparent); }
+.status-dot[data-tone="success"] { background: var(--mint); }
+.status-dot[data-tone="error"] { background: var(--coral); }
+.inspection-indicator { width: 100%; min-height: 42px; padding: 0 24px; display: flex; align-items: center; gap: 9px; border: 0; border-bottom: 1px solid var(--line); color: var(--blue); background: color-mix(in srgb, var(--blue) 7%, transparent); text-align: left; font-size: 10px; }
+.inspection-indicator[hidden] { display: none; }
+.inspection-indicator:not(:disabled):hover { background: color-mix(in srgb, var(--blue) 13%, transparent); }
+.inspection-indicator-action { margin-left: auto; color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+.empty-state { min-height: 280px; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 36px; text-align: center; }
+.empty-state[hidden] { display: none; }
+.empty-glyph { height: 36px; display: flex; align-items: end; gap: 4px; margin-bottom: 18px; }
+.empty-glyph span { width: 5px; height: 16px; background: var(--mint-dark); opacity: .6; }
+.empty-glyph span:nth-child(2) { height: 30px; background: var(--blue); opacity: .8; }
+.empty-glyph span:nth-child(3) { height: 22px; background: var(--coral); opacity: .75; }
+.empty-title { font-size: 13px; font-weight: 700; }
+.empty-note { max-width: 250px; margin-top: 8px; color: var(--dim); font-size: 10px; line-height: 1.6; }
+.table-wrap { min-height: 0; flex: 1; overflow: auto; }
+table { width: 100%; border-collapse: collapse; text-align: left; font-size: 10px; }
+thead { position: sticky; top: 0; z-index: 1; background: var(--panel-raised); }
+th { padding: 10px 9px; color: var(--muted); font-family: "DM Mono", monospace; font-size: 9px; font-weight: 400; }
+td { padding: 9px; border-top: 1px solid var(--line); }
+tbody tr:hover { background: var(--hover); }
+.track-number { width: 42px; color: var(--dim); font-family: "DejaVu Sans Mono", monospace; }
+.track-title { min-width: 120px; font-weight: 700; }
+.track-formats { color: var(--muted); }
+.track-choice { color: var(--mint); font-family: "DejaVu Sans Mono", monospace; }
+.track-state { color: var(--muted); white-space: nowrap; }
+.track-state[data-state="unavailable"] { color: var(--coral); }
+.track-state[data-state="skipped"] { color: var(--warning); }
+.progress-footer { padding: 14px 24px 18px; border-top: 1px solid var(--line); }
+.progress-label { display: flex; justify-content: space-between; gap: 14px; margin-bottom: 9px; color: var(--dim); font-size: 9px; }
+#progress-text { color: var(--muted); text-align: right; overflow-wrap: anywhere; }
+progress { width: 100%; height: 4px; border: 0; border-radius: 0; appearance: none; }
+progress::-webkit-progress-bar { background: var(--line); }
+progress::-webkit-progress-value { background: linear-gradient(90deg, var(--blue), var(--mint)); }
+.app-footer { min-height: 40px; padding: 0 32px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--line); color: var(--dim); font-size: 9px; }
+
+.appearance-section { max-width: 660px; padding: 28px 0; }
+.appearance-section h2 { margin: 0 0 24px; font-size: 15px; }
+.appearance-setting { margin: 0 0 28px; padding: 0; border: 0; }
+.appearance-setting legend { margin-bottom: 12px; font-size: 12px; font-weight: 700; }
+.mode-options { display: inline-flex; padding: 3px; border: 1px solid var(--line); border-radius: 4px; background: var(--panel); }
+.mode-options label { position: relative; margin: 0; cursor: pointer; }
+.mode-options input, .theme-options input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.mode-options span { min-width: 92px; min-height: 36px; display: grid; place-items: center; border-radius: 2px; color: var(--muted); }
+.mode-options input:checked + span { background: var(--mint); color: var(--accent-text); }
+.mode-options input:focus-visible + span { outline: 2px solid var(--blue); outline-offset: 2px; }
+.theme-options { display: flex; flex-wrap: wrap; gap: 12px; }
+.theme-options label { position: relative; min-width: 90px; display: flex; align-items: center; gap: 9px; margin: 0; padding: 8px 4px; cursor: pointer; }
+.theme-swatch { flex: 0 0 24px; width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--line); }
+.swatch-mint { background: #b3f06c; }
+.swatch-ocean { background: #76dbd3; }
+.swatch-amber { background: #f0cd72; }
+.swatch-rose { background: #f4a2bd; }
+.swatch-monochrome { background: #d3d9dd; }
+:root[data-mode="light"] .swatch-mint { background: #356a19; }
+:root[data-mode="light"] .swatch-ocean { background: #006c68; }
+:root[data-mode="light"] .swatch-amber { background: #805c05; }
+:root[data-mode="light"] .swatch-rose { background: #a03058; }
+:root[data-mode="light"] .swatch-monochrome { background: #46515a; }
+.theme-options input:checked + .theme-swatch { outline: 2px solid var(--mint); outline-offset: 3px; }
+.theme-options input:focus-visible + .theme-swatch { outline: 2px solid var(--blue); outline-offset: 3px; }
+
+@media (max-width: 920px) {
+  .workspace { grid-template-columns: minmax(260px, 320px) minmax(360px, 1fr); padding: 18px; gap: 12px; }
+  .control-panel { padding: 18px; }
+  .results-header, .status-strip, .progress-footer { padding-left: 16px; padding-right: 16px; }
+  th, td { padding-left: 7px; padding-right: 7px; }
+}
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **README.md**</summary>
+
+@@ lines 1-89 @@
+
+````
+# K-Downloader
+
+K-Downloader is a Linux-first KHInsider album downloader. The current slice
+implements public single-album discovery, format preview and policy, sequential
+streaming, and manifest-backed reruns. Multi-album queues, artwork, the GUI,
+optional account features, and packaging are not implemented yet.
+
+## Discovery check
+
+Requirements: Node.js 20 or newer, npm, and a graphical desktop session.
+
+```sh
+npm install
+npx playwright install chromium
+npm run inspect -- 'https://downloads.khinsider.com/game-soundtracks/album/unreal-ii-the-awakening-original-soundtrack'
+```
+
+The command opens a fresh visible Chromium context without a stored browser
+profile, visits the album and track pages sequentially, and prints every
+track's discovered format selection. It does not sign in or download audio.
+Visible mode is currently needed: plain Node fetch and headless Chromium
+received HTTP 403 during feasibility checks, while a fresh visible Chromium
+context succeeded. No attempt is made to imitate a browser or evade a challenge.
+If access is denied or a challenge appears, stop and review the site's permitted
+access methods.
+
+## Download One Album
+
+The CLI previews the selected formats before starting any transfer. The default
+format policy prefers lossless, falling back to MP3 when needed. The default
+destination is `~/Music/K-Downloader`.
+
+```sh
+npm run download -- 'https://downloads.khinsider.com/game-soundtracks/album/unreal-ii-the-awakening-original-soundtrack'
+```
+
+Use `--format lossless-only` to block when a track has no lossless source. Add
+`--skip-unavailable` to explicitly skip those tracks and mark the album
+incomplete. A specific format such as `--format MP3` never silently substitutes
+another format. Use `--output /path/to/music` for another destination.
+
+Multi-disc albums are saved into per-disc folders such as `CD1/` and `CD2/`.
+The GUI offers `CD` and `Disc` folder labels; the CLI accepts
+`--disc-label CD` or `--disc-label Disc` and defaults to `CD`. Single-disc
+albums keep the flat album folder.
+
+Files are streamed through temporary `.part` files, validated, and moved into
+place without overwriting. A per-album manifest records completion so verified
+files can be skipped on rerun. Transfers are covered by local mocked tests; an
+authorized live audio download has not yet been run.
+
+## Desktop GUI
+
+Requirements: Node.js 20 or newer, npm, and a graphical Linux session.
+
+```sh
+npm install
+npx playwright install chromium
+npm run gui
+```
+
+Paste one album URL and choose **Inspect album**. A Chromium inspection window
+starts minimized while an in-progress indicator appears in the app; click that
+indicator to show or hide the browser. Review the per-track format preview, choose the
+destination and format policy, then select **Download**. The default destination
+is `~/Music/K-Downloader`. **Cancel active download** stops the current transfer
+and prevents later tracks from starting.
+
+Open **More > Settings** in the titlebar or press `Ctrl+,`. Under **Appearance**,
+select Light, Dark, or System mode and a Mint, Ocean, Amber, Rose, or Monochrome
+color theme. System follows desktop appearance changes; System + Mint is the
+default. Choices apply immediately and are saved locally across restarts.
+Return with **Back to downloader** or press `Esc`.
+
+The GUI uses a context-isolated, sandboxed renderer with a narrow preload API.
+It currently supports one album per run; multi-album queues and packaging are
+not available yet.
+
+## Development
+
+```sh
+npm test
+npm run build
+npm audit
+```
+
+Tests build the GUI first and use the installed Playwright Chromium for local
+appearance checks. No site requests or audio transfers are made by those tests.
+````
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm test && npm run build`
+
+Run all unit and browser appearance tests with the new automatic GUI build prerequisite, then strict TypeScript checking.
+
+```bash
+npm test && npm run build
+```
+
+**Result:**
+
+```
+
+> k-downloader@0.1.0 pretest
+> npm run build:gui
+
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+
+> k-downloader@0.1.0 test
+> vitest run
+
+
+ RUN  v5.0.4 /home/kel/dev/K-Downloader
+
+
+ Test Files  6 passed (6)
+      Tests  22 passed (22)
+   Start at  11:40:25
+   Duration  1.74s (tests 58%, import 39%, transform 2%, worker 1%)
+
+
+> k-downloader@0.1.0 build
+> tsc --noEmit
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+All 22 tests and the TypeScript check pass, including the browser checks for palettes, persistence, and System switching. I’ll do one Electron smoke test to confirm Appearance also works through the real preload, then launch the updated GUI for you.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` node --input-type=module -e 'import \{ \_electron as electron \} from "playwrig...`
+
+Exercise the real Electron app's Appearance controls and saved preferences, restore System + Mint, and close it cleanly.
+
+```bash
+node --input-type=module -e 'import { _electron as electron } from "playwright"; import { createRequire } from "node:module"; const require = createRequire(import.meta.url); const app = await electron.launch({ executablePath: require("electron"), args: ["dist/electron/main.cjs"] }); try { const page = await app.firstWindow(); await page.waitForFunction(() => document.documentElement.dataset.mode); await page.keyboard.press("Control+Comma"); await page.getByRole("heading", { name: "Appearance", exact: true }).waitFor(); await page.getByRole("radio", { name: "Dark", exact: true }).check(); await page.getByRole("radio", { name: "Ocean", exact: true }).check(); const state = await page.evaluate(() => ({ mode: document.documentElement.dataset.mode, theme: document.documentElement.dataset.theme, saved: JSON.parse(localStorage.getItem("k-downloader.appearance")) })); console.log(JSON.stringify(state)); if (state.mode !== "dark" || state.theme !== "ocean") throw new Error("Appearance failed in Electron"); await page.getByRole("radio", { name: "System", exact: true }).check(); await page.getByRole("radio", { name: "Mint", exact: true }).check(); await page.getByRole("button", { name: "Close window", exact: true }).click(); } finally { await app.close(); }'
+```
+
+**Result:**
+
+```
+{"mode":"dark","theme":"ocean","saved":{"mode":"dark","theme":"ocean"}}
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The Electron smoke test passed: Dark + Ocean applied and was saved locally. I restored System + Mint before closing it. I’ll now check editor diagnostics and launch the GUI with the new Appearance section.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="get_errors"><details>
+<summary>Tool use: **get_errors**</summary>
+
+Checked `appearance.ts`, `renderer.ts`, `appearance.test.ts`, `styles.css`, no problems found
+
+**Input:**
+
+- filePaths:
+
+```
+[
+  "/home/kel/dev/K-Downloader/src/appearance.ts",
+  "/home/kel/dev/K-Downloader/src/renderer.ts",
+  "/home/kel/dev/K-Downloader/tests/appearance.test.ts",
+  "/home/kel/dev/K-Downloader/gui/styles.css"
+]
+```
+
+
+**Result:**
+
+```
+<errors path="/home/kel/dev/K-Downloader/src/appearance.ts">
+No errors found
+</errors>
+<errors path="/home/kel/dev/K-Downloader/src/renderer.ts">
+No errors found
+</errors>
+<errors path="/home/kel/dev/K-Downloader/tests/appearance.test.ts">
+No errors found
+</errors>
+<errors path="/home/kel/dev/K-Downloader/gui/styles.css">
+No errors found
+</errors>
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm run gui`
+
+Launch the desktop application with Settings > Appearance mode and color-theme controls.
+
+```bash
+npm run gui
+```
+
+**Result:**
+
+```
+Command is running in terminal with ID=6f64a0f5-6b52-418e-82eb-3e8bdacc1b04
+ The command became idle with output:
+kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+
+> k-downloader@0.1.0 gui
+> npm run build:gui && electron dist/electron/main.cjs
+
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+This note is not a signal to end the turn — pick one of the actions below and continue.
+  1. If the command may still be producing output or the shell prompt has not returned, call get_terminal_output with id="6f64a0f5-6b52-418e-82eb-3e8bdacc1b04" to continue polling. This is the default and safest action when unsure.
+  2. Only if the output clearly ends with a real non-secret input prompt (Continue? (y/n), Enter selection, etc. — a normal shell prompt like `$` or `#` does NOT count), call the vscode_askQuestions tool to ask the user, then send each answer using send_to_terminal with id="6f64a0f5-6b52-418e-82eb-3e8bdacc1b04" (which returns the next few lines of output). Repeat one prompt at a time. NEVER route secret prompts (passwords, passphrases, tokens, API keys, etc.) through vscode_askQuestions — answers to that tool are sent through the model. For secret prompts, tell the user to type the value directly into the terminal and stop.
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+Implemented **Settings > Appearance** with Light, Dark, and System modes plus Mint, Ocean, Amber, Rose, and Monochrome themes.
+
+Changes apply immediately and persist across restarts. System follows desktop appearance; **System + Mint** is the default.
+
+Verified with 22 passing tests, light/dark screenshots, and a real Electron smoke test. The updated GUI 
+
+Implemented **Settings > Appearance** with Light, Dark, and System modes plus Mint, Ocean, Amber, Rose, and Monochrome themes.
+
+Changes apply immediately and persist across restarts. System follows desktop appearance; **System + Mint** is the default.
+
+Verified with 22 passing tests, light/dark screenshots, and a real Electron smoke test. The updated GUI is open.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Completed: *Implement appearance controls for modes and themes* (1/5)
+
+**Input:**
+
+- endLine: `130`
+- filePath: `/home/kel/dev/K-Downloader/src/renderer.ts`
+- startLine: `1`
+
+**Result:**
+
+```
+import type { GuiFormatPolicy, GuiInspection, GuiInspectionState, GuiProgress, GuiTrack } from "./gui-types.js";
+import { ArrowLeft, Copy, createIcons, EllipsisVertical, Minus, Settings, Square, X } from "lucide";
+
+const windowIcons = { ArrowLeft, Copy, EllipsisVertical, Minus, Settings, Square, X };
+createIcons({ icons: windowIcons });
+
+const albumInput = document.querySelector<HTMLTextAreaElement>("#album-url")!;
+const outputInput = document.querySelector<HTMLInputElement>("#output-root")!;
+const formatSelect = document.querySelector<HTMLSelectElement>("#format-policy")!;
+const discLabelSelect = document.querySelector<HTMLSelectElement>("#disc-label")!;
+const discLabelSetting = document.querySelector<HTMLElement>("#disc-label-setting")!;
+const skipInput = document.querySelector<HTMLInputElement>("#skip-unavailable")!;
+const inspectButton = document.querySelector<HTMLButtonElement>("#inspect-button")!;
+const downloadButton = document.querySelector<HTMLButtonElement>("#download-button")!;
+const cancelButton = document.querySelector<HTMLButtonElement>("#cancel-button")!;
+const browseButton = document.querySelector<HTMLButtonElement>("#browse-button")!;
+const tableBody = document.querySelector<HTMLTableSectionElement>("#track-rows")!;
+const albumTitle = document.querySelector<HTMLElement>("#album-title")!;
+const trackCount = document.querySelector<HTMLElement>("#track-count")!;
+const statusText = document.querySelector<HTMLElement>("#status-text")!;
+const statusDot = document.querySelector<HTMLElement>("#status-dot")!;
+const inspectionIndicator = document.querySelector<HTMLButtonElement>("#inspection-indicator")!;
+const inspectionIndicatorText = document.querySelector<HTMLElement>("#inspection-indicator-text")!;
+const progress = document.querySelector<HTMLProgressElement>("#download-progress")!;
+const progressText = document.querySelector<HTMLElement>("#progress-text")!;
+const emptyState = document.querySelector<HTMLElement>("#empty-state")!;
+const trackTable = docume
+… (output truncated)
+```
+</details></tool-use>
+
+---
+
+_**User (2026-10-12 16:35:59Z)**_
+
+is the Mint theme the same as is currently displayed by default?
+
+---
+
+_**Agent (copilot/auto)**_
+
+<think><details><summary>Thought Process</summary>
+The renderer currently relies only on `matchMedia`, and the existing tests emulate that browser signal rather than an OS change. I’ll check which desktop appearance setting Linux is exposing here before choosing the source for System mode.
+
+This is Cinnamon, with `gtk-theme` currently set to `Mint-Y` (light). Cinnamon uses that GTK theme setting for appearance, while Electron may not relay it through `matchMedia`. I’ll monitor it in the main process, forward changes through preload, and keep Electron’s native theme signal as the fallback on other desktops.
+</details></think>
+
+_**Agent (copilot/auto)**_
+
+Yes. **Mint in Dark mode** would preserve the current charcoal-green surfaces and lime-green accents. Mint in Light mode would use cool-white surfaces with a darker green accent for readable contrast.
+
+I’ll check how Electron receives the desktop theme change and how System mode resolves it. The current implementation listens to browser `matchMedia`; I’ll verify whether Electron’s native theme state needs to be forwarded to the renderer instead.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Read `appearance.ts`
+
+**Input:**
+
+- endLine: `180`
+- filePath: `/home/kel/dev/K-Downloader/src/appearance.ts`
+- startLine: `1`
+
+**Result:**
+
+```
+export const appearanceModes = ["light", "dark", "system"] as const;
+export const colorThemes = ["mint", "ocean", "amber", "rose", "monochrome"] as const;
+export type Appearance = {
+  mode: typeof appearanceModes[number];
+  theme: typeof colorThemes[number];
+};
+
+export const defaultAppearance: Appearance = { mode: "system", theme: "mint" };
+export const appearanceStorageKey = "k-downloader.appearance";
+
+export function parseAppearance(raw: string | null): Appearance {
+  try {
+    const value = JSON.parse(raw ?? "null");
+    return {
+      mode: appearanceModes.includes(value?.mode) ? value.mode : defaultAppearance.mode,
+      theme: colorThemes.includes(value?.theme) ? value.theme : defaultAppearance.theme,
+    };
+  } catch {
+    return { ...defaultAppearance };
+  }
+}
+
+export function resolvedMode(mode: Appearance["mode"], systemDark: boolean): "light" | "dark" {
+  return mode === "system" ? systemDark ? "dark" : "light" : mode;
+}
+
+export function initializeAppearance(): void {
+  let preferences = { ...defaultAppearance };
+  try {
+    preferences = parseAppearance(localStorage.getItem(appearanceStorageKey));
+  } catch {}
+  const systemScheme = matchMedia("(prefers-color-scheme: dark)");
+  const modeInputs = document.querySelectorAll<HTMLInputElement>('input[name="appearance-mode"]');
+  const themeInputs = document.querySelectorAll<HTMLInputElement>('input[name="color-theme"]');
+  const storageStatus = document.querySelector<HTMLElement>("#appearance-storage-status");
+
+  function apply(): void {
+    document.documentElement.dataset.mode = resolvedMode(preferences.mode, systemScheme.matches);
+    document.documentElement.dataset.theme = preferences.theme;
+    modeInputs.forEach((input) => { input.checked = input.value === preferences.mode; });
+    themeInputs.forEach((input) => { input.checked = input.value === preferences.theme; });
+  }
+
+  function save(): void {
+    apply();
+    try {
+      localStorage.setItem(appearanceStorageKey, JSON.stringify(preferences));
+   
+… (output truncated)
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Read `main.ts`, lines 1 to 95
+
+**Input:**
+
+- endLine: `95`
+- filePath: `/home/kel/dev/K-Downloader/src/electron/main.ts`
+- startLine: `1`
+
+**Result:**
+
+```
+import { app, BrowserWindow, dialog, ipcMain, Menu } from "electron";
+import { resolve } from "node:path";
+import { downloadAlbum, type DownloadProgress } from "../downloader.js";
+import { planFormats } from "../formats.js";
+import { inspectAlbum, validateAlbumUrl, type AlbumPage, type DiscoveredTrack } from "../khinsider.js";
+import { defaultOutputRoot } from "../output.js";
+import type { GuiDownloadRequest, GuiFormatPolicy, GuiInspection, GuiInspectionState } from "../gui-types.js";
+
+type CachedInspection = {
+  sourceAlbum: string;
+  album: AlbumPage;
+  tracks: DiscoveredTrack[];
+};
+
+let mainWindow: BrowserWindow | undefined;
+const inspections = new Map<number, CachedInspection>();
+const downloads = new Map<number, AbortController>();
+const activeInspections = new Map<number, {
+  controller: AbortController;
+  setBrowserVisible?: (visible: boolean) => Promise<void>;
+  browserVisible: boolean;
+}>();
+
+function assertWindowSender(senderId: number): BrowserWindow {
+  if (!mainWindow || mainWindow.webContents.id !== senderId) throw new Error("Untrusted IPC sender");
+  return mainWindow;
+}
+
+function parseFormatPolicy(policy: unknown): GuiFormatPolicy {
+  if (typeof policy !== "object" || policy === null || !("kind" in policy)) {
+    throw new Error("Invalid format policy");
+  }
+  const value = policy as Record<string, unknown>;
+  const skipUnavailable = value.skipUnavailable === true;
+  if (value.kind === "prefer-lossless" && !skipUnavailable) return { kind: "prefer-lossless" };
+  if (value.kind === "lossless-only") return { kind: "lossless-only", skipUnavailable };
+  if (value.kind === "specific" && typeof value.format === "string" && /^[A-Za-z0-9.+-]{1,16}$/.test(value.format)) {
+    return { kind: "specific", format: value.format.toUpperCase(), skipUnavailable };
+  }
+  throw new Error("Invalid format policy");
+}
+
+function serializeInspection(cached: CachedInspection): GuiInspection {
+  return {
+    albumTitle: cached.album.title,
+    trackCount: cached.tracks.length,
+… (output truncated)
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Read `main.ts`, lines 220 to 237
+
+**Input:**
+
+- endLine: `310`
+- filePath: `/home/kel/dev/K-Downloader/src/electron/main.ts`
+- startLine: `220`
+
+**Result:**
+
+```
+  });
+  await window.loadFile(resolve(__dirname, "../gui/index.html"));
+}
+
+app.whenReady().then(async () => {
+  app.setName("K-Downloader");
+  Menu.setApplicationMenu(null);
+  registerIpc();
+  await createWindow();
+  app.on("activate", () => {
+    if (BrowserWindow.getAllWindows().length === 0) void createWindow();
+  });
+});
+
+app.on("window-all-closed", () => {
+  for (const controller of downloads.values()) controller.abort();
+  if (process.platform !== "darwin") app.quit();
+});
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Read `preload.ts`
+
+**Input:**
+
+- endLine: `120`
+- filePath: `/home/kel/dev/K-Downloader/src/electron/preload.ts`
+- startLine: `1`
+
+**Result:**
+
+```
+import { contextBridge, ipcRenderer } from "electron";
+import type { GuiDownloadRequest, GuiInspectionState, GuiProgress, GuiWindowState, KDownloaderApi } from "../gui-types.js";
+
+const api: KDownloaderApi = {
+  minimizeWindow: () => ipcRenderer.invoke("window:minimize"),
+  toggleMaximizeWindow: () => ipcRenderer.invoke("window:toggle-maximize"),
+  closeWindow: () => ipcRenderer.invoke("window:close"),
+  onWindowState: (listener: (state: GuiWindowState) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, state: GuiWindowState) => listener(state);
+    ipcRenderer.on("window:state", handler);
+    return () => ipcRenderer.removeListener("window:state", handler);
+  },
+  defaultOutputRoot: () => ipcRenderer.invoke("output:default"),
+  chooseOutput: () => ipcRenderer.invoke("output:choose"),
+  inspect: (albumUrl: string) => ipcRenderer.invoke("album:inspect", albumUrl),
+  toggleInspectionBrowser: () => ipcRenderer.invoke("inspection:toggle-browser"),
+  onInspectionState: (listener: (state: GuiInspectionState) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, state: GuiInspectionState) => listener(state);
+    ipcRenderer.on("inspection:state", handler);
+    return () => ipcRenderer.removeListener("inspection:state", handler);
+  },
+  download: (request: GuiDownloadRequest) => ipcRenderer.invoke("album:download", request),
+  cancel: () => ipcRenderer.invoke("album:cancel"),
+  onProgress: (listener: (progress: GuiProgress) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, progress: GuiProgress) => listener(progress);
+    ipcRenderer.on("album:progress", handler);
+    return () => ipcRenderer.removeListener("album:progress", handler);
+  },
+};
+
+contextBridge.exposeInMainWorld("kDownloader", api);
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="read" data-tool-name="read_file"><details>
+<summary>Tool use: **read_file**</summary>
+
+Read `gui-types.ts`, lines 40 to 63
+
+**Input:**
+
+- endLine: `120`
+- filePath: `/home/kel/dev/K-Downloader/src/gui-types.ts`
+- startLine: `40`
+
+**Result:**
+
+```
+  outputRoot: string;
+  discLabel: "CD" | "Disc";
+};
+
+export type KDownloaderApi = {
+  minimizeWindow: () => Promise<void>;
+  toggleMaximizeWindow: () => Promise<boolean>;
+  closeWindow: () => Promise<void>;
+  onWindowState: (listener: (state: GuiWindowState) => void) => () => void;
+  defaultOutputRoot: () => Promise<string>;
+  chooseOutput: () => Promise<string | undefined>;
+  inspect: (albumUrl: string) => Promise<GuiInspection>;
+  toggleInspectionBrowser: () => Promise<boolean>;
+  onInspectionState: (listener: (state: GuiInspectionState) => void) => () => void;
+  download: (request: GuiDownloadRequest) => Promise<{ state: string; directory: string }>;
+  cancel: () => Promise<void>;
+  onProgress: (listener: (progress: GuiProgress) => void) => () => void;
+};
+
+declare global {
+  interface Window {
+    kDownloader: KDownloaderApi;
+  }
+}
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The renderer currently relies only on , and the existing tests emulate that browser signal rather than an OS change. I’ll check which desktop appearance setting Linux is exposing here before choosing the source for System mode.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` printf 'Desktop: %s\\n' "$XDG\_CURRENT\_DESKTOP" && gsettings list-recursively ...`
+
+Read the current desktop and Cinnamon's appearance settings without modifying them.
+
+```bash
+printf 'Desktop: %s\n' "$XDG_CURRENT_DESKTOP" && gsettings list-recursively org.cinnamon.desktop.interface | rg 'color-scheme|gtk-theme'
+```
+
+**Result:**
+
+```
+Desktop: X-Cinnamon
+org.cinnamon.desktop.interface gtk-color-scheme ''
+org.cinnamon.desktop.interface gtk-theme 'Mint-Y'
+org.cinnamon.desktop.interface gtk-theme-backup 'Adwaita'
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+This is Cinnamon, with `gtk-theme` currently set to `Mint-Y` (light). Cinnamon uses that GTK theme setting for appearance, while Electron may not relay it through . I’ll monitor it in the main process, forward changes through preload, and keep Electron’s native theme signal as the fallback on other desktops.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **system-theme.ts**</summary>
+
+@@ lines 1-1 @@
+
+```
+import { execFile, spawn } from "node:child_process";
+import { createInterface } from "node:readline";
+import { promisify } from "node:util";
+
+const execute = promisify(execFile);
+const schema = "org.cinnamon.desktop.interface";
+
+export function cinnamonThemeIsDark(value: string): boolean | undefined {
+  const match = value.trim().match(/^'([^']+)'$/);
+  return match ? /(?:^|[-_\s])dark(?:$|[-_\s])/i.test(match[1]) : undefined;
+}
+
+export async function monitorCinnamonTheme(
+  onChange: (dark: boolean | undefined) => void,
+): Promise<() => void> {
+  if (!/(?:^|:)X-Cinnamon(?:$|:)/i.test(process.env.XDG_CURRENT_DESKTOP ?? "")) return () => {};
+
+  try {
+    const { stdout } = await execute("gsettings", ["get", schema, "gtk-theme"], { timeout: 3_000 });
+    onChange(cinnamonThemeIsDark(stdout));
+  } catch {
+    return () => {};
+  }
+
+  const monitor = spawn("gsettings", ["monitor", schema, "gtk-theme"], { stdio: ["ignore", "pipe", "ignore"] });
+  const lines = createInterface({ input: monitor.stdout });
+  lines.on("line", (line) => {
+    const prefix = "gtk-theme: ";
+    if (line.startsWith(prefix)) onChange(cinnamonThemeIsDark(line.slice(prefix.length)));
+  });
+  monitor.on("error", () => onChange(undefined));
+  monitor.on("exit", () => onChange(undefined));
+  return () => {
+    lines.close();
+    monitor.kill();
+  };
+}
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **gui-types.ts**</summary>
+
+@@ lines 1-66 @@
+
+```
+export type GuiFormatPolicy =
+  | { kind: "prefer-lossless" }
+  | { kind: "lossless-only"; skipUnavailable: boolean }
+  | { kind: "specific"; format: string; skipUnavailable: boolean };
+
+export type GuiTrack = {
+  discNumber?: number;
+  number: number;
+  title: string;
+  formats: string[];
+};
+
+export type GuiInspection = {
+  albumTitle: string;
+  trackCount: number;
+  tracks: GuiTrack[];
+};
+
+export type GuiInspectionState = {
+  active: boolean;
+  browserReady: boolean;
+  browserVisible: boolean;
+};
+
+export type GuiWindowState = {
+  maximized: boolean;
+};
+
+export type GuiProgress = {
+  stage: "track-start" | "track-complete" | "track-failed" | "canceled";
+  number: number;
+  title: string;
+  completedTracks: number;
+  totalTracks: number;
+  bytesReceived?: number;
+};
+
+export type GuiDownloadRequest = {
+  policy: GuiFormatPolicy;
+  outputRoot: string;
+  discLabel: "CD" | "Disc";
+};
+
+export type KDownloaderApi = {
+  systemTheme: () => Promise<boolean>;
+  onSystemTheme: (listener: (dark: boolean) => void) => () => void;
+  minimizeWindow: () => Promise<void>;
+  toggleMaximizeWindow: () => Promise<boolean>;
+  closeWindow: () => Promise<void>;
+  onWindowState: (listener: (state: GuiWindowState) => void) => () => void;
+  defaultOutputRoot: () => Promise<string>;
+  chooseOutput: () => Promise<string | undefined>;
+  inspect: (albumUrl: string) => Promise<GuiInspection>;
+  toggleInspectionBrowser: () => Promise<boolean>;
+  onInspectionState: (listener: (state: GuiInspectionState) => void) => () => void;
+  download: (request: GuiDownloadRequest) => Promise<{ state: string; directory: string }>;
+  cancel: () => Promise<void>;
+  onProgress: (listener: (progress: GuiProgress) => void) => () => void;
+};
+
+declare global {
+  interface Window {
+    kDownloader: KDownloaderApi;
+  }
+}
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **preload.ts**</summary>
+
+@@ lines 1-38 @@
+
+```
+import { contextBridge, ipcRenderer } from "electron";
+import type { GuiDownloadRequest, GuiInspectionState, GuiProgress, GuiWindowState, KDownloaderApi } from "../gui-types.js";
+
+const api: KDownloaderApi = {
+  systemTheme: () => ipcRenderer.invoke("appearance:system-theme"),
+  onSystemTheme: (listener: (dark: boolean) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, dark: boolean) => listener(dark);
+    ipcRenderer.on("appearance:system-theme", handler);
+    return () => ipcRenderer.removeListener("appearance:system-theme", handler);
+  },
+  minimizeWindow: () => ipcRenderer.invoke("window:minimize"),
+  toggleMaximizeWindow: () => ipcRenderer.invoke("window:toggle-maximize"),
+  closeWindow: () => ipcRenderer.invoke("window:close"),
+  onWindowState: (listener: (state: GuiWindowState) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, state: GuiWindowState) => listener(state);
+    ipcRenderer.on("window:state", handler);
+    return () => ipcRenderer.removeListener("window:state", handler);
+  },
+  defaultOutputRoot: () => ipcRenderer.invoke("output:default"),
+  chooseOutput: () => ipcRenderer.invoke("output:choose"),
+  inspect: (albumUrl: string) => ipcRenderer.invoke("album:inspect", albumUrl),
+  toggleInspectionBrowser: () => ipcRenderer.invoke("inspection:toggle-browser"),
+  onInspectionState: (listener: (state: GuiInspectionState) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, state: GuiInspectionState) => listener(state);
+    ipcRenderer.on("inspection:state", handler);
+    return () => ipcRenderer.removeListener("inspection:state", handler);
+  },
+  download: (request: GuiDownloadRequest) => ipcRenderer.invoke("album:download", request),
+  cancel: () => ipcRenderer.invoke("album:cancel"),
+  onProgress: (listener: (progress: GuiProgress) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, progress: GuiProgress) => listener(progress);
+    ipcRenderer.on("album:progress", handler);
+    return () => ipcRenderer.removeListener("album:progress", handler);
+  },
+};
+
+contextBridge.exposeInMainWorld("kDownloader", api);
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **main.ts**</summary>
+
+@@ lines 1-264 @@
+
+```
+import { app, BrowserWindow, dialog, ipcMain, Menu, nativeTheme } from "electron";
+import { monitorCinnamonTheme } from "./system-theme.js";
+import { resolve } from "node:path";
+import { downloadAlbum, type DownloadProgress } from "../downloader.js";
+import { planFormats } from "../formats.js";
+import { inspectAlbum, validateAlbumUrl, type AlbumPage, type DiscoveredTrack } from "../khinsider.js";
+import { defaultOutputRoot } from "../output.js";
+import type { GuiDownloadRequest, GuiFormatPolicy, GuiInspection, GuiInspectionState } from "../gui-types.js";
+
+type CachedInspection = {
+  sourceAlbum: string;
+  album: AlbumPage;
+  tracks: DiscoveredTrack[];
+};
+
+let mainWindow: BrowserWindow | undefined;
+let cinnamonDark: boolean | undefined;
+let stopThemeMonitor: (() => void) | undefined;
+
+function systemThemeIsDark(): boolean {
+  return cinnamonDark ?? nativeTheme.shouldUseDarkColors;
+}
+
+function sendSystemTheme(): void {
+  if (mainWindow && !mainWindow.isDestroyed() && !mainWindow.webContents.isDestroyed()) {
+    mainWindow.webContents.send("appearance:system-theme", systemThemeIsDark());
+  }
+}
+
+const inspections = new Map<number, CachedInspection>();
+const downloads = new Map<number, AbortController>();
+const activeInspections = new Map<number, {
+  controller: AbortController;
+  setBrowserVisible?: (visible: boolean) => Promise<void>;
+  browserVisible: boolean;
+}>();
+
+function assertWindowSender(senderId: number): BrowserWindow {
+  if (!mainWindow || mainWindow.webContents.id !== senderId) throw new Error("Untrusted IPC sender");
+  return mainWindow;
+}
+
+function parseFormatPolicy(policy: unknown): GuiFormatPolicy {
+  if (typeof policy !== "object" || policy === null || !("kind" in policy)) {
+    throw new Error("Invalid format policy");
+  }
+  const value = policy as Record<string, unknown>;
+  const skipUnavailable = value.skipUnavailable === true;
+  if (value.kind === "prefer-lossless" && !skipUnavailable) return { kind: "prefer-lossless" };
+  if (value.kind === "lossless-only") return { kind: "lossless-only", skipUnavailable };
+  if (value.kind === "specific" && typeof value.format === "string" && /^[A-Za-z0-9.+-]{1,16}$/.test(value.format)) {
+    return { kind: "specific", format: value.format.toUpperCase(), skipUnavailable };
+  }
+  throw new Error("Invalid format policy");
+}
+
+function serializeInspection(cached: CachedInspection): GuiInspection {
+  return {
+    albumTitle: cached.album.title,
+    trackCount: cached.tracks.length,
+    tracks: cached.tracks.map((track) => ({
+      ...(track.discNumber === undefined ? {} : { discNumber: track.discNumber }),
+      number: track.number,
+      title: track.title,
+      formats: [...new Set(track.audioLinks.map(({ format }) => format))],
+    })),
+  };
+}
+
+function sendProgress(sender: Electron.WebContents, progress: DownloadProgress): void {
+  if (!sender.isDestroyed()) sender.send("album:progress", progress);
+}
+
+function sendInspectionState(sender: Electron.WebContents, state: GuiInspectionState): void {
+  if (!sender.isDestroyed()) sender.send("inspection:state", state);
+}
+
+function sendWindowState(window: BrowserWindow): void {
+  if (!window.webContents.isDestroyed()) {
+    window.webContents.send("window:state", { maximized: window.isMaximized() });
+  }
+}
+
+function registerIpc(): void {
+  ipcMain.handle("appearance:system-theme", (event) => {
+    assertWindowSender(event.sender.id);
+    return systemThemeIsDark();
+  });
+  ipcMain.handle("window:minimize", (event) => {
+    assertWindowSender(event.sender.id).minimize();
+  });
+
+  ipcMain.handle("window:toggle-maximize", (event) => {
+    const window = assertWindowSender(event.sender.id);
+    if (window.isMaximized()) window.unmaximize();
+    else window.maximize();
+    sendWindowState(window);
+    return window.isMaximized();
+  });
+
+  ipcMain.handle("window:close", (event) => {
+    assertWindowSender(event.sender.id).close();
+  });
+
+  ipcMain.handle("output:default", (event) => {
+    assertWindowSender(event.sender.id);
+    return defaultOutputRoot();
+  });
+
+  ipcMain.handle("output:choose", async (event) => {
+    const window = assertWindowSender(event.sender.id);
+    const result = await dialog.showOpenDialog(window, {
+      title: "Choose download folder",
+      defaultPath: defaultOutputRoot(),
+      properties: ["openDirectory", "createDirectory"],
+    });
+    return result.canceled ? undefined : result.filePaths[0];
+  });
+
+  ipcMain.handle("album:inspect", async (event, input: unknown) => {
+    assertWindowSender(event.sender.id);
+    if (typeof input !== "string" || input.length > 2048) throw new Error("Enter one valid album URL");
+    if (activeInspections.has(event.sender.id)) throw new Error("Album inspection is already active");
+    let sourceAlbum: string;
+    try {
+      sourceAlbum = validateAlbumUrl(input).href;
+    } catch {
+      throw new Error("Paste a valid HTTPS KHInsider album URL.");
+    }
+    const active: {
+      controller: AbortController;
+      setBrowserVisible?: (visible: boolean) => Promise<void>;
+      browserVisible: boolean;
+    } = { controller: new AbortController(), browserVisible: false };
+    activeInspections.set(event.sender.id, active);
+    sendInspectionState(event.sender, { active: true, browserReady: false, browserVisible: false });
+    try {
+      const result = await inspectAlbum(sourceAlbum, {
+        signal: active.controller.signal,
+        onBrowserReady: (setBrowserVisible) => {
+          active.setBrowserVisible = setBrowserVisible;
+          sendInspectionState(event.sender, { active: true, browserReady: true, browserVisible: false });
+        },
+      });
+      const cached = { sourceAlbum, album: result.album, tracks: result.tracks };
+      inspections.set(event.sender.id, cached);
+      return serializeInspection(cached);
+    } finally {
+      activeInspections.delete(event.sender.id);
+      sendInspectionState(event.sender, { active: false, browserReady: false, browserVisible: false });
+    }
+  });
+
+  ipcMain.handle("inspection:toggle-browser", async (event) => {
+    assertWindowSender(event.sender.id);
+    const active = activeInspections.get(event.sender.id);
+    if (!active?.setBrowserVisible) throw new Error("Inspection browser is not ready");
+    const browserVisible = !active.browserVisible;
+    await active.setBrowserVisible(browserVisible);
+    active.browserVisible = browserVisible;
+    sendInspectionState(event.sender, { active: true, browserReady: true, browserVisible });
+    return browserVisible;
+  });
+
+  ipcMain.handle("album:download", async (event, request: unknown) => {
+    const window = assertWindowSender(event.sender.id);
+    if (downloads.has(event.sender.id)) throw new Error("A download is already active");
+    if (typeof request !== "object" || request === null || !("outputRoot" in request)) {
+      throw new Error("Invalid download request");
+    }
+    const payload = request as GuiDownloadRequest;
+    if (typeof payload.outputRoot !== "string" || payload.outputRoot.length > 4096 || payload.outputRoot.includes("\0")) {
+      throw new Error("Invalid output folder");
+    }
+    if (payload.discLabel !== "CD" && payload.discLabel !== "Disc") throw new Error("Invalid disc folder label");
+    const cached = inspections.get(event.sender.id);
+    if (!cached) throw new Error("Inspect an album before starting a download");
+    const policy = parseFormatPolicy(payload.policy);
+    const plan = planFormats(cached.tracks, policy);
+    if (plan.blocked) throw new Error("The format preview has unavailable tracks; skip them explicitly or choose another policy");
+
+    const controller = new AbortController();
+    downloads.set(event.sender.id, controller);
+    try {
+      const result = await downloadAlbum({
+        ...cached,
+        outputRoot: resolve(payload.outputRoot),
+        policy,
+        discLabel: payload.discLabel,
+        signal: controller.signal,
+        onProgress: (progress) => sendProgress(window.webContents, progress),
+      });
+      return { state: result.state, directory: result.directory };
+    } finally {
+      downloads.delete(event.sender.id);
+    }
+  });
+
+  ipcMain.handle("album:cancel", (event) => {
+    assertWindowSender(event.sender.id);
+    downloads.get(event.sender.id)?.abort();
+  });
+}
+
+async function createWindow(): Promise<void> {
+  const window = new BrowserWindow({
+    frame: false,
+    autoHideMenuBar: true,
+    width: 1120,
+    height: 780,
+    minWidth: 760,
+    minHeight: 620,
+    backgroundColor: "#101715",
+    title: "K-Downloader",
+    webPreferences: {
+      preload: resolve(__dirname, "preload.cjs"),
+      contextIsolation: true,
+      nodeIntegration: false,
+      sandbox: true,
+    },
+  });
+  mainWindow = window;
+  const senderId = window.webContents.id;
+  window.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
+  window.webContents.on("will-navigate", (event, url) => {
+    if (!url.startsWith("file://")) event.preventDefault();
+  });
+  window.on("maximize", () => sendWindowState(window));
+  window.on("unmaximize", () => sendWindowState(window));
+  window.webContents.on("did-finish-load", () => sendWindowState(window));
+  window.on("closed", () => {
+    inspections.delete(senderId);
+    activeInspections.get(senderId)?.controller.abort();
+    activeInspections.delete(senderId);
+    downloads.get(senderId)?.abort();
+    downloads.delete(senderId);
+    if (mainWindow === window) mainWindow = undefined;
+  });
+  await window.loadFile(resolve(__dirname, "../gui/index.html"));
+}
+
+app.whenReady().then(async () => {
+  app.setName("K-Downloader");
+  nativeTheme.themeSource = "system";
+  nativeTheme.on("updated", sendSystemTheme);
+  stopThemeMonitor = await monitorCinnamonTheme((dark) => {
+    cinnamonDark = dark;
+    sendSystemTheme();
+  });
+  Menu.setApplicationMenu(null);
+  registerIpc();
+  await createWindow();
+  app.on("activate", () => {
+    if (BrowserWindow.getAllWindows().length === 0) void createWindow();
+  });
+});
+
+app.on("will-quit", () => stopThemeMonitor?.());
+
+app.on("window-all-closed", () => {
+  for (const controller of downloads.values()) controller.abort();
+  if (process.platform !== "darwin") app.quit();
+});
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+
+```
+
+```
+
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **appearance.ts**</summary>
+
+@@ lines 1-89 @@
+
+```
+export const appearanceModes = ["light", "dark", "system"] as const;
+export const colorThemes = ["mint", "ocean", "amber", "rose", "monochrome"] as const;
+export type Appearance = {
+  mode: typeof appearanceModes[number];
+  theme: typeof colorThemes[number];
+};
+
+export const defaultAppearance: Appearance = { mode: "system", theme: "mint" };
+export const appearanceStorageKey = "k-downloader.appearance";
+
+export function parseAppearance(raw: string | null): Appearance {
+  try {
+    const value = JSON.parse(raw ?? "null");
+    return {
+      mode: appearanceModes.includes(value?.mode) ? value.mode : defaultAppearance.mode,
+      theme: colorThemes.includes(value?.theme) ? value.theme : defaultAppearance.theme,
+    };
+  } catch {
+    return { ...defaultAppearance };
+  }
+}
+
+export function resolvedMode(mode: Appearance["mode"], systemDark: boolean): "light" | "dark" {
+  return mode === "system" ? systemDark ? "dark" : "light" : mode;
+}
+
+export function initializeAppearance(): void {
+  let preferences = { ...defaultAppearance };
+  try {
+    preferences = parseAppearance(localStorage.getItem(appearanceStorageKey));
+  } catch {}
+  const systemScheme = matchMedia("(prefers-color-scheme: dark)");
+  let systemDark = systemScheme.matches;
+  const modeInputs = document.querySelectorAll<HTMLInputElement>('input[name="appearance-mode"]');
+  const themeInputs = document.querySelectorAll<HTMLInputElement>('input[name="color-theme"]');
+  const storageStatus = document.querySelector<HTMLElement>("#appearance-storage-status");
+
+  function apply(): void {
+    document.documentElement.dataset.mode = resolvedMode(preferences.mode, systemDark);
+    document.documentElement.dataset.theme = preferences.theme;
+    modeInputs.forEach((input) => { input.checked = input.value === preferences.mode; });
+    themeInputs.forEach((input) => { input.checked = input.value === preferences.theme; });
+  }
+
+  function save(): void {
+    apply();
+    try {
+      localStorage.setItem(appearanceStorageKey, JSON.stringify(preferences));
+      if (storageStatus) storageStatus.textContent = "";
+    } catch {
+      if (storageStatus) storageStatus.textContent = "Appearance could not be saved. Changes apply to this session only.";
+    }
+  }
+
+  modeInputs.forEach((input) => input.addEventListener("change", () => {
+    preferences.mode = input.value as Appearance["mode"];
+    save();
+  }));
+  themeInputs.forEach((input) => input.addEventListener("change", () => {
+    preferences.theme = input.value as Appearance["theme"];
+    save();
+  }));
+  if (window.kDownloader?.onSystemTheme && window.kDownloader?.systemTheme) {
+    let updateReceived = false;
+    window.kDownloader.onSystemTheme((dark) => {
+      updateReceived = true;
+      systemDark = dark;
+      apply();
+    });
+    void window.kDownloader.systemTheme().then((dark) => {
+      if (!updateReceived) {
+        systemDark = dark;
+        apply();
+      }
+    }).catch(() => {
+      systemScheme.addEventListener("change", () => {
+        systemDark = systemScheme.matches;
+        apply();
+      });
+    });
+  } else {
+    systemScheme.addEventListener("change", () => {
+      systemDark = systemScheme.matches;
+      apply();
+    });
+  }
+  apply();
+}
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm run build && npm test -- tests/appearance.test.ts`
+
+Type-check the native desktop-theme bridge and rerun the scoped appearance tests after replacing Electron's browser-only signal.
+
+```bash
+npm run build && npm test -- tests/appearance.test.ts
+```
+
+**Result:**
+
+```
+
+> k-downloader@0.1.0 build
+> tsc --noEmit
+
+
+> k-downloader@0.1.0 pretest
+> npm run build:gui
+
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+
+> k-downloader@0.1.0 test
+> vitest run tests/appearance.test.ts
+
+
+ RUN  v5.0.4 /home/kel/dev/K-Downloader
+
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  11:43:45
+   Duration  1.83s (tests 67%, import 30%, transform 2%, worker 1%)
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The desktop-theme bridge compiles, and the appearance tests still pass. I’ll add an Electron regression test that checks native light/dark updates and confirms explicit Light or Dark mode ignores them, plus coverage for Cinnamon theme names. The tests won’t change your OS settings.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **appearance.test.ts**</summary>
+
+@@ lines 1-157 @@
+
+```
+import { describe, expect, it } from "vitest";
+import { appearanceModes, colorThemes, defaultAppearance, parseAppearance, resolvedMode } from "../src/appearance.js";
+import { chromium, _electron as electron } from "playwright";
+import { pathToFileURL } from "node:url";
+import { resolve } from "node:path";
+import { createRequire } from "node:module";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { cinnamonThemeIsDark } from "../src/electron/system-theme.js";
+
+describe("appearance preferences", () => {
+  it("defaults to System and Mint for absent or malformed settings", () => {
+    for (const raw of [null, "broken", "null", "[]", '{"mode":"invalid","theme":"invalid"}']) {
+      expect(parseAppearance(raw)).toEqual(defaultAppearance);
+    }
+  });
+
+  it("round-trips every supported mode and theme", () => {
+    for (const mode of appearanceModes) for (const theme of colorThemes) {
+      expect(parseAppearance(JSON.stringify({ mode, theme }))).toEqual({ mode, theme });
+    }
+  });
+
+  it("follows the system only in System mode", () => {
+    expect(resolvedMode("system", true)).toBe("dark");
+    expect(resolvedMode("system", false)).toBe("light");
+    expect(resolvedMode("light", true)).toBe("light");
+    expect(resolvedMode("dark", false)).toBe("dark");
+  });
+
+  it("recognizes Cinnamon GTK light and dark theme names", () => {
+    expect(cinnamonThemeIsDark("'Mint-Y'\n")).toBe(false);
+    expect(cinnamonThemeIsDark("'Mint-Y-Dark'\n")).toBe(true);
+    expect(cinnamonThemeIsDark("'Mint-Y-Dark-Aqua'\n")).toBe(true);
+    expect(cinnamonThemeIsDark("'Adwaita-dark'\n")).toBe(true);
+    expect(cinnamonThemeIsDark("unrecognized output")).toBeUndefined();
+  });
+});
+
+describe("appearance controls in Chromium", () => {
+  it("applies every palette, persists preferences, and responds to System mode", async () => {
+    const browser = await chromium.launch({ headless: true });
+    try {
+      const page = await browser.newPage({ viewport: { width: 1120, height: 780 }, colorScheme: "light" });
+      page.setDefaultTimeout(5_000);
+      const errors: string[] = [];
+      page.on("pageerror", (error) => errors.push(error.message));
+      await page.addInitScript(() => {
+        window.kDownloader = {
+          systemTheme: async () => matchMedia("(prefers-color-scheme: dark)").matches,
+          onSystemTheme: (listener) => {
+            const media = matchMedia("(prefers-color-scheme: dark)");
+            const handler = () => listener(media.matches);
+            media.addEventListener("change", handler);
+            return () => media.removeEventListener("change", handler);
+          },
+          defaultOutputRoot: async () => "/tmp/K-Downloader",
+          chooseOutput: async () => undefined,
+          inspect: async () => ({ albumTitle: "Fixture", trackCount: 0, tracks: [] }),
+          download: async () => ({ state: "complete", directory: "/tmp" }),
+          cancel: async () => {},
+          minimizeWindow: async () => {},
+          toggleMaximizeWindow: async () => false,
+          closeWindow: async () => {},
+          toggleInspectionBrowser: async () => false,
+          onInspectionState: () => () => {},
+          onProgress: () => () => {},
+          onWindowState: () => () => {},
+        };
+      });
+      await page.goto(pathToFileURL(resolve("dist/gui/index.html")).href);
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "light");
+      await page.keyboard.press("Control+Comma");
+      await page.locator("#settings-view").waitFor({ state: "visible" });
+      for (const mode of ["light", "dark"] as const) {
+        await page.getByRole("radio", { name: new RegExp(`^${mode}$`, "i") }).check();
+        const accents = new Set<string>();
+        for (const theme of colorThemes) {
+          await page.getByRole("radio", { name: new RegExp(`^${theme}$`, "i") }).check();
+          const palette = await page.evaluate(() => {
+            const styles = getComputedStyle(document.documentElement);
+            return {
+              mode: document.documentElement.dataset.mode,
+              theme: document.documentElement.dataset.theme,
+              accent: styles.getPropertyValue("--mint").trim(),
+              surface: styles.getPropertyValue("--panel").trim(),
+              scheme: styles.colorScheme,
+            };
+          });
+          expect(palette.mode).toBe(mode);
+          expect(palette.theme).toBe(theme);
+          expect(palette.scheme).toBe(mode);
+          expect(palette.surface).not.toBe(palette.accent);
+          accents.add(palette.accent);
+        }
+        expect(accents.size).toBe(5);
+      }
+      await page.reload();
+      await page.waitForFunction(() => document.documentElement.dataset.theme === "monochrome");
+      expect(await page.locator("html").getAttribute("data-mode")).toBe("dark");
+      await page.keyboard.press("Control+Comma");
+      await page.getByRole("radio", { name: "System", exact: true }).check();
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "light");
+      await page.emulateMedia({ colorScheme: "dark" });
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "dark");
+      await page.getByRole("radio", { name: "Light", exact: true }).check();
+      await page.emulateMedia({ colorScheme: "light" });
+      await page.emulateMedia({ colorScheme: "dark" });
+      expect(await page.locator("html").getAttribute("data-mode")).toBe("light");
+      await page.screenshot({ path: "/tmp/k-downloader-appearance-light.png" });
+      await page.setViewportSize({ width: 760, height: 620 });
+      await page.getByRole("radio", { name: "Dark", exact: true }).check();
+      await page.getByRole("radio", { name: "Mint", exact: true }).check();
+      await page.screenshot({ path: "/tmp/k-downloader-appearance-dark.png" });
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      await page.keyboard.press("Escape");
+      await page.locator("#workspace").waitFor({ state: "visible" });
+      expect(errors).toEqual([]);
+    } finally {
+      await browser.close();
+    }
+  }, 30_000);
+});
+
+describe("Electron native theme updates", () => {
+  it("updates System mode through preload but preserves explicit Light and Dark", async () => {
+    const userData = await mkdtemp(resolve(tmpdir(), "k-downloader-theme-test-"));
+    const require = createRequire(import.meta.url);
+    const app = await electron.launch({
+      executablePath: require("electron"),
+      args: [resolve("dist/electron/main.cjs"), `--user-data-dir=${userData}`],
+      env: { ...process.env, XDG_CURRENT_DESKTOP: "Test" },
+    });
+    try {
+      const page = await app.firstWindow();
+      await page.waitForFunction(() => document.documentElement.dataset.mode);
+      await page.keyboard.press("Control+Comma");
+      await page.getByRole("radio", { name: "System", exact: true }).check();
+      await app.evaluate(({ nativeTheme }) => { nativeTheme.themeSource = "dark"; });
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "dark");
+      await app.evaluate(({ nativeTheme }) => { nativeTheme.themeSource = "light"; });
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "light");
+      await page.getByRole("radio", { name: "Dark", exact: true }).check();
+      await app.evaluate(({ nativeTheme }) => { nativeTheme.themeSource = "light"; });
+      expect(await page.locator("html").getAttribute("data-mode")).toBe("dark");
+      await page.getByRole("radio", { name: "Light", exact: true }).check();
+      await app.evaluate(({ nativeTheme }) => { nativeTheme.themeSource = "dark"; });
+      expect(await page.locator("html").getAttribute("data-mode")).toBe("light");
+      await page.getByRole("radio", { name: "System", exact: true }).check();
+      await page.waitForFunction(() => document.documentElement.dataset.mode === "dark");
+    } finally {
+      await app.close();
+      await rm(userData, { recursive: true, force: true });
+    }
+  }, 30_000);
+});
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm test -- tests/appearance.test.ts`
+
+Run browser, native Electron, and Cinnamon theme-name checks without altering desktop settings.
+
+```bash
+npm test -- tests/appearance.test.ts
+```
+
+**Result:**
+
+```
+
+> k-downloader@0.1.0 pretest
+> npm run build:gui
+
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+
+> k-downloader@0.1.0 test
+> vitest run tests/appearance.test.ts
+
+
+ RUN  v5.0.4 /home/kel/dev/K-Downloader
+
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  11:44:21
+   Duration  2.95s (tests 85%, import 13%, transform 2%)
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The regression tests pass: native updates change System mode, explicit modes stay fixed, and Cinnamon light/dark theme names are recognized. I’ll update the test requirements in the README, run the full checks, and restart the GUI so you can try the actual OS toggle with the new bridge.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="write" data-tool-name="textEditGroup"><details>
+<summary>Edit: **README.md**</summary>
+
+@@ lines 1-93 @@
+
+````
+# K-Downloader
+
+K-Downloader is a Linux-first KHInsider album downloader. The current slice
+implements public single-album discovery, format preview and policy, sequential
+streaming, and manifest-backed reruns. Multi-album queues, artwork, the GUI,
+optional account features, and packaging are not implemented yet.
+
+## Discovery check
+
+Requirements: Node.js 20 or newer, npm, and a graphical desktop session.
+
+```sh
+npm install
+npx playwright install chromium
+npm run inspect -- 'https://downloads.khinsider.com/game-soundtracks/album/unreal-ii-the-awakening-original-soundtrack'
+```
+
+The command opens a fresh visible Chromium context without a stored browser
+profile, visits the album and track pages sequentially, and prints every
+track's discovered format selection. It does not sign in or download audio.
+Visible mode is currently needed: plain Node fetch and headless Chromium
+received HTTP 403 during feasibility checks, while a fresh visible Chromium
+context succeeded. No attempt is made to imitate a browser or evade a challenge.
+If access is denied or a challenge appears, stop and review the site's permitted
+access methods.
+
+## Download One Album
+
+The CLI previews the selected formats before starting any transfer. The default
+format policy prefers lossless, falling back to MP3 when needed. The default
+destination is `~/Music/K-Downloader`.
+
+```sh
+npm run download -- 'https://downloads.khinsider.com/game-soundtracks/album/unreal-ii-the-awakening-original-soundtrack'
+```
+
+Use `--format lossless-only` to block when a track has no lossless source. Add
+`--skip-unavailable` to explicitly skip those tracks and mark the album
+incomplete. A specific format such as `--format MP3` never silently substitutes
+another format. Use `--output /path/to/music` for another destination.
+
+Multi-disc albums are saved into per-disc folders such as `CD1/` and `CD2/`.
+The GUI offers `CD` and `Disc` folder labels; the CLI accepts
+`--disc-label CD` or `--disc-label Disc` and defaults to `CD`. Single-disc
+albums keep the flat album folder.
+
+Files are streamed through temporary `.part` files, validated, and moved into
+place without overwriting. A per-album manifest records completion so verified
+files can be skipped on rerun. Transfers are covered by local mocked tests; an
+authorized live audio download has not yet been run.
+
+## Desktop GUI
+
+Requirements: Node.js 20 or newer, npm, and a graphical Linux session.
+
+```sh
+npm install
+npx playwright install chromium
+npm run gui
+```
+
+Paste one album URL and choose **Inspect album**. A Chromium inspection window
+starts minimized while an in-progress indicator appears in the app; click that
+indicator to show or hide the browser. Review the per-track format preview, choose the
+destination and format policy, then select **Download**. The default destination
+is `~/Music/K-Downloader`. **Cancel active download** stops the current transfer
+and prevents later tracks from starting.
+
+Open **More > Settings** in the titlebar or press `Ctrl+,`. Under **Appearance**,
+select Light, Dark, or System mode and a Mint, Ocean, Amber, Rose, or Monochrome
+color theme. System follows desktop appearance changes; System + Mint is the
+default. Choices apply immediately and are saved locally across restarts.
+On Cinnamon, System mode follows the GTK theme (for example, Mint-Y versus
+Mint-Y-Dark); other desktops use Electron's native appearance notifications.
+Return with **Back to downloader** or press `Esc`.
+
+The GUI uses a context-isolated, sandboxed renderer with a narrow preload API.
+It currently supports one album per run; multi-album queues and packaging are
+not available yet.
+
+## Development
+
+```sh
+npm test
+npm run build
+npm audit
+```
+
+Tests build the GUI first and use the installed Playwright Chromium and Electron
+for local appearance checks. The Electron checks require a graphical session
+and use an isolated profile. No desktop settings, site requests, or audio
+transfers are changed or made by those tests.
+````
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="task" data-tool-name="manage_todo_list"><details>
+<summary>Tool use: **manage_todo_list**</summary>
+
+Created 2 todos
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm test && npm run build`
+
+Run the complete test suite and strict TypeScript check for the OS appearance bridge.
+
+```bash
+npm test && npm run build
+```
+
+**Result:**
+
+```
+
+> k-downloader@0.1.0 pretest
+> npm run build:gui
+
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+
+> k-downloader@0.1.0 test
+> vitest run
+
+
+ RUN  v5.0.4 /home/kel/dev/K-Downloader
+
+
+ Test Files  6 passed (6)
+      Tests  24 passed (24)
+   Start at  11:44:44
+   Duration  3.21s (tests 73%, import 25%, transform 1%, worker 1%)
+
+
+> k-downloader@0.1.0 build
+> tsc --noEmit
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="get_errors"><details>
+<summary>Tool use: **get_errors**</summary>
+
+Checked `system-theme.ts`, `main.ts`, `preload.ts`, `appearance.ts`, `appearance.test.ts`, no problems found
+
+**Input:**
+
+- filePaths:
+
+```
+[
+  "/home/kel/dev/K-Downloader/src/electron/system-theme.ts",
+  "/home/kel/dev/K-Downloader/src/electron/main.ts",
+  "/home/kel/dev/K-Downloader/src/electron/preload.ts",
+  "/home/kel/dev/K-Downloader/src/appearance.ts",
+  "/home/kel/dev/K-Downloader/tests/appearance.test.ts"
+]
+```
+
+
+**Result:**
+
+```
+<errors path="/home/kel/dev/K-Downloader/src/electron/system-theme.ts">
+No errors found
+</errors>
+<errors path="/home/kel/dev/K-Downloader/src/electron/main.ts">
+No errors found
+</errors>
+<errors path="/home/kel/dev/K-Downloader/src/electron/preload.ts">
+No errors found
+</errors>
+<errors path="/home/kel/dev/K-Downloader/src/appearance.ts">
+No errors found
+</errors>
+<errors path="/home/kel/dev/K-Downloader/tests/appearance.test.ts">
+No errors found
+</errors>
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+All 24 tests pass, the TypeScript build is clean, and editor diagnostics show no errors. I’ll replace the earlier GUI process with the rebuilt app; select System mode there and switch the OS between light and dark to verify the desktop signal.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="kill_terminal"><details>
+<summary>Tool use: **kill_terminal**</summary>
+
+Killed terminal
+
+**Input:**
+
+- id: `6f64a0f5-6b52-418e-82eb-3e8bdacc1b04`
+
+**Result:**
+
+```
+Successfully killed persistent terminal 6f64a0f5-6b52-418e-82eb-3e8bdacc1b04. Final output before termination:
+kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+
+> k-downloader@0.1.0 gui
+> npm run build:gui && electron dist/electron/main.cjs
+
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
+<summary>Tool use: **run_in_terminal**</summary>
+
+Running ` npm run gui`
+
+Launch the rebuilt GUI with Cinnamon GTK monitoring and native Electron appearance notifications.
+
+```bash
+npm run gui
+```
+
+**Result:**
+
+```
+Command is running in terminal with ID=5cb5ebe6-0b86-411b-952e-f8fdf4db0fe1
+ The command became idle with output:
+kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+
+> k-downloader@0.1.0 gui
+> npm run build:gui && electron dist/electron/main.cjs
+
+
+> k-downloader@0.1.0 build:gui
+> node scripts/build-gui.mjs
+
+Built Electron main/preload and local renderer into dist/.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+This note is not a signal to end the turn — pick one of the actions below and continue.
+  1. If the command may still be producing output or the shell prompt has not returned, call get_terminal_output with id="5cb5ebe6-0b86-411b-952e-f8fdf4db0fe1" to continue polling. This is the default and safest action when unsure.
+  2. Only if the output clearly ends with a real non-secret input prompt (Continue? (y/n), Enter selection, etc. — a normal shell prompt like `$` or `#` does NOT count), call the vscode_askQuestions tool to ask the user, then send each answer using send_to_terminal with id="5cb5ebe6-0b86-411b-952e-f8fdf4db0fe1" (which returns the next few lines of output). Repeat one prompt at a time. NEVER route secret prompts (passwords, passphrases, tokens, API keys, etc.) through vscode_askQuestions — answers to that tool are sent through the model. For secret prompts, tell the user to type the value directly into the terminal and stop.
+```
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+Updated System mode to monitor Cinnamon’s GTK theme directly, with Electron native theme notifications as the fallback. Explicit Light and Dark modes remain unchanged.
+
+All 24 tests and the build pass. The GUI is relaunched; select **System** and toggle the OS appearance to confirm. I haven’t changed your desktop settings myself.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="task" data-tool-name="manage_todo_list"><details>
+<summary>Tool use: **manage_todo_list**</summary>
+
+Starting: *Implement desktop theme change listener* (1/2)
+</details></tool-use>
+
+---
+
+_**User (2026-10-12 16:36:26Z)**_
+
+very good. let's implement your suggested modes and themes
+
+---
+
+_**Agent (copilot/auto)**_
+
+I’ll add Appearance controls for Light, Dark, and System plus the five color themes, defaulting to System + Mint. I’ll also persist the choices and replace fixed UI colors with palette tokens so the whole app responds to mode changes.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="copilot_readFile"><details>
+<summary>Tool use: **copilot_readFile**</summary>
+
+Read `styles.css`
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="copilot_readFile"><details>
+<summary>Tool use: **copilot_readFile**</summary>
+
+Read `renderer.ts`, lines 1 to 130
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="copilot_readFile"><details>
+<summary>Tool use: **copilot_readFile**</summary>
+
+Read `index.html`, lines 135 to 140
+</details></tool-use>
+
+_**Agent (copilot/auto)**_
+
+The Settings view can keep the downloader mounted while showing Appearance, so changing a theme won’t discard the current album preview. I’ll store these non-sensitive preferences locally, validate saved values, and listen for desktop color-scheme changes only when System mode is selected.
+
+_**Agent (copilot/auto)**_
+
+<tool-use data-tool-type="generic" data-tool-name="copilot_applyPatch"><details>
+<summary>Tool use: **copilot_applyPatch**</summary>
+
+Apply Patch
+</details></tool-use>
+
+---
+
+_**User (2026-10-12 16:42:20Z)**_
+
+the gui does not seem to respect the system color when I switch the OS between light and dark modes

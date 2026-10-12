@@ -2,6 +2,12 @@ import { contextBridge, ipcRenderer } from "electron";
 import type { GuiDownloadRequest, GuiInspectionState, GuiProgress, GuiWindowState, KDownloaderApi } from "../gui-types.js";
 
 const api: KDownloaderApi = {
+  systemTheme: () => ipcRenderer.invoke("appearance:system-theme"),
+  onSystemTheme: (listener: (dark: boolean) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, dark: boolean) => listener(dark);
+    ipcRenderer.on("appearance:system-theme", handler);
+    return () => ipcRenderer.removeListener("appearance:system-theme", handler);
+  },
   minimizeWindow: () => ipcRenderer.invoke("window:minimize"),
   toggleMaximizeWindow: () => ipcRenderer.invoke("window:toggle-maximize"),
   closeWindow: () => ipcRenderer.invoke("window:close"),

@@ -133,6 +133,28 @@
             <span>Back to downloader</span>
           </button>
         </header>
+        <section class="appearance-section" aria-labelledby="appearance-heading">
+          <h2 id="appearance-heading">Appearance</h2>
+          <fieldset class="appearance-setting">
+            <legend>Mode</legend>
+            <div class="mode-options">
+              <label><input type="radio" name="appearance-mode" value="light" /><span>Light</span></label>
+              <label><input type="radio" name="appearance-mode" value="dark" /><span>Dark</span></label>
+              <label><input type="radio" name="appearance-mode" value="system" checked /><span>System</span></label>
+            </div>
+          </fieldset>
+          <fieldset class="appearance-setting">
+            <legend>Color theme</legend>
+            <div class="theme-options">
+              <label><input type="radio" name="color-theme" value="mint" checked /><span class="theme-swatch swatch-mint"></span><span>Mint</span></label>
+              <label><input type="radio" name="color-theme" value="ocean" /><span class="theme-swatch swatch-ocean"></span><span>Ocean</span></label>
+              <label><input type="radio" name="color-theme" value="amber" /><span class="theme-swatch swatch-amber"></span><span>Amber</span></label>
+              <label><input type="radio" name="color-theme" value="rose" /><span class="theme-swatch swatch-rose"></span><span>Rose</span></label>
+              <label><input type="radio" name="color-theme" value="monochrome" /><span class="theme-swatch swatch-monochrome"></span><span>Monochrome</span></label>
+            </div>
+          </fieldset>
+          <p id="appearance-storage-status" class="error-text" role="status"></p>
+        </section>
       </section>
       <footer class="app-footer"><span>Original audio bytes · no transcoding</span><span>LOCAL SESSION</span></footer>
     </main>

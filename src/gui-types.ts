@@ -42,6 +42,8 @@ export type GuiDownloadRequest = {
 };
 
 export type KDownloaderApi = {
+  systemTheme: () => Promise<boolean>;
+  onSystemTheme: (listener: (dark: boolean) => void) => () => void;
   minimizeWindow: () => Promise<void>;
   toggleMaximizeWindow: () => Promise<boolean>;
   closeWindow: () => Promise<void>;

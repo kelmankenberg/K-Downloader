@@ -12,6 +12,7 @@
     "gui": "npm run build:gui && electron dist/electron/main.cjs",
     "inspect": "tsx src/cli.ts inspect",
     "download": "tsx src/cli.ts download",
+    "pretest": "npm run build:gui",
     "test": "vitest run"
   },
   "dependencies": {

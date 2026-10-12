@@ -66,8 +66,13 @@ destination and format policy, then select **Download**. The default destination
 is `~/Music/K-Downloader`. **Cancel active download** stops the current transfer
 and prevents later tracks from starting.
 
-Open **More > Settings** in the titlebar or press `Ctrl+,`. The Settings view is
-currently a placeholder; return with **Back to downloader** or press `Esc`.
+Open **More > Settings** in the titlebar or press `Ctrl+,`. Under **Appearance**,
+select Light, Dark, or System mode and a Mint, Ocean, Amber, Rose, or Monochrome
+color theme. System follows desktop appearance changes; System + Mint is the
+default. Choices apply immediately and are saved locally across restarts.
+On Cinnamon, System mode follows the GTK theme (for example, Mint-Y versus
+Mint-Y-Dark); other desktops use Electron's native appearance notifications.
+Return with **Back to downloader** or press `Esc`.
 
 The GUI uses a context-isolated, sandboxed renderer with a narrow preload API.
 It currently supports one album per run; multi-album queues and packaging are
@@ -80,3 +85,8 @@ npm test
 npm run build
 npm audit
 ```
+
+Tests build the GUI first and use the installed Playwright Chromium and Electron
+for local appearance checks. The Electron checks require a graphical session
+and use an isolated profile. No desktop settings, site requests, or audio
+transfers are changed or made by those tests.

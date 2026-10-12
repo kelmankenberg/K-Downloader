@@ -1,4 +1,5 @@
-import { app, BrowserWindow, dialog, ipcMain, Menu } from "electron";
+import { app, BrowserWindow, dialog, ipcMain, Menu, nativeTheme } from "electron";
+import { monitorCinnamonTheme } from "./system-theme.js";
 import { resolve } from "node:path";
 import { downloadAlbum, type DownloadProgress } from "../downloader.js";
 import { planFormats } from "../formats.js";
@@ -13,6 +14,19 @@ type CachedInspection = {
 };
 
 let mainWindow: BrowserWindow | undefined;
+let cinnamonDark: boolean | undefined;
+let stopThemeMonitor: (() => void) | undefined;
+
+function systemThemeIsDark(): boolean {
+  return cinnamonDark ?? nativeTheme.shouldUseDarkColors;
+}
+
+function sendSystemTheme(): void {
+  if (mainWindow && !mainWindow.isDestroyed() && !mainWindow.webContents.isDestroyed()) {
+    mainWindow.webContents.send("appearance:system-theme", systemThemeIsDark());
+  }
+}
+
 const inspections = new Map<number, CachedInspection>();
 const downloads = new Map<number, AbortController>();
 const activeInspections = new Map<number, {
@@ -68,6 +82,10 @@ function sendWindowState(window: BrowserWindow): void {
 }
 
 function registerIpc(): void {
+  ipcMain.handle("appearance:system-theme", (event) => {
+    assertWindowSender(event.sender.id);
+    return systemThemeIsDark();
+  });
   ipcMain.handle("window:minimize", (event) => {
     assertWindowSender(event.sender.id).minimize();
   });
@@ -223,6 +241,12 @@ async function createWindow(): Promise<void> {
 
 app.whenReady().then(async () => {
   app.setName("K-Downloader");
+  nativeTheme.themeSource = "system";
+  nativeTheme.on("updated", sendSystemTheme);
+  stopThemeMonitor = await monitorCinnamonTheme((dark) => {
+    cinnamonDark = dark;
+    sendSystemTheme();
+  });
   Menu.setApplicationMenu(null);
   registerIpc();
   await createWindow();
@@ -230,6 +254,8 @@ app.whenReady().then(async () => {
     if (BrowserWindow.getAllWindows().length === 0) void createWindow();
   });
 });
+
+app.on("will-quit", () => stopThemeMonitor?.());
 
 app.on("window-all-closed", () => {
   for (const controller of downloads.values()) controller.abort();

@@ -1,5 +1,8 @@
 import type { GuiFormatPolicy, GuiInspection, GuiInspectionState, GuiProgress, GuiTrack } from "./gui-types.js";
 import { ArrowLeft, Copy, createIcons, EllipsisVertical, Minus, Settings, Square, X } from "lucide";
+import { initializeAppearance } from "./appearance.js";
+
+initializeAppearance();
 
 const windowIcons = { ArrowLeft, Copy, EllipsisVertical, Minus, Settings, Square, X };
 createIcons({ icons: windowIcons });
