@@ -11,12 +11,20 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const require = createRequire(import.meta.url);
 const targets = process.argv.slice(2);
 if (process.platform !== "linux" || process.arch !== "x64") throw new Error("Packaging currently requires a Linux x64 build host.");
-if (targets.some((target) => !["deb", "AppImage", "dir"].includes(target))) throw new Error("Supported targets: deb, AppImage, dir");
-const selected = targets.length ? targets : ["deb", "AppImage"];
+if (targets.some((target) => !["deb", "AppImage", "pacman", "dir"].includes(target))) throw new Error("Supported targets: deb, AppImage, pacman, dir");
+const selected = targets.length ? targets : ["deb", "AppImage", "pacman"];
 const config = require(resolve(root, "electron-builder.config.cjs"));
 
 function command(file, args, options = {}) {
   return execFileSync(file, args, { cwd: root, stdio: "inherit", ...options });
+}
+
+if (selected.includes("pacman")) {
+  try {
+    command("bsdtar", ["--version"], { stdio: "pipe" });
+  } catch {
+    throw new Error("Arch packaging requires bsdtar (libarchive-tools on Debian/Ubuntu; libarchive on Arch) on PATH.");
+  }
 }
 
 function maintainer() {
@@ -26,10 +34,10 @@ function maintainer() {
     const email = command("git", ["config", "user.email"], { encoding: "utf8", stdio: "pipe" }).trim();
     if (name && email) return `${name} <${email}>`;
   } catch {}
-  throw new Error("Set K_DOWNLOADER_MAINTAINER='Name <email>' or configure Git user.name/user.email for .deb metadata.");
+  throw new Error("Set K_DOWNLOADER_MAINTAINER='Name <email>' or configure Git user.name/user.email for native package metadata.");
 }
 
-const packageMaintainer = selected.includes("deb") ? maintainer() : undefined;
+const packageMaintainer = selected.some((target) => ["deb", "pacman"].includes(target)) ? maintainer() : undefined;
 command(process.execPath, [resolve(root, "node_modules/typescript/bin/tsc"), "--noEmit"]);
 command(process.execPath, [resolve(root, "scripts/build-gui.mjs")]);
 
@@ -54,10 +62,11 @@ const artifacts = await build({
     electronDist: dirname(electronExecutable),
     electronVersion: require("electron/package.json").version,
     ...(packageMaintainer ? { deb: { ...config.deb, maintainer: packageMaintainer } } : {}),
+    ...(packageMaintainer ? { pacman: { ...config.pacman, maintainer: packageMaintainer } } : {}),
   },
 });
 const checksums = [];
-for (const artifact of artifacts.filter((path) => path.endsWith(".deb") || path.endsWith(".AppImage"))) {
+for (const artifact of artifacts.filter((path) => path.endsWith(".deb") || path.endsWith(".AppImage") || path.endsWith(".pkg.tar.xz"))) {
   const hash = createHash("sha256");
   for await (const chunk of createReadStream(artifact)) hash.update(chunk);
   checksums.push(`${hash.digest("hex")}  ${artifact.split("/").at(-1)}`);

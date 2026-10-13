@@ -1,12 +1,23 @@
 import { execFileSync, spawnSync } from "node:child_process";
 import { mkdtemp, readFile, readdir, rm } from "node:fs/promises";
+import { createRequire } from "node:module";
 import { dirname, resolve } from "node:path";
 import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { _electron as electron } from "playwright";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
+const require = createRequire(import.meta.url);
+const config = require(resolve(root, "electron-builder.config.cjs"));
 const { version } = JSON.parse(await readFile(resolve(root, "package.json"), "utf8"));
+const cases = [
+  { extension: "deb", artifact: `K-Downloader-${version}-amd64.deb` },
+  { extension: "AppImage", artifact: `K-Downloader-${version}-x86_64.AppImage` },
+  { extension: "pacman", artifact: `K-Downloader-${version}-x86_64.pkg.tar.xz` },
+];
+const targets = process.argv.slice(2);
+if (targets.some((target) => !cases.some((item) => item.extension === target))) throw new Error("Supported test targets: deb, AppImage, pacman");
+const selected = targets.length ? cases.filter((item) => targets.includes(item.extension)) : cases;
 const temporary = await mkdtemp(resolve(tmpdir(), "k-downloader-artifacts-"));
 const env = { ...process.env, XDG_CURRENT_DESKTOP: "Test" };
 const headlessEnv = { ...env };
@@ -25,14 +36,21 @@ async function findBinary(directory) {
 }
 
 try {
-  const cases = [
-    { extension: "deb", artifact: `K-Downloader-${version}-amd64.deb` },
-    { extension: "AppImage", artifact: `K-Downloader-${version}-x86_64.AppImage` },
-  ];
-  for (const [index, item] of cases.entries()) {
+  for (const [index, item] of selected.entries()) {
     const artifact = resolve(root, "release", item.artifact);
     const directory = await mkdtemp(resolve(temporary, `${item.extension}-`));
     if (item.extension === "deb") execFileSync("dpkg-deb", ["--extract", artifact, directory]);
+    else if (item.extension === "pacman") {
+      execFileSync("bsdtar", ["--no-same-owner", "-xf", artifact, "-C", directory]);
+      const metadata = await readFile(resolve(directory, ".PKGINFO"), "utf8");
+      if (!/^pkgname = k-downloader$/m.test(metadata) || !/^arch = x86_64$/m.test(metadata) || !metadata.includes(`pkgver = ${version}-`)) {
+        throw new Error(`Unexpected pacman metadata in ${item.artifact}`);
+      }
+      const dependencies = metadata.split("\n").filter((line) => line.startsWith("depend = ")).map((line) => line.slice("depend = ".length));
+      if (config.pacman.depends.some((dependency) => !dependencies.includes(dependency))) {
+        throw new Error(`Missing Arch dependencies in ${item.artifact}`);
+      }
+    }
     else execFileSync(artifact, ["--appimage-extract"], { cwd: directory, stdio: "pipe", maxBuffer: 32 * 1024 * 1024 });
     const binary = await findBinary(directory);
     if (!binary) throw new Error(`Missing application executable in ${item.artifact}`);

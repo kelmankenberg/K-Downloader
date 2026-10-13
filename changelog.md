@@ -4,6 +4,8 @@
 
 ### Added
 
+- Linux x64 Arch pacman packaging, target-selectable artifact smoke tests, and
+	checksum-pinned AUR binary-recipe generation for manual submission.
 - KHInsider website link beside the album URL label, opening in the default browser.
 - Linux x64 AppImage and .deb packaging scripts with bundled Electron/Chromium,
   desktop integration, embedded-Node CLI launchers, checksums, and artifact smoke tests.

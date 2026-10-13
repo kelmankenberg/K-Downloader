@@ -120,11 +120,16 @@ npm run package:linux
 npm run test:packages
 ```
 
-The first command creates `.deb`, AppImage, and SHA-256 checksum files under
+The first command creates `.deb`, AppImage, Arch `.pkg.tar.xz`, and SHA-256 checksum files under
 `release/`, with Electron and Chromium included. To build separately, use
-`npm run package:deb` or `npm run package:appimage`; `npm run package:dir` creates
+`npm run package:deb`, `npm run package:appimage`, or `npm run package:arch`; `npm run package:dir` creates
 an unpacked application. Recipients do not need npm or a separate Node runtime.
 The packaged `k-downloader` launcher supports `inspect`, `download`, and `--help`.
+Arch builds/tests require `bsdtar`. Select smoke-test targets with
+`npm run test:packages -- pacman` (or `deb AppImage`). After building Arch,
+`npm run package:aur` generates a checksum-pinned `k-downloader-bin` AUR recipe
+under `release/aur/`; it does not submit to AUR. Arch/Omarchy desktop validation
+and distribution-license review are required before claiming support publicly.
 
 See [docs/BUILD_AND_RELEASE.md](docs/BUILD_AND_RELEASE.md) for maintainer metadata,
 build prerequisites, installation/testing caveats, and GitHub release commands.

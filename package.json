@@ -17,6 +17,8 @@
     "build:gui": "node scripts/build-gui.mjs",
     "package:linux": "node scripts/package-linux.mjs",
     "package:deb": "node scripts/package-linux.mjs deb",
+    "package:arch": "node scripts/package-linux.mjs pacman",
+    "package:aur": "node scripts/generate-aur.mjs",
     "package:appimage": "node scripts/package-linux.mjs AppImage",
     "package:dir": "node scripts/package-linux.mjs dir",
     "test:packages": "node scripts/test-packages.mjs",

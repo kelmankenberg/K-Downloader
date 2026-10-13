@@ -12,7 +12,7 @@ module.exports = {
   extraResources: [{ from: ".packaging/chromium", to: "chromium" }],
   linux: {
     syncDesktopName: true,
-    target: ["deb", "AppImage"],
+    target: ["deb", "AppImage", "pacman"],
     icon: "assets/k-downloader.png",
     category: "AudioVideo",
     synopsis: "Download public KHInsider soundtrack tracks",
@@ -29,6 +29,18 @@ module.exports = {
       "libsecret-1-0", "libasound2 | libasound2t64", "libgbm1", "libxkbcommon0", "libdrm2",
       "libxcomposite1", "libxdamage1", "libxrandr2", "libxfixes3", "libx11-6", "libxcb1",
       "libxext6", "libxrender1", "libcups2 | libcups2t64", "libpango-1.0-0", "libcairo2",
+    ],
+  },
+  pacman: {
+    packageName: "k-downloader",
+    compression: "xz",
+    artifactName: "K-Downloader-${version}-x86_64.pkg.tar.xz",
+    depends: [
+      "glibc", "gcc-libs", "gtk3", "libnotify", "nss", "nspr", "libxss", "libxtst",
+      "xdg-utils", "at-spi2-core", "util-linux-libs", "libsecret", "alsa-lib", "mesa",
+      "libxkbcommon", "libdrm", "libxcomposite", "libxdamage", "libxrandr", "libxfixes",
+      "libx11", "libxcb", "libxext", "libxrender", "libcups", "pango", "cairo", "dbus",
+      "expat", "glib2",
     ],
   },
   afterPack: async ({ appOutDir, electronPlatformName }) => {

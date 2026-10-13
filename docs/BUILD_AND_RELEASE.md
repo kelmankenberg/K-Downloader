@@ -5,7 +5,7 @@ current Linux packaging and release workflow.
 
 ## What Can Be Released Today
 
-The project builds Linux x64 AppImage and Debian `.deb` artifacts, with Electron,
+The project builds Linux x64 AppImage, Debian `.deb`, and Arch `.pkg.tar.xz` artifacts, with Electron,
 production dependencies, Chromium, a desktop icon, and CLI support included.
 Recipients do not need npm or a separate Node.js/Playwright installation.
 Linux shared libraries and a graphical session are still required for discovery.
@@ -14,7 +14,10 @@ Fedora `.rpm` and ARM packaging are not configured. Builds and extracted-artifac
 smoke tests have been verified on the development host; installed-package behavior
 and compatibility across distribution versions still require target-machine tests.
 The Chromium build is Playwright's Ubuntu 24.04 x64 fallback on this host.
-Do not claim certification for all Debian/Ubuntu versions based on package format.
+Do not claim certification for Debian/Ubuntu or Arch-derived systems based on
+package format. Arch and Omarchy/Hyprland installation and desktop compatibility
+require separate target-machine tests. AUR binary recipes can be generated locally;
+generation does not submit a package to AUR.
 
 The generated `dist/` directory contains Electron main/preload bundles and the
 local renderer assets. It is **not a standalone application**: it still depends
@@ -29,6 +32,8 @@ only `dist/` does not provide a runnable installer.
   even if it satisfies the application's declared Node.js 20 minimum.
 - npm, Git, and access to the target GitHub repository.
 - `dpkg-deb` for extracted Debian package smoke tests.
+- `bsdtar` for Arch packaging and extracted-package smoke tests (`libarchive-tools`
+  on Debian/Ubuntu, `libarchive` on Arch). Install missing system packages manually.
 - GitHub CLI (`gh`) for the command-line release steps, or the GitHub website.
 
 Check the environment:
@@ -95,7 +100,7 @@ or real audio transfers when authorized; they are not required for building.
 
 ## Build Installers
 
-Build both formats:
+Build all three formats:
 
 ```sh
 npm run package:linux
@@ -106,6 +111,7 @@ Or choose one output:
 ```sh
 npm run package:deb
 npm run package:appimage
+npm run package:arch
 npm run package:dir
 ```
 
@@ -119,15 +125,18 @@ For version 0.1.0, outputs are:
 ```text
 release/K-Downloader-0.1.0-amd64.deb
 release/K-Downloader-0.1.0-x86_64.AppImage
+release/K-Downloader-0.1.0-x86_64.pkg.tar.xz
 release/K-Downloader-0.1.0-SHA256SUMS.txt
 release/linux-unpacked/
 ```
 
 Versioned filenames follow package.json. A single-target command writes checksums
-for its produced artifact; `package:linux` writes checksums for both formats.
+for its produced artifact; `package:linux` writes checksums for all three formats.
+Each invocation replaces the checksum file; build all release targets together
+when publishing a checksum file covering all installers.
 Nothing is uploaded or released automatically.
 
-Debian requires maintainer metadata. The script uses Git's configured user.name
+Debian and Arch packages require maintainer metadata. The script uses Git's configured user.name
 and user.email by default. These become public package metadata; review them
 before distributing. Override them explicitly with a real maintainer identity:
 
@@ -149,16 +158,95 @@ sha256sum -c K-Downloader-0.1.0-SHA256SUMS.txt
 ```
 
 Adjust the checksum filename for the release version. Run from the repository
-root again for subsequent build commands. `test:packages` extracts both current
+root again for subsequent build commands. `test:packages` extracts all three current
 artifacts to temporary directories and verifies packaged GUI/Help, Chromium,
 and CLI help without display variables. It makes no site requests, does not
 install system-wide, and cleans its temporary files. It requires a desktop
 session for the GUI portion. No sandbox-disabling flags are added.
 
-On a disposable target machine, also test real Debian installation/removal,
+To test only the artifacts you built, select one or more targets explicitly:
+
+```sh
+npm run test:packages -- pacman
+npm run test:packages -- deb AppImage
+```
+
+On a disposable target machine, also test real Debian or Arch installation/removal,
 desktop-launcher behavior, download destinations, and authorized discovery.
 Installing a `.deb` requires system privileges; do that manually, not as part
 of these automated smoke tests.
+
+### Arch and Omarchy
+
+Run installation/removal yourself on a disposable, fully updated Arch-derived
+desktop. These commands require system privileges; automated smoke tests only
+extract the archive and never run them:
+
+```sh
+sudo pacman -U release/K-Downloader-0.1.0-x86_64.pkg.tar.xz
+k-downloader --help
+k-downloader
+sudo pacman -Rns k-downloader
+```
+
+Verify upgrades, dependency resolution, desktop entry/icon, CLI help without a
+display, and authorized discovery/downloads. On Omarchy, also check Hyprland's
+Wayland session, XWayland fallback if used, scaling, dialogs, clipboard, window
+identity, saved geometry, and Electron/Chromium sandbox behavior. Fix missing
+libraries or sandbox setup rather than adding `--no-sandbox`. The Ubuntu-fallback
+Chromium bundle must be checked on Arch; package format alone does not establish
+runtime compatibility. A container can check package metadata but not certify
+desktop behavior.
+
+### AUR Binary Recipe
+
+Build and test the native Arch artifact before generating the recipe:
+
+```sh
+npm run package:arch
+npm run test:packages -- pacman
+npm run package:aur
+```
+
+The last command writes `PKGBUILD` and `.SRCINFO` into
+`release/aur/k-downloader-bin/`. It hashes the local archive and pins the matching
+versioned GitHub release URL; it never uses `SKIP`. Stable numeric versions are
+required. Both recipes share the explicit Arch dependency list from
+[electron-builder.config.cjs](../electron-builder.config.cjs). The AUR package
+provides `k-downloader` and conflicts with the direct native package. It repackages
+the payload, excludes native package metadata/install hooks, owns its CLI symlink,
+and sets Electron's sandbox-helper permissions. Arch's desktop/icon cache hooks
+handle the installed desktop assets. No npm or browser download runs at install time.
+
+The app currently declares `UNLICENSED`; the generated AUR metadata uses
+`LicenseRef-Proprietary`, which does not grant distribution permission. Resolve
+distribution rights before submitting. If the app's license changes, update the
+generator's license metadata too; it deliberately rejects a changed manifest
+license rather than silently emitting stale metadata.
+
+Publish the exact hashed archive to its matching GitHub release before testing
+the recipe on Arch. Do not rebuild or replace that archive after generating the
+recipe without regenerating its checksum. In the generated directory, as a normal
+user with Arch build tools installed:
+
+```sh
+makepkg --verifysource
+makepkg
+makepkg --printsrcinfo > .SRCINFO
+```
+
+Install/test/remove the resulting `k-downloader-bin` package on a disposable
+target; do not use `k-downloader` as its removal package name. Review `namcap`
+results for package metadata and runtime dependencies. Compare the generated
+`.SRCINFO` with `makepkg --printsrcinfo`, and use the latter for submission.
+
+AUR submission is a separate manual step: check whether `k-downloader-bin` is
+available, follow AUR submission rules, and copy the reviewed `PKGBUILD` and
+`.SRCINFO` into its separate AUR Git repository. Do not commit installer archives
+to AUR. For later releases, update the version/source/hash together; increment
+`pkgrel` for recipe-only changes to the same upstream version. The generator
+starts each release at `pkgrel=1`. No AUR repository is created or pushed by these
+scripts, and no package availability is claimed until submission succeeds.
 
 For AppImage, mark it executable and launch it:
 
@@ -173,7 +261,7 @@ If the host cannot mount AppImages via FUSE, extraction mode is available:
 ./release/K-Downloader-0.1.0-x86_64.AppImage --appimage-extract-and-run
 ```
 
-The installed Debian launcher is `k-downloader`. The packaged CLI uses Electron's
+The installed Debian and Arch launcher is `k-downloader`. The packaged CLI uses Electron's
 embedded Node runtime without opening the GUI:
 
 ```sh
@@ -263,6 +351,7 @@ the validated artifacts and checksum file to the draft before publication:
 gh release upload "$TAG" \
   "release/K-Downloader-$VERSION-amd64.deb" \
   "release/K-Downloader-$VERSION-x86_64.AppImage" \
+  "release/K-Downloader-$VERSION-x86_64.pkg.tar.xz" \
   "release/K-Downloader-$VERSION-SHA256SUMS.txt" \
   --repo kelmankenberg/K-Downloader
 ```
@@ -287,7 +376,9 @@ smoke testing proves installed-package compatibility.
 
 ## Packaging Scope
 
-Linux x64 AppImage and `.deb` generation are implemented. Multi-distribution
+Linux x64 AppImage, `.deb`, native Arch packages, and local AUR binary-recipe
+generation are implemented. Arch/Omarchy certification and AUR submission remain
+manual target-machine/release work. Multi-distribution
 certification, ARM builds, `.rpm`, automatic updates, signing, and automated
 release publishing remain separate work. Do not upload builder debug files,
 unpacked directories, browser caches, or unrelated build output as installers.
