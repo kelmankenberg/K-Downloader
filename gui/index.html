@@ -16,6 +16,9 @@
           <div class="brand-name">Khinsider Downloader</div>
         </div>
         <div class="titlebar-actions">
+          <button id="playlists-button" class="window-control" type="button" aria-label="Playlists" title="Playlists" aria-pressed="false">
+            <i data-lucide="list-music" aria-hidden="true"></i>
+          </button>
           <div id="more-menu-wrap" class="more-menu-wrap">
             <button id="more-button" class="window-control more-button" type="button" aria-label="More options" title="More options" aria-haspopup="menu" aria-expanded="false">
               <i data-lucide="ellipsis-vertical" aria-hidden="true"></i>
@@ -24,6 +27,10 @@
               <button id="restore-bounds-menu-item" class="more-menu-item" type="button" role="menuitem">
                 <i data-lucide="scan" aria-hidden="true"></i>
                 <span>Restore Size/Position</span>
+              </button>
+              <button id="playlists-menu-item" class="more-menu-item" type="button" role="menuitem">
+                <i data-lucide="list-music" aria-hidden="true"></i>
+                <span>Playlists</span>
               </button>
               <button id="settings-menu-item" class="more-menu-item" type="button" role="menuitem">
                 <i data-lucide="settings" aria-hidden="true"></i>
@@ -118,6 +125,11 @@
             </div>
             <div class="track-count" id="track-count">Waiting</div>
           </div>
+          <div id="preview-playlist-bar" class="playlist-target-bar" hidden>
+            <label for="preview-playlist-target">Playlist</label>
+            <select id="preview-playlist-target" class="playlist-target"></select>
+            <button id="preview-add-selected" class="secondary-button" type="button" disabled>Add selected to playlist</button>
+          </div>
 
           <div class="status-strip">
             <span id="status-dot" class="status-dot" data-tone="idle"></span>
@@ -137,7 +149,7 @@
 
           <div class="table-wrap">
             <table id="track-table" hidden>
-              <thead><tr><th>Disc</th><th>#</th><th>Track</th><th>Available</th><th>Selected</th><th>Status</th></tr></thead>
+              <thead><tr><th class="track-pick"><input id="preview-select-all" type="checkbox" aria-label="Select all tracks" /></th><th>Disc</th><th>#</th><th>Track</th><th>Available</th><th>Selected</th><th>Status</th><th><span class="visually-hidden">Playlist</span></th></tr></thead>
               <tbody id="track-rows"></tbody>
             </table>
           </div>
@@ -159,10 +171,15 @@
             <button id="website-reload" class="icon-button" type="button" aria-label="Reload website" title="Reload"><i data-lucide="rotate-cw" aria-hidden="true"></i></button>
             <button id="website-home" class="icon-button" type="button" aria-label="KHInsider home" title="KHInsider home"><i data-lucide="house" aria-hidden="true"></i></button>
           </div>
+          <div class="website-playlist" role="group" aria-label="Add to playlist">
+            <select id="website-playlist-target" class="playlist-target" aria-label="Playlist to add tracks to"></select>
+            <button id="website-add-track" class="secondary-button" type="button" disabled title="Open a track page to add it">Add track to playlist</button>
+          </div>
           <button id="website-use-album" class="primary-button" type="button" disabled>Use this album</button>
         </header>
         <div class="website-address-row">
           <span id="website-status" role="status">KHInsider</span>
+          <span id="website-notice" class="website-notice" role="status"></span>
           <input id="website-address" type="text" readonly aria-label="Current website address" />
         </div>
         <p id="website-error" class="error-text" role="alert"></p>
@@ -170,6 +187,80 @@
           <p>The website appears here. Close any open menu, Help, or Changelog panel to resume browsing.</p>
         </div>
       </section>
+      <section id="playlists-view" class="playlists-view" aria-labelledby="playlists-heading" hidden>
+        <header class="settings-header">
+          <h1 id="playlists-heading">Playlists</h1>
+          <button id="close-playlists" class="settings-close-button" type="button">
+            <i data-lucide="arrow-left" aria-hidden="true"></i>
+            <span>Back to downloader</span>
+          </button>
+        </header>
+        <p id="playlists-warning" class="error-text playlists-warning" role="alert"></p>
+        <div class="playlists-layout">
+          <nav class="playlist-sidebar" aria-label="Your playlists">
+            <button id="playlist-new" class="secondary-button" type="button">New playlist</button>
+            <ul id="playlist-list" class="playlist-list"></ul>
+            <p id="playlist-empty-list" class="microcopy">No playlists yet.</p>
+          </nav>
+          <section class="playlist-detail" aria-labelledby="playlist-name">
+            <header class="playlist-detail-header">
+              <div>
+                <div class="eyebrow">PLAYLIST</div>
+                <h2 id="playlist-name">No playlist selected</h2>
+                <div id="playlist-meta" class="microcopy"></div>
+              </div>
+              <div class="playlist-detail-actions">
+                <button id="playlist-rename" class="secondary-button" type="button" disabled>Rename</button>
+                <button id="playlist-clear" class="secondary-button" type="button" disabled>Clear</button>
+                <button id="playlist-delete" class="secondary-button danger-button" type="button" disabled>Delete</button>
+              </div>
+            </header>
+            <div class="playlist-table-wrap">
+              <table id="playlist-table" class="playlist-table" hidden>
+                <thead><tr><th>#</th><th>Album</th><th>Track</th><th>Available</th><th>Selected</th><th>Status</th><th><span class="visually-hidden">Actions</span></th></tr></thead>
+                <tbody id="playlist-rows"></tbody>
+              </table>
+              <div id="playlist-empty" class="empty-state">
+                <div class="empty-title">No tracks yet</div>
+                <div class="empty-note">Open a track page in the in-app KHInsider browser and select Add track to playlist, or inspect an album and add tracks from the preview.</div>
+              </div>
+            </div>
+            <div class="playlist-download-row">
+              <label for="playlist-format">Format policy</label>
+              <select id="playlist-format">
+                <option value="prefer-lossless">Prefer lossless</option>
+                <option value="lossless-only">Lossless only</option>
+              </select>
+              <label class="check-row" for="playlist-skip">
+                <input id="playlist-skip" type="checkbox" disabled />
+                <span>Skip tracks without the selected format</span>
+              </label>
+              <div class="playlist-download-actions">
+                <button id="playlist-check" class="secondary-button" type="button" disabled>Check formats</button>
+                <button id="playlist-download" class="primary-button" type="button" disabled>Download playlist</button>
+                <button id="playlist-cancel" class="cancel-button" type="button" disabled>Cancel</button>
+              </div>
+            </div>
+            <p id="playlist-error" class="error-text" role="alert"></p>
+            <footer class="progress-footer">
+              <div class="progress-label"><span>PLAYLIST</span><span id="playlist-progress-text">No active transfer</span></div>
+              <progress id="playlist-progress" value="0" max="1"></progress>
+            </footer>
+          </section>
+        </div>
+      </section>
+      <dialog id="playlist-name-dialog" class="name-dialog" aria-labelledby="playlist-name-dialog-title">
+        <form id="playlist-name-form" method="dialog">
+          <h2 id="playlist-name-dialog-title">New playlist</h2>
+          <label for="playlist-name-input">Name</label>
+          <input id="playlist-name-input" type="text" maxlength="100" spellcheck="false" autocomplete="off" />
+          <p id="playlist-name-error" class="error-text" role="alert"></p>
+          <div class="dialog-actions">
+            <button id="playlist-name-cancel" class="secondary-button" type="button">Cancel</button>
+            <button id="playlist-name-save" class="primary-button" type="submit">Create</button>
+          </div>
+        </form>
+      </dialog>
       <section id="settings-view" class="settings-view" aria-labelledby="settings-heading" hidden>
         <header class="settings-header">
           <h1 id="settings-heading">Settings</h1>

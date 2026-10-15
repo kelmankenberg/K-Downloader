@@ -51,8 +51,95 @@ export type GuiDownloadRequest = {
   discLabel: "CD" | "Disc";
 };
 
-export type KhinsiderDownloaderApi = {
-  openKhinsider: (target: WebsiteTarget) => Promise<void>;
+export type GuiPlaylistEntry = {
+  id: string;
+  trackUrl: string;
+  albumUrl: string;
+  albumTitle: string;
+  title: string;
+  discNumber?: number;
+  trackNumber?: number;
+  formats?: string[];
+  addedAt: string;
+};
+
+export type GuiPlaylist = {
+  id: string;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+  formatPolicy?: GuiFormatPolicy;
+  lastDirectory?: string;
+  entries: GuiPlaylistEntry[];
+};
+
+export type GuiPlaylistsState = {
+  playlists: GuiPlaylist[];
+  activePlaylistId?: string;
+  readOnly: boolean;
+  warning: string;
+};
+
+export type GuiPlaylistAddResult = {
+  playlistName: string;
+  added: number;
+  duplicates: number;
+  rejected: number;
+};
+
+export type GuiPlaylistProgress = {
+  playlistId: string;
+  stage: "resolve-start" | "resolve-complete" | "resolve-failed" | GuiProgress["stage"];
+  number: number;
+  title: string;
+  completedTracks: number;
+  totalTracks: number;
+  bytesReceived?: number;
+};
+
+export type GuiPlaylistDownloadRequest = {
+  playlistId: string;
+  policy: GuiFormatPolicy;
+  outputRoot: string;
+};
+
+export type GuiPlaylistDownloadResult = {
+  state: string;
+  directory: string;
+  suffixed: boolean;
+  warnings: string[];
+  tracks: { trackUrl: string; state: string; error?: string }[];
+};
+
+export type GuiPlaylistCheckResult = {
+  checked: number;
+  failed: { trackUrl: string; error: string }[];
+};
+
+export type GuiPlaylistRenameResult = {
+  folder?: string;
+  folderError?: string;
+};
+
+export type GuiPlaylistApi = {
+  getPlaylists: () => Promise<GuiPlaylistsState>;
+  onPlaylists: (listener: (state: GuiPlaylistsState) => void) => () => void;
+  createPlaylist: (name: string) => Promise<GuiPlaylist>;
+  renamePlaylist: (playlistId: string, name: string) => Promise<GuiPlaylistRenameResult>;
+  deletePlaylist: (playlistId: string) => Promise<boolean>;
+  clearPlaylist: (playlistId: string) => Promise<boolean>;
+  setActivePlaylist: (playlistId: string) => Promise<void>;
+  addInspectedTracks: (playlistId: string, indices: number[]) => Promise<GuiPlaylistAddResult>;
+  addWebsiteTrack: (playlistId: string) => Promise<GuiPlaylistAddResult>;
+  removePlaylistEntries: (playlistId: string, entryIds: string[]) => Promise<void>;
+  movePlaylistEntry: (playlistId: string, entryId: string, toIndex: number) => Promise<void>;
+  checkPlaylistFormats: (playlistId: string) => Promise<GuiPlaylistCheckResult | undefined>;
+  downloadPlaylist: (request: GuiPlaylistDownloadRequest) => Promise<GuiPlaylistDownloadResult | undefined>;
+  onPlaylistProgress: (listener: (progress: GuiPlaylistProgress) => void) => () => void;
+};
+
+export type KhinsiderDownloaderApi = GuiPlaylistApi & {
+  openKhinsider: (target: WebsiteTarget, url?: string) => Promise<void>;
   websiteCommand: (command: "back" | "forward" | "reload" | "home") => Promise<void>;
   setWebsiteBounds: (bounds: GuiWebsiteBounds | null) => Promise<void>;
   useWebsiteAlbum: () => Promise<string>;

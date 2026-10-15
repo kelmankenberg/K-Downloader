@@ -1,6 +1,9 @@
 import { WebContentsView, type BrowserWindow } from "electron";
 import type { GuiWebsiteBounds, GuiWebsiteState } from "../gui-types.js";
+import { isTrackUrl, normalizeTrackUrl } from "../playlist.js";
 import { isKhinsiderAlbumUrl, isKhinsiderWebsiteUrl, khinsiderHome } from "../website.js";
+
+const MAX_TRACK_PAGE_BYTES = 5 * 1024 * 1024;
 
 export class WebsiteBrowser {
   private view: WebContentsView | undefined;
@@ -40,9 +43,12 @@ export class WebsiteBrowser {
     this.sendState();
   }
 
-  open(): void {
+  /** Shows the embedded site, keeping the current page unless a KHInsider URL is given. */
+  open(url?: string): void {
+    const target = url && isKhinsiderWebsiteUrl(url) ? url : undefined;
     if (this.view) {
-      this.sendState();
+      if (target) void this.navigate(target);
+      else this.sendState();
       return;
     }
     const view = new WebContentsView({
@@ -103,7 +109,7 @@ export class WebsiteBrowser {
       this.error = `The website stopped (${details.reason}). Select Reload to try again.`;
       this.sendState();
     });
-    void this.navigate(khinsiderHome);
+    void this.navigate(target ?? khinsiderHome);
   }
 
   setBounds(input: unknown): void {
@@ -157,6 +163,18 @@ export class WebsiteBrowser {
     const album = new URL(url);
     album.hash = "";
     return album.href;
+  }
+
+  /** Returns the current track page URL and markup for adding the track to a playlist. */
+  async readTrack(): Promise<{ url: string; html: string }> {
+    const contents = this.view?.webContents;
+    const url = contents?.getURL() ?? "";
+    if (!contents || !isTrackUrl(url)) throw new Error("Open a KHInsider track page first");
+    if (contents.isLoading()) throw new Error("Wait for the track page to finish loading");
+    const html: unknown = await contents.executeJavaScript("document.documentElement.outerHTML");
+    if (typeof html !== "string" || html.length > MAX_TRACK_PAGE_BYTES) throw new Error("Could not read the track page");
+    if (contents.getURL() !== url) throw new Error("The page changed while reading it. Try again.");
+    return { url: normalizeTrackUrl(url), html };
   }
 
   destroy(): void {

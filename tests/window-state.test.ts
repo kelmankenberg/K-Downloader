@@ -51,7 +51,7 @@ describe("desktop More menu and zoom", () => {
       expect(await readFile(resolve("dist/assets/khinsider-downloader.png"))).toEqual(await readFile(resolve("assets/khinsider-downloader.png")));
       await page.getByRole("button", { name: "More options", exact: true }).click();
       expect((await page.getByRole("menuitem").allTextContents()).map((text) => text.replace(/\s+/g, " ").trim())).toEqual([
-        "Restore Size/Position", "Settings Ctrl+,", "Changelog", "Help", "Report an Issue",
+        "Restore Size/Position", "Playlists", "Settings Ctrl+,", "Changelog", "Help", "Report an Issue",
       ]);
       const manifest = JSON.parse(await readFile(resolve("package.json"), "utf8"));
       expect(await page.locator("#menu-app-version").textContent()).toBe(manifest.version);
@@ -128,7 +128,7 @@ describe("desktop More menu and zoom", () => {
       await page.waitForFunction(() => new DOMMatrixReadOnly(getComputedStyle(document.querySelector("#help-drawer")!).transform).m41 === 0);
       expect(await page.locator("#help-content summary").allTextContents()).toEqual([
         "Getting Started", "Album Inspection", "Audio Formats", "Destination and Disc Folders",
-        "Downloads and Progress", "Canceling and Rerunning", "Settings and Appearance",
+        "Downloads and Progress", "Canceling and Rerunning", "Download Playlists", "Settings and Appearance",
         "Keyboard Shortcuts", "Window Controls and More Menu", "Help and Changelog Panels",
         "Command-Line Interface", "Reporting Issues", "Troubleshooting and Current Limits",
       ]);
@@ -139,7 +139,7 @@ describe("desktop More menu and zoom", () => {
       await page.keyboard.press("Enter");
       expect(await page.locator("#help-content details[open]").count()).toBe(1);
       await page.getByRole("button", { name: "Expand all", exact: true }).click();
-      expect(await page.locator("#help-content details[open]").count()).toBe(13);
+      expect(await page.locator("#help-content details[open]").count()).toBe(14);
       await page.getByRole("button", { name: "Collapse all", exact: true }).click();
       expect(await page.locator("#help-content details[open]").count()).toBe(0);
       await page.getByRole("separator", { name: "Help panel width" }).focus();

@@ -4,6 +4,14 @@
 
 ### Added
 
+- Download playlists: named lists of individual tracks from any albums, managed
+  on a new Playlists page (titlebar button and More > Playlists) with create,
+  rename, clear, delete, reorder, open, and remove controls.
+- Add track to playlist from KHInsider track pages in the in-app browser, and
+  add selected or single tracks from the inspected album preview.
+- Playlist downloads into a folder named after the playlist with
+  `001 - Album - Title.ext` files, an `.m3u8` playlist file, format checking,
+  format policies, verified-skip reruns, and safe folder renaming.
 - Linux x64 Arch pacman packaging, target-selectable artifact smoke tests, and
 	checksum-pinned AUR binary-recipe generation for manual submission.
 - KHInsider website link beside the album URL label, opening in the default browser.

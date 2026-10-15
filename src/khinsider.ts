@@ -262,3 +262,121 @@ export async function inspectAlbum(
     await browser.close();
   }
 }
+export type TrackDetails = {
+  albumTitle: string;
+  title: string;
+  audioLinks: AudioLink[];
+};
+
+function decodeSegment(value: string): string {
+  let decoded = value;
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      const next = decodeURIComponent(decoded);
+      if (next === decoded) break;
+      decoded = next;
+    } catch {
+      break;
+    }
+  }
+  return decoded;
+}
+
+/** Reads album name, song name, and download links from a KHInsider track page. */
+export function parseTrackDetails(html: string, trackUrl: URL): TrackDetails {
+  const document = parse(html);
+  let albumTitle = "";
+  let title = "";
+  const paragraph = [...walk(document)].find((node) => node.tagName === "p" && /Album name:/i.test(textContent(node)));
+  if (paragraph) {
+    let pending: "album" | "song" | undefined;
+    for (const child of paragraph.childNodes ?? []) {
+      if (child.nodeName === "#text") {
+        if (/Album name:/i.test(child.value)) pending = "album";
+        else if (/Song name:/i.test(child.value)) pending = "song";
+      } else if (child.tagName === "b" && pending) {
+        if (pending === "album") albumTitle = textContent(child);
+        else title = textContent(child);
+        pending = undefined;
+      }
+    }
+  }
+  const segments = trackUrl.pathname.split("/").filter(Boolean);
+  if (!title) {
+    title = decodeSegment(segments.at(-1) ?? "").replace(/\.[A-Za-z0-9]{1,5}$/, "").trim() || "Untitled";
+  }
+  if (!albumTitle) {
+    const pageTitle = [...walk(document)].find((node) => node.tagName === "title");
+    const match = pageTitle && textContent(pageTitle).match(
+      /^(.*?)\s+(?:MP3|FLAC|OGG|OPUS|M4A|AAC|WAV|WMA|ALAC)\s+-\s+Download/i,
+    );
+    albumTitle = match?.[1]?.trim() || decodeSegment(segments.at(-2) ?? "").replace(/-/g, " ").trim() || "Unknown album";
+  }
+  return { albumTitle, title, audioLinks: parseTrackPage(html, trackUrl) };
+}
+
+export class TrackPageBlockedError extends Error {
+  constructor(readonly status: number) {
+    super(`KHInsider refused the track page request (HTTP ${status}). Wait a while before trying again.`);
+    this.name = "TrackPageBlockedError";
+  }
+}
+
+export type ResolvedTrack = {
+  trackUrl: string;
+  details?: TrackDetails;
+  error?: string;
+};
+
+export type ResolveTrackOptions = {
+  signal?: AbortSignal;
+  createBrowser?: () => Promise<InspectionBrowser>;
+  onProgress?: (index: number, result: ResolvedTrack) => void;
+  delayMs?: number;
+};
+
+/** Visits track pages one at a time. Rate-limit responses stop the run; other failures are recorded per track. */
+export async function resolveTrackPages(trackUrls: string[], options: ResolveTrackOptions = {}): Promise<ResolvedTrack[]> {
+  options.signal?.throwIfAborted();
+  if (trackUrls.length === 0) return [];
+  const browser = await (options.createBrowser?.() ?? createChromiumInspectionBrowser(options.signal));
+  const controller = new AbortController();
+  const abort = () => {
+    controller.abort();
+    void browser.close().catch(() => undefined);
+  };
+  options.signal?.addEventListener("abort", abort, { once: true });
+  browser.onClose(() => controller.abort());
+  try {
+    const results: ResolvedTrack[] = [];
+    for (const [index, trackUrl] of trackUrls.entries()) {
+      options.signal?.throwIfAborted();
+      if (controller.signal.aborted || browser.isClosed()) throw new Error("Track browser was closed before tracks were checked");
+      if (index > 0) await delay(options.delayMs ?? 1_000, undefined, { signal: controller.signal });
+      let result: ResolvedTrack;
+      try {
+        const url = new URL(trackUrl);
+        const response = await browser.readPage(url.href);
+        if (response.status === 403 || response.status === 429) throw new TrackPageBlockedError(response.status);
+        if (response.status < 200 || response.status >= 300) {
+          result = { trackUrl, error: `Track page request failed with HTTP ${response.status || "no response"}` };
+        } else {
+          const details = parseTrackDetails(response.html, url);
+          result = details.audioLinks.length > 0
+            ? { trackUrl, details }
+            : { trackUrl, details, error: "No download links were found on the track page" };
+        }
+      } catch (error) {
+        if (error instanceof TrackPageBlockedError || options.signal?.aborted || controller.signal.aborted) throw error;
+        result = { trackUrl, error: error instanceof Error ? error.message.slice(0, 500) : String(error).slice(0, 500) };
+      }
+      results.push(result);
+      options.onProgress?.(index, result);
+    }
+    options.signal?.throwIfAborted();
+    return results;
+  } finally {
+    options.signal?.removeEventListener("abort", abort);
+    await browser.close();
+  }
+}

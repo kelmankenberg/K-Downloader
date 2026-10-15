@@ -1,10 +1,19 @@
 import type { GuiWebsiteState, WebsiteTarget } from "./gui-types.js";
+import { isTrackUrl } from "./playlist.js";
 import { isKhinsiderAlbumUrl, websiteTargetStorageKey } from "./website.js";
+
+export type WebsiteControls = {
+  isOpen: () => boolean;
+  syncBounds: () => void;
+  open: (url?: string) => Promise<void>;
+  setReturnLabel: (label: string) => void;
+};
 
 export function initializeWebsiteControls(options: {
   showBrowser: () => void;
-  showDownloader: (albumUrl?: string) => void;
-}): { isOpen: () => boolean; syncBounds: () => void } {
+  close: (albumUrl?: string) => void;
+  addTrack: () => Promise<string | undefined>;
+}): WebsiteControls {
   const page = document.querySelector<HTMLElement>("#website-view")!;
   const host = document.querySelector<HTMLElement>("#website-host")!;
   const setting = document.querySelector<HTMLSelectElement>("#website-target")!;
@@ -16,7 +25,11 @@ export function initializeWebsiteControls(options: {
   const forward = document.querySelector<HTMLButtonElement>("#website-forward")!;
   const useAlbum = document.querySelector<HTMLButtonElement>("#website-use-album")!;
   const link = document.querySelector<HTMLAnchorElement>("#khinsider-link")!;
+  const addTrack = document.querySelector<HTMLButtonElement>("#website-add-track")!;
+  const notice = document.querySelector<HTMLElement>("#website-notice")!;
+  const closeButton = document.querySelector<HTMLButtonElement>("#website-close")!;
   let opened = false;
+  let current: GuiWebsiteState | undefined;
   let target: WebsiteTarget = "external";
   try {
     const stored = localStorage.getItem(websiteTargetStorageKey);
@@ -47,7 +60,8 @@ export function initializeWebsiteControls(options: {
 
   function syncBounds(): void {
     const overlayOpen = !document.querySelector<HTMLElement>("#more-menu")!.hidden ||
-      !!document.querySelector('.changelog-drawer[data-open="true"]');
+      !!document.querySelector('.changelog-drawer[data-open="true"]') ||
+      !!document.querySelector("dialog[open]");
     const rect = host.getBoundingClientRect();
     const visible = opened && !page.hidden && !overlayOpen && rect.width > 0 && rect.height > 0;
     void window.khinsiderDownloader.setWebsiteBounds(visible
@@ -55,16 +69,21 @@ export function initializeWebsiteControls(options: {
       : null).catch(reportError);
   }
 
+  async function open(url?: string): Promise<void> {
+    await window.khinsiderDownloader.openKhinsider(target, url);
+    if (target === "internal") {
+      opened = true;
+      notice.textContent = "";
+      options.showBrowser();
+      syncBounds();
+      closeButton.focus();
+    }
+  }
+
   link.addEventListener("click", async (event) => {
     event.preventDefault();
     try {
-      await window.khinsiderDownloader.openKhinsider(target);
-      if (target === "internal") {
-        opened = true;
-        options.showBrowser();
-        syncBounds();
-        document.querySelector<HTMLButtonElement>("#website-close")!.focus();
-      }
+      await open();
     } catch (error) {
       document.querySelector<HTMLElement>("#error-text")!.textContent = error instanceof Error ? error.message : String(error);
     }
@@ -72,10 +91,26 @@ export function initializeWebsiteControls(options: {
 
   function close(albumUrl?: string): void {
     opened = false;
-    options.showDownloader(albumUrl);
+    options.close(albumUrl);
     syncBounds();
   }
-  document.querySelector("#website-close")!.addEventListener("click", () => close());
+  closeButton.addEventListener("click", () => close());
+  function updateAddTrack(): void {
+    addTrack.disabled = !current || current.loading || !!current.error || !isTrackUrl(current.url);
+  }
+  addTrack.addEventListener("click", async () => {
+    errorText.textContent = "";
+    notice.textContent = "";
+    addTrack.disabled = true;
+    try {
+      const text = await options.addTrack();
+      if (text) notice.textContent = text;
+    } catch (error) {
+      reportError(error);
+    } finally {
+      updateAddTrack();
+    }
+  });
   useAlbum.addEventListener("click", async () => {
     try {
       close(await window.khinsiderDownloader.useWebsiteAlbum());
@@ -90,6 +125,9 @@ export function initializeWebsiteControls(options: {
     });
   }
   window.khinsiderDownloader.onWebsiteState((state: GuiWebsiteState) => {
+    if (current?.url !== state.url) notice.textContent = "";
+    current = state;
+    updateAddTrack();
     address.value = state.url;
     status.textContent = state.loading ? "Loading KHInsider..." : "KHInsider";
     back.disabled = !state.canGoBack;
@@ -105,5 +143,13 @@ export function initializeWebsiteControls(options: {
   document.querySelectorAll(".changelog-drawer").forEach((drawer) => {
     observer.observe(drawer, { attributes: true, attributeFilter: ["data-open"] });
   });
-  return { isOpen: () => opened, syncBounds };
+  document.querySelectorAll("dialog").forEach((dialog) => {
+    observer.observe(dialog, { attributes: true, attributeFilter: ["open"] });
+  });
+  return {
+    isOpen: () => opened,
+    syncBounds,
+    open,
+    setReturnLabel: (label) => { closeButton.querySelector("span")!.textContent = label; },
+  };
 }

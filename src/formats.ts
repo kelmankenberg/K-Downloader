@@ -61,3 +61,6 @@ export function planFormats(tracks: DiscoveredTrack[], policy: FormatPolicy): Fo
     incomplete: skipped,
   };
 }
+export function formatsFromLinks(links: AudioLink[]): string[] {
+  return [...new Set(links.map(({ format }) => format.toUpperCase()))];
+}

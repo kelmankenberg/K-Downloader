@@ -1,6 +1,6 @@
 # Download Playlists Plan
 
-Status: **Planned — design decisions confirmed (see [Decisions](#decisions)).**
+Status: **Implemented — design decisions confirmed (see [Decisions](#decisions)).**
 Nothing in this document is implemented yet.
 
 ## Summary
@@ -152,16 +152,21 @@ A new manifest type, separate from `AlbumManifest`, saved as
   "kind": "playlist",
   "playlistId": "8f6c…",
   "playlistName": "Boss Themes",
+  "state": "complete",            // downloading | complete | incomplete | failed | canceled
   "updatedAt": "…",
+  "playlistFile": "Boss Themes.m3u8",
   "tracks": [
     {
       "trackUrl": "https://downloads.khinsider.com/…",
       "albumUrl": "https://downloads.khinsider.com/…",
-      "format": "flac",
-      "relativePath": "001 - Example OST - Final Battle.flac",
-      "state": "completed",       // pending | downloading | completed | failed | skipped
+      "albumTitle": "Example OST",
+      "number": 1,
+      "title": "Final Battle",
+      "format": "FLAC",
+      "filename": "001 - Example OST - Final Battle.flac",
+      "state": "complete",        // queued | downloading | complete | skipped | failed | canceled
       "bytes": 12345678,
-      "error": null
+      "inPlaylist": true          // false for entries removed from the playlist since an earlier run
     }
   ]
 }

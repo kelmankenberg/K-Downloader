@@ -49,7 +49,22 @@ describe("appearance controls in Chromium", () => {
       await page.addInitScript(() => {
         let inspectionListener: ((state: GuiInspectionState) => void) | undefined;
         let browserVisible = false;
+        const unavailable = async () => { throw new Error("Not used in this test"); };
         window.khinsiderDownloader = {
+          getPlaylists: async () => ({ playlists: [], readOnly: false, warning: "" }),
+          onPlaylists: () => () => {},
+          onPlaylistProgress: () => () => {},
+          createPlaylist: unavailable,
+          renamePlaylist: unavailable,
+          deletePlaylist: async () => false,
+          clearPlaylist: async () => false,
+          setActivePlaylist: async () => {},
+          addInspectedTracks: unavailable,
+          addWebsiteTrack: unavailable,
+          removePlaylistEntries: async () => {},
+          movePlaylistEntry: async () => {},
+          checkPlaylistFormats: async () => undefined,
+          downloadPlaylist: async () => undefined,
           openKhinsider: async () => {},
           websiteCommand: async () => {},
           setWebsiteBounds: async () => {},

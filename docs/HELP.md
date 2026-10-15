@@ -129,6 +129,42 @@ Interrupted tracks restart from the beginning; byte-range continuation is not
 implemented. There is no automatic general retry/backoff workflow yet. Keep the
 manifest with the audio files for reruns.
 
+## Download Playlists
+
+Playlists hold individual tracks from different albums and download into one
+folder named after the playlist. Open **Playlists** from the titlebar button
+(list icon) or **More > Playlists**. Press `Esc` or **Back** to return.
+
+Add tracks:
+
+- **In-app browser:** open a KHInsider track page, choose the playlist in the
+  toolbar picker, and select **Add track to playlist**. The button is enabled
+  only on track pages. A note confirms the addition or reports a duplicate.
+- **Album preview:** after **Inspect album**, tick tracks (or the header box for
+  all) and select **Add selected to playlist**, or use a row's **Add** button.
+
+Pick **New playlist…** in any picker to create one; names must be unique and
+valid as folder names. The picked playlist becomes the active target.
+
+On the Playlists page you can rename, clear, or delete a playlist, reorder
+tracks with ↑/↓ or drag and drop, open a track's KHInsider page, and remove
+tracks. Changes are saved immediately to `playlists.json` in the app profile.
+
+**Check formats** reads each track page to show available formats. **Download
+playlist** checks any remaining tracks, applies the format policy (Prefer
+lossless, Lossless only, or a specific format, with optional skipping), and saves:
+
+- `<destination>/<playlist name>/001 - Album - Title.ext` in playlist order.
+- `<playlist name>.m3u8` listing the downloaded tracks in order.
+- `.download-manifest.json` recording each track's file and state.
+
+If the playlist folder already contains unrelated files, the app saves to
+`<name> (2)` (up to 100) instead. Reruns skip verified completed tracks and
+retry failed, missing, or newly added ones; reordered tracks keep their files.
+Renaming a playlist that was downloaded offers to rename its folder too.
+**Cancel** stops the active playlist transfer. Album inspection and album
+downloads are unavailable while a playlist task runs.
+
 ## Settings and Appearance
 
 Open **More > Settings** or press **Ctrl+,**. Its left rail offers **Appearance**,
@@ -176,7 +212,7 @@ the next launch; off-screen positions are corrected if monitors change.
 monitor (or fits the monitor if its work area is smaller). It also exits
 maximized state. Settings navigation does not alter the window geometry.
 
-The More menu also includes Settings, Changelog, Help, Report an Issue, and an informational
+The titlebar **Playlists** button opens the Playlists page. The More menu also includes Playlists, Settings, Changelog, Help, Report an Issue, and an informational
 app title/version footer. The version is read from the manifest during build.
 Only one desktop instance runs per application profile: another launch exits,
 restores the running window, and shows **Show running app** in its confirmation.

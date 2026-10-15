@@ -87,6 +87,28 @@ an isolated temporary website session and never creates a separate window.
 Off-site links and direct website downloads are blocked with an explanation.
 This setting does not change the separate hidden album-inspection browser.
 
+### Download playlists
+
+Playlists collect individual tracks from any number of albums and download them
+into one folder named after the playlist. Open **Playlists** from the titlebar
+button or **More > Playlists** to create, rename, clear, or delete playlists and
+to reorder (↑/↓ or drag), open, or remove tracks. Add tracks in two ways:
+
+- In the in-app KHInsider browser, open a track page, pick the target playlist,
+  and select **Add track to playlist**.
+- After **Inspect album**, tick tracks in the preview and select **Add selected
+  to playlist**, or use a row's **Add** button.
+
+Choosing **New playlist…** in any playlist picker prompts for a name. Playlists
+are saved in the app profile (`playlists.json`). **Check formats** reads each
+track page to list available formats; **Download playlist** resolves any
+unchecked tracks, applies the format policy, and saves files flat as
+`001 - Example OST - Final Battle.flac` under `<destination>/<playlist name>`,
+plus a `<playlist name>.m3u8` in playlist order. If a folder with that name
+already holds unrelated files, the app uses `<name> (2)` and so on. Reruns skip
+verified completed tracks and download new or failed ones. Renaming a downloaded
+playlist offers to rename its folder too.
+
 Open **More > Settings** in the titlebar or press `Ctrl+,`. Under **Appearance**,
 select Light, Dark, or System mode and a Mint, Ocean, Amber, Rose, or Monochrome
 color theme. System follows desktop appearance changes; System + Mint is the
@@ -121,7 +143,7 @@ to reset to 100%. `Ctrl+mousewheel` also changes scale. Zoom is limited to
 50%-200% and does not change the window's saved geometry.
 
 The GUI uses a context-isolated, sandboxed renderer with a narrow preload API.
-It currently supports one album per run; multi-album queues are not available yet.
+It downloads one album or one playlist at a time; multi-album queues are not available yet.
 
 ## Linux Packages
 

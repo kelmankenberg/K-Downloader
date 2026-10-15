@@ -1,8 +1,16 @@
 import { contextBridge, ipcRenderer } from "electron";
-import type { GuiDownloadRequest, GuiInspectionState, GuiProgress, GuiWindowState, KhinsiderDownloaderApi } from "../gui-types.js";
+import type {
+  GuiDownloadRequest,
+  GuiInspectionState,
+  GuiPlaylistProgress,
+  GuiPlaylistsState,
+  GuiProgress,
+  GuiWindowState,
+  KhinsiderDownloaderApi,
+} from "../gui-types.js";
 
 const api: KhinsiderDownloaderApi = {
-  openKhinsider: (target) => ipcRenderer.invoke("source:open-khinsider", target),
+  openKhinsider: (target, url) => ipcRenderer.invoke("source:open-khinsider", target, url),
   websiteCommand: (command) => ipcRenderer.invoke("website:command", command),
   setWebsiteBounds: (bounds) => ipcRenderer.invoke("website:bounds", bounds),
   useWebsiteAlbum: () => ipcRenderer.invoke("website:use-album"),
@@ -48,6 +56,28 @@ const api: KhinsiderDownloaderApi = {
     const handler = (_event: Electron.IpcRendererEvent, progress: GuiProgress) => listener(progress);
     ipcRenderer.on("album:progress", handler);
     return () => ipcRenderer.removeListener("album:progress", handler);
+  },
+  getPlaylists: () => ipcRenderer.invoke("playlists:get"),
+  onPlaylists: (listener: (state: GuiPlaylistsState) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, state: GuiPlaylistsState) => listener(state);
+    ipcRenderer.on("playlists:state", handler);
+    return () => ipcRenderer.removeListener("playlists:state", handler);
+  },
+  createPlaylist: (name) => ipcRenderer.invoke("playlist:create", name),
+  renamePlaylist: (playlistId, name) => ipcRenderer.invoke("playlist:rename", playlistId, name),
+  deletePlaylist: (playlistId) => ipcRenderer.invoke("playlist:delete", playlistId),
+  clearPlaylist: (playlistId) => ipcRenderer.invoke("playlist:clear", playlistId),
+  setActivePlaylist: (playlistId) => ipcRenderer.invoke("playlist:set-active", playlistId),
+  addInspectedTracks: (playlistId, indices) => ipcRenderer.invoke("playlist:add-inspected", playlistId, indices),
+  addWebsiteTrack: (playlistId) => ipcRenderer.invoke("playlist:add-website-track", playlistId),
+  removePlaylistEntries: (playlistId, entryIds) => ipcRenderer.invoke("playlist:remove", playlistId, entryIds),
+  movePlaylistEntry: (playlistId, entryId, toIndex) => ipcRenderer.invoke("playlist:move", playlistId, entryId, toIndex),
+  checkPlaylistFormats: (playlistId) => ipcRenderer.invoke("playlist:check-formats", playlistId),
+  downloadPlaylist: (request) => ipcRenderer.invoke("playlist:download", request),
+  onPlaylistProgress: (listener: (progress: GuiPlaylistProgress) => void) => {
+    const handler = (_event: Electron.IpcRendererEvent, progress: GuiPlaylistProgress) => listener(progress);
+    ipcRenderer.on("playlist:progress", handler);
+    return () => ipcRenderer.removeListener("playlist:progress", handler);
   },
 };
 

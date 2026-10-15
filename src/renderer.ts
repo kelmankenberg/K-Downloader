@@ -1,8 +1,9 @@
 import type { GuiFormatPolicy, GuiInspection, GuiInspectionState, GuiProgress, GuiTrack } from "./gui-types.js";
-import { ArrowLeft, ArrowRight, Bug, CircleHelp, Copy, createIcons, EllipsisVertical, ExternalLink, Globe, House, Keyboard, LoaderCircle, Minus, Palette, RotateCw, Scan, ScrollText, Settings, Square, X } from "lucide";
+import { ArrowLeft, ArrowRight, Bug, CircleHelp, Copy, createIcons, EllipsisVertical, ExternalLink, Globe, House, Keyboard, ListMusic, LoaderCircle, Minus, Palette, RotateCw, Scan, ScrollText, Settings, Square, X } from "lucide";
 import { initializeAppearance } from "./appearance.js";
 import { initializeChangelog } from "./changelog.js";
 import { initializeHelp } from "./help.js";
+import { initializePlaylistControls } from "./playlist-controls.js";
 import { initializeWebsiteControls } from "./website-controls.js";
 
 declare const __APP_VERSION__: string;
@@ -10,7 +11,7 @@ document.querySelector<HTMLElement>("#menu-app-version")!.textContent = __APP_VE
 
 initializeAppearance();
 
-const windowIcons = { ArrowLeft, ArrowRight, Bug, CircleHelp, Copy, EllipsisVertical, ExternalLink, Globe, House, Keyboard, LoaderCircle, Minus, Palette, RotateCw, Scan, ScrollText, Settings, Square, X };
+const windowIcons = { ArrowLeft, ArrowRight, Bug, CircleHelp, Copy, EllipsisVertical, ExternalLink, Globe, House, Keyboard, ListMusic, LoaderCircle, Minus, Palette, RotateCw, Scan, ScrollText, Settings, Square, X };
 createIcons({ icons: windowIcons });
 const changelog = initializeChangelog();
 const help = initializeHelp();
@@ -59,6 +60,13 @@ const shortcutsPage = document.querySelector<HTMLElement>("#shortcuts-page")!;
 const browsingNav = document.querySelector<HTMLButtonElement>("#browsing-nav")!;
 const browsingPage = document.querySelector<HTMLElement>("#browsing-page")!;
 const websiteView = document.querySelector<HTMLElement>("#website-view")!;
+const playlistsView = document.querySelector<HTMLElement>("#playlists-view")!;
+const playlistsButton = document.querySelector<HTMLButtonElement>("#playlists-button")!;
+const playlistsMenuItem = document.querySelector<HTMLButtonElement>("#playlists-menu-item")!;
+const closePlaylistsButton = document.querySelector<HTMLButtonElement>("#close-playlists")!;
+const previewPlaylistBar = document.querySelector<HTMLElement>("#preview-playlist-bar")!;
+const previewAddSelected = document.querySelector<HTMLButtonElement>("#preview-add-selected")!;
+const previewSelectAll = document.querySelector<HTMLInputElement>("#preview-select-all")!;
 
 let inspection: GuiInspection | undefined;
 let busy = false;
@@ -66,22 +74,89 @@ let inspecting = false;
 let inspectionCancelRequested = false;
 let inspectionBrowserVisible = false;
 let settingsOpen = false;
+let playlistBusy = false;
+const pickedTracks = new Set<number>();
+
+type MainView = "downloader" | "website" | "playlists";
+const backLabels: Record<MainView, string> = {
+  downloader: "Back to downloader",
+  website: "Back to browser",
+  playlists: "Back to playlists",
+};
+let mainView: MainView = "downloader";
+let websiteReturn: MainView = "downloader";
+let playlistsReturn: MainView = "downloader";
+
+function showMainView(view: MainView): void {
+  mainView = view;
+  settingsOpen = false;
+  settingsView.hidden = true;
+  help.close();
+  changelog.close();
+  closeMoreMenu();
+  workspaceView.hidden = view !== "downloader";
+  websiteView.hidden = view !== "website";
+  playlistsView.hidden = view !== "playlists";
+  playlistsButton.setAttribute("aria-pressed", String(view === "playlists"));
+}
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message.replace(/^Error invoking remote method '[^']+': (?:Error: )?/, "") : String(error);
+}
 
 const website = initializeWebsiteControls({
   showBrowser: () => {
-    help.close();
-    changelog.close();
-    closeMoreMenu();
-    workspaceView.hidden = true;
-    websiteView.hidden = false;
+    if (mainView !== "website") websiteReturn = mainView;
+    website.setReturnLabel(backLabels[websiteReturn]);
+    showMainView("website");
   },
-  showDownloader: (albumUrl) => {
-    websiteView.hidden = true;
-    workspaceView.hidden = false;
-    if (albumUrl) albumInput.value = albumUrl;
-    albumInput.focus();
+  close: (albumUrl) => {
+    if (albumUrl) {
+      showMainView("downloader");
+      albumInput.value = albumUrl;
+      albumInput.focus();
+      return;
+    }
+    showMainView(websiteReturn);
+    if (websiteReturn === "playlists") closePlaylistsButton.focus();
+    else albumInput.focus();
+  },
+  addTrack: async () => {
+    const id = await playlists.targetId();
+    if (!id) return undefined;
+    return playlists.describeAdd(await window.khinsiderDownloader.addWebsiteTrack(id));
   },
 });
+
+const playlists = initializePlaylistControls({
+  outputRoot: () => outputInput.value,
+  openSource: (url) => {
+    void website.open(url).catch((error: unknown) => {
+      document.querySelector<HTMLElement>("#playlist-error")!.textContent = errorMessage(error);
+    });
+  },
+  onBusyChange: (value) => {
+    playlistBusy = value;
+    if (!busy) {
+      inspectButton.disabled = value;
+      if (inspection) renderTracks();
+    }
+  },
+});
+
+function openPlaylists(): void {
+  if (mainView !== "playlists") playlistsReturn = mainView;
+  closePlaylistsButton.querySelector("span")!.textContent = backLabels[playlistsReturn];
+  showMainView("playlists");
+  playlists.open();
+}
+
+function closePlaylists(): void {
+  const target = playlistsReturn === "website" && !website.isOpen() ? "downloader" : playlistsReturn;
+  showMainView(target);
+  if (target === "website") document.querySelector<HTMLButtonElement>("#website-close")!.focus();
+  else albumInput.focus();
+}
 window.khinsiderDownloader.onWebsiteShortcut((action) => {
   if (action === "settings") setSettingsOpen(true);
   else void window.khinsiderDownloader.zoom(action).then(website.syncBounds).catch((error: unknown) => {
@@ -106,15 +181,21 @@ function closeMoreMenu(): void {
 }
 
 function setSettingsOpen(open: boolean): void {
-  settingsOpen = open;
-  workspaceView.hidden = open || website.isOpen();
-  websiteView.hidden = open || !website.isOpen();
-  settingsView.hidden = !open;
-  closeSettingsButton.querySelector("span")!.textContent = website.isOpen() ? "Back to browser" : "Back to downloader";
+  if (!open) {
+    showMainView(mainView);
+    if (mainView === "website") document.querySelector<HTMLButtonElement>("#website-close")!.focus();
+    else if (mainView === "playlists") closePlaylistsButton.focus();
+    else albumInput.focus();
+    return;
+  }
+  settingsOpen = true;
+  workspaceView.hidden = true;
+  websiteView.hidden = true;
+  playlistsView.hidden = true;
+  settingsView.hidden = false;
+  closeSettingsButton.querySelector("span")!.textContent = backLabels[mainView];
   closeMoreMenu();
-  if (open) closeSettingsButton.focus();
-  else if (website.isOpen()) document.querySelector<HTMLButtonElement>("#website-close")!.focus();
-  else albumInput.focus();
+  closeSettingsButton.focus();
 }
 
 function selectSettingsPage(page: "appearance" | "shortcuts" | "browsing"): void {
@@ -174,10 +255,25 @@ function selectedFormat(track: GuiTrack): { format?: string; state: string; fall
 
 function renderTracks(): void {
   if (!inspection) return;
-  const rows = inspection.tracks.map((track) => {
+  const canAdd = !busy && !playlistBusy;
+  const rows = inspection.tracks.map((track, index) => {
     const selected = selectedFormat(track);
     const row = document.createElement("tr");
-    row.innerHTML = `<td class="track-disc"></td><td class="track-number"></td><td class="track-title"></td><td class="track-formats"></td><td class="track-choice"></td><td class="track-state"></td>`;
+    row.innerHTML = `<td class="track-pick"><input type="checkbox" /></td><td class="track-disc"></td><td class="track-number"></td><td class="track-title"></td><td class="track-formats"></td><td class="track-choice"></td><td class="track-state"></td><td class="track-add"><button class="row-button" type="button">Add</button></td>`;
+    const pick = row.querySelector<HTMLInputElement>(".track-pick input")!;
+    pick.checked = pickedTracks.has(index);
+    pick.disabled = !canAdd;
+    pick.setAttribute("aria-label", `Select ${track.title}`);
+    pick.addEventListener("change", () => {
+      if (pick.checked) pickedTracks.add(index);
+      else pickedTracks.delete(index);
+      updatePickControls();
+    });
+    const add = row.querySelector<HTMLButtonElement>(".track-add button")!;
+    add.disabled = !canAdd;
+    add.title = `Add ${track.title} to playlist`;
+    add.setAttribute("aria-label", add.title);
+    add.addEventListener("click", () => { void addInspectedTracks([index], track.title); });
     row.querySelector(".track-disc")!.textContent = track.discNumber === undefined ? "-" : `${discLabelSelect.value}${track.discNumber}`;
     row.querySelector(".track-number")!.textContent = String(track.number).padStart(2, "0");
     row.querySelector(".track-title")!.textContent = track.title;
@@ -191,10 +287,38 @@ function renderTracks(): void {
   });
   tableBody.replaceChildren(...rows);
   const blocked = inspection.tracks.some((track) => selectedFormat(track).state === "Unavailable");
-  downloadButton.disabled = busy || blocked;
+  downloadButton.disabled = busy || playlistBusy || blocked;
+  previewPlaylistBar.hidden = false;
+  updatePickControls();
   trackCount.textContent = `${inspection.trackCount} tracks`;
   emptyState.hidden = true;
   trackTable.hidden = false;
+}
+
+function updatePickControls(): void {
+  const total = inspection?.tracks.length ?? 0;
+  const canAdd = !busy && !playlistBusy;
+  previewAddSelected.disabled = !canAdd || pickedTracks.size === 0;
+  previewAddSelected.textContent = pickedTracks.size > 0 ? `Add ${pickedTracks.size} selected to playlist` : "Add selected to playlist";
+  previewSelectAll.disabled = !canAdd || total === 0;
+  previewSelectAll.checked = total > 0 && pickedTracks.size === total;
+  previewSelectAll.indeterminate = pickedTracks.size > 0 && pickedTracks.size < total;
+}
+
+async function addInspectedTracks(indices: number[], singleTitle?: string): Promise<void> {
+  errorText.textContent = "";
+  try {
+    const id = await playlists.targetId();
+    if (!id) return;
+    const result = await window.khinsiderDownloader.addInspectedTracks(id, indices);
+    setStatus(playlists.describeAdd(result, singleTitle), result.added > 0 ? "success" : "idle");
+    if (!singleTitle) {
+      pickedTracks.clear();
+      renderTracks();
+    }
+  } catch (error) {
+    errorText.textContent = errorMessage(error);
+  }
 }
 
 function currentPolicy(): GuiFormatPolicy {
@@ -223,7 +347,7 @@ function updateFormatOptions(): void {
 
 function setBusy(value: boolean): void {
   busy = value;
-  inspectButton.disabled = value;
+  inspectButton.disabled = value || playlistBusy;
   browseButton.disabled = value;
   albumInput.disabled = value;
   outputInput.disabled = value;
@@ -248,6 +372,20 @@ moreButton.addEventListener("click", () => {
   moreButton.setAttribute("aria-expanded", String(!moreMenu.hidden));
 });
 settingsMenuItem.addEventListener("click", () => setSettingsOpen(true));
+playlistsMenuItem.addEventListener("click", openPlaylists);
+playlistsButton.addEventListener("click", () => {
+  if (mainView === "playlists" && !settingsOpen) closePlaylists();
+  else openPlaylists();
+});
+closePlaylistsButton.addEventListener("click", closePlaylists);
+previewSelectAll.addEventListener("change", () => {
+  pickedTracks.clear();
+  if (previewSelectAll.checked && inspection) inspection.tracks.forEach((_, index) => pickedTracks.add(index));
+  renderTracks();
+});
+previewAddSelected.addEventListener("click", () => {
+  void addInspectedTracks([...pickedTracks].sort((a, b) => a - b));
+});
 appearanceNav.addEventListener("click", () => selectSettingsPage("appearance"));
 shortcutsNav.addEventListener("click", () => selectSettingsPage("shortcuts"));
 browsingNav.addEventListener("click", () => selectSettingsPage("browsing"));
@@ -282,12 +420,14 @@ document.addEventListener("keydown", (event) => {
     event.preventDefault();
     setSettingsOpen(!settingsOpen);
   } else if (event.key === "Escape") {
+    if (document.querySelector("dialog[open]")) return;
     if (!moreMenu.hidden) {
       closeMoreMenu();
       moreButton.focus();
     } else if (help.isOpen()) help.close();
     else if (changelog.isOpen()) changelog.close();
     else if (settingsOpen) setSettingsOpen(false);
+    else if (mainView === "playlists") closePlaylists();
   }
 });
 document.addEventListener("wheel", (event) => {
@@ -306,6 +446,8 @@ inspectButton.addEventListener("click", async () => {
     return;
   }
   inspection = undefined;
+  pickedTracks.clear();
+  previewPlaylistBar.hidden = true;
   downloadButton.disabled = true;
   tableBody.replaceChildren();
   trackTable.hidden = true;

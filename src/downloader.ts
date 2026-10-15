@@ -1,7 +1,7 @@
 import { lstat, rm, stat } from "node:fs/promises";
 import { join } from "node:path";
 import { planFormats, type FormatPolicy } from "./formats.js";
-import type { AlbumPage, DiscoveredTrack } from "./khinsider.js";
+import type { AlbumPage, AudioLink, DiscoveredTrack } from "./khinsider.js";
 import {
   prepareAlbumDirectory,
   readManifest,
@@ -9,6 +9,7 @@ import {
   writeManifest,
   type AlbumManifest,
   type ManifestTrack,
+  type PlaylistManifest,
 } from "./output.js";
 import { MediaResponseError, streamMediaToFile, type TransferOptions, type TransferResult } from "./transfer.js";
 
@@ -32,6 +33,8 @@ export type DownloadProgress = {
   completedTracks: number;
   totalTracks: number;
   bytesReceived?: number;
+  /** Position of the item within the transfer run. */
+  index?: number;
 };
 
 export type DownloadResult = {
@@ -47,7 +50,7 @@ export class FormatPlanBlockedError extends Error {
   }
 }
 
-async function fileExists(path: string): Promise<boolean> {
+export async function fileExists(path: string): Promise<boolean> {
   try {
     await lstat(path);
     return true;
@@ -57,7 +60,7 @@ async function fileExists(path: string): Promise<boolean> {
   }
 }
 
-async function isVerifiedComplete(directory: string, entry: ManifestTrack | undefined): Promise<boolean> {
+export async function isVerifiedComplete(directory: string, entry: ManifestTrack | undefined): Promise<boolean> {
   if (!entry || entry.state !== "complete" || !entry.bytes || !entry.filename) return false;
   try {
     const file = await stat(join(directory, entry.filename));
@@ -76,6 +79,82 @@ function createManifestTrack(
   state: ManifestTrack["state"],
 ): ManifestTrack {
   return { number, title, filename, format, state };
+}
+
+export type TransferItem = {
+  entry: ManifestTrack;
+  audio?: AudioLink;
+};
+
+export type TransferRunOptions = Pick<DownloadOptions, "signal" | "onProgress" | "fetchImpl" | "resolveAddresses">;
+
+/**
+ * Downloads queued items one at a time, persisting the manifest after every state change.
+ * Stops early on cancellation or when the media host refuses requests (HTTP 403/429).
+ * Returns true when the run was canceled.
+ */
+export async function runTransfers(
+  directory: string,
+  manifest: AlbumManifest | PlaylistManifest,
+  items: TransferItem[],
+  totalTracks: number,
+  options: TransferRunOptions,
+): Promise<boolean> {
+  const persist = async () => {
+    manifest.updatedAt = new Date().toISOString();
+    await writeManifest(directory, manifest);
+  };
+  const cancelRemaining = (index: number) => {
+    for (const queued of items.slice(index + 1)) {
+      if (queued.entry.state === "queued") queued.entry.state = "canceled";
+    }
+  };
+  let completedTracks = items.filter(({ entry }) => entry.state === "complete" || entry.state === "skipped").length;
+  for (const [index, { entry, audio }] of items.entries()) {
+    if (entry.state !== "queued" || !audio) continue;
+
+    if (options.signal?.aborted) {
+      entry.state = "canceled";
+      cancelRemaining(index);
+      options.onProgress?.({ stage: "canceled", number: entry.number, title: entry.title, completedTracks, totalTracks, index });
+      return true;
+    }
+
+    entry.state = "downloading";
+    options.onProgress?.({ stage: "track-start", number: entry.number, title: entry.title, completedTracks, totalTracks, index });
+    await persist();
+    try {
+      const transferOptions: TransferOptions = {
+        allowedHosts: new Set([audio.url.hostname.toLowerCase()]),
+        expectedFormat: audio.format,
+        ...(options.signal ? { signal: options.signal } : {}),
+        ...(options.fetchImpl ? { fetchImpl: options.fetchImpl } : {}),
+        ...(options.resolveAddresses ? { resolveAddresses: options.resolveAddresses } : {}),
+      };
+      const result: TransferResult = await streamMediaToFile(audio.url, join(directory, entry.filename), transferOptions);
+      entry.state = "complete";
+      entry.bytes = result.bytes;
+      delete entry.error;
+      completedTracks += 1;
+      options.onProgress?.({ stage: "track-complete", number: entry.number, title: entry.title, completedTracks, totalTracks, bytesReceived: result.bytes, index });
+    } catch (error) {
+      if (options.signal?.aborted) {
+        entry.state = "canceled";
+        cancelRemaining(index);
+        options.onProgress?.({ stage: "canceled", number: entry.number, title: entry.title, completedTracks, totalTracks, index });
+        await persist();
+        return true;
+      }
+      entry.state = "failed";
+      entry.error = error instanceof Error ? error.message.slice(0, 500) : String(error).slice(0, 500);
+      options.onProgress?.({ stage: "track-failed", number: entry.number, title: entry.title, completedTracks, totalTracks, index });
+      await persist();
+      if (error instanceof MediaResponseError && [403, 429].includes(error.status)) return false;
+      continue;
+    }
+    await persist();
+  }
+  return false;
 }
 
 export async function downloadAlbum(options: DownloadOptions): Promise<DownloadResult> {
@@ -145,65 +224,13 @@ export async function downloadAlbum(options: DownloadOptions): Promise<DownloadR
   };
   await writeManifest(directory, manifest);
 
-  let completedTracks = manifest.tracks.filter((track) => track.state === "complete" || track.state === "skipped").length;
-  let canceled = false;
-  for (const [index, selection] of plan.tracks.entries()) {
-    const entry = manifest.tracks[index];
-    if (entry.state === "complete" || entry.state === "skipped") continue;
-    const audio = selection.selected;
-    if (!audio) continue;
-
-    if (options.signal?.aborted) {
-      entry.state = "canceled";
-      for (const queued of manifest.tracks.slice(index + 1)) {
-        if (queued.state === "queued") queued.state = "canceled";
-      }
-      canceled = true;
-      options.onProgress?.({ stage: "canceled", number: entry.number, title: entry.title, completedTracks, totalTracks: manifest.tracks.length });
-      break;
-    }
-
-    entry.state = "downloading";
-    options.onProgress?.({ stage: "track-start", number: entry.number, title: entry.title, completedTracks, totalTracks: manifest.tracks.length });
-    manifest.updatedAt = new Date().toISOString();
-    await writeManifest(directory, manifest);
-    try {
-      const transferOptions: TransferOptions = {
-        allowedHosts: new Set([audio.url.hostname.toLowerCase()]),
-        expectedFormat: audio.format,
-        ...(options.signal ? { signal: options.signal } : {}),
-        ...(options.fetchImpl ? { fetchImpl: options.fetchImpl } : {}),
-        ...(options.resolveAddresses ? { resolveAddresses: options.resolveAddresses } : {}),
-      };
-      const result: TransferResult = await streamMediaToFile(audio.url, join(directory, entry.filename), transferOptions);
-      entry.state = "complete";
-      entry.bytes = result.bytes;
-      delete entry.error;
-      completedTracks += 1;
-      options.onProgress?.({ stage: "track-complete", number: entry.number, title: entry.title, completedTracks, totalTracks: manifest.tracks.length, bytesReceived: result.bytes });
-    } catch (error) {
-      if (options.signal?.aborted) {
-        entry.state = "canceled";
-        for (const queued of manifest.tracks.slice(index + 1)) {
-          if (queued.state === "queued") queued.state = "canceled";
-        }
-        canceled = true;
-        options.onProgress?.({ stage: "canceled", number: entry.number, title: entry.title, completedTracks, totalTracks: manifest.tracks.length });
-        manifest.updatedAt = new Date().toISOString();
-        await writeManifest(directory, manifest);
-        break;
-      }
-      entry.state = "failed";
-      entry.error = error instanceof Error ? error.message.slice(0, 500) : String(error).slice(0, 500);
-      options.onProgress?.({ stage: "track-failed", number: entry.number, title: entry.title, completedTracks, totalTracks: manifest.tracks.length });
-      manifest.updatedAt = new Date().toISOString();
-      await writeManifest(directory, manifest);
-      if (error instanceof MediaResponseError && [403, 429].includes(error.status)) break;
-      continue;
-    }
-    manifest.updatedAt = new Date().toISOString();
-    await writeManifest(directory, manifest);
-  }
+  const canceled = await runTransfers(
+    directory,
+    manifest,
+    plan.tracks.map((selection, index) => ({ entry: manifest.tracks[index]!, audio: selection.selected })),
+    manifest.tracks.length,
+    options,
+  );
 
   const hasFailures = manifest.tracks.some((track) => track.state === "failed");
   const hasSkips = manifest.tracks.some((track) => track.state === "skipped");
