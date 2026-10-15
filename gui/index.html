@@ -321,7 +321,7 @@
             <h3 id="navigation-shortcuts-heading">Navigation</h3>
             <dl class="shortcut-list">
               <div class="shortcut-row"><dt>Open or close Settings</dt><dd><kbd>Ctrl</kbd><span>+</span><kbd>,</kbd></dd></div>
-              <div class="shortcut-row"><dt>Close the active menu, Help, Changelog, or Settings</dt><dd><kbd>Esc</kbd></dd></div>
+              <div class="shortcut-row"><dt>Close the active menu, Help, Changelog, Settings, or Playlists</dt><dd><kbd>Esc</kbd></dd></div>
             </dl>
           </section>
           <section class="shortcut-group" aria-labelledby="zoom-shortcuts-heading">
@@ -341,6 +341,8 @@
               <div class="shortcut-row"><dt>Narrow panel</dt><dd><kbd>Right Arrow</kbd></dd></div>
               <div class="shortcut-row"><dt>Minimum panel width</dt><dd><kbd>Home</kbd></dd></div>
               <div class="shortcut-row"><dt>Maximum panel width (40%)</dt><dd><kbd>End</kbd></dd></div>
+              <div class="shortcut-row"><dt>Search Help (while Help is open)</dt><dd><kbd>Ctrl</kbd><span>+</span><kbd>F</kbd></dd></div>
+              <div class="shortcut-row"><dt>Clear the Help search</dt><dd><kbd>Esc</kbd></dd></div>
             </dl>
           </section>
         </section>
@@ -366,10 +368,16 @@
           </button>
         </header>
         <div class="help-actions">
+          <div class="help-search" role="search">
+            <i data-lucide="search" aria-hidden="true"></i>
+            <input id="help-search" type="search" placeholder="Search help" aria-label="Search help" aria-describedby="help-search-status" autocomplete="off" spellcheck="false" />
+          </div>
           <button id="expand-help" type="button">Expand all</button>
           <button id="collapse-help" type="button">Collapse all</button>
         </div>
-        <div id="help-content" class="changelog-content help-content"></div>
+        <div id="help-content" class="changelog-content help-content">
+          <p id="help-search-status" class="help-search-status" role="status"></p>
+        </div>
       </aside>
       <footer class="app-footer"><span>Original audio bytes · no transcoding</span><span>LOCAL SESSION</span></footer>
     </main>

@@ -132,8 +132,10 @@ keys. Close it with its close button or `Esc`. Content is embedded from the root
 
 **More > Help**, directly below Changelog, opens a matching right-side panel.
 Expand or collapse individual help sections, or use **Expand all** and
-**Collapse all**. It covers the GUI, CLI, formats, disc folders, cancellation,
-reruns, Settings, shortcuts, window controls, and troubleshooting. Resize its
+**Collapse all**. The **Search help** box (or Ctrl+F) hides sections that do
+not contain the typed text and highlights matches; Esc clears it. It covers the
+GUI, CLI, formats, disc folders, cancellation, reruns, download playlists,
+Settings, shortcuts, window controls, and troubleshooting. Resize its
 left edge up to 40%, and close with its button or `Esc`. Opening Help closes
 Changelog, and vice versa. Help is embedded from [docs/HELP.md](docs/HELP.md)
 during the GUI build and is available offline.

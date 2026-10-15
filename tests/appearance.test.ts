@@ -144,9 +144,10 @@ describe("appearance controls in Chromium", () => {
       expect(await page.locator("#shortcuts-nav").getAttribute("aria-current")).toBe("page");
       expect(await page.locator(".shortcut-row dt").allTextContents()).toEqual([
         "Open or close Settings",
-        "Close the active menu, Help, Changelog, or Settings",
+        "Close the active menu, Help, Changelog, Settings, or Playlists",
         "Zoom in", "Zoom out", "Reset to 100%", "Zoom with the mouse",
         "Widen panel", "Narrow panel", "Minimum panel width", "Maximum panel width (40%)",
+        "Search Help (while Help is open)", "Clear the Help search",
       ]);
       for (const viewport of [{ width: 1120, height: 780 }, { width: 760, height: 620 }]) {
         await page.setViewportSize(viewport);

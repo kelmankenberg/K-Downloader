@@ -1,5 +1,5 @@
 import type { GuiFormatPolicy, GuiInspection, GuiInspectionState, GuiProgress, GuiTrack } from "./gui-types.js";
-import { ArrowLeft, ArrowRight, Bug, CircleHelp, Copy, createIcons, EllipsisVertical, ExternalLink, Globe, House, Keyboard, ListMusic, LoaderCircle, Minus, Palette, RotateCw, Scan, ScrollText, Settings, Square, X } from "lucide";
+import { ArrowLeft, ArrowRight, Bug, CircleHelp, Copy, createIcons, EllipsisVertical, ExternalLink, Globe, House, Keyboard, ListMusic, LoaderCircle, Minus, Palette, RotateCw, Scan, ScrollText, Search, Settings, Square, X } from "lucide";
 import { initializeAppearance } from "./appearance.js";
 import { initializeChangelog } from "./changelog.js";
 import { initializeHelp } from "./help.js";
@@ -11,7 +11,7 @@ document.querySelector<HTMLElement>("#menu-app-version")!.textContent = __APP_VE
 
 initializeAppearance();
 
-const windowIcons = { ArrowLeft, ArrowRight, Bug, CircleHelp, Copy, EllipsisVertical, ExternalLink, Globe, House, Keyboard, ListMusic, LoaderCircle, Minus, Palette, RotateCw, Scan, ScrollText, Settings, Square, X };
+const windowIcons = { ArrowLeft, ArrowRight, Bug, CircleHelp, Copy, EllipsisVertical, ExternalLink, Globe, House, Keyboard, ListMusic, LoaderCircle, Minus, Palette, RotateCw, Scan, ScrollText, Search, Settings, Square, X };
 createIcons({ icons: windowIcons });
 const changelog = initializeChangelog();
 const help = initializeHelp();

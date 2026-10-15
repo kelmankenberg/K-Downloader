@@ -131,39 +131,169 @@ manifest with the audio files for reruns.
 
 ## Download Playlists
 
-Playlists hold individual tracks from different albums and download into one
-folder named after the playlist. Open **Playlists** from the titlebar button
-(list icon) or **More > Playlists**. Press `Esc` or **Back** to return.
+A playlist is a named list of individual tracks, picked from any number of
+albums. Downloading it saves every track into one folder named after the
+playlist, in your chosen order, with an `.m3u8` file for music players.
 
-Add tracks:
+### Open the Playlists page
 
-- **In-app browser:** open a KHInsider track page, choose the playlist in the
-  toolbar picker, and select **Add track to playlist**. The button is enabled
-  only on track pages. A note confirms the addition or reports a duplicate.
-- **Album preview:** after **Inspect album**, tick tracks (or the header box for
-  all) and select **Add selected to playlist**, or use a row's **Add** button.
+- Select the list icon in the titlebar, or choose **More > Playlists**.
+- Select the icon again, use **Back to …**, or press **Esc** to return to the
+  page you came from (downloader or in-app browser).
+- The left column lists your playlists with their track counts. Select one to
+  show its tracks on the right; it also becomes the active playlist for adding.
 
-Pick **New playlist…** in any picker to create one; names must be unique and
-valid as folder names. The picked playlist becomes the active target.
+### Create a playlist
 
-On the Playlists page you can rename, clear, or delete a playlist, reorder
-tracks with ↑/↓ or drag and drop, open a track's KHInsider page, and remove
-tracks. Changes are saved immediately to `playlists.json` in the app profile.
+1. Select **New playlist** on the Playlists page, or choose **New playlist…**
+   in any playlist picker (browser toolbar or album preview).
+2. Type a name and select **Create**. Press **Esc** or **Cancel** to back out.
 
-**Check formats** reads each track page to show available formats. **Download
-playlist** checks any remaining tracks, applies the format policy (Prefer
-lossless, Lossless only, or a specific format, with optional skipping), and saves:
+Name rules:
 
-- `<destination>/<playlist name>/001 - Album - Title.ext` in playlist order.
-- `<playlist name>.m3u8` listing the downloaded tracks in order.
-- `.download-manifest.json` recording each track's file and state.
+- Up to 100 characters; extra spaces are collapsed.
+- Must contain at least one letter or number.
+- Must be unique, ignoring upper/lower case.
+- Characters not allowed in folder names (such as `/ : * ? " < > |`) are
+  replaced with `-` in the folder name only; the playlist keeps its full name.
 
-If the playlist folder already contains unrelated files, the app saves to
-`<name> (2)` (up to 100) instead. Reruns skip verified completed tracks and
-retry failed, missing, or newly added ones; reordered tracks keep their files.
-Renaming a playlist that was downloaded offers to rename its folder too.
-**Cancel** stops the active playlist transfer. Album inspection and album
-downloads are unavailable while a playlist task runs.
+A new playlist becomes the active playlist. If you try to add a track while no
+playlist exists, the app asks for a name first and then adds the track.
+
+### Add tracks from the in-app browser
+
+This requires **Settings > Browsing > Inside the app**.
+
+1. Select the **KHInsider** link beside the album URL to open the in-app browser.
+2. Browse to an album and select a song title to open its track page (the
+   address ends in the track's file name, such as `.mp3`).
+3. Choose the target playlist in the toolbar picker.
+4. Select **Add track to playlist**.
+
+The button is available only on a fully loaded track page; it is disabled on
+the home page, album pages, and search results. A note beside the address
+confirms the addition (for example, *Added 1 track to "Road Trip"*) or reports
+*Already in playlist* for duplicates. The album and track names are read from
+the track page.
+
+### Add tracks from an inspected album
+
+1. Paste an album URL and select **Inspect album**.
+2. Choose the target playlist in the **Playlist** picker above the preview.
+3. Either select **Add** on a single row, or tick the checkboxes for several
+   tracks (the header checkbox selects all) and select **Add selected to playlist**.
+
+The status line reports how many tracks were added and how many were already
+in the playlist. Tracks added from the preview keep the formats found during
+inspection, so their **Available** column is filled in right away.
+
+### Manage tracks
+
+Each row shows the playlist position, album, track title, available formats,
+the format that will be downloaded, and its status.
+
+- **↑ / ↓** move a track one position. You can also drag a row onto another
+  row to move it there.
+- **Open** shows the track's KHInsider page in the in-app browser (or your
+  system browser, depending on Settings). **Back to playlists** returns here.
+- **Remove** takes the track out of the playlist. Files already downloaded
+  stay on disk.
+- A track can appear in a playlist only once. The same track can be in
+  several playlists.
+
+Changes are saved immediately to `playlists.json` in the app profile and are
+restored at the next launch. Editing is locked while that playlist downloads.
+
+### Rename, clear, or delete a playlist
+
+- **Rename** opens the name dialog. If the playlist was already downloaded,
+  the app asks whether to rename its download folder (and `.m3u8` file) to
+  match. Choose **Cancel** to keep the old folder; later downloads continue there.
+- **Clear** removes every track after a confirmation.
+- **Delete** removes the playlist after a confirmation. Downloaded files are
+  always kept on disk.
+
+### Check formats
+
+KHInsider lists available formats (MP3, FLAC, and so on) on each track page.
+Tracks added from the in-app browser show *Not checked* until their pages are
+read. **Check formats** visits every track page in the playlist with the hidden
+inspection browser and refreshes the **Available** column, so you can pick a
+policy before downloading. It is optional: downloading reads the pages anyway.
+Progress appears at the bottom of the page; **Cancel** stops the check. Tracks
+whose pages could not be read are reported and can be checked again.
+
+### Choose a format policy
+
+- **Prefer lossless:** FLAC, ALAC, or WAV when available, otherwise MP3 or the
+  first listed format.
+- **Lossless only:** only FLAC, ALAC, or WAV.
+- **Specific format:** appears once formats are known for the playlist's tracks.
+
+For **Lossless only** and specific formats, tick **Skip tracks without the
+selected format** to skip tracks that lack it. Without skipping, **Download
+playlist** stays disabled while any track shows *Unavailable*. The **Selected**
+column previews the choice for each track.
+
+### Download a playlist
+
+1. Confirm the destination folder on the downloader page (default
+   `~/Music/Khinsider Downloader`).
+2. Choose the format policy on the Playlists page.
+3. Select **Download playlist**.
+
+The app first reads the page of every track that is not already downloaded
+(for current download links), then transfers files one at a time.
+Progress shows the current track, and each row's status updates as it
+completes or fails. **Cancel** stops the active transfer and prevents later
+tracks from starting; completed files are kept.
+
+The result looks like this:
+
+```text
+Khinsider Downloader/
+  Road Trip/
+    001 - Example OST - Final Battle.flac
+    002 - Another OST - Main Theme.mp3
+    Road Trip.m3u8
+    .download-manifest.json
+```
+
+- File names are `position - album - title.extension`. Long album names are
+  shortened so file names stay readable.
+- If two tracks would get the same name, a short code is added to one, such
+  as `[1a2b3c4d]`.
+- `Road Trip.m3u8` lists the downloaded tracks in playlist order. The app
+  never overwrites an `.m3u8` it did not create.
+- `.download-manifest.json` records each track's source, file, format, and
+  state. Keep it with the files so reruns work.
+- If a folder with the playlist name already exists and holds other files,
+  the app uses `Road Trip (2)` (up to 100) instead and says so in the progress line.
+
+### Download again after changes
+
+Select **Download playlist** again at any time:
+
+- Completed tracks whose file sizes still match the manifest are skipped.
+- New, failed, canceled, or missing tracks are downloaded.
+- Reordered tracks keep their existing files; the `.m3u8` is rewritten in the
+  new order. New tracks use their current position in their file names.
+- Removed tracks are left on disk and dropped from the `.m3u8`.
+- Changing the format policy affects only tracks that still need downloading;
+  completed tracks are kept in their original format.
+
+### Playlist limits and problems
+
+- Up to 200 playlists and 2,000 tracks per playlist.
+- One task runs at a time: album inspection and album downloads are unavailable
+  while a playlist check or download runs, and vice versa.
+- If `playlists.json` is damaged, the app saves a backup copy
+  (`playlists.json.invalid-…`), starts with an empty list, and shows a warning.
+- If `playlists.json` was written by a newer app version, playlists open
+  read-only so that data is not lost.
+- **HTTP 403 or 429** while reading track pages stops the run; wait before
+  trying again. Other per-track failures are listed in each row's status
+  (hover for details) and are retried on the next run.
 
 ## Settings and Appearance
 
@@ -188,6 +318,8 @@ mark independently of the selected color theme.
 The **Settings > Shortcuts** page provides a grouped reference with keycaps.
 
 - **Ctrl+,** opens or closes Settings.
+- **Ctrl+F** focuses the Help search box while Help is open. **Esc** in a
+  non-empty search box clears the search instead of closing Help.
 - **Esc** closes the active More menu first, then an open Help/Changelog panel,
   or Settings. Closing a drawer leaves the underlying Settings page intact.
 - **Ctrl+=** or **Ctrl++** enlarges the interface.
@@ -230,6 +362,13 @@ of the header. Use the panel's Close button or **Esc** to dismiss it.
 Help section headings expand or collapse their content. **Expand all** and
 **Collapse all** affect every help section. Content is local and embedded at
 build time; no network request is needed to read either panel.
+
+Use the **Search help** box at the top of the Help panel to find a topic. As you
+type, sections that do not contain the text are hidden, matching sections expand,
+and matches are highlighted. Searching ignores letter case and extra spaces. A
+status line shows how many sections match. Press **Ctrl+F** while Help is open
+to jump to the search box. Press **Esc** in the box (or clear its text) to show
+every section again with their previous expanded state; a second **Esc** closes Help.
 
 ## Command-Line Interface
 
@@ -289,7 +428,7 @@ app shows the GitHub URL so you can visit it manually.
 - **System mode not changing:** select System in Appearance. Cinnamon follows
   its GTK theme, not every desktop accent/wallpaper setting.
 
-The current implementation is Linux-first and single-album. Linux x64 AppImage
+The current implementation is Linux-first and runs one album or playlist at a time. Linux x64 AppImage
 and .deb builds include Electron and Chromium. The installed launcher supports
 `khinsider-downloader inspect`, `khinsider-downloader download`, and `khinsider-downloader --help`.
 Distribution compatibility still requires target-machine testing.
