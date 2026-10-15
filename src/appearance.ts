@@ -6,7 +6,7 @@ export type Appearance = {
 };
 
 export const defaultAppearance: Appearance = { mode: "system", theme: "mint" };
-export const appearanceStorageKey = "k-downloader.appearance";
+export const appearanceStorageKey = "khinsider-downloader.appearance";
 
 export function parseAppearance(raw: string | null): Appearance {
   try {
@@ -60,14 +60,14 @@ export function initializeAppearance(): void {
     preferences.theme = input.value as Appearance["theme"];
     save();
   }));
-  if (window.kDownloader?.onSystemTheme && window.kDownloader?.systemTheme) {
+  if (window.khinsiderDownloader?.onSystemTheme && window.khinsiderDownloader?.systemTheme) {
     let updateReceived = false;
-    window.kDownloader.onSystemTheme((dark) => {
+    window.khinsiderDownloader.onSystemTheme((dark) => {
       updateReceived = true;
       systemDark = dark;
       apply();
     });
-    void window.kDownloader.systemTheme().then((dark) => {
+    void window.khinsiderDownloader.systemTheme().then((dark) => {
       if (!updateReceived) {
         systemDark = dark;
         apply();

@@ -1,4 +1,4 @@
-# K-Downloader
+# Khinsider Downloader
 
 Status: Draft for discussion. No application implementation has started.
 
@@ -19,7 +19,7 @@ album, with per-track availability shown before starting.
 
 Confirmed on 2026-10-12:
 
-- The application is named K-Downloader.
+- The application is named Khinsider Downloader.
 - A desktop GUI is the primary interface, with a scriptable CLI option too.
 - Support a pasted list of album URLs in the initial release, not just one album.
 - Individual track-page downloads require no login, as confirmed by the user.
@@ -29,7 +29,7 @@ Confirmed on 2026-10-12:
   available only when the account has the required standing.
 - The GUI offers an opt-in "Remember me" checkbox using secure Linux storage,
   with logout and removal of saved authentication.
-- Default output is `~/Music/K-Downloader`, with an alternate destination
+- Default output is `~/Music/Khinsider Downloader`, with an alternate destination
   selectable by the user. Use numbered track filenames and save cover artwork
   when available.
 - Prefer lossless downloads when available; allow format selection for each
@@ -189,7 +189,7 @@ only if a normal, permitted browser workflow is necessary and acceptable.
 
 ## Output and Artwork
 
-- Default root folder: `~/Music/K-Downloader`, resolved from the current user's
+- Default root folder: `~/Music/Khinsider Downloader`, resolved from the current user's
   home directory. Create it when starting a download if it does not exist.
 - The GUI provides a folder picker and displays the selected destination before
   downloading. The CLI accepts `--output <directory>`; omitting it uses the same
@@ -210,7 +210,7 @@ only if a normal, permitted browser workflow is necessary and acceptable.
 Example output for the supplied MP3-only album:
 
 ```text
-~/Music/K-Downloader/Unreal II - The Awakening Original Soundtrack/
+~/Music/Khinsider Downloader/Unreal II - The Awakening Original Soundtrack/
   01 - Intro.mp3
   02 - Avalon TCA Base.mp3
   ...
@@ -222,14 +222,14 @@ Example output for the supplied MP3-only album:
 CLI concept, not an implemented command:
 
 ```sh
-k-downloader <album-url> --list-formats
-k-downloader <album-url> --format prefer-lossless
-k-downloader <album-url> --format lossless-only
-k-downloader <album-url> --format mp3
-k-downloader <album-url-1> <album-url-2>
-k-downloader --input albums.txt --format prefer-lossless
-k-downloader --input - --format prefer-lossless
-k-downloader <album-url> --output /mnt/music/K-Downloader
+khinsider-downloader <album-url> --list-formats
+khinsider-downloader <album-url> --format prefer-lossless
+khinsider-downloader <album-url> --format lossless-only
+khinsider-downloader <album-url> --format mp3
+khinsider-downloader <album-url-1> <album-url-2>
+khinsider-downloader --input albums.txt --format prefer-lossless
+khinsider-downloader --input - --format prefer-lossless
+khinsider-downloader <album-url> --output /mnt/music/Khinsider Downloader
 ```
 
 For the GUI, the first screen contains a multiline album URL input, destination
@@ -342,9 +342,9 @@ integration. Never load remote site content as privileged application UI.
 
 - Document setup, supported inputs, format rules, limitations, and troubleshooting.
 - Produce an AppImage and native Linux packages for the agreed distribution and
-  architecture matrix, with consistent K-Downloader naming and versioning.
+  architecture matrix, with consistent Khinsider Downloader naming and versioning.
 - Native packages provide a desktop launcher, application icon, and a
-  `k-downloader` CLI entry point. Document installation, removal, and dependencies.
+  `khinsider-downloader` CLI entry point. Document installation, removal, and dependencies.
 - Document AppImage executable permissions, required runtime dependencies, and
   a scriptable invocation. Keep the CLI independent of display-server startup;
   verify that packaged CLI mode works without opening the GUI.
@@ -377,7 +377,7 @@ embedding it in audio files is not.
 GUI plus CLI, lossless preference with previewed automatic fallback, a
 lossless-only option with explicit skipping of unavailable tracks,
 discovered-format options, pasted album lists, Linux-only support, the
-K-Downloader name, default and alternate output destinations, numbered filenames,
+Khinsider Downloader name, default and alternate output destinations, numbered filenames,
 and saving available cover artwork are confirmed, as are AppImage, `.deb`, and
 `.rpm` packages. Logged-out individual-track access, separate-file output, and
 optional eligible bulk access and secure GUI "Remember me" are recorded. Stack,

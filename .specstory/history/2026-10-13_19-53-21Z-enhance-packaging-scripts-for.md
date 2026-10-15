@@ -25,22 +25,22 @@ Read `package.json`
 **Input:**
 
 - endLine: `160`
-- filePath: `/home/kel/dev/K-Downloader/package.json`
+- filePath: `/home/kel/dev/Khinsider-Downloader/package.json`
 - startLine: `1`
 
 **Result:**
 
 ```
 {
-  "name": "k-downloader",
+  "name": "khinsider-downloader",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "main": "dist/electron/main.cjs",
-  "desktopName": "k-downloader.desktop",
+  "desktopName": "khinsider-downloader.desktop",
   "description": "Linux desktop downloader for public KHInsider album tracks",
   "author": "kelmankenberg",
-  "homepage": "https://github.com/kelmankenberg/K-Downloader",
+  "homepage": "https://github.com/kelmankenberg/Khinsider-Downloader",
   "license": "UNLICENSED",
   "engines": {
     "node": ">=20"
@@ -93,7 +93,7 @@ Read `package-linux.mjs`
 **Input:**
 
 - endLine: `300`
-- filePath: `/home/kel/dev/K-Downloader/scripts/package-linux.mjs`
+- filePath: `/home/kel/dev/Khinsider-Downloader/scripts/package-linux.mjs`
 - startLine: `1`
 
 **Result:**
@@ -121,13 +121,13 @@ function command(file, args, options = {}) {
 }
 
 function maintainer() {
-  if (process.env.K_DOWNLOADER_MAINTAINER) return process.env.K_DOWNLOADER_MAINTAINER;
+  if (process.env.KHINSIDER_DOWNLOADER_MAINTAINER) return process.env.KHINSIDER_DOWNLOADER_MAINTAINER;
   try {
     const name = command("git", ["config", "user.name"], { encoding: "utf8", stdio: "pipe" }).trim();
     const email = command("git", ["config", "user.email"], { encoding: "utf8", stdio: "pipe" }).trim();
     if (name && email) return `${name} <${email}>`;
   } catch {}
-  throw new Error("Set K_DOWNLOADER_MAINTAINER='Name <email>' or configure Git user.name/user.email for .deb metadata.");
+  throw new Error("Set KHINSIDER_DOWNLOADER_MAINTAINER='Name <email>' or configure Git user.name/user.email for .deb metadata.");
 }
 
 const packageMaintainer = selected.includes("deb") ? maintainer() : undefined;
@@ -150,7 +150,7 @@ Read `electron-builder.config.cjs`
 **Input:**
 
 - endLine: `240`
-- filePath: `/home/kel/dev/K-Downloader/electron-builder.config.cjs`
+- filePath: `/home/kel/dev/Khinsider-Downloader/electron-builder.config.cjs`
 - startLine: `1`
 
 **Result:**
@@ -160,9 +160,9 @@ const { chmod, copyFile, rename } = require("node:fs/promises");
 const { resolve } = require("node:path");
 
 module.exports = {
-  appId: "com.kelmankenberg.kdownloader",
-  productName: "K-Downloader",
-  executableName: "k-downloader",
+  appId: "com.kelmankenberg.khinsiderdownloader",
+  productName: "Khinsider Downloader",
+  executableName: "khinsider-downloader",
   directories: { output: "release", buildResources: "assets" },
   asar: true,
   npmRebuild: false,
@@ -171,14 +171,14 @@ module.exports = {
   linux: {
     syncDesktopName: true,
     target: ["deb", "AppImage"],
-    icon: "assets/k-downloader.png",
+    icon: "assets/khinsider-downloader.png",
     category: "AudioVideo",
     synopsis: "Download public KHInsider soundtrack tracks",
-    desktop: { entry: { Name: "K-Downloader", StartupWMClass: "k-downloader", Terminal: "false" } },
-    artifactName: "K-Downloader-${version}-${arch}.${ext}",
+    desktop: { entry: { Name: "Khinsider Downloader", StartupWMClass: "khinsider-downloader", Terminal: "false" } },
+    artifactName: "Khinsider Downloader-${version}-${arch}.${ext}",
   },
   deb: {
-    packageName: "k-downloader",
+    packageName: "khinsider-downloader",
     compression: "gz",
     recommends: [],
     depends: [
@@ -191,9 +191,9 @@ module.exports = {
   },
   afterPack: async ({ appOutDir, electronPlatformName }) => {
     if (electronPlatformName !== "linux") return;
-    await rename(resolve(appOutDir, "k-downloader"), resolve(appOutDir, "k-downloader-bin"));
-    await copyFile(resolve(__dirname, "scripts/linux-launcher.sh"), resolve(appOutDir, "k-downloader"));
-    await chmod(resolve(appOutDir, "k-downloader"), 0o755);
+    await rename(resolve(appOutDir, "khinsider-downloader"), resolve(appOutDir, "khinsider-downloader-bin"));
+    await copyFile(resolve(__dirname, "scripts/linux-launcher.sh"), resolve(appOutDir, "khinsider-downloader"));
+    await chmod(resolve(appOutDir, "khinsider-downloader"), 0o755);
   },
 };
 ```
@@ -209,7 +209,7 @@ Read `test-packages.mjs`
 **Input:**
 
 - endLine: `300`
-- filePath: `/home/kel/dev/K-Downloader/scripts/test-packages.mjs`
+- filePath: `/home/kel/dev/Khinsider-Downloader/scripts/test-packages.mjs`
 - startLine: `1`
 
 **Result:**
@@ -224,7 +224,7 @@ import { _electron as electron } from "playwright";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const { version } = JSON.parse(await readFile(resolve(root, "package.json"), "utf8"));
-const temporary = await mkdtemp(resolve(tmpdir(), "k-downloader-artifacts-"));
+const temporary = await mkdtemp(resolve(tmpdir(), "khinsider-downloader-artifacts-"));
 const env = { ...process.env, XDG_CURRENT_DESKTOP: "Test" };
 const headlessEnv = { ...env };
 delete headlessEnv.DISPLAY;
@@ -233,7 +233,7 @@ delete headlessEnv.WAYLAND_DISPLAY;
 async function findBinary(directory) {
   for (const entry of await readdir(directory, { withFileTypes: true })) {
     const path = resolve(directory, entry.name);
-    if (entry.isFile() && entry.name === "k-downloader-bin") return path;
+    if (entry.isFile() && entry.name === "khinsider-downloader-bin") return path;
     if (entry.isDirectory()) {
       const found = await findBinary(path);
       if (found) return found;
@@ -243,8 +243,8 @@ async function findBinary(directory) {
 
 try {
   const cases = [
-    { extension: "deb", artifact: `K-Downloader-${version}-amd64.deb` },
-    { extension: "AppImage", artifact: `K-Downloader-${version}-x86_64.AppImage` },
+    { extension: "deb", artifact: `Khinsider Downloader-${version}-amd64.deb` },
+    { extension: "AppImage", artifact: `Khinsider Downloader-${version}-x86_64.AppImage` },
   ];
   for (const [index, item] of cases.entries()) {
     const artifact = resolve(root, "release", item.artifact);
@@ -254,7 +254,7 @@ try {
     const binary = await findBinary(directory);
     if (!binary) throw new Error(`Missing application executable in ${item.artifact}`);
     const appDir = dirname(binary);
-    const cli = spawnSync(resolve(appDir, "k-downloader"), ["--help"], { env: headlessEnv, encoding: "utf8" });
+    const cli = spawnSync(resolve(appDir, "khinsider-downloader"), ["--help"], { env: headlessEnv, encoding: "utf8" });
     if (cli.error || cli.status !== 0 || !cli.stderr.includes("k-downl
 … (output truncated)
 ```
@@ -313,7 +313,7 @@ Read `linux-launcher.sh`
 **Input:**
 
 - endLine: `160`
-- filePath: `/home/kel/dev/K-Downloader/scripts/linux-launcher.sh`
+- filePath: `/home/kel/dev/Khinsider-Downloader/scripts/linux-launcher.sh`
 - startLine: `1`
 
 **Result:**
@@ -322,15 +322,15 @@ Read `linux-launcher.sh`
 #!/bin/sh
 set -eu
 APP_DIR=$(dirname "$(readlink -f "$0")")
-export K_DOWNLOADER_CHROMIUM_PATH="$APP_DIR/resources/chromium/chrome"
+export KHINSIDER_DOWNLOADER_CHROMIUM_PATH="$APP_DIR/resources/chromium/chrome"
 case "${1:-}" in
   inspect|download|--help|help)
     export ELECTRON_RUN_AS_NODE=1
-    exec "$APP_DIR/k-downloader-bin" "$APP_DIR/resources/app.asar/dist/cli.cjs" "$@"
+    exec "$APP_DIR/khinsider-downloader-bin" "$APP_DIR/resources/app.asar/dist/cli.cjs" "$@"
     ;;
   *)
     unset ELECTRON_RUN_AS_NODE
-    exec "$APP_DIR/k-downloader-bin" "$@"
+    exec "$APP_DIR/khinsider-downloader-bin" "$@"
     ;;
 esac
 ```
@@ -346,7 +346,7 @@ Read `main.ts`, lines 1 to 100
 **Input:**
 
 - endLine: `100`
-- filePath: `/home/kel/dev/K-Downloader/src/electron/main.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/src/electron/main.ts`
 - startLine: `1`
 
 **Result:**
@@ -376,8 +376,8 @@ let instanceNoticeOpen = false;
 let cinnamonDark: boolean | undefined;
 let stopThemeMonitor: (() => void) | undefined;
 
-app.setName("K-Downloader");
-if (process.platform === "linux") app.setDesktopName("k-downloader.desktop");
+app.setName("Khinsider Downloader");
+if (process.platform === "linux") app.setDesktopName("khinsider-downloader.desktop");
 const primaryInstance = app.requestSingleInstanceLock();
 if (!primaryInstance) app.quit();
 else app.on("second-instance", () => {
@@ -401,8 +401,8 @@ async function notifyExistingInstance(): Promise<void> {
   try {
     await dialog.showMessageBox(window, {
       type: "info",
-      title: "K-Downloader is already running",
-      message: "K-Downloader is already r
+      title: "Khinsider Downloader is already running",
+      message: "Khinsider Downloader is already r
 … (output truncated)
 ```
 </details></tool-use>
@@ -417,7 +417,7 @@ Read `packaging.test.ts`
 **Input:**
 
 - endLine: `220`
-- filePath: `/home/kel/dev/K-Downloader/tests/packaging.test.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/tests/packaging.test.ts`
 - startLine: `1`
 
 **Result:**
@@ -437,9 +437,9 @@ describe("Linux packaging configuration", () => {
     expect(config.asar).toBe(true);
     expect(config.extraResources).toContainEqual({ from: ".packaging/chromium", to: "chromium" });
     expect(config.linux.target).toEqual(["deb", "AppImage"]);
-    expect(config.linux.icon).toBe("assets/k-downloader.png");
-    expect(config.linux.desktop.entry.StartupWMClass).toBe("k-downloader");
-    expect(manifest.desktopName).toBe("k-downloader.desktop");
+    expect(config.linux.icon).toBe("assets/khinsider-downloader.png");
+    expect(config.linux.desktop.entry.StartupWMClass).toBe("khinsider-downloader");
+    expect(manifest.desktopName).toBe("khinsider-downloader.desktop");
   });
 
   it("provides both package targets and smoke testing commands", () => {
@@ -503,7 +503,7 @@ Read `FpmTarget.js`, lines 305 to 355
 **Input:**
 
 - endLine: `355`
-- filePath: `/home/kel/dev/K-Downloader/node_modules/app-builder-lib/out/targets/FpmTarget.js`
+- filePath: `/home/kel/dev/Khinsider-Downloader/node_modules/app-builder-lib/out/targets/FpmTarget.js`
 - startLine: `305`
 
 **Result:**
@@ -573,7 +573,7 @@ Read `FpmTarget.js`, lines 30 to 90
 **Input:**
 
 - endLine: `90`
-- filePath: `/home/kel/dev/K-Downloader/node_modules/app-builder-lib/out/targets/FpmTarget.js`
+- filePath: `/home/kel/dev/Khinsider-Downloader/node_modules/app-builder-lib/out/targets/FpmTarget.js`
 - startLine: `30`
 
 **Result:**
@@ -646,7 +646,7 @@ Test on a disposable Arch machine and an Omarchy desktop:
 
 A container can check package metadata and dependencies, but cannot establish Hyprland desktop compatibility.
 
-**AUR is optional:** start with a downloadable pacman package. Later, a `k-downloader-bin` AUR recipe can install the published bundle with pinned checksums. No files changed yet.
+**AUR is optional:** start with a downloadable pacman package. Later, a `khinsider-downloader-bin` AUR recipe can install the published bundle with pinned checksums. No files changed yet.
 
 _**Agent (copilot/auto)**_
 
@@ -685,10 +685,10 @@ pwd && rg --files -g '*instructions*' -g 'AGENTS.md' -g '*PKGBUILD*' -g '.gitign
 **Result:**
 
 ```
-kel@kel-EQ-Mint:~/dev/K-Downloader$  pwd && rg --files -g '*instructions*' -g 'A
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  pwd && rg --files -g '*instructions*' -g 'A
 GENTS.md' -g '*PKGBUILD*' -g '.gitignore' -g '*lock*' -g 'scripts/README.md' -g
 'changelog.md'
-/home/kel/dev/K-Downloader
+/home/kel/dev/Khinsider-Downloader
 scripts/README.md
 scripts/package-lock.json
 .gitignore
@@ -707,7 +707,7 @@ Read `FpmTarget.js`, lines 140 to 280
 **Input:**
 
 - endLine: `280`
-- filePath: `/home/kel/dev/K-Downloader/node_modules/app-builder-lib/out/targets/FpmTarget.js`
+- filePath: `/home/kel/dev/Khinsider-Downloader/node_modules/app-builder-lib/out/targets/FpmTarget.js`
 - startLine: `140`
 
 **Result:**
@@ -770,7 +770,7 @@ Read `linuxOptions.d.ts`, lines 65 to 200
 **Input:**
 
 - endLine: `200`
-- filePath: `/home/kel/dev/K-Downloader/node_modules/app-builder-lib/out/options/linuxOptions.d.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/node_modules/app-builder-lib/out/options/linuxOptions.d.ts`
 - startLine: `65`
 
 **Result:**
@@ -830,7 +830,7 @@ Read `README.md`
 **Input:**
 
 - endLine: `200`
-- filePath: `/home/kel/dev/K-Downloader/scripts/README.md`
+- filePath: `/home/kel/dev/Khinsider-Downloader/scripts/README.md`
 - startLine: `1`
 
 **Result:**
@@ -907,7 +907,7 @@ Read `changelog.md`
 **Input:**
 
 - endLine: `75`
-- filePath: `/home/kel/dev/K-Downloader/changelog.md`
+- filePath: `/home/kel/dev/Khinsider-Downloader/changelog.md`
 - startLine: `1`
 
 **Result:**
@@ -995,16 +995,16 @@ Generating patch (65 lines) in `electron-builder.config.cjs`, `package-linux.mjs
 
 ```
 *** Begin Patch
-*** Update File: /home/kel/dev/K-Downloader/electron-builder.config.cjs
+*** Update File: /home/kel/dev/Khinsider-Downloader/electron-builder.config.cjs
 @@
 -    target: ["deb", "AppImage"],
 +    target: ["deb", "AppImage", "pacman"],
 @@
 -  afterPack: async ({ appOutDir, electronPlatformName }) => {
 +  pacman: {
-+    packageName: "k-downloader",
++    packageName: "khinsider-downloader",
 +    compression: "xz",
-+    artifactName: "K-Downloader-${version}-${arch}.pkg.tar.xz",
++    artifactName: "Khinsider Downloader-${version}-${arch}.pkg.tar.xz",
 +    depends: [
 +      "glibc", "gcc-libs", "gtk3", "libnotify", "nss", "nspr", "libxss", "libxtst",
 +      "xdg-utils", "at-spi2-core", "util-linux-libs", "libsecret", "alsa-lib", "mesa",
@@ -1014,15 +1014,15 @@ Generating patch (65 lines) in `electron-builder.config.cjs`, `package-linux.mjs
 +    ],
 +  },
 +  afterPack: async ({ appOutDir, electronPlatformName }) => {
-*** Update File: /home/kel/dev/K-Downloader/scripts/package-linux.mjs
+*** Update File: /home/kel/dev/Khinsider-Downloader/scripts/package-linux.mjs
 @@
 -if (targets.some((target) => !["deb", "AppImage", "dir"].includes(target))) throw new Error("Supported targets: deb, AppImage, dir");
 -const selected = targets.length ? targets : ["deb", "AppImage"];
 +if (targets.some((target) => !["deb", "AppImage", "pacman", "dir"].includes(target))) throw new Error("Supported targets: deb, AppImage, pacman, dir");
 +const selected = targets.length ? targets : ["deb", "AppImage", "pacman"];
 @@
--  throw new Error("Set K_DOWNLOADER_MAINTAINER='Name <email>' or configure Git user.name/user.email for .deb metadata.");
-+  throw new Error("Set K_DOWNLOADER_MAINTAINER='Name <email>' or configure Git user.name/user.email for native package metadata.");
+-  throw new Error("Set KHINSIDER_DOWNLOADER_MAINTAINER='Name <email>' or configure Git user.name/user.email for .deb metadata.");
++  throw new Error("Set KHINSIDER_DOWNLOADER_MAINTAINER='Name <email>' or configure Git user.name/user.email for native package metadata.");
  }
  
 -const packageMaintainer = selected.includes("deb") ? maintainer() : undefined;
@@ -1033,12 +1033,12 @@ Generating patch (65 lines) in `electron-builder.config.cjs`, `package-linux.mjs
 @@
 -for (const artifact of artifacts.filter((path) => path.endsWith(".deb") || path.endsWith(".AppImage"))) {
 +for (const artifact of artifacts.filter((path) => path.endsWith(".deb") || path.endsWith(".AppImage") || path.endsWith(".pkg.tar.xz"))) {
-*** Update File: /home/kel/dev/K-Downloader/package.json
+*** Update File: /home/kel/dev/Khinsider-Downloader/package.json
 @@
      "package:deb": "node scripts/package-linux.mjs deb",
 +    "package:arch": "node scripts/package-linux.mjs pacman",
 +    "package:aur": "node scripts/generate-aur.mjs",
-*** Update File: /home/kel/dev/K-Downloader/tests/packaging.test.ts
+*** Update File: /home/kel/dev/Khinsider-Downloader/tests/packaging.test.ts
 @@
 -    expect(config.linux.target).toEqual(["deb", "AppImage"]);
 +    expect(config.linux.target).toEqual(["deb", "AppImage", "pacman"]);
@@ -1052,9 +1052,9 @@ Generating patch (65 lines) in `electron-builder.config.cjs`, `package-linux.mjs
    });
 +
 +  it("uses explicit Arch dependencies and a pacman archive filename", () => {
-+    expect(config.pacman.packageName).toBe("k-downloader");
++    expect(config.pacman.packageName).toBe("khinsider-downloader");
 +    expect(config.pacman.compression).toBe("xz");
-+    expect(config.pacman.artifactName).toBe("K-Downloader-${version}-${arch}.pkg.tar.xz");
++    expect(config.pacman.artifactName).toBe("Khinsider Downloader-${version}-${arch}.pkg.tar.xz");
 +    expect(config.pacman.depends).toEqual(expect.arrayContaining(["glibc", "gtk3", "nss", "alsa-lib", "mesa"]));
 +    expect(config.pacman.depends).not.toContain("libgtk-3-0");
 +  });
@@ -1066,10 +1066,10 @@ Generating patch (65 lines) in `electron-builder.config.cjs`, `package-linux.mjs
 
 ```
 The following files were successfully edited:
-/home/kel/dev/K-Downloader/electron-builder.config.cjs
-/home/kel/dev/K-Downloader/scripts/package-linux.mjs
-/home/kel/dev/K-Downloader/package.json
-/home/kel/dev/K-Downloader/tests/packaging.test.ts
+/home/kel/dev/Khinsider-Downloader/electron-builder.config.cjs
+/home/kel/dev/Khinsider-Downloader/scripts/package-linux.mjs
+/home/kel/dev/Khinsider-Downloader/package.json
+/home/kel/dev/Khinsider-Downloader/tests/packaging.test.ts
 ```
 </details></tool-use>
 
@@ -1085,9 +1085,9 @@ const { chmod, copyFile, rename } = require("node:fs/promises");
 const { resolve } = require("node:path");
 
 module.exports = {
-  appId: "com.kelmankenberg.kdownloader",
-  productName: "K-Downloader",
-  executableName: "k-downloader",
+  appId: "com.kelmankenberg.khinsiderdownloader",
+  productName: "Khinsider Downloader",
+  executableName: "khinsider-downloader",
   directories: { output: "release", buildResources: "assets" },
   asar: true,
   npmRebuild: false,
@@ -1096,14 +1096,14 @@ module.exports = {
   linux: {
     syncDesktopName: true,
     target: ["deb", "AppImage", "pacman"],
-    icon: "assets/k-downloader.png",
+    icon: "assets/khinsider-downloader.png",
     category: "AudioVideo",
     synopsis: "Download public KHInsider soundtrack tracks",
-    desktop: { entry: { Name: "K-Downloader", StartupWMClass: "k-downloader", Terminal: "false" } },
-    artifactName: "K-Downloader-${version}-${arch}.${ext}",
+    desktop: { entry: { Name: "Khinsider Downloader", StartupWMClass: "khinsider-downloader", Terminal: "false" } },
+    artifactName: "Khinsider Downloader-${version}-${arch}.${ext}",
   },
   deb: {
-    packageName: "k-downloader",
+    packageName: "khinsider-downloader",
     compression: "gz",
     recommends: [],
     depends: [
@@ -1115,9 +1115,9 @@ module.exports = {
     ],
   },
   pacman: {
-    packageName: "k-downloader",
+    packageName: "khinsider-downloader",
     compression: "xz",
-    artifactName: "K-Downloader-${version}-${arch}.pkg.tar.xz",
+    artifactName: "Khinsider Downloader-${version}-${arch}.pkg.tar.xz",
     depends: [
       "glibc", "gcc-libs", "gtk3", "libnotify", "nss", "nspr", "libxss", "libxtst",
       "xdg-utils", "at-spi2-core", "util-linux-libs", "libsecret", "alsa-lib", "mesa",
@@ -1128,9 +1128,9 @@ module.exports = {
   },
   afterPack: async ({ appOutDir, electronPlatformName }) => {
     if (electronPlatformName !== "linux") return;
-    await rename(resolve(appOutDir, "k-downloader"), resolve(appOutDir, "k-downloader-bin"));
-    await copyFile(resolve(__dirname, "scripts/linux-launcher.sh"), resolve(appOutDir, "k-downloader"));
-    await chmod(resolve(appOutDir, "k-downloader"), 0o755);
+    await rename(resolve(appOutDir, "khinsider-downloader"), resolve(appOutDir, "khinsider-downloader-bin"));
+    await copyFile(resolve(__dirname, "scripts/linux-launcher.sh"), resolve(appOutDir, "khinsider-downloader"));
+    await chmod(resolve(appOutDir, "khinsider-downloader"), 0o755);
   },
 };
 ```
@@ -1174,13 +1174,13 @@ function command(file, args, options = {}) {
 }
 
 function maintainer() {
-  if (process.env.K_DOWNLOADER_MAINTAINER) return process.env.K_DOWNLOADER_MAINTAINER;
+  if (process.env.KHINSIDER_DOWNLOADER_MAINTAINER) return process.env.KHINSIDER_DOWNLOADER_MAINTAINER;
   try {
     const name = command("git", ["config", "user.name"], { encoding: "utf8", stdio: "pipe" }).trim();
     const email = command("git", ["config", "user.email"], { encoding: "utf8", stdio: "pipe" }).trim();
     if (name && email) return `${name} <${email}>`;
   } catch {}
-  throw new Error("Set K_DOWNLOADER_MAINTAINER='Name <email>' or configure Git user.name/user.email for native package metadata.");
+  throw new Error("Set KHINSIDER_DOWNLOADER_MAINTAINER='Name <email>' or configure Git user.name/user.email for native package metadata.");
 }
 
 const packageMaintainer = selected.some((target) => ["deb", "pacman"].includes(target)) ? maintainer() : undefined;
@@ -1218,7 +1218,7 @@ for (const artifact of artifacts.filter((path) => path.endsWith(".deb") || path.
   checksums.push(`${hash.digest("hex")}  ${artifact.split("/").at(-1)}`);
 }
 if (checksums.length) {
-  const filename = `K-Downloader-${manifest.version}-SHA256SUMS.txt`;
+  const filename = `Khinsider Downloader-${manifest.version}-SHA256SUMS.txt`;
   await writeFile(resolve(root, "release", filename), `${checksums.join("\n")}\n`);
 }
 console.log("Package output: release/ (nothing was published to GitHub).");
@@ -1242,15 +1242,15 @@ _**Agent (copilot/auto)**_
 
 ```
 {
-  "name": "k-downloader",
+  "name": "khinsider-downloader",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "main": "dist/electron/main.cjs",
-  "desktopName": "k-downloader.desktop",
+  "desktopName": "khinsider-downloader.desktop",
   "description": "Linux desktop downloader for public KHInsider album tracks",
   "author": "kelmankenberg",
-  "homepage": "https://github.com/kelmankenberg/K-Downloader",
+  "homepage": "https://github.com/kelmankenberg/Khinsider-Downloader",
   "license": "UNLICENSED",
   "engines": {
     "node": ">=20"
@@ -1326,9 +1326,9 @@ describe("Linux packaging configuration", () => {
     expect(config.asar).toBe(true);
     expect(config.extraResources).toContainEqual({ from: ".packaging/chromium", to: "chromium" });
     expect(config.linux.target).toEqual(["deb", "AppImage", "pacman"]);
-    expect(config.linux.icon).toBe("assets/k-downloader.png");
-    expect(config.linux.desktop.entry.StartupWMClass).toBe("k-downloader");
-    expect(manifest.desktopName).toBe("k-downloader.desktop");
+    expect(config.linux.icon).toBe("assets/khinsider-downloader.png");
+    expect(config.linux.desktop.entry.StartupWMClass).toBe("khinsider-downloader");
+    expect(manifest.desktopName).toBe("khinsider-downloader.desktop");
   });
 
   it("provides package targets and smoke testing commands", () => {
@@ -1338,9 +1338,9 @@ describe("Linux packaging configuration", () => {
   });
 
   it("uses explicit Arch dependencies and a pacman archive filename", () => {
-    expect(config.pacman.packageName).toBe("k-downloader");
+    expect(config.pacman.packageName).toBe("khinsider-downloader");
     expect(config.pacman.compression).toBe("xz");
-    expect(config.pacman.artifactName).toBe("K-Downloader-${version}-${arch}.pkg.tar.xz");
+    expect(config.pacman.artifactName).toBe("Khinsider Downloader-${version}-${arch}.pkg.tar.xz");
     expect(config.pacman.depends).toEqual(expect.arrayContaining(["glibc", "gtk3", "nss", "alsa-lib", "mesa"]));
     expect(config.pacman.depends).not.toContain("libgtk-3-0");
   });
@@ -1415,7 +1415,7 @@ README.md
 120:npm run test:packages
 123:The first command creates `.deb`, AppImage, and SHA-256 checksum files under
 125:`npm run package:deb` or `npm run package:appimage`; `npm run package:dir` creates
-127:The packaged `k-downloader` launcher supports `inspect`, `download`, and `--help`.
+127:The packaged `khinsider-downloader` launcher supports `inspect`, `download`, and `--help`.
 132:versions. Packaging does not automatically publish a GitHub release.
 ```
 </details></tool-use>
@@ -1430,7 +1430,7 @@ Read `FpmTarget.js`, lines 105 to 145
 **Input:**
 
 - endLine: `145`
-- filePath: `/home/kel/dev/K-Downloader/node_modules/app-builder-lib/out/targets/FpmTarget.js`
+- filePath: `/home/kel/dev/Khinsider-Downloader/node_modules/app-builder-lib/out/targets/FpmTarget.js`
 - startLine: `105`
 
 **Result:**
@@ -1486,7 +1486,7 @@ Read `after-install.tpl`
 **Input:**
 
 - endLine: `180`
-- filePath: `/home/kel/dev/K-Downloader/node_modules/app-builder-lib/templates/linux/after-install.tpl`
+- filePath: `/home/kel/dev/Khinsider-Downloader/node_modules/app-builder-lib/templates/linux/after-install.tpl`
 - startLine: `1`
 
 **Result:**
@@ -1546,7 +1546,7 @@ Read `after-remove.tpl`
 **Input:**
 
 - endLine: `140`
-- filePath: `/home/kel/dev/K-Downloader/node_modules/app-builder-lib/templates/linux/after-remove.tpl`
+- filePath: `/home/kel/dev/Khinsider-Downloader/node_modules/app-builder-lib/templates/linux/after-remove.tpl`
 - startLine: `1`
 
 **Result:**
@@ -1592,7 +1592,7 @@ Read `.gitignore`
 **Input:**
 
 - endLine: `100`
-- filePath: `/home/kel/dev/K-Downloader/.gitignore`
+- filePath: `/home/kel/dev/Khinsider-Downloader/.gitignore`
 - startLine: `1`
 
 **Result:**
@@ -1623,9 +1623,9 @@ const { chmod, copyFile, rename } = require("node:fs/promises");
 const { resolve } = require("node:path");
 
 module.exports = {
-  appId: "com.kelmankenberg.kdownloader",
-  productName: "K-Downloader",
-  executableName: "k-downloader",
+  appId: "com.kelmankenberg.khinsiderdownloader",
+  productName: "Khinsider Downloader",
+  executableName: "khinsider-downloader",
   directories: { output: "release", buildResources: "assets" },
   asar: true,
   npmRebuild: false,
@@ -1634,14 +1634,14 @@ module.exports = {
   linux: {
     syncDesktopName: true,
     target: ["deb", "AppImage", "pacman"],
-    icon: "assets/k-downloader.png",
+    icon: "assets/khinsider-downloader.png",
     category: "AudioVideo",
     synopsis: "Download public KHInsider soundtrack tracks",
-    desktop: { entry: { Name: "K-Downloader", StartupWMClass: "k-downloader", Terminal: "false" } },
-    artifactName: "K-Downloader-${version}-${arch}.${ext}",
+    desktop: { entry: { Name: "Khinsider Downloader", StartupWMClass: "khinsider-downloader", Terminal: "false" } },
+    artifactName: "Khinsider Downloader-${version}-${arch}.${ext}",
   },
   deb: {
-    packageName: "k-downloader",
+    packageName: "khinsider-downloader",
     compression: "gz",
     recommends: [],
     depends: [
@@ -1653,9 +1653,9 @@ module.exports = {
     ],
   },
   pacman: {
-    packageName: "k-downloader",
+    packageName: "khinsider-downloader",
     compression: "xz",
-    artifactName: "K-Downloader-${version}-x86_64.pkg.tar.xz",
+    artifactName: "Khinsider Downloader-${version}-x86_64.pkg.tar.xz",
     depends: [
       "glibc", "gcc-libs", "gtk3", "libnotify", "nss", "nspr", "libxss", "libxtst",
       "xdg-utils", "at-spi2-core", "util-linux-libs", "libsecret", "alsa-lib", "mesa",
@@ -1666,9 +1666,9 @@ module.exports = {
   },
   afterPack: async ({ appOutDir, electronPlatformName }) => {
     if (electronPlatformName !== "linux") return;
-    await rename(resolve(appOutDir, "k-downloader"), resolve(appOutDir, "k-downloader-bin"));
-    await copyFile(resolve(__dirname, "scripts/linux-launcher.sh"), resolve(appOutDir, "k-downloader"));
-    await chmod(resolve(appOutDir, "k-downloader"), 0o755);
+    await rename(resolve(appOutDir, "khinsider-downloader"), resolve(appOutDir, "khinsider-downloader-bin"));
+    await copyFile(resolve(__dirname, "scripts/linux-launcher.sh"), resolve(appOutDir, "khinsider-downloader"));
+    await chmod(resolve(appOutDir, "khinsider-downloader"), 0o755);
   },
 };
 ```
@@ -1704,20 +1704,20 @@ const config = require(resolve(root, "electron-builder.config.cjs"));
 export function renderAurFiles(version, checksum) {
   if (!/^\d+\.\d+\.\d+$/.test(version)) throw new Error("AUR generation requires a stable numeric release version (for example 0.1.0).");
   if (!/^[a-f0-9]{64}$/.test(checksum)) throw new Error("AUR generation requires a SHA-256 checksum, not SKIP.");
-  const archive = `K-Downloader-${version}-x86_64.pkg.tar.xz`;
-  const source = `https://github.com/kelmankenberg/K-Downloader/releases/download/v${version}/${archive}`;
+  const archive = `Khinsider Downloader-${version}-x86_64.pkg.tar.xz`;
+  const source = `https://github.com/kelmankenberg/Khinsider-Downloader/releases/download/v${version}/${archive}`;
   const dependencies = config.pacman.depends;
-  const pkgbuild = `pkgname=k-downloader-bin
+  const pkgbuild = `pkgname=khinsider-downloader-bin
 pkgver=${version}
 pkgrel=1
 pkgdesc='Linux desktop downloader for public KHInsider album tracks'
 arch=('x86_64')
-url='https://github.com/kelmankenberg/K-Downloader'
+url='https://github.com/kelmankenberg/Khinsider-Downloader'
 license=('LicenseRef-Proprietary')
 depends=(${dependencies.map((dependency) => `'${dependency}'`).join(" ")})
 makedepends=('libarchive')
-provides=("k-downloader=$pkgver")
-conflicts=('k-downloader')
+provides=("khinsider-downloader=$pkgver")
+conflicts=('khinsider-downloader')
 options=('!strip' '!debug')
 source_x86_64=('${source}')
 sha256sums_x86_64=('${checksum}')
@@ -1726,28 +1726,28 @@ noextract=('${archive}')
 package() {
   bsdtar --no-same-owner --exclude='.PKGINFO' --exclude='.BUILDINFO' --exclude='.MTREE' --exclude='.INSTALL' -xf "$srcdir/${archive}" -C "$pkgdir"
   install -dm755 "$pkgdir/usr/bin"
-  ln -s '/opt/K-Downloader/k-downloader' "$pkgdir/usr/bin/k-downloader"
-  chmod 4755 "$pkgdir/opt/K-Downloader/chrome-sandbox"
+  ln -s '/opt/Khinsider Downloader/khinsider-downloader' "$pkgdir/usr/bin/khinsider-downloader"
+  chmod 4755 "$pkgdir/opt/Khinsider Downloader/chrome-sandbox"
 }
 `;
-  const srcinfo = `pkgbase = k-downloader-bin
+  const srcinfo = `pkgbase = khinsider-downloader-bin
 \tpkgdesc = Linux desktop downloader for public KHInsider album tracks
 \tpkgver = ${version}
 \tpkgrel = 1
-\turl = https://github.com/kelmankenberg/K-Downloader
+\turl = https://github.com/kelmankenberg/Khinsider-Downloader
 \tarch = x86_64
 \tlicense = LicenseRef-Proprietary
 \tmakedepends = libarchive
 ${dependencies.map((dependency) => `\tdepends = ${dependency}`).join("\n")}
-\tprovides = k-downloader=${version}
-\tconflicts = k-downloader
+\tprovides = khinsider-downloader=${version}
+\tconflicts = khinsider-downloader
 \toptions = !strip
 \toptions = !debug
 \tnoextract = ${archive}
 \tsource_x86_64 = ${source}
 \tsha256sums_x86_64 = ${checksum}
 
-pkgname = k-downloader-bin
+pkgname = khinsider-downloader-bin
 `;
   return { pkgbuild, srcinfo };
 }
@@ -1765,8 +1765,8 @@ export async function generateAur(artifact, output, version) {
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   const { version, license } = JSON.parse(await readFile(resolve(root, "package.json"), "utf8"));
   if (license !== "UNLICENSED") throw new Error("Update the AUR license metadata to match package.json before generating a recipe.");
-  const output = resolve(root, "release/aur/k-downloader-bin");
-  await generateAur(resolve(root, "release", `K-Downloader-${version}-x86_64.pkg.tar.xz`), output, version);
+  const output = resolve(root, "release/aur/khinsider-downloader-bin");
+  await generateAur(resolve(root, "release", `Khinsider Downloader-${version}-x86_64.pkg.tar.xz`), output, version);
   console.log(`AUR recipe: ${output} (nothing was published). Review distribution permission before submitting to AUR.`);
 }
 ```
@@ -1798,14 +1798,14 @@ import { _electron as electron } from "playwright";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const { version } = JSON.parse(await readFile(resolve(root, "package.json"), "utf8"));
 const cases = [
-  { extension: "deb", artifact: `K-Downloader-${version}-amd64.deb` },
-  { extension: "AppImage", artifact: `K-Downloader-${version}-x86_64.AppImage` },
-  { extension: "pacman", artifact: `K-Downloader-${version}-x86_64.pkg.tar.xz` },
+  { extension: "deb", artifact: `Khinsider Downloader-${version}-amd64.deb` },
+  { extension: "AppImage", artifact: `Khinsider Downloader-${version}-x86_64.AppImage` },
+  { extension: "pacman", artifact: `Khinsider Downloader-${version}-x86_64.pkg.tar.xz` },
 ];
 const targets = process.argv.slice(2);
 if (targets.some((target) => !cases.some((item) => item.extension === target))) throw new Error("Supported test targets: deb, AppImage, pacman");
 const selected = targets.length ? cases.filter((item) => targets.includes(item.extension)) : cases;
-const temporary = await mkdtemp(resolve(tmpdir(), "k-downloader-artifacts-"));
+const temporary = await mkdtemp(resolve(tmpdir(), "khinsider-downloader-artifacts-"));
 const env = { ...process.env, XDG_CURRENT_DESKTOP: "Test" };
 const headlessEnv = { ...env };
 delete headlessEnv.DISPLAY;
@@ -1814,7 +1814,7 @@ delete headlessEnv.WAYLAND_DISPLAY;
 async function findBinary(directory) {
   for (const entry of await readdir(directory, { withFileTypes: true })) {
     const path = resolve(directory, entry.name);
-    if (entry.isFile() && entry.name === "k-downloader-bin") return path;
+    if (entry.isFile() && entry.name === "khinsider-downloader-bin") return path;
     if (entry.isDirectory()) {
       const found = await findBinary(path);
       if (found) return found;
@@ -1830,7 +1830,7 @@ try {
     else if (item.extension === "pacman") {
       execFileSync("bsdtar", ["--no-same-owner", "-xf", artifact, "-C", directory]);
       const metadata = await readFile(resolve(directory, ".PKGINFO"), "utf8");
-      if (!/^pkgname = k-downloader$/m.test(metadata) || !/^arch = x86_64$/m.test(metadata) || !metadata.includes(`pkgver = ${version}-`)) {
+      if (!/^pkgname = khinsider-downloader$/m.test(metadata) || !/^arch = x86_64$/m.test(metadata) || !metadata.includes(`pkgver = ${version}-`)) {
         throw new Error(`Unexpected pacman metadata in ${item.artifact}`);
       }
     }
@@ -1838,8 +1838,8 @@ try {
     const binary = await findBinary(directory);
     if (!binary) throw new Error(`Missing application executable in ${item.artifact}`);
     const appDir = dirname(binary);
-    const cli = spawnSync(resolve(appDir, "k-downloader"), ["--help"], { env: headlessEnv, encoding: "utf8" });
-    if (cli.error || cli.status !== 0 || !cli.stderr.includes("k-downloader inspect")) {
+    const cli = spawnSync(resolve(appDir, "khinsider-downloader"), ["--help"], { env: headlessEnv, encoding: "utf8" });
+    if (cli.error || cli.status !== 0 || !cli.stderr.includes("khinsider-downloader inspect")) {
       throw new Error(`Packaged CLI help failed: ${cli.error?.message ?? cli.stderr}`);
     }
     const app = await electron.launch({ executablePath: binary, args: [`--user-data-dir=${resolve(temporary, `profile-${index}`)}`], env });
@@ -1847,7 +1847,7 @@ try {
     try {
       const page = await app.firstWindow();
       await page.waitForFunction(() => document.documentElement.dataset.mode);
-      state = await app.evaluate(({ app }) => ({ packaged: app.isPackaged, appPath: app.getAppPath(), browserPath: process.env.K_DOWNLOADER_CHROMIUM_PATH }));
+      state = await app.evaluate(({ app }) => ({ packaged: app.isPackaged, appPath: app.getAppPath(), browserPath: process.env.KHINSIDER_DOWNLOADER_CHROMIUM_PATH }));
       if (!state.packaged) throw new Error("Artifact did not start in packaged mode");
       await page.getByRole("button", { name: "More options", exact: true }).click();
       await page.getByRole("menuitem", { name: "Help", exact: true }).click();
@@ -1901,9 +1901,9 @@ describe("Linux packaging configuration", () => {
     expect(config.asar).toBe(true);
     expect(config.extraResources).toContainEqual({ from: ".packaging/chromium", to: "chromium" });
     expect(config.linux.target).toEqual(["deb", "AppImage", "pacman"]);
-    expect(config.linux.icon).toBe("assets/k-downloader.png");
-    expect(config.linux.desktop.entry.StartupWMClass).toBe("k-downloader");
-    expect(manifest.desktopName).toBe("k-downloader.desktop");
+    expect(config.linux.icon).toBe("assets/khinsider-downloader.png");
+    expect(config.linux.desktop.entry.StartupWMClass).toBe("khinsider-downloader");
+    expect(manifest.desktopName).toBe("khinsider-downloader.desktop");
   });
 
   it("provides package targets and smoke testing commands", () => {
@@ -1913,9 +1913,9 @@ describe("Linux packaging configuration", () => {
   });
 
   it("uses explicit Arch dependencies and a pacman archive filename", () => {
-    expect(config.pacman.packageName).toBe("k-downloader");
+    expect(config.pacman.packageName).toBe("khinsider-downloader");
     expect(config.pacman.compression).toBe("xz");
-    expect(config.pacman.artifactName).toBe("K-Downloader-${version}-x86_64.pkg.tar.xz");
+    expect(config.pacman.artifactName).toBe("Khinsider Downloader-${version}-x86_64.pkg.tar.xz");
     expect(config.pacman.depends).toEqual(expect.arrayContaining(["glibc", "gtk3", "nss", "alsa-lib", "mesa"]));
     expect(config.pacman.depends).not.toContain("libgtk-3-0");
   });
@@ -1934,7 +1934,7 @@ describe("AUR binary recipe", () => {
     const { renderAurFiles } = await import("../scripts/generate-aur.mjs");
     const checksum = "a".repeat(64);
     const { pkgbuild, srcinfo } = renderAurFiles("0.1.0", checksum);
-    expect(pkgbuild).toContain("releases/download/v0.1.0/K-Downloader-0.1.0-x86_64.pkg.tar.xz");
+    expect(pkgbuild).toContain("releases/download/v0.1.0/Khinsider Downloader-0.1.0-x86_64.pkg.tar.xz");
     expect(pkgbuild).toContain(`sha256sums_x86_64=('${checksum}')`);
     expect(srcinfo).toContain(`sha256sums_x86_64 = ${checksum}`);
     for (const dependency of config.pacman.depends) {
@@ -1942,8 +1942,8 @@ describe("AUR binary recipe", () => {
       expect(srcinfo).toContain(`depends = ${dependency}\n`);
     }
     expect(pkgbuild).toContain("--exclude='.INSTALL'");
-    expect(pkgbuild).toContain("/usr/bin/k-downloader");
-    expect(pkgbuild).toContain('chmod 4755 "$pkgdir/opt/K-Downloader/chrome-sandbox"');
+    expect(pkgbuild).toContain("/usr/bin/khinsider-downloader");
+    expect(pkgbuild).toContain('chmod 4755 "$pkgdir/opt/Khinsider Downloader/chrome-sandbox"');
     expect(pkgbuild).not.toContain("--no-sandbox");
     execFileSync("bash", ["-n"], { input: pkgbuild });
   });
@@ -1956,7 +1956,7 @@ describe("AUR binary recipe", () => {
 
   it("hashes the artifact and writes both AUR metadata files", async () => {
     const { generateAur } = await import("../scripts/generate-aur.mjs");
-    const directory = await mkdtemp(resolve(tmpdir(), "k-downloader-aur-"));
+    const directory = await mkdtemp(resolve(tmpdir(), "khinsider-downloader-aur-"));
     try {
       const artifact = resolve(directory, "archive.pkg.tar.xz");
       await writeFile(artifact, "offline test artifact");
@@ -1991,7 +1991,7 @@ npx vitest run tests/packaging.test.ts && npm run build
 
 ```
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  1 passed (1)
@@ -2000,7 +2000,7 @@ npx vitest run tests/packaging.test.ts && npm run build
    Duration  248ms (tests 40%, transform 29%, import 22%, worker 8%)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 ```
 </details></tool-use>
@@ -2027,7 +2027,7 @@ npm run package:arch
 
 ```
 
-> k-downloader@0.1.0 package:arch
+> khinsider-downloader@0.1.0 package:arch
 > node scripts/package-linux.mjs pacman
 
 Built Electron main/preload and local renderer into dist/.
@@ -2042,10 +2042,10 @@ build for ubuntu24.04-x64.
 nux-unpacked
   • using custom unpacked Electron distribution  electronDist=node_modules/elect
 ron/dist
-  • copying unpacked Electron  source=/home/kel/dev/K-Downloader/node_modules/el
-ectron/dist destination=/home/kel/dev/K-Downloader/release/linux-unpacked
-  • searching for node modules  pm=npm searchDir=/home/kel/dev/K-Downloader
-  • building        target=pacman arch=x64 file=release/K-Downloader-0.1.0-x86_6
+  • copying unpacked Electron  source=/home/kel/dev/Khinsider-Downloader/node_modules/el
+ectron/dist destination=/home/kel/dev/Khinsider-Downloader/release/linux-unpacked
+  • searching for node modules  pm=npm searchDir=/home/kel/dev/Khinsider-Downloader
+  • building        target=pacman arch=x64 file=release/Khinsider Downloader-0.1.0-x86_6
 4.pkg.tar.xz
   • adding autoupdate files for: pacman  resourceDir=release/linux-unpacked/reso
 urces
@@ -2111,13 +2111,13 @@ if (selected.includes("pacman")) {
 }
 
 function maintainer() {
-  if (process.env.K_DOWNLOADER_MAINTAINER) return process.env.K_DOWNLOADER_MAINTAINER;
+  if (process.env.KHINSIDER_DOWNLOADER_MAINTAINER) return process.env.KHINSIDER_DOWNLOADER_MAINTAINER;
   try {
     const name = command("git", ["config", "user.name"], { encoding: "utf8", stdio: "pipe" }).trim();
     const email = command("git", ["config", "user.email"], { encoding: "utf8", stdio: "pipe" }).trim();
     if (name && email) return `${name} <${email}>`;
   } catch {}
-  throw new Error("Set K_DOWNLOADER_MAINTAINER='Name <email>' or configure Git user.name/user.email for native package metadata.");
+  throw new Error("Set KHINSIDER_DOWNLOADER_MAINTAINER='Name <email>' or configure Git user.name/user.email for native package metadata.");
 }
 
 const packageMaintainer = selected.some((target) => ["deb", "pacman"].includes(target)) ? maintainer() : undefined;
@@ -2155,7 +2155,7 @@ for (const artifact of artifacts.filter((path) => path.endsWith(".deb") || path.
   checksums.push(`${hash.digest("hex")}  ${artifact.split("/").at(-1)}`);
 }
 if (checksums.length) {
-  const filename = `K-Downloader-${manifest.version}-SHA256SUMS.txt`;
+  const filename = `Khinsider Downloader-${manifest.version}-SHA256SUMS.txt`;
   await writeFile(resolve(root, "release", filename), `${checksums.join("\n")}\n`);
 }
 console.log("Package output: release/ (nothing was published to GitHub).");
@@ -2197,9 +2197,9 @@ describe("Linux packaging configuration", () => {
     expect(config.asar).toBe(true);
     expect(config.extraResources).toContainEqual({ from: ".packaging/chromium", to: "chromium" });
     expect(config.linux.target).toEqual(["deb", "AppImage", "pacman"]);
-    expect(config.linux.icon).toBe("assets/k-downloader.png");
-    expect(config.linux.desktop.entry.StartupWMClass).toBe("k-downloader");
-    expect(manifest.desktopName).toBe("k-downloader.desktop");
+    expect(config.linux.icon).toBe("assets/khinsider-downloader.png");
+    expect(config.linux.desktop.entry.StartupWMClass).toBe("khinsider-downloader");
+    expect(manifest.desktopName).toBe("khinsider-downloader.desktop");
   });
 
   it("provides package targets and smoke testing commands", () => {
@@ -2209,9 +2209,9 @@ describe("Linux packaging configuration", () => {
   });
 
   it("uses explicit Arch dependencies and a pacman archive filename", () => {
-    expect(config.pacman.packageName).toBe("k-downloader");
+    expect(config.pacman.packageName).toBe("khinsider-downloader");
     expect(config.pacman.compression).toBe("xz");
-    expect(config.pacman.artifactName).toBe("K-Downloader-${version}-x86_64.pkg.tar.xz");
+    expect(config.pacman.artifactName).toBe("Khinsider Downloader-${version}-x86_64.pkg.tar.xz");
     expect(config.pacman.depends).toEqual(expect.arrayContaining(["glibc", "gtk3", "nss", "alsa-lib", "mesa"]));
     expect(config.pacman.depends).not.toContain("libgtk-3-0");
   });
@@ -2238,7 +2238,7 @@ describe("AUR binary recipe", () => {
     const { renderAurFiles } = await import("../scripts/generate-aur.mjs");
     const checksum = "a".repeat(64);
     const { pkgbuild, srcinfo } = renderAurFiles("0.1.0", checksum);
-    expect(pkgbuild).toContain("releases/download/v0.1.0/K-Downloader-0.1.0-x86_64.pkg.tar.xz");
+    expect(pkgbuild).toContain("releases/download/v0.1.0/Khinsider Downloader-0.1.0-x86_64.pkg.tar.xz");
     expect(pkgbuild).toContain(`sha256sums_x86_64=('${checksum}')`);
     expect(srcinfo).toContain(`sha256sums_x86_64 = ${checksum}`);
     for (const dependency of config.pacman.depends) {
@@ -2246,8 +2246,8 @@ describe("AUR binary recipe", () => {
       expect(srcinfo).toContain(`depends = ${dependency}\n`);
     }
     expect(pkgbuild).toContain("--exclude='.INSTALL'");
-    expect(pkgbuild).toContain("/usr/bin/k-downloader");
-    expect(pkgbuild).toContain('chmod 4755 "$pkgdir/opt/K-Downloader/chrome-sandbox"');
+    expect(pkgbuild).toContain("/usr/bin/khinsider-downloader");
+    expect(pkgbuild).toContain('chmod 4755 "$pkgdir/opt/Khinsider Downloader/chrome-sandbox"');
     expect(pkgbuild).not.toContain("--no-sandbox");
     execFileSync("bash", ["-n"], { input: pkgbuild });
   });
@@ -2260,7 +2260,7 @@ describe("AUR binary recipe", () => {
 
   it("hashes the artifact and writes both AUR metadata files", async () => {
     const { generateAur } = await import("../scripts/generate-aur.mjs");
-    const directory = await mkdtemp(resolve(tmpdir(), "k-downloader-aur-"));
+    const directory = await mkdtemp(resolve(tmpdir(), "khinsider-downloader-aur-"));
     try {
       const artifact = resolve(directory, "archive.pkg.tar.xz");
       await writeFile(artifact, "offline test artifact");
@@ -2354,8 +2354,8 @@ Checked `generate-aur.mjs`, `packaging.test.ts`, no problems found
 
 ```
 [
-  "/home/kel/dev/K-Downloader/scripts/generate-aur.mjs",
-  "/home/kel/dev/K-Downloader/tests/packaging.test.ts"
+  "/home/kel/dev/Khinsider-Downloader/scripts/generate-aur.mjs",
+  "/home/kel/dev/Khinsider-Downloader/tests/packaging.test.ts"
 ]
 ```
 
@@ -2363,10 +2363,10 @@ Checked `generate-aur.mjs`, `packaging.test.ts`, no problems found
 **Result:**
 
 ```
-<errors path="/home/kel/dev/K-Downloader/scripts/generate-aur.mjs">
+<errors path="/home/kel/dev/Khinsider-Downloader/scripts/generate-aur.mjs">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/tests/packaging.test.ts">
+<errors path="/home/kel/dev/Khinsider-Downloader/tests/packaging.test.ts">
 No errors found
 </errors>
 ```
@@ -2401,7 +2401,7 @@ Read `README.md`, lines 110 to 150
 **Input:**
 
 - endLine: `150`
-- filePath: `/home/kel/dev/K-Downloader/README.md`
+- filePath: `/home/kel/dev/Khinsider-Downloader/README.md`
 - startLine: `110`
 
 **Result:**
@@ -2424,7 +2424,7 @@ The first command creates `.deb`, AppImage, and SHA-256 checksum files under
 `release/`, with Electron and Chromium included. To build separately, use
 `npm run package:deb` or `npm run package:appimage`; `npm run package:dir` creates
 an unpacked application. Recipients do not need npm or a separate Node runtime.
-The packaged `k-downloader` launcher supports `inspect`, `download`, and `--help`.
+The packaged `khinsider-downloader` launcher supports `inspect`, `download`, and `--help`.
 
 See [docs/BUILD_AND_RELEASE.md](docs/BUILD_AND_RELEASE.md) for maintainer metadata,
 build prerequisites, installation/testing caveats, and GitHub release commands.
@@ -2485,12 +2485,12 @@ _**Agent (copilot/auto)**_
 <tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
 <summary>Tool use: **run_in_terminal**</summary>
 
-Running ` cd /home/kel/dev/K-Downloader && export PATH="$PWD/.packaging/tools/usr/bin:...`
+Running ` cd /home/kel/dev/Khinsider-Downloader && export PATH="$PWD/.packaging/tools/usr/bin:...`
 
 Build and smoke-test the native Arch package, then generate checksum-pinned AUR metadata.
 
 ```bash
-cd /home/kel/dev/K-Downloader && export PATH="$PWD/.packaging/tools/usr/bin:$PATH" && npm run package:arch && npm run test:packages -- pacman && npm run package:aur
+cd /home/kel/dev/Khinsider-Downloader && export PATH="$PWD/.packaging/tools/usr/bin:$PATH" && npm run package:arch && npm run test:packages -- pacman && npm run package:aur
 ```
 
 **Result:**
@@ -2503,9 +2503,9 @@ This note is not a signal to end the turn — pick one of the actions below and 
   2. Only if the output clearly ends with a real non-secret input prompt (Continue? (y/n), Enter selection, etc. — a normal shell prompt like `$` or `#` does NOT count), call the vscode_askQuestions tool to ask the user, then send each answer using send_to_terminal with id="18bb7936-c3e6-4a96-9474-05f853c00550" (which returns the next few lines of output). Repeat one prompt at a time. NEVER route secret prompts (passwords, passphrases, tokens, API keys, etc.) through vscode_askQuestions — answers to that tool are sent through the model. For secret prompts, tell the user to type the value directly into the terminal and stop.
   3. Producing no output for an extended period does not mean the command failed — call get_terminal_output with id="18bb7936-c3e6-4a96-9474-05f853c00550" to continue polling. Only call kill_terminal if the command is genuinely hung and you need to retry with a different approach.
 
-kel@kel-EQ-Mint:~/dev/K-Downloader/.packaging/tools$  cd /home/kel/dev/K-Downloader && export PATH="$PWD/.packaging/tools/usr/bin:$PATH" && npm run package:arch && npm run test:packages -- pacman && npm run package:aur
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader/.packaging/tools$  cd /home/kel/dev/Khinsider-Downloader && export PATH="$PWD/.packaging/tools/usr/bin:$PATH" && npm run package:arch && npm run test:packages -- pacman && npm run package:aur
 
-> k-downloader@0.1.0 package:arch
+> khinsider-downloader@0.1.0 package:arch
 > node scripts/package-linux.mjs pacman
 
 Built Electron main/preload and local renderer into dist/.
@@ -2611,7 +2611,7 @@ npm audit
   from [package.json](../package.json). Rebuild after changing either file.
 - Help content is embedded from [HELP.md](HELP.md). Its level-two headings
   become expandable sections in the Help drawer. Rebuild after editing it.
-- The build copies [assets/k-downloader.png](../assets/k-downloader.png) into
+- The build copies [assets/khinsider-downloader.png](../assets/khinsider-downloader.png) into
   `dist/assets/`; Electron uses it as the window/taskbar icon. Regenerate the
   source icon with `node scripts/generate-icon.mjs` if the brand mark changes.
 - `npm audit` reports dependency advisories. Review and resolve release-blocking
@@ -2652,10 +2652,10 @@ electron-builder. Browser and builder tools may be downloaded on the first run.
 For version 0.1.0, outputs are:
 
 ```text
-release/K-Downloader-0.1.0-amd64.deb
-release/K-Downloader-0.1.0-x86_64.AppImage
-release/K-Downloader-0.1.0-x86_64.pkg.tar.xz
-release/K-Downloader-0.1.0-SHA256SUMS.txt
+release/Khinsider Downloader-0.1.0-amd64.deb
+release/Khinsider Downloader-0.1.0-x86_64.AppImage
+release/Khinsider Downloader-0.1.0-x86_64.pkg.tar.xz
+release/Khinsider Downloader-0.1.0-SHA256SUMS.txt
 release/linux-unpacked/
 ```
 
@@ -2670,7 +2670,7 @@ and user.email by default. These become public package metadata; review them
 before distributing. Override them explicitly with a real maintainer identity:
 
 ```sh
-K_DOWNLOADER_MAINTAINER='Your Name <your-real-email@example.org>' npm run package:linux
+KHINSIDER_DOWNLOADER_MAINTAINER='Your Name <your-real-email@example.org>' npm run package:linux
 ```
 
 Replace the example with your chosen identity. The manifest currently declares
@@ -2683,7 +2683,7 @@ or change existing copyright ownership for you.
 ```sh
 npm run test:packages
 cd release
-sha256sum -c K-Downloader-0.1.0-SHA256SUMS.txt
+sha256sum -c Khinsider Downloader-0.1.0-SHA256SUMS.txt
 ```
 
 Adjust the checksum filename for the release version. Run from the repository
@@ -2712,10 +2712,10 @@ desktop. These commands require system privileges; automated smoke tests only
 extract the archive and never run them:
 
 ```sh
-sudo pacman -U release/K-Downloader-0.1.0-x86_64.pkg.tar.xz
-k-downloader --help
-k-downloader
-sudo pacman -Rns k-downloader
+sudo pacman -U release/Khinsider Downloader-0.1.0-x86_64.pkg.tar.xz
+khinsider-downloader --help
+khinsider-downloader
+sudo pacman -Rns khinsider-downloader
 ```
 
 Verify upgrades, dependency resolution, desktop entry/icon, CLI help without a
@@ -2738,11 +2738,11 @@ npm run package:aur
 ```
 
 The last command writes `PKGBUILD` and `.SRCINFO` into
-`release/aur/k-downloader-bin/`. It hashes the local archive and pins the matching
+`release/aur/khinsider-downloader-bin/`. It hashes the local archive and pins the matching
 versioned GitHub release URL; it never uses `SKIP`. Stable numeric versions are
 required. Both recipes share the explicit Arch dependency list from
 [electron-builder.config.cjs](../electron-builder.config.cjs). The AUR package
-provides `k-downloader` and conflicts with the direct native package. It repackages
+provides `khinsider-downloader` and conflicts with the direct native package. It repackages
 the payload, excludes native package metadata/install hooks, owns its CLI symlink,
 and sets Electron's sandbox-helper permissions. Arch's desktop/icon cache hooks
 handle the installed desktop assets. No npm or browser download runs at install time.
@@ -2764,12 +2764,12 @@ makepkg
 makepkg --printsrcinfo > .SRCINFO
 ```
 
-Install/test/remove the resulting `k-downloader-bin` package on a disposable
-target; do not use `k-downloader` as its removal package name. Review `namcap`
+Install/test/remove the resulting `khinsider-downloader-bin` package on a disposable
+target; do not use `khinsider-downloader` as its removal package name. Review `namcap`
 results for package metadata and runtime dependencies. Compare the generated
 `.SRCINFO` with `makepkg --printsrcinfo`, and use the latter for submission.
 
-AUR submission is a separate manual step: check whether `k-downloader-bin` is
+AUR submission is a separate manual step: check whether `khinsider-downloader-bin` is
 available, follow AUR submission rules, and copy the reviewed `PKGBUILD` and
 `.SRCINFO` into its separate AUR Git repository. Do not commit installer archives
 to AUR. For later releases, update the version/source/hash together; increment
@@ -2780,23 +2780,23 @@ scripts, and no package availability is claimed until submission succeeds.
 For AppImage, mark it executable and launch it:
 
 ```sh
-chmod +x release/K-Downloader-0.1.0-x86_64.AppImage
-./release/K-Downloader-0.1.0-x86_64.AppImage
+chmod +x release/Khinsider Downloader-0.1.0-x86_64.AppImage
+./release/Khinsider Downloader-0.1.0-x86_64.AppImage
 ```
 
 If the host cannot mount AppImages via FUSE, extraction mode is available:
 
 ```sh
-./release/K-Downloader-0.1.0-x86_64.AppImage --appimage-extract-and-run
+./release/Khinsider Downloader-0.1.0-x86_64.AppImage --appimage-extract-and-run
 ```
 
-The installed Debian and Arch launcher is `k-downloader`. The packaged CLI uses Electron's
+The installed Debian and Arch launcher is `khinsider-downloader`. The packaged CLI uses Electron's
 embedded Node runtime without opening the GUI:
 
 ```sh
-k-downloader --help
-k-downloader inspect 'https://downloads.khinsider.com/game-soundtracks/album/ALBUM'
-k-downloader download 'https://downloads.khinsider.com/game-soundtracks/album/ALBUM'
+khinsider-downloader --help
+khinsider-downloader inspect 'https://downloads.khinsider.com/game-soundtracks/album/ALBUM'
+khinsider-downloader download 'https://downloads.khinsider.com/game-soundtracks/album/ALBUM'
 ```
 
 An AppImage accepts the same CLI arguments. Help needs no display; inspection
@@ -2855,7 +2855,7 @@ exists (`git tag --list "$TAG"`); inspect it rather than moving or overwriting i
 Create and push the annotated tag:
 
 ```sh
-git tag -a "$TAG" -m "K-Downloader $VERSION"
+git tag -a "$TAG" -m "Khinsider Downloader $VERSION"
 git push origin "$TAG"
 ```
 
@@ -2864,10 +2864,10 @@ notes source:
 
 ```sh
 gh release create "$TAG" \
-  --repo kelmankenberg/K-Downloader \
+  --repo kelmankenberg/Khinsider Downloader \
   --verify-tag \
   --draft \
-  --title "K-Downloader $VERSION" \
+  --title "Khinsider Downloader $VERSION" \
   --notes-file changelog.md
 ```
 
@@ -2878,11 +2878,11 @@ the validated artifacts and checksum file to the draft before publication:
 
 ```sh
 gh release upload "$TAG" \
-  "release/K-Downloader-$VERSION-amd64.deb" \
-  "release/K-Downloader-$VERSION-x86_64.AppImage" \
-  "release/K-Downloader-$VERSION-x86_64.pkg.tar.xz" \
-  "release/K-Downloader-$VERSION-SHA256SUMS.txt" \
-  --repo kelmankenberg/K-Downloader
+  "release/Khinsider Downloader-$VERSION-amd64.deb" \
+  "release/Khinsider Downloader-$VERSION-x86_64.AppImage" \
+  "release/Khinsider Downloader-$VERSION-x86_64.pkg.tar.xz" \
+  "release/Khinsider Downloader-$VERSION-SHA256SUMS.txt" \
+  --repo kelmankenberg/Khinsider Downloader
 ```
 
 ## Publish and Verify
@@ -2890,9 +2890,9 @@ gh release upload "$TAG" \
 Open the draft, review its tag, notes, and release type, then publish:
 
 ```sh
-gh release view "$TAG" --repo kelmankenberg/K-Downloader --web
-gh release edit "$TAG" --repo kelmankenberg/K-Downloader --draft=false
-gh release view "$TAG" --repo kelmankenberg/K-Downloader
+gh release view "$TAG" --repo kelmankenberg/Khinsider Downloader --web
+gh release edit "$TAG" --repo kelmankenberg/Khinsider Downloader --draft=false
+gh release view "$TAG" --repo kelmankenberg/Khinsider Downloader
 ```
 
 On the GitHub website, the equivalent is **Releases > Draft a new release**:
@@ -2930,9 +2930,9 @@ _**Agent (copilot/auto)**_
 @@ lines 1-162 @@
 
 ````
-# K-Downloader
+# Khinsider Downloader
 
-K-Downloader is a Linux-first KHInsider album downloader. The current slice
+Khinsider Downloader is a Linux-first KHInsider album downloader. The current slice
 implements public single-album discovery, format preview and policy, sequential
 streaming, manifest-backed reruns, an Electron GUI, and Linux x64 AppImage/.deb
 packaging. Multi-album queues, artwork, and optional account features are not
@@ -2961,7 +2961,7 @@ access methods.
 
 The CLI previews the selected formats before starting any transfer. The default
 format policy prefers lossless, falling back to MP3 when needed. The default
-destination is `~/Music/K-Downloader`.
+destination is `~/Music/Khinsider Downloader`.
 
 ```sh
 npm run download -- 'https://downloads.khinsider.com/game-soundtracks/album/unreal-ii-the-awakening-original-soundtrack'
@@ -3000,7 +3000,7 @@ Paste one album URL and choose **Inspect album**. A Chromium inspection window
 starts minimized while an in-progress indicator appears in the app; click that
 indicator to show or hide the browser. Review the per-track format preview, choose the
 destination and format policy, then select **Download**. The default destination
-is `~/Music/K-Downloader`. **Cancel active download** stops the current transfer
+is `~/Music/Khinsider Downloader`. **Cancel active download** stops the current transfer
 and prevents later tracks from starting.
 
 While inspection is running, the same button becomes **Cancel inspection**.
@@ -3056,10 +3056,10 @@ The first command creates `.deb`, AppImage, Arch `.pkg.tar.xz`, and SHA-256 chec
 `release/`, with Electron and Chromium included. To build separately, use
 `npm run package:deb`, `npm run package:appimage`, or `npm run package:arch`; `npm run package:dir` creates
 an unpacked application. Recipients do not need npm or a separate Node runtime.
-The packaged `k-downloader` launcher supports `inspect`, `download`, and `--help`.
+The packaged `khinsider-downloader` launcher supports `inspect`, `download`, and `--help`.
 Arch builds/tests require `bsdtar`. Select smoke-test targets with
 `npm run test:packages -- pacman` (or `deb AppImage`). After building Arch,
-`npm run package:aur` generates a checksum-pinned `k-downloader-bin` AUR recipe
+`npm run package:aur` generates a checksum-pinned `khinsider-downloader-bin` AUR recipe
 under `release/aur/`; it does not submit to AUR. Arch/Omarchy desktop validation
 and distribution-license review are required before claiming support publicly.
 
@@ -3190,9 +3190,9 @@ Checked `BUILD_AND_RELEASE.md`, `README.md`, `changelog.md`, no problems found
 
 ```
 [
-  "/home/kel/dev/K-Downloader/docs/BUILD_AND_RELEASE.md",
-  "/home/kel/dev/K-Downloader/README.md",
-  "/home/kel/dev/K-Downloader/changelog.md"
+  "/home/kel/dev/Khinsider-Downloader/docs/BUILD_AND_RELEASE.md",
+  "/home/kel/dev/Khinsider-Downloader/README.md",
+  "/home/kel/dev/Khinsider-Downloader/changelog.md"
 ]
 ```
 
@@ -3200,13 +3200,13 @@ Checked `BUILD_AND_RELEASE.md`, `README.md`, `changelog.md`, no problems found
 **Result:**
 
 ```
-<errors path="/home/kel/dev/K-Downloader/docs/BUILD_AND_RELEASE.md">
+<errors path="/home/kel/dev/Khinsider-Downloader/docs/BUILD_AND_RELEASE.md">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/README.md">
+<errors path="/home/kel/dev/Khinsider-Downloader/README.md">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/changelog.md">
+<errors path="/home/kel/dev/Khinsider-Downloader/changelog.md">
 No errors found
 </errors>
 ```
@@ -3232,16 +3232,16 @@ Checked terminal output
 
 ```
 Output of terminal 18bb7936-c3e6-4a96-9474-05f853c00550:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  pwd && rg --files -g '*instructions*' -g 'AGENTS.md' -g '*PKGBUILD*' -g '.gitignore' -g '*lock*' -g 'scripts/README.md' -g 'changelog.md'
-/home/kel/dev/K-Downloader
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  pwd && rg --files -g '*instructions*' -g 'AGENTS.md' -g '*PKGBUILD*' -g '.gitignore' -g '*lock*' -g 'scripts/README.md' -g 'changelog.md'
+/home/kel/dev/Khinsider-Downloader
 scripts/README.md
 scripts/package-lock.json
 .gitignore
 package-lock.json
 changelog.md
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npx vitest run tests/packaging.test.ts
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npx vitest run tests/packaging.test.ts
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  1 passed (1)
@@ -3249,9 +3249,9 @@ kel@kel-EQ-Mint:~/dev/K-Downloader$  npx vitest run tests/packaging.test.ts
    Start at  14:56:52
    Duration  198ms (transform 54%, import 25%, worker 11%, tests 10%)
 
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npx vitest run tests/packaging.test.ts && npm run build
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npx vitest run tests/packaging.test.ts && npm run build
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  1 passed (1)
@@ -3260,12 +3260,12 @@ kel@kel-EQ-Mint:~/dev/K-Downloader$  npx vitest run tests/packaging.test.ts && n
    Duration  248ms (tests 40%, transform 29%, import 22%, worker 8%)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run package:arch
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run package:arch
 
-> k-downloader@0.1.0 package:arch
+> khinsider-downloader@0.1.0 package:arch
 > node scripts/package-linux.mjs pacman
 
 Built Electron main/preload and local renderer into dist/.
@@ -3276,8 +3276,8 @@ BEWARE: your OS is not officially supported by Playwright; downloading fallback 
   • skipped dependencies rebuild  reason=npmRebuild is set to false
   • packaging       platform=linux arch=x64 electron=44.7.0 appOutDir=release/linux-unpacked
   • using custom unpacked Electron distribution  electronDist=node_modules/electron/dist
-  • copying unpacked Electron  source=/home/kel/dev/K-Downloader/node_modules/electron/dist destination=/home/kel/dev/K-Downloader/release/linux-unpacked
-  • searching for node modules  pm=npm searchDir=/home/kel/dev/K-Downloader
+  • copying unpacked Electron  source=/home/kel/dev/Khinsider-Downloader/node_modules/electron/dist destination=/home/kel/dev/Khinsider-Downloader/release/linux-unpacked
+  • searching for node modules  pm=npm searchDir=/home/kel/dev/Khinsider-Downloader
   • building        target=pacman arch=x64 file=r
 … (output truncated)
 ```
@@ -3313,7 +3313,7 @@ Ran `git_status`
 
 **Input:**
 
-- directory: `/home/kel/dev/K-Downloader`
+- directory: `/home/kel/dev/Khinsider-Downloader`
 
 **Result:**
 
@@ -3348,14 +3348,14 @@ const require = createRequire(import.meta.url);
 const config = require(resolve(root, "electron-builder.config.cjs"));
 const { version } = JSON.parse(await readFile(resolve(root, "package.json"), "utf8"));
 const cases = [
-  { extension: "deb", artifact: `K-Downloader-${version}-amd64.deb` },
-  { extension: "AppImage", artifact: `K-Downloader-${version}-x86_64.AppImage` },
-  { extension: "pacman", artifact: `K-Downloader-${version}-x86_64.pkg.tar.xz` },
+  { extension: "deb", artifact: `Khinsider Downloader-${version}-amd64.deb` },
+  { extension: "AppImage", artifact: `Khinsider Downloader-${version}-x86_64.AppImage` },
+  { extension: "pacman", artifact: `Khinsider Downloader-${version}-x86_64.pkg.tar.xz` },
 ];
 const targets = process.argv.slice(2);
 if (targets.some((target) => !cases.some((item) => item.extension === target))) throw new Error("Supported test targets: deb, AppImage, pacman");
 const selected = targets.length ? cases.filter((item) => targets.includes(item.extension)) : cases;
-const temporary = await mkdtemp(resolve(tmpdir(), "k-downloader-artifacts-"));
+const temporary = await mkdtemp(resolve(tmpdir(), "khinsider-downloader-artifacts-"));
 const env = { ...process.env, XDG_CURRENT_DESKTOP: "Test" };
 const headlessEnv = { ...env };
 delete headlessEnv.DISPLAY;
@@ -3364,7 +3364,7 @@ delete headlessEnv.WAYLAND_DISPLAY;
 async function findBinary(directory) {
   for (const entry of await readdir(directory, { withFileTypes: true })) {
     const path = resolve(directory, entry.name);
-    if (entry.isFile() && entry.name === "k-downloader-bin") return path;
+    if (entry.isFile() && entry.name === "khinsider-downloader-bin") return path;
     if (entry.isDirectory()) {
       const found = await findBinary(path);
       if (found) return found;
@@ -3380,7 +3380,7 @@ try {
     else if (item.extension === "pacman") {
       execFileSync("bsdtar", ["--no-same-owner", "-xf", artifact, "-C", directory]);
       const metadata = await readFile(resolve(directory, ".PKGINFO"), "utf8");
-      if (!/^pkgname = k-downloader$/m.test(metadata) || !/^arch = x86_64$/m.test(metadata) || !metadata.includes(`pkgver = ${version}-`)) {
+      if (!/^pkgname = khinsider-downloader$/m.test(metadata) || !/^arch = x86_64$/m.test(metadata) || !metadata.includes(`pkgver = ${version}-`)) {
         throw new Error(`Unexpected pacman metadata in ${item.artifact}`);
       }
       const dependencies = metadata.split("\n").filter((line) => line.startsWith("depend = ")).map((line) => line.slice("depend = ".length));
@@ -3392,8 +3392,8 @@ try {
     const binary = await findBinary(directory);
     if (!binary) throw new Error(`Missing application executable in ${item.artifact}`);
     const appDir = dirname(binary);
-    const cli = spawnSync(resolve(appDir, "k-downloader"), ["--help"], { env: headlessEnv, encoding: "utf8" });
-    if (cli.error || cli.status !== 0 || !cli.stderr.includes("k-downloader inspect")) {
+    const cli = spawnSync(resolve(appDir, "khinsider-downloader"), ["--help"], { env: headlessEnv, encoding: "utf8" });
+    if (cli.error || cli.status !== 0 || !cli.stderr.includes("khinsider-downloader inspect")) {
       throw new Error(`Packaged CLI help failed: ${cli.error?.message ?? cli.stderr}`);
     }
     const app = await electron.launch({ executablePath: binary, args: [`--user-data-dir=${resolve(temporary, `profile-${index}`)}`], env });
@@ -3401,7 +3401,7 @@ try {
     try {
       const page = await app.firstWindow();
       await page.waitForFunction(() => document.documentElement.dataset.mode);
-      state = await app.evaluate(({ app }) => ({ packaged: app.isPackaged, appPath: app.getAppPath(), browserPath: process.env.K_DOWNLOADER_CHROMIUM_PATH }));
+      state = await app.evaluate(({ app }) => ({ packaged: app.isPackaged, appPath: app.getAppPath(), browserPath: process.env.KHINSIDER_DOWNLOADER_CHROMIUM_PATH }));
       if (!state.packaged) throw new Error("Artifact did not start in packaged mode");
       await page.getByRole("button", { name: "More options", exact: true }).click();
       await page.getByRole("menuitem", { name: "Help", exact: true }).click();
@@ -3437,12 +3437,12 @@ Checked `test-packages.mjs`, no problems found
 
 **Input:**
 
-- filePaths: `["/home/kel/dev/K-Downloader/scripts/test-packages.mjs"]`
+- filePaths: `["/home/kel/dev/Khinsider-Downloader/scripts/test-packages.mjs"]`
 
 **Result:**
 
 ```
-<errors path="/home/kel/dev/K-Downloader/scripts/test-packages.mjs">
+<errors path="/home/kel/dev/Khinsider-Downloader/scripts/test-packages.mjs">
 No errors found
 </errors>
 ```
@@ -3556,9 +3556,9 @@ const { chmod, copyFile, rename } = require("node:fs/promises");
 const { resolve } = require("node:path");
 
 module.exports = {
-  appId: "com.kelmankenberg.kdownloader",
-  productName: "K-Downloader",
-  executableName: "k-downloader",
+  appId: "com.kelmankenberg.khinsiderdownloader",
+  productName: "Khinsider Downloader",
+  executableName: "khinsider-downloader",
   directories: { output: "release", buildResources: "assets" },
   asar: true,
   npmRebuild: false,
@@ -3567,14 +3567,14 @@ module.exports = {
   linux: {
     syncDesktopName: true,
     target: ["deb", "AppImage", "pacman"],
-    icon: "assets/k-downloader.png",
+    icon: "assets/khinsider-downloader.png",
     category: "AudioVideo",
     synopsis: "Download public KHInsider soundtrack tracks",
-    desktop: { entry: { Name: "K-Downloader", StartupWMClass: "k-downloader", Terminal: "false" } },
-    artifactName: "K-Downloader-${version}-${arch}.${ext}",
+    desktop: { entry: { Name: "Khinsider Downloader", StartupWMClass: "khinsider-downloader", Terminal: "false" } },
+    artifactName: "Khinsider Downloader-${version}-${arch}.${ext}",
   },
   deb: {
-    packageName: "k-downloader",
+    packageName: "khinsider-downloader",
     compression: "gz",
     recommends: [],
     depends: [
@@ -3586,9 +3586,9 @@ module.exports = {
     ],
   },
   pacman: {
-    packageName: "k-downloader",
+    packageName: "khinsider-downloader",
     compression: "xz",
-    artifactName: "K-Downloader-${version}-${arch}.pkg.tar.xz",
+    artifactName: "Khinsider Downloader-${version}-${arch}.pkg.tar.xz",
     depends: [
       "glibc", "gcc-libs", "gtk3", "libnotify", "nss", "nspr", "libxss", "libxtst",
       "xdg-utils", "at-spi2-core", "util-linux-libs", "libsecret", "alsa-lib", "mesa",
@@ -3599,9 +3599,9 @@ module.exports = {
   },
   afterPack: async ({ appOutDir, electronPlatformName }) => {
     if (electronPlatformName !== "linux") return;
-    await rename(resolve(appOutDir, "k-downloader"), resolve(appOutDir, "k-downloader-bin"));
-    await copyFile(resolve(__dirname, "scripts/linux-launcher.sh"), resolve(appOutDir, "k-downloader"));
-    await chmod(resolve(appOutDir, "k-downloader"), 0o755);
+    await rename(resolve(appOutDir, "khinsider-downloader"), resolve(appOutDir, "khinsider-downloader-bin"));
+    await copyFile(resolve(__dirname, "scripts/linux-launcher.sh"), resolve(appOutDir, "khinsider-downloader"));
+    await chmod(resolve(appOutDir, "khinsider-downloader"), 0o755);
   },
 };
 ```
@@ -3645,13 +3645,13 @@ function command(file, args, options = {}) {
 }
 
 function maintainer() {
-  if (process.env.K_DOWNLOADER_MAINTAINER) return process.env.K_DOWNLOADER_MAINTAINER;
+  if (process.env.KHINSIDER_DOWNLOADER_MAINTAINER) return process.env.KHINSIDER_DOWNLOADER_MAINTAINER;
   try {
     const name = command("git", ["config", "user.name"], { encoding: "utf8", stdio: "pipe" }).trim();
     const email = command("git", ["config", "user.email"], { encoding: "utf8", stdio: "pipe" }).trim();
     if (name && email) return `${name} <${email}>`;
   } catch {}
-  throw new Error("Set K_DOWNLOADER_MAINTAINER='Name <email>' or configure Git user.name/user.email for native package metadata.");
+  throw new Error("Set KHINSIDER_DOWNLOADER_MAINTAINER='Name <email>' or configure Git user.name/user.email for native package metadata.");
 }
 
 const packageMaintainer = selected.some((target) => ["deb", "pacman"].includes(target)) ? maintainer() : undefined;
@@ -3689,7 +3689,7 @@ for (const artifact of artifacts.filter((path) => path.endsWith(".deb") || path.
   checksums.push(`${hash.digest("hex")}  ${artifact.split("/").at(-1)}`);
 }
 if (checksums.length) {
-  const filename = `K-Downloader-${manifest.version}-SHA256SUMS.txt`;
+  const filename = `Khinsider Downloader-${manifest.version}-SHA256SUMS.txt`;
   await writeFile(resolve(root, "release", filename), `${checksums.join("\n")}\n`);
 }
 console.log("Package output: release/ (nothing was published to GitHub).");
@@ -3713,15 +3713,15 @@ _**Agent (copilot/auto)**_
 
 ```
 {
-  "name": "k-downloader",
+  "name": "khinsider-downloader",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "main": "dist/electron/main.cjs",
-  "desktopName": "k-downloader.desktop",
+  "desktopName": "khinsider-downloader.desktop",
   "description": "Linux desktop downloader for public KHInsider album tracks",
   "author": "kelmankenberg",
-  "homepage": "https://github.com/kelmankenberg/K-Downloader",
+  "homepage": "https://github.com/kelmankenberg/Khinsider-Downloader",
   "license": "UNLICENSED",
   "engines": {
     "node": ">=20"
@@ -3797,9 +3797,9 @@ describe("Linux packaging configuration", () => {
     expect(config.asar).toBe(true);
     expect(config.extraResources).toContainEqual({ from: ".packaging/chromium", to: "chromium" });
     expect(config.linux.target).toEqual(["deb", "AppImage", "pacman"]);
-    expect(config.linux.icon).toBe("assets/k-downloader.png");
-    expect(config.linux.desktop.entry.StartupWMClass).toBe("k-downloader");
-    expect(manifest.desktopName).toBe("k-downloader.desktop");
+    expect(config.linux.icon).toBe("assets/khinsider-downloader.png");
+    expect(config.linux.desktop.entry.StartupWMClass).toBe("khinsider-downloader");
+    expect(manifest.desktopName).toBe("khinsider-downloader.desktop");
   });
 
   it("provides package targets and smoke testing commands", () => {
@@ -3809,9 +3809,9 @@ describe("Linux packaging configuration", () => {
   });
 
   it("uses explicit Arch dependencies and a pacman archive filename", () => {
-    expect(config.pacman.packageName).toBe("k-downloader");
+    expect(config.pacman.packageName).toBe("khinsider-downloader");
     expect(config.pacman.compression).toBe("xz");
-    expect(config.pacman.artifactName).toBe("K-Downloader-${version}-${arch}.pkg.tar.xz");
+    expect(config.pacman.artifactName).toBe("Khinsider Downloader-${version}-${arch}.pkg.tar.xz");
     expect(config.pacman.depends).toEqual(expect.arrayContaining(["glibc", "gtk3", "nss", "alsa-lib", "mesa"]));
     expect(config.pacman.depends).not.toContain("libgtk-3-0");
   });
@@ -3845,9 +3845,9 @@ const { chmod, copyFile, rename } = require("node:fs/promises");
 const { resolve } = require("node:path");
 
 module.exports = {
-  appId: "com.kelmankenberg.kdownloader",
-  productName: "K-Downloader",
-  executableName: "k-downloader",
+  appId: "com.kelmankenberg.khinsiderdownloader",
+  productName: "Khinsider Downloader",
+  executableName: "khinsider-downloader",
   directories: { output: "release", buildResources: "assets" },
   asar: true,
   npmRebuild: false,
@@ -3856,14 +3856,14 @@ module.exports = {
   linux: {
     syncDesktopName: true,
     target: ["deb", "AppImage", "pacman"],
-    icon: "assets/k-downloader.png",
+    icon: "assets/khinsider-downloader.png",
     category: "AudioVideo",
     synopsis: "Download public KHInsider soundtrack tracks",
-    desktop: { entry: { Name: "K-Downloader", StartupWMClass: "k-downloader", Terminal: "false" } },
-    artifactName: "K-Downloader-${version}-${arch}.${ext}",
+    desktop: { entry: { Name: "Khinsider Downloader", StartupWMClass: "khinsider-downloader", Terminal: "false" } },
+    artifactName: "Khinsider Downloader-${version}-${arch}.${ext}",
   },
   deb: {
-    packageName: "k-downloader",
+    packageName: "khinsider-downloader",
     compression: "gz",
     recommends: [],
     depends: [
@@ -3875,9 +3875,9 @@ module.exports = {
     ],
   },
   pacman: {
-    packageName: "k-downloader",
+    packageName: "khinsider-downloader",
     compression: "xz",
-    artifactName: "K-Downloader-${version}-x86_64.pkg.tar.xz",
+    artifactName: "Khinsider Downloader-${version}-x86_64.pkg.tar.xz",
     depends: [
       "glibc", "gcc-libs", "gtk3", "libnotify", "nss", "nspr", "libxss", "libxtst",
       "xdg-utils", "at-spi2-core", "util-linux-libs", "libsecret", "alsa-lib", "mesa",
@@ -3888,9 +3888,9 @@ module.exports = {
   },
   afterPack: async ({ appOutDir, electronPlatformName }) => {
     if (electronPlatformName !== "linux") return;
-    await rename(resolve(appOutDir, "k-downloader"), resolve(appOutDir, "k-downloader-bin"));
-    await copyFile(resolve(__dirname, "scripts/linux-launcher.sh"), resolve(appOutDir, "k-downloader"));
-    await chmod(resolve(appOutDir, "k-downloader"), 0o755);
+    await rename(resolve(appOutDir, "khinsider-downloader"), resolve(appOutDir, "khinsider-downloader-bin"));
+    await copyFile(resolve(__dirname, "scripts/linux-launcher.sh"), resolve(appOutDir, "khinsider-downloader"));
+    await chmod(resolve(appOutDir, "khinsider-downloader"), 0o755);
   },
 };
 ```
@@ -3926,20 +3926,20 @@ const config = require(resolve(root, "electron-builder.config.cjs"));
 export function renderAurFiles(version, checksum) {
   if (!/^\d+\.\d+\.\d+$/.test(version)) throw new Error("AUR generation requires a stable numeric release version (for example 0.1.0).");
   if (!/^[a-f0-9]{64}$/.test(checksum)) throw new Error("AUR generation requires a SHA-256 checksum, not SKIP.");
-  const archive = `K-Downloader-${version}-x86_64.pkg.tar.xz`;
-  const source = `https://github.com/kelmankenberg/K-Downloader/releases/download/v${version}/${archive}`;
+  const archive = `Khinsider Downloader-${version}-x86_64.pkg.tar.xz`;
+  const source = `https://github.com/kelmankenberg/Khinsider-Downloader/releases/download/v${version}/${archive}`;
   const dependencies = config.pacman.depends;
-  const pkgbuild = `pkgname=k-downloader-bin
+  const pkgbuild = `pkgname=khinsider-downloader-bin
 pkgver=${version}
 pkgrel=1
 pkgdesc='Linux desktop downloader for public KHInsider album tracks'
 arch=('x86_64')
-url='https://github.com/kelmankenberg/K-Downloader'
+url='https://github.com/kelmankenberg/Khinsider-Downloader'
 license=('LicenseRef-Proprietary')
 depends=(${dependencies.map((dependency) => `'${dependency}'`).join(" ")})
 makedepends=('libarchive')
-provides=("k-downloader=$pkgver")
-conflicts=('k-downloader')
+provides=("khinsider-downloader=$pkgver")
+conflicts=('khinsider-downloader')
 options=('!strip' '!debug')
 source_x86_64=('${source}')
 sha256sums_x86_64=('${checksum}')
@@ -3948,28 +3948,28 @@ noextract=('${archive}')
 package() {
   bsdtar --no-same-owner --exclude='.PKGINFO' --exclude='.BUILDINFO' --exclude='.MTREE' --exclude='.INSTALL' -xf "$srcdir/${archive}" -C "$pkgdir"
   install -dm755 "$pkgdir/usr/bin"
-  ln -s '/opt/K-Downloader/k-downloader' "$pkgdir/usr/bin/k-downloader"
-  chmod 4755 "$pkgdir/opt/K-Downloader/chrome-sandbox"
+  ln -s '/opt/Khinsider Downloader/khinsider-downloader' "$pkgdir/usr/bin/khinsider-downloader"
+  chmod 4755 "$pkgdir/opt/Khinsider Downloader/chrome-sandbox"
 }
 `;
-  const srcinfo = `pkgbase = k-downloader-bin
+  const srcinfo = `pkgbase = khinsider-downloader-bin
 \tpkgdesc = Linux desktop downloader for public KHInsider album tracks
 \tpkgver = ${version}
 \tpkgrel = 1
-\turl = https://github.com/kelmankenberg/K-Downloader
+\turl = https://github.com/kelmankenberg/Khinsider-Downloader
 \tarch = x86_64
 \tlicense = LicenseRef-Proprietary
 \tmakedepends = libarchive
 ${dependencies.map((dependency) => `\tdepends = ${dependency}`).join("\n")}
-\tprovides = k-downloader=${version}
-\tconflicts = k-downloader
+\tprovides = khinsider-downloader=${version}
+\tconflicts = khinsider-downloader
 \toptions = !strip
 \toptions = !debug
 \tnoextract = ${archive}
 \tsource_x86_64 = ${source}
 \tsha256sums_x86_64 = ${checksum}
 
-pkgname = k-downloader-bin
+pkgname = khinsider-downloader-bin
 `;
   return { pkgbuild, srcinfo };
 }
@@ -3987,8 +3987,8 @@ export async function generateAur(artifact, output, version) {
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
   const { version, license } = JSON.parse(await readFile(resolve(root, "package.json"), "utf8"));
   if (license !== "UNLICENSED") throw new Error("Update the AUR license metadata to match package.json before generating a recipe.");
-  const output = resolve(root, "release/aur/k-downloader-bin");
-  await generateAur(resolve(root, "release", `K-Downloader-${version}-x86_64.pkg.tar.xz`), output, version);
+  const output = resolve(root, "release/aur/khinsider-downloader-bin");
+  await generateAur(resolve(root, "release", `Khinsider Downloader-${version}-x86_64.pkg.tar.xz`), output, version);
   console.log(`AUR recipe: ${output} (nothing was published). Review distribution permission before submitting to AUR.`);
 }
 ```
@@ -4020,14 +4020,14 @@ import { _electron as electron } from "playwright";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const { version } = JSON.parse(await readFile(resolve(root, "package.json"), "utf8"));
 const cases = [
-  { extension: "deb", artifact: `K-Downloader-${version}-amd64.deb` },
-  { extension: "AppImage", artifact: `K-Downloader-${version}-x86_64.AppImage` },
-  { extension: "pacman", artifact: `K-Downloader-${version}-x86_64.pkg.tar.xz` },
+  { extension: "deb", artifact: `Khinsider Downloader-${version}-amd64.deb` },
+  { extension: "AppImage", artifact: `Khinsider Downloader-${version}-x86_64.AppImage` },
+  { extension: "pacman", artifact: `Khinsider Downloader-${version}-x86_64.pkg.tar.xz` },
 ];
 const targets = process.argv.slice(2);
 if (targets.some((target) => !cases.some((item) => item.extension === target))) throw new Error("Supported test targets: deb, AppImage, pacman");
 const selected = targets.length ? cases.filter((item) => targets.includes(item.extension)) : cases;
-const temporary = await mkdtemp(resolve(tmpdir(), "k-downloader-artifacts-"));
+const temporary = await mkdtemp(resolve(tmpdir(), "khinsider-downloader-artifacts-"));
 const env = { ...process.env, XDG_CURRENT_DESKTOP: "Test" };
 const headlessEnv = { ...env };
 delete headlessEnv.DISPLAY;
@@ -4036,7 +4036,7 @@ delete headlessEnv.WAYLAND_DISPLAY;
 async function findBinary(directory) {
   for (const entry of await readdir(directory, { withFileTypes: true })) {
     const path = resolve(directory, entry.name);
-    if (entry.isFile() && entry.name === "k-downloader-bin") return path;
+    if (entry.isFile() && entry.name === "khinsider-downloader-bin") return path;
     if (entry.isDirectory()) {
       const found = await findBinary(path);
       if (found) return found;
@@ -4052,7 +4052,7 @@ try {
     else if (item.extension === "pacman") {
       execFileSync("bsdtar", ["--no-same-owner", "-xf", artifact, "-C", directory]);
       const metadata = await readFile(resolve(directory, ".PKGINFO"), "utf8");
-      if (!/^pkgname = k-downloader$/m.test(metadata) || !/^arch = x86_64$/m.test(metadata) || !metadata.includes(`pkgver = ${version}-`)) {
+      if (!/^pkgname = khinsider-downloader$/m.test(metadata) || !/^arch = x86_64$/m.test(metadata) || !metadata.includes(`pkgver = ${version}-`)) {
         throw new Error(`Unexpected pacman metadata in ${item.artifact}`);
       }
     }
@@ -4060,8 +4060,8 @@ try {
     const binary = await findBinary(directory);
     if (!binary) throw new Error(`Missing application executable in ${item.artifact}`);
     const appDir = dirname(binary);
-    const cli = spawnSync(resolve(appDir, "k-downloader"), ["--help"], { env: headlessEnv, encoding: "utf8" });
-    if (cli.error || cli.status !== 0 || !cli.stderr.includes("k-downloader inspect")) {
+    const cli = spawnSync(resolve(appDir, "khinsider-downloader"), ["--help"], { env: headlessEnv, encoding: "utf8" });
+    if (cli.error || cli.status !== 0 || !cli.stderr.includes("khinsider-downloader inspect")) {
       throw new Error(`Packaged CLI help failed: ${cli.error?.message ?? cli.stderr}`);
     }
     const app = await electron.launch({ executablePath: binary, args: [`--user-data-dir=${resolve(temporary, `profile-${index}`)}`], env });
@@ -4069,7 +4069,7 @@ try {
     try {
       const page = await app.firstWindow();
       await page.waitForFunction(() => document.documentElement.dataset.mode);
-      state = await app.evaluate(({ app }) => ({ packaged: app.isPackaged, appPath: app.getAppPath(), browserPath: process.env.K_DOWNLOADER_CHROMIUM_PATH }));
+      state = await app.evaluate(({ app }) => ({ packaged: app.isPackaged, appPath: app.getAppPath(), browserPath: process.env.KHINSIDER_DOWNLOADER_CHROMIUM_PATH }));
       if (!state.packaged) throw new Error("Artifact did not start in packaged mode");
       await page.getByRole("button", { name: "More options", exact: true }).click();
       await page.getByRole("menuitem", { name: "Help", exact: true }).click();
@@ -4123,9 +4123,9 @@ describe("Linux packaging configuration", () => {
     expect(config.asar).toBe(true);
     expect(config.extraResources).toContainEqual({ from: ".packaging/chromium", to: "chromium" });
     expect(config.linux.target).toEqual(["deb", "AppImage", "pacman"]);
-    expect(config.linux.icon).toBe("assets/k-downloader.png");
-    expect(config.linux.desktop.entry.StartupWMClass).toBe("k-downloader");
-    expect(manifest.desktopName).toBe("k-downloader.desktop");
+    expect(config.linux.icon).toBe("assets/khinsider-downloader.png");
+    expect(config.linux.desktop.entry.StartupWMClass).toBe("khinsider-downloader");
+    expect(manifest.desktopName).toBe("khinsider-downloader.desktop");
   });
 
   it("provides package targets and smoke testing commands", () => {
@@ -4135,9 +4135,9 @@ describe("Linux packaging configuration", () => {
   });
 
   it("uses explicit Arch dependencies and a pacman archive filename", () => {
-    expect(config.pacman.packageName).toBe("k-downloader");
+    expect(config.pacman.packageName).toBe("khinsider-downloader");
     expect(config.pacman.compression).toBe("xz");
-    expect(config.pacman.artifactName).toBe("K-Downloader-${version}-x86_64.pkg.tar.xz");
+    expect(config.pacman.artifactName).toBe("Khinsider Downloader-${version}-x86_64.pkg.tar.xz");
     expect(config.pacman.depends).toEqual(expect.arrayContaining(["glibc", "gtk3", "nss", "alsa-lib", "mesa"]));
     expect(config.pacman.depends).not.toContain("libgtk-3-0");
   });
@@ -4156,7 +4156,7 @@ describe("AUR binary recipe", () => {
     const { renderAurFiles } = await import("../scripts/generate-aur.mjs");
     const checksum = "a".repeat(64);
     const { pkgbuild, srcinfo } = renderAurFiles("0.1.0", checksum);
-    expect(pkgbuild).toContain("releases/download/v0.1.0/K-Downloader-0.1.0-x86_64.pkg.tar.xz");
+    expect(pkgbuild).toContain("releases/download/v0.1.0/Khinsider Downloader-0.1.0-x86_64.pkg.tar.xz");
     expect(pkgbuild).toContain(`sha256sums_x86_64=('${checksum}')`);
     expect(srcinfo).toContain(`sha256sums_x86_64 = ${checksum}`);
     for (const dependency of config.pacman.depends) {
@@ -4164,8 +4164,8 @@ describe("AUR binary recipe", () => {
       expect(srcinfo).toContain(`depends = ${dependency}\n`);
     }
     expect(pkgbuild).toContain("--exclude='.INSTALL'");
-    expect(pkgbuild).toContain("/usr/bin/k-downloader");
-    expect(pkgbuild).toContain('chmod 4755 "$pkgdir/opt/K-Downloader/chrome-sandbox"');
+    expect(pkgbuild).toContain("/usr/bin/khinsider-downloader");
+    expect(pkgbuild).toContain('chmod 4755 "$pkgdir/opt/Khinsider Downloader/chrome-sandbox"');
     expect(pkgbuild).not.toContain("--no-sandbox");
     execFileSync("bash", ["-n"], { input: pkgbuild });
   });
@@ -4178,7 +4178,7 @@ describe("AUR binary recipe", () => {
 
   it("hashes the artifact and writes both AUR metadata files", async () => {
     const { generateAur } = await import("../scripts/generate-aur.mjs");
-    const directory = await mkdtemp(resolve(tmpdir(), "k-downloader-aur-"));
+    const directory = await mkdtemp(resolve(tmpdir(), "khinsider-downloader-aur-"));
     try {
       const artifact = resolve(directory, "archive.pkg.tar.xz");
       await writeFile(artifact, "offline test artifact");
@@ -4240,13 +4240,13 @@ if (selected.includes("pacman")) {
 }
 
 function maintainer() {
-  if (process.env.K_DOWNLOADER_MAINTAINER) return process.env.K_DOWNLOADER_MAINTAINER;
+  if (process.env.KHINSIDER_DOWNLOADER_MAINTAINER) return process.env.KHINSIDER_DOWNLOADER_MAINTAINER;
   try {
     const name = command("git", ["config", "user.name"], { encoding: "utf8", stdio: "pipe" }).trim();
     const email = command("git", ["config", "user.email"], { encoding: "utf8", stdio: "pipe" }).trim();
     if (name && email) return `${name} <${email}>`;
   } catch {}
-  throw new Error("Set K_DOWNLOADER_MAINTAINER='Name <email>' or configure Git user.name/user.email for native package metadata.");
+  throw new Error("Set KHINSIDER_DOWNLOADER_MAINTAINER='Name <email>' or configure Git user.name/user.email for native package metadata.");
 }
 
 const packageMaintainer = selected.some((target) => ["deb", "pacman"].includes(target)) ? maintainer() : undefined;
@@ -4284,7 +4284,7 @@ for (const artifact of artifacts.filter((path) => path.endsWith(".deb") || path.
   checksums.push(`${hash.digest("hex")}  ${artifact.split("/").at(-1)}`);
 }
 if (checksums.length) {
-  const filename = `K-Downloader-${manifest.version}-SHA256SUMS.txt`;
+  const filename = `Khinsider Downloader-${manifest.version}-SHA256SUMS.txt`;
   await writeFile(resolve(root, "release", filename), `${checksums.join("\n")}\n`);
 }
 console.log("Package output: release/ (nothing was published to GitHub).");
@@ -4326,9 +4326,9 @@ describe("Linux packaging configuration", () => {
     expect(config.asar).toBe(true);
     expect(config.extraResources).toContainEqual({ from: ".packaging/chromium", to: "chromium" });
     expect(config.linux.target).toEqual(["deb", "AppImage", "pacman"]);
-    expect(config.linux.icon).toBe("assets/k-downloader.png");
-    expect(config.linux.desktop.entry.StartupWMClass).toBe("k-downloader");
-    expect(manifest.desktopName).toBe("k-downloader.desktop");
+    expect(config.linux.icon).toBe("assets/khinsider-downloader.png");
+    expect(config.linux.desktop.entry.StartupWMClass).toBe("khinsider-downloader");
+    expect(manifest.desktopName).toBe("khinsider-downloader.desktop");
   });
 
   it("provides package targets and smoke testing commands", () => {
@@ -4338,9 +4338,9 @@ describe("Linux packaging configuration", () => {
   });
 
   it("uses explicit Arch dependencies and a pacman archive filename", () => {
-    expect(config.pacman.packageName).toBe("k-downloader");
+    expect(config.pacman.packageName).toBe("khinsider-downloader");
     expect(config.pacman.compression).toBe("xz");
-    expect(config.pacman.artifactName).toBe("K-Downloader-${version}-x86_64.pkg.tar.xz");
+    expect(config.pacman.artifactName).toBe("Khinsider Downloader-${version}-x86_64.pkg.tar.xz");
     expect(config.pacman.depends).toEqual(expect.arrayContaining(["glibc", "gtk3", "nss", "alsa-lib", "mesa"]));
     expect(config.pacman.depends).not.toContain("libgtk-3-0");
   });
@@ -4367,7 +4367,7 @@ describe("AUR binary recipe", () => {
     const { renderAurFiles } = await import("../scripts/generate-aur.mjs");
     const checksum = "a".repeat(64);
     const { pkgbuild, srcinfo } = renderAurFiles("0.1.0", checksum);
-    expect(pkgbuild).toContain("releases/download/v0.1.0/K-Downloader-0.1.0-x86_64.pkg.tar.xz");
+    expect(pkgbuild).toContain("releases/download/v0.1.0/Khinsider Downloader-0.1.0-x86_64.pkg.tar.xz");
     expect(pkgbuild).toContain(`sha256sums_x86_64=('${checksum}')`);
     expect(srcinfo).toContain(`sha256sums_x86_64 = ${checksum}`);
     for (const dependency of config.pacman.depends) {
@@ -4375,8 +4375,8 @@ describe("AUR binary recipe", () => {
       expect(srcinfo).toContain(`depends = ${dependency}\n`);
     }
     expect(pkgbuild).toContain("--exclude='.INSTALL'");
-    expect(pkgbuild).toContain("/usr/bin/k-downloader");
-    expect(pkgbuild).toContain('chmod 4755 "$pkgdir/opt/K-Downloader/chrome-sandbox"');
+    expect(pkgbuild).toContain("/usr/bin/khinsider-downloader");
+    expect(pkgbuild).toContain('chmod 4755 "$pkgdir/opt/Khinsider Downloader/chrome-sandbox"');
     expect(pkgbuild).not.toContain("--no-sandbox");
     execFileSync("bash", ["-n"], { input: pkgbuild });
   });
@@ -4389,7 +4389,7 @@ describe("AUR binary recipe", () => {
 
   it("hashes the artifact and writes both AUR metadata files", async () => {
     const { generateAur } = await import("../scripts/generate-aur.mjs");
-    const directory = await mkdtemp(resolve(tmpdir(), "k-downloader-aur-"));
+    const directory = await mkdtemp(resolve(tmpdir(), "khinsider-downloader-aur-"));
     try {
       const artifact = resolve(directory, "archive.pkg.tar.xz");
       await writeFile(artifact, "offline test artifact");
@@ -4506,7 +4506,7 @@ npm audit
   from [package.json](../package.json). Rebuild after changing either file.
 - Help content is embedded from [HELP.md](HELP.md). Its level-two headings
   become expandable sections in the Help drawer. Rebuild after editing it.
-- The build copies [assets/k-downloader.png](../assets/k-downloader.png) into
+- The build copies [assets/khinsider-downloader.png](../assets/khinsider-downloader.png) into
   `dist/assets/`; Electron uses it as the window/taskbar icon. Regenerate the
   source icon with `node scripts/generate-icon.mjs` if the brand mark changes.
 - `npm audit` reports dependency advisories. Review and resolve release-blocking
@@ -4547,10 +4547,10 @@ electron-builder. Browser and builder tools may be downloaded on the first run.
 For version 0.1.0, outputs are:
 
 ```text
-release/K-Downloader-0.1.0-amd64.deb
-release/K-Downloader-0.1.0-x86_64.AppImage
-release/K-Downloader-0.1.0-x86_64.pkg.tar.xz
-release/K-Downloader-0.1.0-SHA256SUMS.txt
+release/Khinsider Downloader-0.1.0-amd64.deb
+release/Khinsider Downloader-0.1.0-x86_64.AppImage
+release/Khinsider Downloader-0.1.0-x86_64.pkg.tar.xz
+release/Khinsider Downloader-0.1.0-SHA256SUMS.txt
 release/linux-unpacked/
 ```
 
@@ -4565,7 +4565,7 @@ and user.email by default. These become public package metadata; review them
 before distributing. Override them explicitly with a real maintainer identity:
 
 ```sh
-K_DOWNLOADER_MAINTAINER='Your Name <your-real-email@example.org>' npm run package:linux
+KHINSIDER_DOWNLOADER_MAINTAINER='Your Name <your-real-email@example.org>' npm run package:linux
 ```
 
 Replace the example with your chosen identity. The manifest currently declares
@@ -4578,7 +4578,7 @@ or change existing copyright ownership for you.
 ```sh
 npm run test:packages
 cd release
-sha256sum -c K-Downloader-0.1.0-SHA256SUMS.txt
+sha256sum -c Khinsider Downloader-0.1.0-SHA256SUMS.txt
 ```
 
 Adjust the checksum filename for the release version. Run from the repository
@@ -4607,10 +4607,10 @@ desktop. These commands require system privileges; automated smoke tests only
 extract the archive and never run them:
 
 ```sh
-sudo pacman -U release/K-Downloader-0.1.0-x86_64.pkg.tar.xz
-k-downloader --help
-k-downloader
-sudo pacman -Rns k-downloader
+sudo pacman -U release/Khinsider Downloader-0.1.0-x86_64.pkg.tar.xz
+khinsider-downloader --help
+khinsider-downloader
+sudo pacman -Rns khinsider-downloader
 ```
 
 Verify upgrades, dependency resolution, desktop entry/icon, CLI help without a
@@ -4633,11 +4633,11 @@ npm run package:aur
 ```
 
 The last command writes `PKGBUILD` and `.SRCINFO` into
-`release/aur/k-downloader-bin/`. It hashes the local archive and pins the matching
+`release/aur/khinsider-downloader-bin/`. It hashes the local archive and pins the matching
 versioned GitHub release URL; it never uses `SKIP`. Stable numeric versions are
 required. Both recipes share the explicit Arch dependency list from
 [electron-builder.config.cjs](../electron-builder.config.cjs). The AUR package
-provides `k-downloader` and conflicts with the direct native package. It repackages
+provides `khinsider-downloader` and conflicts with the direct native package. It repackages
 the payload, excludes native package metadata/install hooks, owns its CLI symlink,
 and sets Electron's sandbox-helper permissions. Arch's desktop/icon cache hooks
 handle the installed desktop assets. No npm or browser download runs at install time.
@@ -4659,12 +4659,12 @@ makepkg
 makepkg --printsrcinfo > .SRCINFO
 ```
 
-Install/test/remove the resulting `k-downloader-bin` package on a disposable
-target; do not use `k-downloader` as its removal package name. Review `namcap`
+Install/test/remove the resulting `khinsider-downloader-bin` package on a disposable
+target; do not use `khinsider-downloader` as its removal package name. Review `namcap`
 results for package metadata and runtime dependencies. Compare the generated
 `.SRCINFO` with `makepkg --printsrcinfo`, and use the latter for submission.
 
-AUR submission is a separate manual step: check whether `k-downloader-bin` is
+AUR submission is a separate manual step: check whether `khinsider-downloader-bin` is
 available, follow AUR submission rules, and copy the reviewed `PKGBUILD` and
 `.SRCINFO` into its separate AUR Git repository. Do not commit installer archives
 to AUR. For later releases, update the version/source/hash together; increment
@@ -4675,23 +4675,23 @@ scripts, and no package availability is claimed until submission succeeds.
 For AppImage, mark it executable and launch it:
 
 ```sh
-chmod +x release/K-Downloader-0.1.0-x86_64.AppImage
-./release/K-Downloader-0.1.0-x86_64.AppImage
+chmod +x release/Khinsider Downloader-0.1.0-x86_64.AppImage
+./release/Khinsider Downloader-0.1.0-x86_64.AppImage
 ```
 
 If the host cannot mount AppImages via FUSE, extraction mode is available:
 
 ```sh
-./release/K-Downloader-0.1.0-x86_64.AppImage --appimage-extract-and-run
+./release/Khinsider Downloader-0.1.0-x86_64.AppImage --appimage-extract-and-run
 ```
 
-The installed Debian and Arch launcher is `k-downloader`. The packaged CLI uses Electron's
+The installed Debian and Arch launcher is `khinsider-downloader`. The packaged CLI uses Electron's
 embedded Node runtime without opening the GUI:
 
 ```sh
-k-downloader --help
-k-downloader inspect 'https://downloads.khinsider.com/game-soundtracks/album/ALBUM'
-k-downloader download 'https://downloads.khinsider.com/game-soundtracks/album/ALBUM'
+khinsider-downloader --help
+khinsider-downloader inspect 'https://downloads.khinsider.com/game-soundtracks/album/ALBUM'
+khinsider-downloader download 'https://downloads.khinsider.com/game-soundtracks/album/ALBUM'
 ```
 
 An AppImage accepts the same CLI arguments. Help needs no display; inspection
@@ -4750,7 +4750,7 @@ exists (`git tag --list "$TAG"`); inspect it rather than moving or overwriting i
 Create and push the annotated tag:
 
 ```sh
-git tag -a "$TAG" -m "K-Downloader $VERSION"
+git tag -a "$TAG" -m "Khinsider Downloader $VERSION"
 git push origin "$TAG"
 ```
 
@@ -4759,10 +4759,10 @@ notes source:
 
 ```sh
 gh release create "$TAG" \
-  --repo kelmankenberg/K-Downloader \
+  --repo kelmankenberg/Khinsider Downloader \
   --verify-tag \
   --draft \
-  --title "K-Downloader $VERSION" \
+  --title "Khinsider Downloader $VERSION" \
   --notes-file changelog.md
 ```
 
@@ -4773,11 +4773,11 @@ the validated artifacts and checksum file to the draft before publication:
 
 ```sh
 gh release upload "$TAG" \
-  "release/K-Downloader-$VERSION-amd64.deb" \
-  "release/K-Downloader-$VERSION-x86_64.AppImage" \
-  "release/K-Downloader-$VERSION-x86_64.pkg.tar.xz" \
-  "release/K-Downloader-$VERSION-SHA256SUMS.txt" \
-  --repo kelmankenberg/K-Downloader
+  "release/Khinsider Downloader-$VERSION-amd64.deb" \
+  "release/Khinsider Downloader-$VERSION-x86_64.AppImage" \
+  "release/Khinsider Downloader-$VERSION-x86_64.pkg.tar.xz" \
+  "release/Khinsider Downloader-$VERSION-SHA256SUMS.txt" \
+  --repo kelmankenberg/Khinsider Downloader
 ```
 
 ## Publish and Verify
@@ -4785,9 +4785,9 @@ gh release upload "$TAG" \
 Open the draft, review its tag, notes, and release type, then publish:
 
 ```sh
-gh release view "$TAG" --repo kelmankenberg/K-Downloader --web
-gh release edit "$TAG" --repo kelmankenberg/K-Downloader --draft=false
-gh release view "$TAG" --repo kelmankenberg/K-Downloader
+gh release view "$TAG" --repo kelmankenberg/Khinsider Downloader --web
+gh release edit "$TAG" --repo kelmankenberg/Khinsider Downloader --draft=false
+gh release view "$TAG" --repo kelmankenberg/Khinsider Downloader
 ```
 
 On the GitHub website, the equivalent is **Releases > Draft a new release**:
@@ -4825,9 +4825,9 @@ _**Agent (copilot/auto)**_
 @@ lines 1-162 @@
 
 ````
-# K-Downloader
+# Khinsider Downloader
 
-K-Downloader is a Linux-first KHInsider album downloader. The current slice
+Khinsider Downloader is a Linux-first KHInsider album downloader. The current slice
 implements public single-album discovery, format preview and policy, sequential
 streaming, manifest-backed reruns, an Electron GUI, and Linux x64 AppImage/.deb
 packaging. Multi-album queues, artwork, and optional account features are not
@@ -4856,7 +4856,7 @@ access methods.
 
 The CLI previews the selected formats before starting any transfer. The default
 format policy prefers lossless, falling back to MP3 when needed. The default
-destination is `~/Music/K-Downloader`.
+destination is `~/Music/Khinsider Downloader`.
 
 ```sh
 npm run download -- 'https://downloads.khinsider.com/game-soundtracks/album/unreal-ii-the-awakening-original-soundtrack'
@@ -4895,7 +4895,7 @@ Paste one album URL and choose **Inspect album**. A Chromium inspection window
 starts minimized while an in-progress indicator appears in the app; click that
 indicator to show or hide the browser. Review the per-track format preview, choose the
 destination and format policy, then select **Download**. The default destination
-is `~/Music/K-Downloader`. **Cancel active download** stops the current transfer
+is `~/Music/Khinsider Downloader`. **Cancel active download** stops the current transfer
 and prevents later tracks from starting.
 
 While inspection is running, the same button becomes **Cancel inspection**.
@@ -4951,10 +4951,10 @@ The first command creates `.deb`, AppImage, Arch `.pkg.tar.xz`, and SHA-256 chec
 `release/`, with Electron and Chromium included. To build separately, use
 `npm run package:deb`, `npm run package:appimage`, or `npm run package:arch`; `npm run package:dir` creates
 an unpacked application. Recipients do not need npm or a separate Node runtime.
-The packaged `k-downloader` launcher supports `inspect`, `download`, and `--help`.
+The packaged `khinsider-downloader` launcher supports `inspect`, `download`, and `--help`.
 Arch builds/tests require `bsdtar`. Select smoke-test targets with
 `npm run test:packages -- pacman` (or `deb AppImage`). After building Arch,
-`npm run package:aur` generates a checksum-pinned `k-downloader-bin` AUR recipe
+`npm run package:aur` generates a checksum-pinned `khinsider-downloader-bin` AUR recipe
 under `release/aur/`; it does not submit to AUR. Arch/Omarchy desktop validation
 and distribution-license review are required before claiming support publicly.
 
@@ -5100,14 +5100,14 @@ const require = createRequire(import.meta.url);
 const config = require(resolve(root, "electron-builder.config.cjs"));
 const { version } = JSON.parse(await readFile(resolve(root, "package.json"), "utf8"));
 const cases = [
-  { extension: "deb", artifact: `K-Downloader-${version}-amd64.deb` },
-  { extension: "AppImage", artifact: `K-Downloader-${version}-x86_64.AppImage` },
-  { extension: "pacman", artifact: `K-Downloader-${version}-x86_64.pkg.tar.xz` },
+  { extension: "deb", artifact: `Khinsider Downloader-${version}-amd64.deb` },
+  { extension: "AppImage", artifact: `Khinsider Downloader-${version}-x86_64.AppImage` },
+  { extension: "pacman", artifact: `Khinsider Downloader-${version}-x86_64.pkg.tar.xz` },
 ];
 const targets = process.argv.slice(2);
 if (targets.some((target) => !cases.some((item) => item.extension === target))) throw new Error("Supported test targets: deb, AppImage, pacman");
 const selected = targets.length ? cases.filter((item) => targets.includes(item.extension)) : cases;
-const temporary = await mkdtemp(resolve(tmpdir(), "k-downloader-artifacts-"));
+const temporary = await mkdtemp(resolve(tmpdir(), "khinsider-downloader-artifacts-"));
 const env = { ...process.env, XDG_CURRENT_DESKTOP: "Test" };
 const headlessEnv = { ...env };
 delete headlessEnv.DISPLAY;
@@ -5116,7 +5116,7 @@ delete headlessEnv.WAYLAND_DISPLAY;
 async function findBinary(directory) {
   for (const entry of await readdir(directory, { withFileTypes: true })) {
     const path = resolve(directory, entry.name);
-    if (entry.isFile() && entry.name === "k-downloader-bin") return path;
+    if (entry.isFile() && entry.name === "khinsider-downloader-bin") return path;
     if (entry.isDirectory()) {
       const found = await findBinary(path);
       if (found) return found;
@@ -5132,7 +5132,7 @@ try {
     else if (item.extension === "pacman") {
       execFileSync("bsdtar", ["--no-same-owner", "-xf", artifact, "-C", directory]);
       const metadata = await readFile(resolve(directory, ".PKGINFO"), "utf8");
-      if (!/^pkgname = k-downloader$/m.test(metadata) || !/^arch = x86_64$/m.test(metadata) || !metadata.includes(`pkgver = ${version}-`)) {
+      if (!/^pkgname = khinsider-downloader$/m.test(metadata) || !/^arch = x86_64$/m.test(metadata) || !metadata.includes(`pkgver = ${version}-`)) {
         throw new Error(`Unexpected pacman metadata in ${item.artifact}`);
       }
       const dependencies = metadata.split("\n").filter((line) => line.startsWith("depend = ")).map((line) => line.slice("depend = ".length));
@@ -5144,8 +5144,8 @@ try {
     const binary = await findBinary(directory);
     if (!binary) throw new Error(`Missing application executable in ${item.artifact}`);
     const appDir = dirname(binary);
-    const cli = spawnSync(resolve(appDir, "k-downloader"), ["--help"], { env: headlessEnv, encoding: "utf8" });
-    if (cli.error || cli.status !== 0 || !cli.stderr.includes("k-downloader inspect")) {
+    const cli = spawnSync(resolve(appDir, "khinsider-downloader"), ["--help"], { env: headlessEnv, encoding: "utf8" });
+    if (cli.error || cli.status !== 0 || !cli.stderr.includes("khinsider-downloader inspect")) {
       throw new Error(`Packaged CLI help failed: ${cli.error?.message ?? cli.stderr}`);
     }
     const app = await electron.launch({ executablePath: binary, args: [`--user-data-dir=${resolve(temporary, `profile-${index}`)}`], env });
@@ -5153,7 +5153,7 @@ try {
     try {
       const page = await app.firstWindow();
       await page.waitForFunction(() => document.documentElement.dataset.mode);
-      state = await app.evaluate(({ app }) => ({ packaged: app.isPackaged, appPath: app.getAppPath(), browserPath: process.env.K_DOWNLOADER_CHROMIUM_PATH }));
+      state = await app.evaluate(({ app }) => ({ packaged: app.isPackaged, appPath: app.getAppPath(), browserPath: process.env.KHINSIDER_DOWNLOADER_CHROMIUM_PATH }));
       if (!state.packaged) throw new Error("Artifact did not start in packaged mode");
       await page.getByRole("button", { name: "More options", exact: true }).click();
       await page.getByRole("menuitem", { name: "Help", exact: true }).click();
@@ -5191,16 +5191,16 @@ _**User (2026-10-13 20:11:58Z)**_
 
 [Terminal 18bb7936-c3e6-4a96-9474-05f853c00550 notification: command completed. The terminal has been cleaned up.]
 Terminal output:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  pwd && rg --files -g '*instructions*' -g 'AGENTS.md' -g '*PKGBUILD*' -g '.gitignore' -g '*lock*' -g 'scripts/README.md' -g 'changelog.md'
-/home/kel/dev/K-Downloader
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  pwd && rg --files -g '*instructions*' -g 'AGENTS.md' -g '*PKGBUILD*' -g '.gitignore' -g '*lock*' -g 'scripts/README.md' -g 'changelog.md'
+/home/kel/dev/Khinsider-Downloader
 scripts/README.md
 scripts/package-lock.json
 .gitignore
 package-lock.json
 changelog.md
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npx vitest run tests/packaging.test.ts
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npx vitest run tests/packaging.test.ts
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  1 passed (1)
@@ -5208,9 +5208,9 @@ kel@kel-EQ-Mint:~/dev/K-Downloader$  npx vitest run tests/packaging.test.ts
    Start at  14:56:52
    Duration  198ms (transform 54%, import 25%, worker 11%, tests 10%)
 
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npx vitest run tests/packaging.test.ts && npm run build
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npx vitest run tests/packaging.test.ts && npm run build
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  1 passed (1)
@@ -5219,12 +5219,12 @@ kel@kel-EQ-Mint:~/dev/K-Downloader$  npx vitest run tests/packaging.test.ts && n
    Duration  248ms (tests 40%, transform 29%, import 22%, worker 8%)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run package:arch
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run package:arch
 
-> k-downloader@0.1.0 package:arch
+> khinsider-downloader@0.1.0 package:arch
 > node scripts/package-linux.mjs pacman
 
 Built Electron main/preload and local renderer into dist/.
@@ -5235,27 +5235,27 @@ BEWARE: your OS is not officially supported by Playwright; downloading fallback 
   • skipped dependencies rebuild  reason=npmRebuild is set to false
   • packaging       platform=linux arch=x64 electron=44.7.0 appOutDir=release/linux-unpacked
   • using custom unpacked Electron distribution  electronDist=node_modules/electron/dist
-  • copying unpacked Electron  source=/home/kel/dev/K-Downloader/node_modules/electron/dist destination=/home/kel/dev/K-Downloader/release/linux-unpacked
-  • searching for node modules  pm=npm searchDir=/home/kel/dev/K-Downloader
-  • building        target=pacman arch=x64 file=release/K-Downloader-0.1.0-x86_64.pkg.tar.xz
+  • copying unpacked Electron  source=/home/kel/dev/Khinsider-Downloader/node_modules/electron/dist destination=/home/kel/dev/Khinsider-Downloader/release/linux-unpacked
+  • searching for node modules  pm=npm searchDir=/home/kel/dev/Khinsider-Downloader
+  • building        target=pacman arch=x64 file=release/Khinsider Downloader-0.1.0-x86_64.pkg.tar.xz
   • adding autoupdate files for: pacman  resourceDir=release/linux-unpacked/resources
 Error: /home/kel/.cache/electron-builder/fpm@2.1.4/fpm-1.17.0-ruby-3.4.3-linux-amd64-1nk0v/fpm process failed 1
 Exit code:
 1
 Output:
 Exit code: 1. Command failed: /home/kel/.cache/electron-builder/fpm@2.1.4/fpm-1.17.0-ruby-3.4.3-linux-amd64-1nk0v/fpm -s dir --force -t pacman -d glibc -d gcc-libs -d gtk3 -d libnotify -d nss -d nspr -d libxss -d libxtst -d xdg-utils -d at-spi2-core -d util-linux-libs -d libsecret -d alsa-lib -d mesa -d libxkbcommon -d libdrm -d libxcomposite -d libxdamage -d libxrandr -d libxfixes -d libx11 -d libxcb -d libxext -d libxrender -d libcups -d pango -d cairo -d dbus -d expat -d glib2 --pacman-compression xz --architecture amd64 --after-install /tmp/t-HnDYi1/0-after-install --after-remove /tmp/t-HnDYi1/1-after-remove --description Download public KHInsider soundtrack tracks
- Linux desktop downloader for public KHInsider album tracks --version 0.1.0 --package /home/kel/dev/K-Downloader/release/K-Downloader-0.1.0-x86_64.pkg.tar.xz --name k-downloader --maintainer kel <kelmank@protonmail.com> --vendor kel <kelmank@protonmail.com> --url https://github.com/kelmankenberg/K-Downloader --license UNLICENSED /home/kel/dev/K-Downloader/release/linux-unpacked/=/opt/K-Downloader /home/kel/dev/K-Downloader/assets/k-downloader.png=/usr/share/icons/hicolor/512x512/apps/k-downloader.png /tmp/t-HnDYi1/4-k-downloader.desktop=/usr/share/applications/k-downloader.desktop
+ Linux desktop downloader for public KHInsider album tracks --version 0.1.0 --package /home/kel/dev/Khinsider-Downloader/release/Khinsider Downloader-0.1.0-x86_64.pkg.tar.xz --name khinsider-downloader --maintainer kel <kelmank@protonmail.com> --vendor kel <kelmank@protonmail.com> --url https://github.com/kelmankenberg/Khinsider-Downloader --license UNLICENSED /home/kel/dev/Khinsider-Downloader/release/linux-unpacked/=/opt/Khinsider Downloader /home/kel/dev/Khinsider-Downloader/assets/khinsider-downloader.png=/usr/share/icons/hicolor/512x512/apps/khinsider-downloader.png /tmp/t-HnDYi1/4-khinsider-downloader.desktop=/usr/share/applications/khinsider-downloader.desktop
 
 {timestamp: "2026-10-13T15:00:20.407963-0500", message: "Process failed: /bin/bash failed (exit code 127). Full command was:[\"/bin/bash\", \"-c\", \"LANG=C bsdtar -czf .MTREE --format=mtree --options='!all,use-set,type,uid,gid,mode,time,size,md5,sha256,link' .INSTALL opt usr .PKGINFO\"]", level: :error}
 
-    at /home/kel/dev/K-Downloader/node_modules/builder-util/src/util.ts:192:18
+    at /home/kel/dev/Khinsider-Downloader/node_modules/builder-util/src/util.ts:192:18
     at ChildProcess.exithandler (node:child_process:424:5)
     at ChildProcess.emit (node:events:514:20)
     at maybeClose (node:internal/child_process:1125:16)
     at Process.ChildProcess._handle.onexit (node:internal/child_process:305:5)
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npx vitest run tests/packaging.test.ts
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npx vitest run tests/packaging.test.ts
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  1 passed (1)
@@ -5263,18 +5263,18 @@ kel@kel-EQ-Mint:~/dev/K-Downloader$  npx vitest run tests/packaging.test.ts
    Start at  15:01:31
    Duration  720ms (tests 89%, transform 6%, import 4%, worker 1%)
 
-kel@kel-EQ-Mint:~/dev/K-Downloader$  command -v apt && dpkg-query -W libarchive13t64 && stat -c '%a %n' release/linux-unpacked/chrome-sandbox release/linux-unpacked/resources/chromium/chrome_sandbox
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  command -v apt && dpkg-query -W libarchive13t64 && stat -c '%a %n' release/linux-unpacked/chrome-sandbox release/linux-unpacked/resources/chromium/chrome_sandbox
 /usr/local/bin/apt
 libarchive13t64:amd64   3.7.2-2ubuntu0.9
 755 release/linux-unpacked/chrome-sandbox
 755 release/linux-unpacked/resources/chromium/chrome_sandbox
-kel@kel-EQ-Mint:~/dev/K-Downloader$  mkdir -p .packaging/tools && cd .packaging/tools && /usr/bin/apt download libarchive-tools && dpkg-deb --extract libarchive-tools_*.deb . && ./usr/bin/bsdtar --version
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  mkdir -p .packaging/tools && cd .packaging/tools && /usr/bin/apt download libarchive-tools && dpkg-deb --extract libarchive-tools_*.deb . && ./usr/bin/bsdtar --version
 Get:1 http://mirrors.usinternet.com/ubuntu/archive noble-updates/universe amd64 libarchive-tools amd64 3.7.2-2ubuntu0.9 [72.5 kB]
 Fetched 72.5 kB in 0s (188 kB/s)            
 bsdtar 3.7.2 - libarchive 3.7.2 zlib/1.3 liblzma/5.4.5 bz2lib/1.0.8 liblz4/1.9.4 libzstd/1.5.5 
-kel@kel-EQ-Mint:~/dev/K-Downloader/.packaging/tools$  cd /home/kel/dev/K-Downloader && export PATH="$PWD/.packaging/tools/usr/bin:$PATH" && npm run package:arch && npm run test:packages -- pacman && npm run package:aur
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader/.packaging/tools$  cd /home/kel/dev/Khinsider-Downloader && export PATH="$PWD/.packaging/tools/usr/bin:$PATH" && npm run package:arch && npm run test:packages -- pacman && npm run package:aur
 
-> k-downloader@0.1.0 package:arch
+> khinsider-downloader@0.1.0 package:arch
 > node scripts/package-linux.mjs pacman
 
 Built Electron main/preload and local renderer into dist/.
@@ -5285,21 +5285,21 @@ BEWARE: your OS is not officially supported by Playwright; downloading fallback 
   • skipped dependencies rebuild  reason=npmRebuild is set to false
   • packaging       platform=linux arch=x64 electron=44.7.0 appOutDir=release/linux-unpacked
   • using custom unpacked Electron distribution  electronDist=node_modules/electron/dist
-  • copying unpacked Electron  source=/home/kel/dev/K-Downloader/node_modules/electron/dist destination=/home/kel/dev/K-Downloader/release/linux-unpacked
-  • searching for node modules  pm=npm searchDir=/home/kel/dev/K-Downloader
-  • building        target=pacman arch=x64 file=release/K-Downloader-0.1.0-x86_64.pkg.tar.xz
+  • copying unpacked Electron  source=/home/kel/dev/Khinsider-Downloader/node_modules/electron/dist destination=/home/kel/dev/Khinsider-Downloader/release/linux-unpacked
+  • searching for node modules  pm=npm searchDir=/home/kel/dev/Khinsider-Downloader
+  • building        target=pacman arch=x64 file=release/Khinsider Downloader-0.1.0-x86_64.pkg.tar.xz
   • adding autoupdate files for: pacman  resourceDir=release/linux-unpacked/resources
 Package output: release/ (nothing was published to GitHub).
 
-> k-downloader@0.1.0 test:packages
+> khinsider-downloader@0.1.0 test:packages
 > node scripts/test-packages.mjs pacman
 
-K-Downloader-0.1.0-x86_64.pkg.tar.xz: packaged GUI, Help, bundled Chromium, and CLI help passed without system installation.
+Khinsider Downloader-0.1.0-x86_64.pkg.tar.xz: packaged GUI, Help, bundled Chromium, and CLI help passed without system installation.
 
-> k-downloader@0.1.0 package:aur
+> khinsider-downloader@0.1.0 package:aur
 > node scripts/generate-aur.mjs
 
-AUR recipe: /home/kel/dev/K-Downloader/release/aur/k-downloader-bin (nothing was published). Review distribution permission before submitting to AUR.
+AUR recipe: /home/kel/dev/Khinsider-Downloader/release/aur/khinsider-downloader-bin (nothing was published). Review distribution permission before submitting to AUR.
 
 
 ---
@@ -5314,12 +5314,12 @@ _**Agent (copilot/auto)**_
 <tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
 <summary>Tool use: **run_in_terminal**</summary>
 
-Running ` source release/aur/k-downloader-bin/PKGBUILD && srcdir="$PWD/release" && pkg...`
+Running ` source release/aur/khinsider-downloader-bin/PKGBUILD && srcdir="$PWD/release" && pkg...`
 
 Exercise the generated AUR package function and verify launcher, sandbox permissions, metadata exclusion, and checksums.
 
 ```bash
-source release/aur/k-downloader-bin/PKGBUILD && srcdir="$PWD/release" && pkgdir=$(mktemp -d) && package && test -L "$pkgdir/usr/bin/k-downloader" && test "$(readlink "$pkgdir/usr/bin/k-downloader")" = /opt/K-Downloader/k-downloader && test "$(stat -c %a "$pkgdir/opt/K-Downloader/chrome-sandbox")" = 4755 && test ! -e "$pkgdir/.PKGINFO" && test ! -e "$pkgdir/.INSTALL" && test ! -e "$pkgdir/.MTREE" && test -f "$pkgdir/usr/share/applications/k-downloader.desktop" && "$pkgdir/opt/K-Downloader/k-downloader" --help && rm -rf "$pkgdir" && sha256sum --check --ignore-missing release/K-Downloader-0.1.0-SHA256SUMS.txt
+source release/aur/khinsider-downloader-bin/PKGBUILD && srcdir="$PWD/release" && pkgdir=$(mktemp -d) && package && test -L "$pkgdir/usr/bin/khinsider-downloader" && test "$(readlink "$pkgdir/usr/bin/khinsider-downloader")" = /opt/Khinsider Downloader/khinsider-downloader && test "$(stat -c %a "$pkgdir/opt/Khinsider Downloader/chrome-sandbox")" = 4755 && test ! -e "$pkgdir/.PKGINFO" && test ! -e "$pkgdir/.INSTALL" && test ! -e "$pkgdir/.MTREE" && test -f "$pkgdir/usr/share/applications/khinsider-downloader.desktop" && "$pkgdir/opt/Khinsider Downloader/khinsider-downloader" --help && rm -rf "$pkgdir" && sha256sum --check --ignore-missing release/Khinsider Downloader-0.1.0-SHA256SUMS.txt
 ```
 
 **Result:**
@@ -5327,7 +5327,7 @@ source release/aur/k-downloader-bin/PKGBUILD && srcdir="$PWD/release" && pkgdir=
 ```
 Command 'bsdtar' not found, but can be installed with:
 sudo apt install libarchive-tools
-chmod: cannot access '/tmp/tmp.QzBjGDD22F/opt/K-Downloader/chrome-sandbox': No s
+chmod: cannot access '/tmp/tmp.QzBjGDD22F/opt/Khinsider Downloader/chrome-sandbox': No s
 uch file or directory
 ```
 </details></tool-use>
@@ -5347,42 +5347,42 @@ Running ` export PATH="$PWD/.packaging/tools/usr/bin:$PATH" && rm -rf /tmp/tmp.Q
 Recheck AUR repackaging with isolated bsdtar on PATH, verify checksums, then run regression tests and TypeScript.
 
 ```bash
-export PATH="$PWD/.packaging/tools/usr/bin:$PATH" && rm -rf /tmp/tmp.QzBjGDD22F && source release/aur/k-downloader-bin/PKGBUILD && srcdir="$PWD/release" && pkgdir=$(mktemp -d) && package && test -L "$pkgdir/usr/bin/k-downloader" && test "$(readlink "$pkgdir/usr/bin/k-downloader")" = /opt/K-Downloader/k-downloader && test "$(stat -c %a "$pkgdir/opt/K-Downloader/chrome-sandbox")" = 4755 && test ! -e "$pkgdir/.PKGINFO" && test ! -e "$pkgdir/.INSTALL" && test ! -e "$pkgdir/.MTREE" && test -f "$pkgdir/usr/share/applications/k-downloader.desktop" && "$pkgdir/opt/K-Downloader/k-downloader" --help && rm -rf "$pkgdir" && cd release && sha256sum -c K-Downloader-0.1.0-SHA256SUMS.txt && cd .. && npm test && npm run build
+export PATH="$PWD/.packaging/tools/usr/bin:$PATH" && rm -rf /tmp/tmp.QzBjGDD22F && source release/aur/khinsider-downloader-bin/PKGBUILD && srcdir="$PWD/release" && pkgdir=$(mktemp -d) && package && test -L "$pkgdir/usr/bin/khinsider-downloader" && test "$(readlink "$pkgdir/usr/bin/khinsider-downloader")" = /opt/Khinsider Downloader/khinsider-downloader && test "$(stat -c %a "$pkgdir/opt/Khinsider Downloader/chrome-sandbox")" = 4755 && test ! -e "$pkgdir/.PKGINFO" && test ! -e "$pkgdir/.INSTALL" && test ! -e "$pkgdir/.MTREE" && test -f "$pkgdir/usr/share/applications/khinsider-downloader.desktop" && "$pkgdir/opt/Khinsider Downloader/khinsider-downloader" --help && rm -rf "$pkgdir" && cd release && sha256sum -c Khinsider Downloader-0.1.0-SHA256SUMS.txt && cd .. && npm test && npm run build
 ```
 
 **Result:**
 
 ```
-kel@kel-EQ-Mint:~/dev/K-Downloader$  export PATH="$PWD/.packaging/tools/usr/bin:
-$PATH" && rm -rf /tmp/tmp.QzBjGDD22F && source release/aur/k-downloader-bin/PKGB
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  export PATH="$PWD/.packaging/tools/usr/bin:
+$PATH" && rm -rf /tmp/tmp.QzBjGDD22F && source release/aur/khinsider-downloader-bin/PKGB
 UILD && srcdir="$PWD/release" && pkgdir=$(mktemp -d) && package && test -L "$pkg
-dir/usr/bin/k-downloader" && test "$(readlink "$pkgdir/usr/bin/k-downloader")" =
- /opt/K-Downloader/k-downloader && test "$(stat -c %a "$pkgdir/opt/K-Downloader/
+dir/usr/bin/khinsider-downloader" && test "$(readlink "$pkgdir/usr/bin/khinsider-downloader")" =
+ /opt/Khinsider Downloader/khinsider-downloader && test "$(stat -c %a "$pkgdir/opt/Khinsider Downloader/
 chrome-sandbox")" = 4755 && test ! -e "$pkgdir/.PKGINFO" && test ! -e "$pkgdir/.
 INSTALL" && test ! -e "$pkgdir/.MTREE" && test -f "$pkgdir/usr/share/application
-s/k-downloader.desktop" && "$pkgdir/opt/K-Downloader/k-downloader" --help && rm
--rf "$pkgdir" && cd release && sha256sum -c K-Downloader-0.1.0-SHA256SUMS.txt &&
+s/khinsider-downloader.desktop" && "$pkgdir/opt/Khinsider Downloader/khinsider-downloader" --help && rm
+-rf "$pkgdir" && cd release && sha256sum -c Khinsider Downloader-0.1.0-SHA256SUMS.txt &&
  cd .. && npm test && npm run build
 Usage:
-  k-downloader inspect <album-url>
-  k-downloader download <album-url> [--format prefer-lossless|lossless-only|FORM
+  khinsider-downloader inspect <album-url>
+  khinsider-downloader download <album-url> [--format prefer-lossless|lossless-only|FORM
 AT] [--skip-unavailable] [--disc-label CD|Disc] [--output DIR]
-K-Downloader-0.1.0-x86_64.pkg.tar.xz: OK
+Khinsider Downloader-0.1.0-x86_64.pkg.tar.xz: OK
 
-> k-downloader@0.1.0 pretest
+> khinsider-downloader@0.1.0 pretest
 > npm run build:gui
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  9 passed (9)
@@ -5391,7 +5391,7 @@ Built Electron main/preload and local renderer into dist/.
    Duration  8.44s (tests 85%, import 13%, transform 1%, worker 1%)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 ```
 </details></tool-use>
@@ -5427,13 +5427,13 @@ Ran `git_log_or_diff`
 **Input:**
 
 - action: `diff`
-- directory: `/home/kel/dev/K-Downloader`
+- directory: `/home/kel/dev/Khinsider-Downloader`
 - revision_range: `HEAD`
 
 **Result:**
 
 ````
-{"data":{"output":"diff --git a/README.md b/README.md\nindex 6707a5e..cc17487 100644\n--- a/README.md\n+++ b/README.md\n@@ -120,11 +120,16 @@ npm run package:linux\n npm run test:packages\n ```\n \n-The first command creates `.deb`, AppImage, and SHA-256 checksum files under\n+The first command creates `.deb`, AppImage, Arch `.pkg.tar.xz`, and SHA-256 checksum files under\n `release/`, with Electron and Chromium included. To build separately, use\n-`npm run package:deb` or `npm run package:appimage`; `npm run package:dir` creates\n+`npm run package:deb`, `npm run package:appimage`, or `npm run package:arch`; `npm run package:dir` creates\n an unpacked application. Recipients do not need npm or a separate Node runtime.\n The packaged `k-downloader` launcher supports `inspect`, `download`, and `--help`.\n+Arch builds/tests require `bsdtar`. Select smoke-test targets with\n+`npm run test:packages -- pacman` (or `deb AppImage`). After building Arch,\n+`npm run package:aur` generates a checksum-pinned `k-downloader-bin` AUR recipe\n+under `release/aur/`; it does not submit to AUR. Arch/Omarchy desktop validation\n+and distribution-license review are required before claiming support publicly.\n \n See [docs/BUILD_AND_RELEASE.md](docs/BUILD_AND_RELEASE.md) for maintainer metadata,\n build prerequisites, installation/testing caveats, and GitHub release commands.\ndiff --git a/changelog.md b/changelog.md\nindex 9eb0d0a..4b77ba5 100644\n--- a/changelog.md\n+++ b/changelog.md\n@@ -4,6 +4,8 @@\n \n ### Added\n \n+- Linux x64 Arch pacman packaging, target-selectable artifact smoke tests, and\n+\tchecksum-pinned AUR binary-recipe generation for manual submission.\n - KHInsider website link beside the album URL label, opening in the default browser.\n - Linux x64 AppImage and .deb packaging scripts with bundled Electron/Chromium,\n   desktop integration, embedded-Node CLI launchers, checksums, and artifact smoke tests.\ndiff --git a/docs/BUILD_AND_RELEASE.md b/docs/BUILD_AND_RELEA
+{"data":{"output":"diff --git a/README.md b/README.md\nindex 6707a5e..cc17487 100644\n--- a/README.md\n+++ b/README.md\n@@ -120,11 +120,16 @@ npm run package:linux\n npm run test:packages\n ```\n \n-The first command creates `.deb`, AppImage, and SHA-256 checksum files under\n+The first command creates `.deb`, AppImage, Arch `.pkg.tar.xz`, and SHA-256 checksum files under\n `release/`, with Electron and Chromium included. To build separately, use\n-`npm run package:deb` or `npm run package:appimage`; `npm run package:dir` creates\n+`npm run package:deb`, `npm run package:appimage`, or `npm run package:arch`; `npm run package:dir` creates\n an unpacked application. Recipients do not need npm or a separate Node runtime.\n The packaged `khinsider-downloader` launcher supports `inspect`, `download`, and `--help`.\n+Arch builds/tests require `bsdtar`. Select smoke-test targets with\n+`npm run test:packages -- pacman` (or `deb AppImage`). After building Arch,\n+`npm run package:aur` generates a checksum-pinned `khinsider-downloader-bin` AUR recipe\n+under `release/aur/`; it does not submit to AUR. Arch/Omarchy desktop validation\n+and distribution-license review are required before claiming support publicly.\n \n See [docs/BUILD_AND_RELEASE.md](docs/BUILD_AND_RELEASE.md) for maintainer metadata,\n build prerequisites, installation/testing caveats, and GitHub release commands.\ndiff --git a/changelog.md b/changelog.md\nindex 9eb0d0a..4b77ba5 100644\n--- a/changelog.md\n+++ b/changelog.md\n@@ -4,6 +4,8 @@\n \n ### Added\n \n+- Linux x64 Arch pacman packaging, target-selectable artifact smoke tests, and\n+\tchecksum-pinned AUR binary-recipe generation for manual submission.\n - KHInsider website link beside the album URL label, opening in the default browser.\n - Linux x64 AppImage and .deb packaging scripts with bundled Electron/Chromium,\n   desktop integration, embedded-Node CLI launchers, checksums, and artifact smoke tests.\ndiff --git a/docs/BUILD_AND_RELEASE.md b/docs/BUILD_AND_RELEA
 … (output truncated)
 ````
 </details></tool-use>
@@ -5451,11 +5451,11 @@ Checked `electron-builder.config.cjs`, `package-linux.mjs`, `test-packages.mjs`,
 
 ```
 [
-  "/home/kel/dev/K-Downloader/electron-builder.config.cjs",
-  "/home/kel/dev/K-Downloader/scripts/package-linux.mjs",
-  "/home/kel/dev/K-Downloader/scripts/test-packages.mjs",
-  "/home/kel/dev/K-Downloader/scripts/generate-aur.mjs",
-  "/home/kel/dev/K-Downloader/tests/packaging.test.ts"
+  "/home/kel/dev/Khinsider-Downloader/electron-builder.config.cjs",
+  "/home/kel/dev/Khinsider-Downloader/scripts/package-linux.mjs",
+  "/home/kel/dev/Khinsider-Downloader/scripts/test-packages.mjs",
+  "/home/kel/dev/Khinsider-Downloader/scripts/generate-aur.mjs",
+  "/home/kel/dev/Khinsider-Downloader/tests/packaging.test.ts"
 ]
 ```
 
@@ -5463,19 +5463,19 @@ Checked `electron-builder.config.cjs`, `package-linux.mjs`, `test-packages.mjs`,
 **Result:**
 
 ```
-<errors path="/home/kel/dev/K-Downloader/electron-builder.config.cjs">
+<errors path="/home/kel/dev/Khinsider-Downloader/electron-builder.config.cjs">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/scripts/package-linux.mjs">
+<errors path="/home/kel/dev/Khinsider-Downloader/scripts/package-linux.mjs">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/scripts/test-packages.mjs">
+<errors path="/home/kel/dev/Khinsider-Downloader/scripts/test-packages.mjs">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/scripts/generate-aur.mjs">
+<errors path="/home/kel/dev/Khinsider-Downloader/scripts/generate-aur.mjs">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/tests/packaging.test.ts">
+<errors path="/home/kel/dev/Khinsider-Downloader/tests/packaging.test.ts">
 No errors found
 </errors>
 ```
@@ -5499,7 +5499,7 @@ Read `content.json`
 ````
 {
   "data": {
-    "output": "diff --git a/README.md b/README.md\nindex 6707a5e..cc17487 100644\n--- a/README.md\n+++ b/README.md\n@@ -120,11 +120,16 @@ npm run package:linux\n npm run test:packages\n ```\n \n-The first command creates `.deb`, AppImage, and SHA-256 checksum files under\n+The first command creates `.deb`, AppImage, Arch `.pkg.tar.xz`, and SHA-256 checksum files under\n `release/`, with Electron and Chromium included. To build separately, use\n-`npm run package:deb` or `npm run package:appimage`; `npm run package:dir` creates\n+`npm run package:deb`, `npm run package:appimage`, or `npm run package:arch`; `npm run package:dir` creates\n an unpacked application. Recipients do not need npm or a separate Node runtime.\n The packaged `k-downloader` launcher supports `inspect`, `download`, and `--help`.\n+Arch builds/tests require `bsdtar`. Select smoke-test targets with\n+`npm run test:packages -- pacman` (or `deb AppImage`). After building Arch,\n+`npm run package:aur` generates a checksum-pinned `k-downloader-bin` AUR recipe\n+under `release/aur/`; it does not submit to AUR. Arch/Omarchy desktop validation\n+and distribution-license review are required before claiming support publicly.\n \n See [docs/BUILD_AND_RELEASE.md](docs/BUILD_AND_RELEASE.md) for maintainer metadata,\n build prerequisites, installation/testing caveats, and GitHub release commands.\ndiff --git a/changelog.md b/changelog.md\nindex 9eb0d0a..4b77ba5 100644\n--- a/changelog.md\n+++ b/changelog.md\n@@ -4,6 +4,8 @@\n \n ### Added\n \n+- Linux x64 Arch pacman packaging, target-selectable artifact smoke tests, and\n+\tchecksum-pinned AUR binary-recipe generation for manual submission.\n - KHInsider website link beside the album URL label, opening in the default browser.\n - Linux x64 AppImage and .deb packaging scripts with bundled Electron/Chromium,\n   desktop integration, embedded-Node CLI launchers, checksums, and artifact smoke tests.\ndiff --git a/docs/BUILD_AND_RELEASE.md b/docs/BUILD
+    "output": "diff --git a/README.md b/README.md\nindex 6707a5e..cc17487 100644\n--- a/README.md\n+++ b/README.md\n@@ -120,11 +120,16 @@ npm run package:linux\n npm run test:packages\n ```\n \n-The first command creates `.deb`, AppImage, and SHA-256 checksum files under\n+The first command creates `.deb`, AppImage, Arch `.pkg.tar.xz`, and SHA-256 checksum files under\n `release/`, with Electron and Chromium included. To build separately, use\n-`npm run package:deb` or `npm run package:appimage`; `npm run package:dir` creates\n+`npm run package:deb`, `npm run package:appimage`, or `npm run package:arch`; `npm run package:dir` creates\n an unpacked application. Recipients do not need npm or a separate Node runtime.\n The packaged `khinsider-downloader` launcher supports `inspect`, `download`, and `--help`.\n+Arch builds/tests require `bsdtar`. Select smoke-test targets with\n+`npm run test:packages -- pacman` (or `deb AppImage`). After building Arch,\n+`npm run package:aur` generates a checksum-pinned `khinsider-downloader-bin` AUR recipe\n+under `release/aur/`; it does not submit to AUR. Arch/Omarchy desktop validation\n+and distribution-license review are required before claiming support publicly.\n \n See [docs/BUILD_AND_RELEASE.md](docs/BUILD_AND_RELEASE.md) for maintainer metadata,\n build prerequisites, installation/testing caveats, and GitHub release commands.\ndiff --git a/changelog.md b/changelog.md\nindex 9eb0d0a..4b77ba5 100644\n--- a/changelog.md\n+++ b/changelog.md\n@@ -4,6 +4,8 @@\n \n ### Added\n \n+- Linux x64 Arch pacman packaging, target-selectable artifact smoke tests, and\n+\tchecksum-pinned AUR binary-recipe generation for manual submission.\n - KHInsider website link beside the album URL label, opening in the default browser.\n - Linux x64 AppImage and .deb packaging scripts with bundled Electron/Chromium,\n   desktop integration, embedded-Node CLI launchers, checksums, and artifact smoke tests.\ndiff --git a/docs/BUILD_AND_RELEASE.md b/docs/BUILD
 … (output truncated)
 ````
 </details></tool-use>

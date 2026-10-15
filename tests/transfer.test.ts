@@ -10,7 +10,7 @@ const resolveAddresses = async () => [{ address: "93.184.216.34", family: 4 }];
 const directories: string[] = [];
 
 async function temporaryDirectory(): Promise<string> {
-  const directory = await mkdtemp(join(tmpdir(), "k-downloader-test-"));
+  const directory = await mkdtemp(join(tmpdir(), "khinsider-downloader-test-"));
   directories.push(directory);
   return directory;
 }

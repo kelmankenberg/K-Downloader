@@ -6,8 +6,8 @@ import { defaultOutputRoot } from "./output.js";
 import { resolve } from "node:path";
 
 function usage(exitCode = 2): never {
-  const inspect = process.env.K_DOWNLOADER_CHROMIUM_PATH ? "k-downloader inspect" : "npm run inspect --";
-  const download = process.env.K_DOWNLOADER_CHROMIUM_PATH ? "k-downloader download" : "npm run download --";
+  const inspect = process.env.KHINSIDER_DOWNLOADER_CHROMIUM_PATH ? "khinsider-downloader inspect" : "npm run inspect --";
+  const download = process.env.KHINSIDER_DOWNLOADER_CHROMIUM_PATH ? "khinsider-downloader download" : "npm run download --";
   console.error(`Usage:\n  ${inspect} <album-url>\n  ${download} <album-url> [--format prefer-lossless|lossless-only|FORMAT] [--skip-unavailable] [--disc-label CD|Disc] [--output DIR]`);
   process.exit(exitCode);
 }
@@ -92,6 +92,6 @@ async function main(): Promise<void> {
 }
 
 main().catch((error: unknown) => {
-  console.error(`K-Downloader failed: ${error instanceof Error ? error.message : String(error)}`);
+  console.error(`Khinsider Downloader failed: ${error instanceof Error ? error.message : String(error)}`);
   process.exitCode = 1;
 });

@@ -1851,13 +1851,13 @@ Created 5 todos
 
 _**User (2026-10-12 13:12:30Z)**_
 
-The app will be called 'K-Downloader', so let's make the default output `~/Music/K-Downloader`, with numbered filenames and cover artwork saved when available. The user should be able to select an alternate output location.
+The app will be called 'Khinsider Downloader', so let's make the default output `~/Music/Khinsider Downloader`, with numbered filenames and cover artwork saved when available. The user should be able to select an alternate output location.
 
 ---
 
 _**Agent (copilot/auto)**_
 
-I’ll update the plan with the name K-Downloader, the default output folder, numbered filenames, and cover artwork in the initial scope, with an alternate destination available in both GUI and CLI.
+I’ll update the plan with the name Khinsider Downloader, the default output folder, numbered filenames, and cover artwork in the initial scope, with an alternate destination available in both GUI and CLI.
 
 
 _**Agent (copilot/auto)**_
@@ -1936,7 +1936,7 @@ _**Agent (copilot/auto)**_
 @@ lines 1-307 @@
 
 ````
-# K-Downloader
+# Khinsider Downloader
 
 Status: Draft for discussion. No application implementation has started.
 
@@ -1957,10 +1957,10 @@ album, with per-track availability shown before starting.
 
 Confirmed on 2026-10-12:
 
-- The application is named K-Downloader.
+- The application is named Khinsider Downloader.
 - A desktop GUI is the primary interface, with a scriptable CLI option too.
 - Support a pasted list of album URLs in the initial release, not just one album.
-- Default output is `~/Music/K-Downloader`, with an alternate destination
+- Default output is `~/Music/Khinsider Downloader`, with an alternate destination
   selectable by the user. Use numbered track filenames and save cover artwork
   when available.
 - Prefer lossless downloads when available; allow format selection for each
@@ -2076,7 +2076,7 @@ only if a normal, permitted browser workflow is necessary and acceptable.
 
 ## Output and Artwork
 
-- Default root folder: `~/Music/K-Downloader`, resolved from the current user's
+- Default root folder: `~/Music/Khinsider Downloader`, resolved from the current user's
   home directory. Create it when starting a download if it does not exist.
 - The GUI provides a folder picker and displays the selected destination before
   downloading. The CLI accepts `--output <directory>`; omitting it uses the same
@@ -2097,7 +2097,7 @@ only if a normal, permitted browser workflow is necessary and acceptable.
 Example output for the supplied MP3-only album:
 
 ```text
-~/Music/K-Downloader/Unreal II - The Awakening Original Soundtrack/
+~/Music/Khinsider Downloader/Unreal II - The Awakening Original Soundtrack/
   01 - Intro.mp3
   02 - Avalon TCA Base.mp3
   ...
@@ -2109,14 +2109,14 @@ Example output for the supplied MP3-only album:
 CLI concept, not an implemented command:
 
 ```sh
-k-downloader <album-url> --list-formats
-k-downloader <album-url> --format prefer-lossless
-k-downloader <album-url> --format lossless-only
-k-downloader <album-url> --format mp3
-k-downloader <album-url-1> <album-url-2>
-k-downloader --input albums.txt --format prefer-lossless
-k-downloader --input - --format prefer-lossless
-k-downloader <album-url> --output /mnt/music/K-Downloader
+khinsider-downloader <album-url> --list-formats
+khinsider-downloader <album-url> --format prefer-lossless
+khinsider-downloader <album-url> --format lossless-only
+khinsider-downloader <album-url> --format mp3
+khinsider-downloader <album-url-1> <album-url-2>
+khinsider-downloader --input albums.txt --format prefer-lossless
+khinsider-downloader --input - --format prefer-lossless
+khinsider-downloader <album-url> --output /mnt/music/Khinsider Downloader
 ```
 
 For the GUI, the first screen contains a multiline album URL input, destination
@@ -2239,7 +2239,7 @@ embedding it in audio files is not.
 GUI plus CLI, lossless preference with previewed automatic fallback, a
 lossless-only option with explicit skipping of unavailable tracks,
 discovered-format options, pasted album lists, Linux-only support, the
-K-Downloader name, default and alternate output destinations, numbered filenames,
+Khinsider Downloader name, default and alternate output destinations, numbered filenames,
 and saving available cover artwork are confirmed. Stack and remaining policies
 above are proposals.
 ````
@@ -2267,7 +2267,7 @@ No errors found
 
 _**Agent (copilot/auto)**_
 
-Updated `PROJECT_PLAN.md` with **K-Downloader**, default output `~/Music/K-Downloader`, numbered filenames, and cover artwork saved when available. Alternate destinations are supported through the GUI folder picker and CLI `--output`.
+Updated `PROJECT_PLAN.md` with **Khinsider Downloader**, default output `~/Music/Khinsider Downloader`, numbered filenames, and cover artwork saved when available. Alternate destinations are supported through the GUI folder picker and CLI `--output`.
 
 Next: do you prefer AppImage for Linux distribution?
 
@@ -2364,7 +2364,7 @@ embedding it in audio files is not.
 GUI plus CLI, lossless preference with previewed automatic fallback, a
 lossless-only option with explicit skipping of unavailable tracks,
 discovered-format options, pasted album lists, Linux-only support, the
-K-Downloader name, default and alternate output destinations, numbered filenames,
+Khinsider Downloader name, default and alternate output destinations, numbered filenames,
 and saving available cover artwork are confirmed. Stack and remaining policies
 above are proposals.
 ```
@@ -2383,7 +2383,7 @@ _**Agent (copilot/auto)**_
 @@ lines 1-324 @@
 
 ````
-# K-Downloader
+# Khinsider Downloader
 
 Status: Draft for discussion. No application implementation has started.
 
@@ -2404,10 +2404,10 @@ album, with per-track availability shown before starting.
 
 Confirmed on 2026-10-12:
 
-- The application is named K-Downloader.
+- The application is named Khinsider Downloader.
 - A desktop GUI is the primary interface, with a scriptable CLI option too.
 - Support a pasted list of album URLs in the initial release, not just one album.
-- Default output is `~/Music/K-Downloader`, with an alternate destination
+- Default output is `~/Music/Khinsider Downloader`, with an alternate destination
   selectable by the user. Use numbered track filenames and save cover artwork
   when available.
 - Prefer lossless downloads when available; allow format selection for each
@@ -2528,7 +2528,7 @@ only if a normal, permitted browser workflow is necessary and acceptable.
 
 ## Output and Artwork
 
-- Default root folder: `~/Music/K-Downloader`, resolved from the current user's
+- Default root folder: `~/Music/Khinsider Downloader`, resolved from the current user's
   home directory. Create it when starting a download if it does not exist.
 - The GUI provides a folder picker and displays the selected destination before
   downloading. The CLI accepts `--output <directory>`; omitting it uses the same
@@ -2549,7 +2549,7 @@ only if a normal, permitted browser workflow is necessary and acceptable.
 Example output for the supplied MP3-only album:
 
 ```text
-~/Music/K-Downloader/Unreal II - The Awakening Original Soundtrack/
+~/Music/Khinsider Downloader/Unreal II - The Awakening Original Soundtrack/
   01 - Intro.mp3
   02 - Avalon TCA Base.mp3
   ...
@@ -2561,14 +2561,14 @@ Example output for the supplied MP3-only album:
 CLI concept, not an implemented command:
 
 ```sh
-k-downloader <album-url> --list-formats
-k-downloader <album-url> --format prefer-lossless
-k-downloader <album-url> --format lossless-only
-k-downloader <album-url> --format mp3
-k-downloader <album-url-1> <album-url-2>
-k-downloader --input albums.txt --format prefer-lossless
-k-downloader --input - --format prefer-lossless
-k-downloader <album-url> --output /mnt/music/K-Downloader
+khinsider-downloader <album-url> --list-formats
+khinsider-downloader <album-url> --format prefer-lossless
+khinsider-downloader <album-url> --format lossless-only
+khinsider-downloader <album-url> --format mp3
+khinsider-downloader <album-url-1> <album-url-2>
+khinsider-downloader --input albums.txt --format prefer-lossless
+khinsider-downloader --input - --format prefer-lossless
+khinsider-downloader <album-url> --output /mnt/music/Khinsider Downloader
 ```
 
 For the GUI, the first screen contains a multiline album URL input, destination
@@ -2668,9 +2668,9 @@ integration. Never load remote site content as privileged application UI.
 
 - Document setup, supported inputs, format rules, limitations, and troubleshooting.
 - Produce an AppImage and native Linux packages for the agreed distribution and
-  architecture matrix, with consistent K-Downloader naming and versioning.
+  architecture matrix, with consistent Khinsider Downloader naming and versioning.
 - Native packages provide a desktop launcher, application icon, and a
-  `k-downloader` CLI entry point. Document installation, removal, and dependencies.
+  `khinsider-downloader` CLI entry point. Document installation, removal, and dependencies.
 - Document AppImage executable permissions, required runtime dependencies, and
   a scriptable invocation. Keep the CLI independent of display-server startup;
   verify that packaged CLI mode works without opening the GUI.
@@ -2702,7 +2702,7 @@ embedding it in audio files is not.
 GUI plus CLI, lossless preference with previewed automatic fallback, a
 lossless-only option with explicit skipping of unavailable tracks,
 discovered-format options, pasted album lists, Linux-only support, the
-K-Downloader name, default and alternate output destinations, numbered filenames,
+Khinsider Downloader name, default and alternate output destinations, numbered filenames,
 and saving available cover artwork are confirmed, as are AppImage and native
 Linux packages. Stack, native package targets, and remaining policies above are
 proposals.
@@ -2781,7 +2781,7 @@ PROJECT_PLAN.md
 68:Proposed native formats: `.deb` for Debian/Ubuntu and `.rpm` for Fedora-compatible
 69:distributions. Confirm supported distribution versions and CPU architectures
 285:- Produce an AppImage and native Linux packages for the agreed distribution and
-286:  architecture matrix, with consistent K-Downloader naming and versioning.
+286:  architecture matrix, with consistent Khinsider Downloader naming and versioning.
 287:- Native packages provide a desktop launcher, application icon, and a
 292:- Test the AppImage and installed native packages, not only development mode:
 314:5. Linux targets: are `.deb` (Debian/Ubuntu) and `.rpm` (Fedora-compatible)
@@ -2819,7 +2819,7 @@ Read `PROJECT_PLAN.md`, lines 308 to 323
 GUI plus CLI, lossless preference with previewed automatic fallback, a
 lossless-only option with explicit skipping of unavailable tracks,
 discovered-format options, pasted album lists, Linux-only support, the
-K-Downloader name, default and alternate output destinations, numbered filenames,
+Khinsider Downloader name, default and alternate output destinations, numbered filenames,
 and saving available cover artwork are confirmed, as are AppImage and native
 Linux packages. Stack, native package targets, and remaining policies above are
 proposals.
@@ -2834,7 +2834,7 @@ _**Agent (copilot/auto)**_
 @@ lines 1-325 @@
 
 ````
-# K-Downloader
+# Khinsider Downloader
 
 Status: Draft for discussion. No application implementation has started.
 
@@ -2855,10 +2855,10 @@ album, with per-track availability shown before starting.
 
 Confirmed on 2026-10-12:
 
-- The application is named K-Downloader.
+- The application is named Khinsider Downloader.
 - A desktop GUI is the primary interface, with a scriptable CLI option too.
 - Support a pasted list of album URLs in the initial release, not just one album.
-- Default output is `~/Music/K-Downloader`, with an alternate destination
+- Default output is `~/Music/Khinsider Downloader`, with an alternate destination
   selectable by the user. Use numbered track filenames and save cover artwork
   when available.
 - Prefer lossless downloads when available; allow format selection for each
@@ -2980,7 +2980,7 @@ only if a normal, permitted browser workflow is necessary and acceptable.
 
 ## Output and Artwork
 
-- Default root folder: `~/Music/K-Downloader`, resolved from the current user's
+- Default root folder: `~/Music/Khinsider Downloader`, resolved from the current user's
   home directory. Create it when starting a download if it does not exist.
 - The GUI provides a folder picker and displays the selected destination before
   downloading. The CLI accepts `--output <directory>`; omitting it uses the same
@@ -3001,7 +3001,7 @@ only if a normal, permitted browser workflow is necessary and acceptable.
 Example output for the supplied MP3-only album:
 
 ```text
-~/Music/K-Downloader/Unreal II - The Awakening Original Soundtrack/
+~/Music/Khinsider Downloader/Unreal II - The Awakening Original Soundtrack/
   01 - Intro.mp3
   02 - Avalon TCA Base.mp3
   ...
@@ -3013,14 +3013,14 @@ Example output for the supplied MP3-only album:
 CLI concept, not an implemented command:
 
 ```sh
-k-downloader <album-url> --list-formats
-k-downloader <album-url> --format prefer-lossless
-k-downloader <album-url> --format lossless-only
-k-downloader <album-url> --format mp3
-k-downloader <album-url-1> <album-url-2>
-k-downloader --input albums.txt --format prefer-lossless
-k-downloader --input - --format prefer-lossless
-k-downloader <album-url> --output /mnt/music/K-Downloader
+khinsider-downloader <album-url> --list-formats
+khinsider-downloader <album-url> --format prefer-lossless
+khinsider-downloader <album-url> --format lossless-only
+khinsider-downloader <album-url> --format mp3
+khinsider-downloader <album-url-1> <album-url-2>
+khinsider-downloader --input albums.txt --format prefer-lossless
+khinsider-downloader --input - --format prefer-lossless
+khinsider-downloader <album-url> --output /mnt/music/Khinsider Downloader
 ```
 
 For the GUI, the first screen contains a multiline album URL input, destination
@@ -3120,9 +3120,9 @@ integration. Never load remote site content as privileged application UI.
 
 - Document setup, supported inputs, format rules, limitations, and troubleshooting.
 - Produce an AppImage and native Linux packages for the agreed distribution and
-  architecture matrix, with consistent K-Downloader naming and versioning.
+  architecture matrix, with consistent Khinsider Downloader naming and versioning.
 - Native packages provide a desktop launcher, application icon, and a
-  `k-downloader` CLI entry point. Document installation, removal, and dependencies.
+  `khinsider-downloader` CLI entry point. Document installation, removal, and dependencies.
 - Document AppImage executable permissions, required runtime dependencies, and
   a scriptable invocation. Keep the CLI independent of display-server startup;
   verify that packaged CLI mode works without opening the GUI.
@@ -3154,7 +3154,7 @@ embedding it in audio files is not.
 GUI plus CLI, lossless preference with previewed automatic fallback, a
 lossless-only option with explicit skipping of unavailable tracks,
 discovered-format options, pasted album lists, Linux-only support, the
-K-Downloader name, default and alternate output destinations, numbered filenames,
+Khinsider Downloader name, default and alternate output destinations, numbered filenames,
 and saving available cover artwork are confirmed, as are AppImage, `.deb`, and
 `.rpm` packages. Stack, distribution versions, CPU architectures, and remaining
 policies above are proposals.
@@ -3208,7 +3208,7 @@ _**Agent (copilot/auto)**_
 
 Yes. The site’s bulk-download feature depends on the user’s uploader standing. Without active standing, each track opens a separate page containing its audio download link.
 
-K-Downloader can potentially automate that individual-track workflow: collect every track-page URL, resolve its available audio links, and queue the downloads. That is distinct from bypassing the standing check on the restricted bulk-download feature, which we shouldn’t circumvent.
+Khinsider Downloader can potentially automate that individual-track workflow: collect every track-page URL, resolve its available audio links, and queue the downloads. That is distinct from bypassing the standing check on the restricted bulk-download feature, which we shouldn’t circumvent.
 
 Two questions:
 1. Can individual tracks be downloaded while logged out, or is login required? Your screenshot shows a logged-in session.
@@ -3244,7 +3244,7 @@ Read `PROJECT_PLAN.md`
 **Result:**
 
 ```
-# K-Downloader
+# Khinsider Downloader
 
 Status: Draft for discussion. No application implementation has started.
 
@@ -3265,10 +3265,10 @@ album, with per-track availability shown before starting.
 
 Confirmed on 2026-10-12:
 
-- The application is named K-Downloader.
+- The application is named Khinsider Downloader.
 - A desktop GUI is the primary interface, with a scriptable CLI option too.
 - Support a pasted list of album URLs in the initial release, not just one album.
-- Default output is `~/Music/K-Downloader`, with an alternate destination
+- Default output is `~/Music/Khinsider Downloader`, with an alternate destination
   selectable by the user. Use numbered track filenames and save cover artwork
   when available.
 - Prefer lossless downloads when available; allow format selection for each
@@ -3306,7 +3306,7 @@ _**Agent (copilot/auto)**_
 @@ lines 1-371 @@
 
 ````
-# K-Downloader
+# Khinsider Downloader
 
 Status: Draft for discussion. No application implementation has started.
 
@@ -3327,7 +3327,7 @@ album, with per-track availability shown before starting.
 
 Confirmed on 2026-10-12:
 
-- The application is named K-Downloader.
+- The application is named Khinsider Downloader.
 - A desktop GUI is the primary interface, with a scriptable CLI option too.
 - Support a pasted list of album URLs in the initial release, not just one album.
 - Individual track-page downloads require no login, as confirmed by the user.
@@ -3335,7 +3335,7 @@ Confirmed on 2026-10-12:
   archive is not a required output.
 - Plan an optional site-login capability for the official bulk-download feature,
   available only when the account has the required standing.
-- Default output is `~/Music/K-Downloader`, with an alternate destination
+- Default output is `~/Music/Khinsider Downloader`, with an alternate destination
   selectable by the user. Use numbered track filenames and save cover artwork
   when available.
 - Prefer lossless downloads when available; allow format selection for each
@@ -3487,7 +3487,7 @@ only if a normal, permitted browser workflow is necessary and acceptable.
 
 ## Output and Artwork
 
-- Default root folder: `~/Music/K-Downloader`, resolved from the current user's
+- Default root folder: `~/Music/Khinsider Downloader`, resolved from the current user's
   home directory. Create it when starting a download if it does not exist.
 - The GUI provides a folder picker and displays the selected destination before
   downloading. The CLI accepts `--output <directory>`; omitting it uses the same
@@ -3508,7 +3508,7 @@ only if a normal, permitted browser workflow is necessary and acceptable.
 Example output for the supplied MP3-only album:
 
 ```text
-~/Music/K-Downloader/Unreal II - The Awakening Original Soundtrack/
+~/Music/Khinsider Downloader/Unreal II - The Awakening Original Soundtrack/
   01 - Intro.mp3
   02 - Avalon TCA Base.mp3
   ...
@@ -3520,14 +3520,14 @@ Example output for the supplied MP3-only album:
 CLI concept, not an implemented command:
 
 ```sh
-k-downloader <album-url> --list-formats
-k-downloader <album-url> --format prefer-lossless
-k-downloader <album-url> --format lossless-only
-k-downloader <album-url> --format mp3
-k-downloader <album-url-1> <album-url-2>
-k-downloader --input albums.txt --format prefer-lossless
-k-downloader --input - --format prefer-lossless
-k-downloader <album-url> --output /mnt/music/K-Downloader
+khinsider-downloader <album-url> --list-formats
+khinsider-downloader <album-url> --format prefer-lossless
+khinsider-downloader <album-url> --format lossless-only
+khinsider-downloader <album-url> --format mp3
+khinsider-downloader <album-url-1> <album-url-2>
+khinsider-downloader --input albums.txt --format prefer-lossless
+khinsider-downloader --input - --format prefer-lossless
+khinsider-downloader <album-url> --output /mnt/music/Khinsider Downloader
 ```
 
 For the GUI, the first screen contains a multiline album URL input, destination
@@ -3636,9 +3636,9 @@ integration. Never load remote site content as privileged application UI.
 
 - Document setup, supported inputs, format rules, limitations, and troubleshooting.
 - Produce an AppImage and native Linux packages for the agreed distribution and
-  architecture matrix, with consistent K-Downloader naming and versioning.
+  architecture matrix, with consistent Khinsider Downloader naming and versioning.
 - Native packages provide a desktop launcher, application icon, and a
-  `k-downloader` CLI entry point. Document installation, removal, and dependencies.
+  `khinsider-downloader` CLI entry point. Document installation, removal, and dependencies.
 - Document AppImage executable permissions, required runtime dependencies, and
   a scriptable invocation. Keep the CLI independent of display-server startup;
   verify that packaged CLI mode works without opening the GUI.
@@ -3671,7 +3671,7 @@ embedding it in audio files is not.
 GUI plus CLI, lossless preference with previewed automatic fallback, a
 lossless-only option with explicit skipping of unavailable tracks,
 discovered-format options, pasted album lists, Linux-only support, the
-K-Downloader name, default and alternate output destinations, numbered filenames,
+Khinsider Downloader name, default and alternate output destinations, numbered filenames,
 and saving available cover artwork are confirmed, as are AppImage, `.deb`, and
 `.rpm` packages. Logged-out individual-track access, separate-file output, and
 optional eligible bulk access are recorded. Stack, authentication details,
@@ -3802,7 +3802,7 @@ embedding it in audio files is not.
 GUI plus CLI, lossless preference with previewed automatic fallback, a
 lossless-only option with explicit skipping of unavailable tracks,
 discovered-format options, pasted album lists, Linux-only support, the
-K-Downloader name, default and alternate output destinations, numbered filenames,
+Khinsider Downloader name, default and alternate output destinations, numbered filenames,
 and saving available cover artwork are confirmed, as are AppImage, `.deb`, and
 `.rpm` packages. Logged-out individual-track access, separate-file output, and
 optional eligible bulk access are recorded. Stack, authentication details,
@@ -3823,7 +3823,7 @@ _**Agent (copilot/auto)**_
 @@ lines 1-386 @@
 
 ````
-# K-Downloader
+# Khinsider Downloader
 
 Status: Draft for discussion. No application implementation has started.
 
@@ -3844,7 +3844,7 @@ album, with per-track availability shown before starting.
 
 Confirmed on 2026-10-12:
 
-- The application is named K-Downloader.
+- The application is named Khinsider Downloader.
 - A desktop GUI is the primary interface, with a scriptable CLI option too.
 - Support a pasted list of album URLs in the initial release, not just one album.
 - Individual track-page downloads require no login, as confirmed by the user.
@@ -3854,7 +3854,7 @@ Confirmed on 2026-10-12:
   available only when the account has the required standing.
 - The GUI offers an opt-in "Remember me" checkbox using secure Linux storage,
   with logout and removal of saved authentication.
-- Default output is `~/Music/K-Downloader`, with an alternate destination
+- Default output is `~/Music/Khinsider Downloader`, with an alternate destination
   selectable by the user. Use numbered track filenames and save cover artwork
   when available.
 - Prefer lossless downloads when available; allow format selection for each
@@ -4014,7 +4014,7 @@ only if a normal, permitted browser workflow is necessary and acceptable.
 
 ## Output and Artwork
 
-- Default root folder: `~/Music/K-Downloader`, resolved from the current user's
+- Default root folder: `~/Music/Khinsider Downloader`, resolved from the current user's
   home directory. Create it when starting a download if it does not exist.
 - The GUI provides a folder picker and displays the selected destination before
   downloading. The CLI accepts `--output <directory>`; omitting it uses the same
@@ -4035,7 +4035,7 @@ only if a normal, permitted browser workflow is necessary and acceptable.
 Example output for the supplied MP3-only album:
 
 ```text
-~/Music/K-Downloader/Unreal II - The Awakening Original Soundtrack/
+~/Music/Khinsider Downloader/Unreal II - The Awakening Original Soundtrack/
   01 - Intro.mp3
   02 - Avalon TCA Base.mp3
   ...
@@ -4047,14 +4047,14 @@ Example output for the supplied MP3-only album:
 CLI concept, not an implemented command:
 
 ```sh
-k-downloader <album-url> --list-formats
-k-downloader <album-url> --format prefer-lossless
-k-downloader <album-url> --format lossless-only
-k-downloader <album-url> --format mp3
-k-downloader <album-url-1> <album-url-2>
-k-downloader --input albums.txt --format prefer-lossless
-k-downloader --input - --format prefer-lossless
-k-downloader <album-url> --output /mnt/music/K-Downloader
+khinsider-downloader <album-url> --list-formats
+khinsider-downloader <album-url> --format prefer-lossless
+khinsider-downloader <album-url> --format lossless-only
+khinsider-downloader <album-url> --format mp3
+khinsider-downloader <album-url-1> <album-url-2>
+khinsider-downloader --input albums.txt --format prefer-lossless
+khinsider-downloader --input - --format prefer-lossless
+khinsider-downloader <album-url> --output /mnt/music/Khinsider Downloader
 ```
 
 For the GUI, the first screen contains a multiline album URL input, destination
@@ -4167,9 +4167,9 @@ integration. Never load remote site content as privileged application UI.
 
 - Document setup, supported inputs, format rules, limitations, and troubleshooting.
 - Produce an AppImage and native Linux packages for the agreed distribution and
-  architecture matrix, with consistent K-Downloader naming and versioning.
+  architecture matrix, with consistent Khinsider Downloader naming and versioning.
 - Native packages provide a desktop launcher, application icon, and a
-  `k-downloader` CLI entry point. Document installation, removal, and dependencies.
+  `khinsider-downloader` CLI entry point. Document installation, removal, and dependencies.
 - Document AppImage executable permissions, required runtime dependencies, and
   a scriptable invocation. Keep the CLI independent of display-server startup;
   verify that packaged CLI mode works without opening the GUI.
@@ -4202,7 +4202,7 @@ embedding it in audio files is not.
 GUI plus CLI, lossless preference with previewed automatic fallback, a
 lossless-only option with explicit skipping of unavailable tracks,
 discovered-format options, pasted album lists, Linux-only support, the
-K-Downloader name, default and alternate output destinations, numbered filenames,
+Khinsider Downloader name, default and alternate output destinations, numbered filenames,
 and saving available cover artwork are confirmed, as are AppImage, `.deb`, and
 `.rpm` packages. Logged-out individual-track access, separate-file output, and
 optional eligible bulk access and secure GUI "Remember me" are recorded. Stack,

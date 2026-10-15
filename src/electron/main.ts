@@ -22,8 +22,8 @@ let instanceNoticeOpen = false;
 let cinnamonDark: boolean | undefined;
 let stopThemeMonitor: (() => void) | undefined;
 
-app.setName("K-Downloader");
-if (process.platform === "linux") app.setDesktopName("k-downloader.desktop");
+app.setName("Khinsider Downloader");
+if (process.platform === "linux") app.setDesktopName("khinsider-downloader.desktop");
 const primaryInstance = app.requestSingleInstanceLock();
 if (!primaryInstance) app.quit();
 else app.on("second-instance", () => {
@@ -47,8 +47,8 @@ async function notifyExistingInstance(): Promise<void> {
   try {
     await dialog.showMessageBox(window, {
       type: "info",
-      title: "K-Downloader is already running",
-      message: "K-Downloader is already running.",
+      title: "Khinsider Downloader is already running",
+      message: "Khinsider Downloader is already running.",
       detail: "Only one instance can run. Continue in the existing window.",
       buttons: ["Show running app"],
       defaultId: 0,
@@ -143,7 +143,7 @@ function registerIpc(): void {
   });
   ipcMain.handle("support:report-issue", async (event) => {
     const window = assertWindowSender(event.sender.id);
-    const url = "https://github.com/kelmankenberg/K-Downloader/issues/new/choose";
+    const url = "https://github.com/kelmankenberg/Khinsider-Downloader/issues/new/choose";
     try {
       await shell.openExternal(url);
     } catch {
@@ -310,8 +310,8 @@ async function createWindow(): Promise<void> {
     minWidth: 760,
     minHeight: 620,
     backgroundColor: "#101715",
-    title: "K-Downloader",
-    icon: resolve(__dirname, "../assets/k-downloader.png"),
+    title: "Khinsider Downloader",
+    icon: resolve(__dirname, "../assets/khinsider-downloader.png"),
     webPreferences: {
       preload: resolve(__dirname, "preload.cjs"),
       contextIsolation: true,
@@ -354,7 +354,7 @@ async function createWindow(): Promise<void> {
 
 app.whenReady().then(async () => {
   if (!primaryInstance) return;
-  if (app.isPackaged) process.env.K_DOWNLOADER_CHROMIUM_PATH = resolve(process.resourcesPath, "chromium/chrome");
+  if (app.isPackaged) process.env.KHINSIDER_DOWNLOADER_CHROMIUM_PATH = resolve(process.resourcesPath, "chromium/chrome");
   nativeTheme.themeSource = "system";
   nativeTheme.on("updated", sendSystemTheme);
   stopThemeMonitor = await monitorCinnamonTheme((dark) => {

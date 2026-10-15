@@ -7,7 +7,7 @@ import { parse } from "parse5";
 const DEFAULT_ALBUM_URL =
   "https://downloads.khinsider.com/game-soundtracks/album/unreal-ii-the-awakening-original-soundtrack";
 const SITE_HOST = "downloads.khinsider.com";
-const USER_AGENT = `K-Downloader-feasibility-probe/0.1${process.env.K_DOWNLOADER_CONTACT ? ` (${process.env.K_DOWNLOADER_CONTACT})` : ""}`;
+const USER_AGENT = `Khinsider-Downloader-feasibility-probe/0.1${process.env.KHINSIDER_DOWNLOADER_CONTACT ? ` (${process.env.KHINSIDER_DOWNLOADER_CONTACT})` : ""}`;
 const PAGE_LIMIT_BYTES = 4 * 1024 * 1024;
 const REQUEST_TIMEOUT_MS = 20_000;
 const REDIRECT_LIMIT = 5;

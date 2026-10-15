@@ -60,7 +60,7 @@ redacted in printed output in case the URL contains a temporary token.
 For site operator contact details, optionally set a truthful user-agent suffix:
 
 ```sh
-K_DOWNLOADER_CONTACT='contact: you@example.org' node verify-khinsider-access.mjs
+KHINSIDER_DOWNLOADER_CONTACT='contact: you@example.org' node verify-khinsider-access.mjs
 ```
 
 Review KHInsider's applicable terms and request guidance before running it. Run

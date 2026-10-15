@@ -1,7 +1,7 @@
 import { contextBridge, ipcRenderer } from "electron";
-import type { GuiDownloadRequest, GuiInspectionState, GuiProgress, GuiWindowState, KDownloaderApi } from "../gui-types.js";
+import type { GuiDownloadRequest, GuiInspectionState, GuiProgress, GuiWindowState, KhinsiderDownloaderApi } from "../gui-types.js";
 
-const api: KDownloaderApi = {
+const api: KhinsiderDownloaderApi = {
   openKhinsider: () => ipcRenderer.invoke("source:open-khinsider"),
   reportIssue: () => ipcRenderer.invoke("support:report-issue"),
   restoreWindowBounds: () => ipcRenderer.invoke("window:restore-bounds"),
@@ -38,4 +38,4 @@ const api: KDownloaderApi = {
   },
 };
 
-contextBridge.exposeInMainWorld("kDownloader", api);
+contextBridge.exposeInMainWorld("khinsiderDownloader", api);

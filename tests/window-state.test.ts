@@ -27,7 +27,7 @@ describe("window geometry", () => {
 
 describe("desktop More menu and zoom", () => {
   it("renders and resizes the changelog, zooms, and persists window bounds", async () => {
-    const userData = await mkdtemp(resolve(tmpdir(), "k-downloader-window-test-"));
+    const userData = await mkdtemp(resolve(tmpdir(), "khinsider-downloader-window-test-"));
     const require = createRequire(import.meta.url);
     const launch = () => electron.launch({
       executablePath: require("electron"),
@@ -40,7 +40,7 @@ describe("desktop More menu and zoom", () => {
       page.setDefaultTimeout(5_000);
       await page.waitForFunction(() => document.documentElement.dataset.mode);
       const icon = await app.evaluate(({ nativeImage }) => {
-        const image = nativeImage.createFromPath("dist/assets/k-downloader.png");
+        const image = nativeImage.createFromPath("dist/assets/khinsider-downloader.png");
         const bitmap = image.getBitmap();
         return { empty: image.isEmpty(), size: image.getSize(), firstAlpha: bitmap[3], clippedAlpha: bitmap[bitmap.length - 1] };
       });
@@ -48,14 +48,14 @@ describe("desktop More menu and zoom", () => {
       expect(icon.size).toEqual({ width: 512, height: 512 });
       expect(icon.firstAlpha).toBe(255);
       expect(icon.clippedAlpha).toBe(0);
-      expect(await readFile(resolve("dist/assets/k-downloader.png"))).toEqual(await readFile(resolve("assets/k-downloader.png")));
+      expect(await readFile(resolve("dist/assets/khinsider-downloader.png"))).toEqual(await readFile(resolve("assets/khinsider-downloader.png")));
       await page.getByRole("button", { name: "More options", exact: true }).click();
       expect((await page.getByRole("menuitem").allTextContents()).map((text) => text.replace(/\s+/g, " ").trim())).toEqual([
         "Restore Size/Position", "Settings Ctrl+,", "Changelog", "Help", "Report an Issue",
       ]);
       const manifest = JSON.parse(await readFile(resolve("package.json"), "utf8"));
       expect(await page.locator("#menu-app-version").textContent()).toBe(manifest.version);
-      expect(await page.locator(".more-menu-info").innerText()).toContain("K-Downloader");
+      expect(await page.locator(".more-menu-info").innerText()).toContain("Khinsider Downloader");
       expect(await page.locator(".more-menu-separator").isVisible()).toBe(true);
       await app.evaluate(({ shell }) => {
         Reflect.set(globalThis, "supportUrls", []);
@@ -74,13 +74,13 @@ describe("desktop More menu and zoom", () => {
         if (!labelBounds || !linkBounds) throw new Error("Missing label/link layout");
         expect(linkBounds.x).toBeGreaterThanOrEqual(labelBounds.x + labelBounds.width);
         expect(Math.abs(linkBounds.y - labelBounds.y)).toBeLessThan(5);
-        await page.screenshot({ path: `/tmp/k-downloader-site-link-${width}.png` });
+        await page.screenshot({ path: `/tmp/khinsider-downloader-site-link-${width}.png` });
       }
       await page.getByRole("button", { name: "More options", exact: true }).click();
       await page.getByRole("menuitem", { name: "Report an Issue", exact: true }).click();
       expect(await app.evaluate(() => Reflect.get(globalThis, "supportUrls"))).toEqual([
         "https://downloads.khinsider.com/",
-        "https://github.com/kelmankenberg/K-Downloader/issues/new/choose",
+        "https://github.com/kelmankenberg/Khinsider-Downloader/issues/new/choose",
       ]);
       expect(await page.locator("#more-menu").isVisible()).toBe(false);
       expect(await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows().length)).toBe(1);
@@ -99,7 +99,7 @@ describe("desktop More menu and zoom", () => {
       await page.getByRole("menuitem", { name: "Report an Issue", exact: true }).click();
       const supportError = await app.evaluate(() => Reflect.get(globalThis, "supportError"));
       expect(supportError.message).toBe("Your browser could not be opened.");
-      expect(supportError.detail).toContain("https://github.com/kelmankenberg/K-Downloader/issues/new/choose");
+      expect(supportError.detail).toContain("https://github.com/kelmankenberg/Khinsider-Downloader/issues/new/choose");
       await page.getByRole("button", { name: "More options", exact: true }).click();
       await page.getByRole("menuitem", { name: "Changelog", exact: true }).click();
       await page.locator("#changelog-drawer").waitFor({ state: "visible" });
@@ -115,7 +115,7 @@ describe("desktop More menu and zoom", () => {
       await page.mouse.move(1, handle.y + 40);
       await page.mouse.up();
       expect(await page.locator("#changelog-drawer").evaluate((element) => element.getBoundingClientRect().width / innerWidth)).toBeCloseTo(.4, 2);
-      await page.screenshot({ path: "/tmp/k-downloader-changelog.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-changelog.png" });
       await page.keyboard.press("Escape");
       expect(await page.locator("#changelog-drawer").getAttribute("data-open")).toBe("false");
       await page.getByRole("button", { name: "More options", exact: true }).click();
@@ -153,9 +153,9 @@ describe("desktop More menu and zoom", () => {
       await page.mouse.up();
       expect(await page.locator("#help-drawer").evaluate((element) => element.getBoundingClientRect().width / innerWidth)).toBeCloseTo(.4, 2);
       await page.locator("#help-content summary").first().click();
-      await page.screenshot({ path: "/tmp/k-downloader-help-1120.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-help-1120.png" });
       await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].setSize(760, 620));
-      await page.screenshot({ path: "/tmp/k-downloader-help-760.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-help-760.png" });
       expect(await page.locator("#help-content").evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
       await page.keyboard.press("Escape");
       expect(await page.locator("#help-drawer").getAttribute("data-open")).toBe("false");
@@ -219,7 +219,7 @@ describe("desktop More menu and zoom", () => {
 
 describe("single-instance desktop", () => {
   it("rejects a second launch, restores the primary window, and shows a confirmation", async () => {
-    const userData = await mkdtemp(resolve(tmpdir(), "k-downloader-instance-test-"));
+    const userData = await mkdtemp(resolve(tmpdir(), "khinsider-downloader-instance-test-"));
     const require = createRequire(import.meta.url);
     const executablePath: string = require("electron");
     const args = [resolve("dist/electron/main.cjs"), `--user-data-dir=${userData}`];
@@ -254,7 +254,7 @@ describe("single-instance desktop", () => {
       }));
       expect(state.windowCount).toBe(1);
       expect(state.visible).toBe(true);
-      expect(state.notice.message).toBe("K-Downloader is already running.");
+      expect(state.notice.message).toBe("Khinsider Downloader is already running.");
       expect(state.notice.buttons).toEqual(["Show running app"]);
     } finally {
       if (secondary && secondary.exitCode === null) secondary.kill();

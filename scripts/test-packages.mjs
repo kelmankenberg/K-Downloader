@@ -11,14 +11,14 @@ const require = createRequire(import.meta.url);
 const config = require(resolve(root, "electron-builder.config.cjs"));
 const { version } = JSON.parse(await readFile(resolve(root, "package.json"), "utf8"));
 const cases = [
-  { extension: "deb", artifact: `K-Downloader-${version}-amd64.deb` },
-  { extension: "AppImage", artifact: `K-Downloader-${version}-x86_64.AppImage` },
-  { extension: "pacman", artifact: `K-Downloader-${version}-x86_64.pkg.tar.xz` },
+  { extension: "deb", artifact: `Khinsider-Downloader-${version}-amd64.deb` },
+  { extension: "AppImage", artifact: `Khinsider-Downloader-${version}-x86_64.AppImage` },
+  { extension: "pacman", artifact: `Khinsider-Downloader-${version}-x86_64.pkg.tar.xz` },
 ];
 const targets = process.argv.slice(2);
 if (targets.some((target) => !cases.some((item) => item.extension === target))) throw new Error("Supported test targets: deb, AppImage, pacman");
 const selected = targets.length ? cases.filter((item) => targets.includes(item.extension)) : cases;
-const temporary = await mkdtemp(resolve(tmpdir(), "k-downloader-artifacts-"));
+const temporary = await mkdtemp(resolve(tmpdir(), "khinsider-downloader-artifacts-"));
 const env = { ...process.env, XDG_CURRENT_DESKTOP: "Test" };
 const headlessEnv = { ...env };
 delete headlessEnv.DISPLAY;
@@ -27,7 +27,7 @@ delete headlessEnv.WAYLAND_DISPLAY;
 async function findBinary(directory) {
   for (const entry of await readdir(directory, { withFileTypes: true })) {
     const path = resolve(directory, entry.name);
-    if (entry.isFile() && entry.name === "k-downloader-bin") return path;
+    if (entry.isFile() && entry.name === "khinsider-downloader-bin") return path;
     if (entry.isDirectory()) {
       const found = await findBinary(path);
       if (found) return found;
@@ -43,7 +43,7 @@ try {
     else if (item.extension === "pacman") {
       execFileSync("bsdtar", ["--no-same-owner", "-xf", artifact, "-C", directory]);
       const metadata = await readFile(resolve(directory, ".PKGINFO"), "utf8");
-      if (!/^pkgname = k-downloader$/m.test(metadata) || !/^arch = x86_64$/m.test(metadata) || !metadata.includes(`pkgver = ${version}-`)) {
+      if (!/^pkgname = khinsider-downloader$/m.test(metadata) || !/^arch = x86_64$/m.test(metadata) || !metadata.includes(`pkgver = ${version}-`)) {
         throw new Error(`Unexpected pacman metadata in ${item.artifact}`);
       }
       const dependencies = metadata.split("\n").filter((line) => line.startsWith("depend = ")).map((line) => line.slice("depend = ".length));
@@ -55,8 +55,8 @@ try {
     const binary = await findBinary(directory);
     if (!binary) throw new Error(`Missing application executable in ${item.artifact}`);
     const appDir = dirname(binary);
-    const cli = spawnSync(resolve(appDir, "k-downloader"), ["--help"], { env: headlessEnv, encoding: "utf8" });
-    if (cli.error || cli.status !== 0 || !cli.stderr.includes("k-downloader inspect")) {
+    const cli = spawnSync(resolve(appDir, "khinsider-downloader"), ["--help"], { env: headlessEnv, encoding: "utf8" });
+    if (cli.error || cli.status !== 0 || !cli.stderr.includes("khinsider-downloader inspect")) {
       throw new Error(`Packaged CLI help failed: ${cli.error?.message ?? cli.stderr}`);
     }
     const app = await electron.launch({ executablePath: binary, args: [`--user-data-dir=${resolve(temporary, `profile-${index}`)}`], env });
@@ -64,7 +64,7 @@ try {
     try {
       const page = await app.firstWindow();
       await page.waitForFunction(() => document.documentElement.dataset.mode);
-      state = await app.evaluate(({ app }) => ({ packaged: app.isPackaged, appPath: app.getAppPath(), browserPath: process.env.K_DOWNLOADER_CHROMIUM_PATH }));
+      state = await app.evaluate(({ app }) => ({ packaged: app.isPackaged, appPath: app.getAppPath(), browserPath: process.env.KHINSIDER_DOWNLOADER_CHROMIUM_PATH }));
       if (!state.packaged) throw new Error("Artifact did not start in packaged mode");
       await page.getByRole("button", { name: "More options", exact: true }).click();
       await page.getByRole("menuitem", { name: "Help", exact: true }).click();

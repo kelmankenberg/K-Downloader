@@ -167,7 +167,7 @@ export async function inspectAlbum(
   const browser = await chromium.launch({
     headless: false,
     args: ["--start-minimized"],
-    ...(process.env.K_DOWNLOADER_CHROMIUM_PATH ? { executablePath: process.env.K_DOWNLOADER_CHROMIUM_PATH } : {}),
+    ...(process.env.KHINSIDER_DOWNLOADER_CHROMIUM_PATH ? { executablePath: process.env.KHINSIDER_DOWNLOADER_CHROMIUM_PATH } : {}),
   });
   let context: BrowserContext | undefined;
   const controller = new AbortController();

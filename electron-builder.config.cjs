@@ -2,9 +2,9 @@ const { chmod, copyFile, rename } = require("node:fs/promises");
 const { resolve } = require("node:path");
 
 module.exports = {
-  appId: "com.kelmankenberg.kdownloader",
-  productName: "K-Downloader",
-  executableName: "k-downloader",
+  appId: "com.kelmankenberg.khinsiderdownloader",
+  productName: "Khinsider Downloader",
+  executableName: "khinsider-downloader",
   directories: { output: "release", buildResources: "assets" },
   asar: true,
   npmRebuild: false,
@@ -13,14 +13,14 @@ module.exports = {
   linux: {
     syncDesktopName: true,
     target: ["deb", "AppImage", "pacman"],
-    icon: "assets/k-downloader.png",
+    icon: "assets/khinsider-downloader.png",
     category: "AudioVideo",
     synopsis: "Download public KHInsider soundtrack tracks",
-    desktop: { entry: { Name: "K-Downloader", StartupWMClass: "k-downloader", Terminal: "false" } },
-    artifactName: "K-Downloader-${version}-${arch}.${ext}",
+    desktop: { entry: { Name: "Khinsider Downloader", StartupWMClass: "khinsider-downloader", Terminal: "false" } },
+    artifactName: "Khinsider-Downloader-${version}-${arch}.${ext}",
   },
   deb: {
-    packageName: "k-downloader",
+    packageName: "khinsider-downloader",
     compression: "gz",
     recommends: [],
     depends: [
@@ -32,9 +32,9 @@ module.exports = {
     ],
   },
   pacman: {
-    packageName: "k-downloader",
+    packageName: "khinsider-downloader",
     compression: "xz",
-    artifactName: "K-Downloader-${version}-x86_64.pkg.tar.xz",
+    artifactName: "Khinsider-Downloader-${version}-x86_64.pkg.tar.xz",
     depends: [
       "glibc", "gcc-libs", "gtk3", "libnotify", "nss", "nspr", "libxss", "libxtst",
       "xdg-utils", "at-spi2-core", "util-linux-libs", "libsecret", "alsa-lib", "mesa",
@@ -45,8 +45,8 @@ module.exports = {
   },
   afterPack: async ({ appOutDir, electronPlatformName }) => {
     if (electronPlatformName !== "linux") return;
-    await rename(resolve(appOutDir, "k-downloader"), resolve(appOutDir, "k-downloader-bin"));
-    await copyFile(resolve(__dirname, "scripts/linux-launcher.sh"), resolve(appOutDir, "k-downloader"));
-    await chmod(resolve(appOutDir, "k-downloader"), 0o755);
+    await rename(resolve(appOutDir, "khinsider-downloader"), resolve(appOutDir, "khinsider-downloader-bin"));
+    await copyFile(resolve(__dirname, "scripts/linux-launcher.sh"), resolve(appOutDir, "khinsider-downloader"));
+    await chmod(resolve(appOutDir, "khinsider-downloader"), 0o755);
   },
 };

@@ -1,4 +1,4 @@
-# K-Downloader Help
+# Khinsider Downloader Help
 
 ## Getting Started
 
@@ -55,7 +55,7 @@ between tracks in the same album.
 
 ## Destination and Disc Folders
 
-The default root is `~/Music/K-Downloader`. Type another root in **Save album
+The default root is `~/Music/Khinsider Downloader`. Type another root in **Save album
 under** or use the folder-picker button. The app creates an album-title folder
 under that root. Select the root, not a pre-created album folder, to avoid
 unintentional nesting.
@@ -236,7 +236,7 @@ app shows the GitHub URL so you can visit it manually.
 
 The current implementation is Linux-first and single-album. Linux x64 AppImage
 and .deb builds include Electron and Chromium. The installed launcher supports
-`k-downloader inspect`, `k-downloader download`, and `k-downloader --help`.
+`khinsider-downloader inspect`, `khinsider-downloader download`, and `khinsider-downloader --help`.
 Distribution compatibility still requires target-machine testing.
 Multi-album queues, cover artwork, login/bulk downloads, .rpm/ARM packaging,
 automatic updates, tagging, transcoding, and player integration are not

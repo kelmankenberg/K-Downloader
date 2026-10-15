@@ -76,7 +76,7 @@ describe("inspection cancellation", () => {
   });
 
   it("closes Chromium to interrupt active navigation and never starts track requests", async () => {
-    vi.stubEnv("K_DOWNLOADER_CHROMIUM_PATH", "/test/resources/chromium/chrome");
+    vi.stubEnv("KHINSIDER_DOWNLOADER_CHROMIUM_PATH", "/test/resources/chromium/chrome");
     const controller = new AbortController();
     let rejectNavigation!: (error: Error) => void;
     let navigationStarted!: () => void;

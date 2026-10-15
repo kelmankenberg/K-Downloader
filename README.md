@@ -1,10 +1,10 @@
-# K-Downloader
+# Khinsider Downloader
 
-K-Downloader is a Linux-first KHInsider album downloader. The current slice
+Khinsider Downloader is a Linux-first KHInsider album downloader. The current slice
 implements public single-album discovery, format preview and policy, sequential
-streaming, manifest-backed reruns, an Electron GUI, and Linux x64 AppImage/.deb
-packaging. Multi-album queues, artwork, and optional account features are not
-implemented yet.
+streaming, manifest-backed reruns, an Electron GUI, and Linux x64 AppImage, Debian,
+and Arch packaging, with a checksum-pinned AUR binary recipe generator. Multi-album
+queues, artwork, and optional account features are not implemented yet.
 
 ## Discovery check
 
@@ -29,7 +29,7 @@ access methods.
 
 The CLI previews the selected formats before starting any transfer. The default
 format policy prefers lossless, falling back to MP3 when needed. The default
-destination is `~/Music/K-Downloader`.
+destination is `~/Music/Khinsider Downloader`.
 
 ```sh
 npm run download -- 'https://downloads.khinsider.com/game-soundtracks/album/unreal-ii-the-awakening-original-soundtrack'
@@ -68,7 +68,7 @@ Paste one album URL and choose **Inspect album**. A Chromium inspection window
 starts minimized while an in-progress indicator appears in the app; click that
 indicator to show or hide the browser. Review the per-track format preview, choose the
 destination and format policy, then select **Download**. The default destination
-is `~/Music/K-Downloader`. **Cancel active download** stops the current transfer
+is `~/Music/Khinsider Downloader`. **Cancel active download** stops the current transfer
 and prevents later tracks from starting.
 
 While inspection is running, the same button becomes **Cancel inspection**.
@@ -124,11 +124,13 @@ The first command creates `.deb`, AppImage, Arch `.pkg.tar.xz`, and SHA-256 chec
 `release/`, with Electron and Chromium included. To build separately, use
 `npm run package:deb`, `npm run package:appimage`, or `npm run package:arch`; `npm run package:dir` creates
 an unpacked application. Recipients do not need npm or a separate Node runtime.
-The packaged `k-downloader` launcher supports `inspect`, `download`, and `--help`.
+The packaged `khinsider-downloader` launcher supports `inspect`, `download`, and `--help`.
 Arch builds/tests require `bsdtar`. Select smoke-test targets with
-`npm run test:packages -- pacman` (or `deb AppImage`). After building Arch,
-`npm run package:aur` generates a checksum-pinned `k-downloader-bin` AUR recipe
-under `release/aur/`; it does not submit to AUR. Arch/Omarchy desktop validation
+`npm run test:packages -- pacman` (or `deb AppImage`).
+`npm run package:aur` builds the Arch archive first, then generates a checksum-pinned
+`khinsider-downloader-bin` AUR recipe under `release/aur/`; it does not submit to AUR.
+To generate only the recipe for an already-built archive, run
+`node scripts/generate-aur.mjs`. Arch/Omarchy desktop validation
 and distribution-license review are required before claiming support publicly.
 
 See [docs/BUILD_AND_RELEASE.md](docs/BUILD_AND_RELEASE.md) for maintainer metadata,

@@ -29,7 +29,7 @@ function tracks(formats: string[][] = [["MP3"], ["MP3"]]): DiscoveredTrack[] {
 }
 
 async function temporaryDirectory(): Promise<string> {
-  const directory = await mkdtemp(join(tmpdir(), "k-downloader-album-test-"));
+  const directory = await mkdtemp(join(tmpdir(), "khinsider-downloader-album-test-"));
   temporaryDirectories.push(directory);
   return directory;
 }

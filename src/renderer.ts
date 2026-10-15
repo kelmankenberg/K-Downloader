@@ -17,7 +17,7 @@ const help = initializeHelp();
 const albumInput = document.querySelector<HTMLTextAreaElement>("#album-url")!;
 document.querySelector("#khinsider-link")!.addEventListener("click", (event) => {
   event.preventDefault();
-  void window.kDownloader.openKhinsider();
+  void window.khinsiderDownloader.openKhinsider();
 });
 const outputInput = document.querySelector<HTMLInputElement>("#output-root")!;
 const formatSelect = document.querySelector<HTMLSelectElement>("#format-policy")!;
@@ -210,13 +210,13 @@ function setBusy(value: boolean): void {
   if (inspection) renderTracks();
 }
 
-minimizeWindowButton.addEventListener("click", () => { void window.kDownloader.minimizeWindow(); });
+minimizeWindowButton.addEventListener("click", () => { void window.khinsiderDownloader.minimizeWindow(); });
 maximizeWindowButton.addEventListener("click", async () => {
-  const maximized = await window.kDownloader.toggleMaximizeWindow();
+  const maximized = await window.khinsiderDownloader.toggleMaximizeWindow();
   updateMaximizeButton(maximized);
 });
-closeWindowButton.addEventListener("click", () => { void window.kDownloader.closeWindow(); });
-window.kDownloader.onWindowState(({ maximized }) => updateMaximizeButton(maximized));
+closeWindowButton.addEventListener("click", () => { void window.khinsiderDownloader.closeWindow(); });
+window.khinsiderDownloader.onWindowState(({ maximized }) => updateMaximizeButton(maximized));
 
 moreButton.addEventListener("click", () => {
   moreMenu.hidden = !moreMenu.hidden;
@@ -227,7 +227,7 @@ appearanceNav.addEventListener("click", () => selectSettingsPage("appearance"));
 shortcutsNav.addEventListener("click", () => selectSettingsPage("shortcuts"));
 restoreBoundsMenuItem.addEventListener("click", () => {
   closeMoreMenu();
-  void window.kDownloader.restoreWindowBounds();
+  void window.khinsiderDownloader.restoreWindowBounds();
 });
 changelogMenuItem.addEventListener("click", () => {
   closeMoreMenu();
@@ -241,7 +241,7 @@ helpMenuItem.addEventListener("click", () => {
 });
 reportIssueMenuItem.addEventListener("click", () => {
   closeMoreMenu();
-  void window.kDownloader.reportIssue();
+  void window.khinsiderDownloader.reportIssue();
 });
 closeSettingsButton.addEventListener("click", () => setSettingsOpen(false));
 document.addEventListener("click", (event) => {
@@ -251,7 +251,7 @@ document.addEventListener("keydown", (event) => {
   if (event.ctrlKey && ["0", "-", "_", "=", "+"].includes(event.key)) {
     event.preventDefault();
     const direction = event.key === "0" ? "reset" : ["-", "_"].includes(event.key) ? "out" : "in";
-    void window.kDownloader.zoom(direction);
+    void window.khinsiderDownloader.zoom(direction);
   } else if ((event.ctrlKey || event.metaKey) && event.key === ",") {
     event.preventDefault();
     setSettingsOpen(!settingsOpen);
@@ -267,7 +267,7 @@ document.addEventListener("keydown", (event) => {
 document.addEventListener("wheel", (event) => {
   if (!event.ctrlKey || event.deltaY === 0) return;
   event.preventDefault();
-  void window.kDownloader.zoom(event.deltaY < 0 ? "in" : "out");
+  void window.khinsiderDownloader.zoom(event.deltaY < 0 ? "in" : "out");
 }, { passive: false });
 
 inspectButton.addEventListener("click", async () => {
@@ -289,7 +289,7 @@ inspectButton.addEventListener("click", async () => {
   setBusy(true);
   updateInspectionIndicator({ active: true, browserReady: false, browserVisible: false });
   try {
-    inspection = await window.kDownloader.inspect(albumUrl);
+    inspection = await window.khinsiderDownloader.inspect(albumUrl);
     if (!inspection) {
       setStatus("Inspection canceled");
       return;
@@ -315,7 +315,7 @@ inspectButton.addEventListener("click", async () => {
 inspectionIndicator.addEventListener("click", async () => {
   if (inspectionIndicator.disabled) return;
   try {
-    inspectionBrowserVisible = await window.kDownloader.toggleInspectionBrowser();
+    inspectionBrowserVisible = await window.khinsiderDownloader.toggleInspectionBrowser();
     inspectionIndicator.setAttribute("aria-pressed", String(inspectionBrowserVisible));
     inspectionIndicatorText.textContent = inspectionBrowserVisible ? "Hide browser" : "Show browser";
   } catch (error) {
@@ -323,10 +323,10 @@ inspectionIndicator.addEventListener("click", async () => {
   }
 });
 
-window.kDownloader.onInspectionState(updateInspectionIndicator);
+window.khinsiderDownloader.onInspectionState(updateInspectionIndicator);
 
 browseButton.addEventListener("click", async () => {
-  const selected = await window.kDownloader.chooseOutput();
+  const selected = await window.khinsiderDownloader.chooseOutput();
   if (selected) outputInput.value = selected;
 });
 
@@ -345,7 +345,7 @@ downloadButton.addEventListener("click", async () => {
   setBusy(true);
   setStatus("Downloading", "working");
   try {
-    const result = await window.kDownloader.download({
+    const result = await window.khinsiderDownloader.download({
       policy: currentPolicy(),
       outputRoot: outputInput.value,
       discLabel: discLabelSelect.value === "Disc" ? "Disc" : "CD",
@@ -371,7 +371,7 @@ cancelButton.addEventListener("click", async () => {
     inspectionIndicatorText.textContent = "Canceling…";
   } else setStatus("Canceling active track…", "working");
   try {
-    await window.kDownloader.cancel();
+    await window.khinsiderDownloader.cancel();
   } catch (error) {
     errorText.textContent = error instanceof Error ? error.message : String(error);
     inspectionCancelRequested = false;
@@ -379,7 +379,7 @@ cancelButton.addEventListener("click", async () => {
   }
 });
 
-window.kDownloader.onProgress((event: GuiProgress) => {
+window.khinsiderDownloader.onProgress((event: GuiProgress) => {
   progress.max = event.totalTracks;
   progress.value = event.completedTracks;
   progressText.textContent = event.stage === "track-start"
@@ -391,4 +391,4 @@ window.kDownloader.onProgress((event: GuiProgress) => {
         : "Canceled";
 });
 
-void window.kDownloader.defaultOutputRoot().then((value) => { outputInput.value = value; });
+void window.khinsiderDownloader.defaultOutputRoot().then((value) => { outputInput.value = value; });

@@ -41,7 +41,7 @@ export type GuiDownloadRequest = {
   discLabel: "CD" | "Disc";
 };
 
-export type KDownloaderApi = {
+export type KhinsiderDownloaderApi = {
   openKhinsider: () => Promise<void>;
   reportIssue: () => Promise<void>;
   restoreWindowBounds: () => Promise<void>;
@@ -64,6 +64,6 @@ export type KDownloaderApi = {
 
 declare global {
   interface Window {
-    kDownloader: KDownloaderApi;
+    khinsiderDownloader: KhinsiderDownloaderApi;
   }
 }

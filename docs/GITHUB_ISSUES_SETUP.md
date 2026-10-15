@@ -3,7 +3,7 @@
 The app's **More > Report an Issue** command opens this fixed URL in the user's
 default browser:
 
-https://github.com/kelmankenberg/K-Downloader/issues/new/choose
+https://github.com/kelmankenberg/Khinsider-Downloader/issues/new/choose
 
 Users need a GitHub account to submit. The app does not upload logs, credentials,
 or account data automatically, and it never renders GitHub in the privileged app

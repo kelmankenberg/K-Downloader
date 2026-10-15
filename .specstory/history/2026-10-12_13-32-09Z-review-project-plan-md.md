@@ -24,13 +24,13 @@ Read `PROJECT_PLAN.md`, lines 1 to 260
 **Input:**
 
 - endLine: `260`
-- filePath: `/home/kel/dev/K-Downloader/docs/PROJECT_PLAN.md`
+- filePath: `/home/kel/dev/Khinsider-Downloader/docs/PROJECT_PLAN.md`
 - startLine: `1`
 
 **Result:**
 
 ```
-# K-Downloader
+# Khinsider Downloader
 
 Status: Draft for discussion. No application implementation has started.
 
@@ -51,7 +51,7 @@ album, with per-track availability shown before starting.
 
 Confirmed on 2026-10-12:
 
-- The application is named K-Downloader.
+- The application is named Khinsider Downloader.
 - A desktop GUI is the primary interface, with a scriptable CLI option too.
 - Support a pasted list of album URLs in the initial release, not just one album.
 - Individual track-page downloads require no login, as confirmed by the user.
@@ -61,7 +61,7 @@ Confirmed on 2026-10-12:
   available only when the account has the required standing.
 - The GUI offers an opt-in "Remember me" checkbox using secure Linux storage,
   with logout and removal of saved authentication.
-- Default output is `~/Music/K-Downloader`, with an alternate destination
+- Default output is `~/Music/Khinsider Downloader`, with an alternate destination
   selectable by the user. Use numbered track filenames and save cover artwork
   when available.
 - Prefer lossless downloads when available; allow format selection for each
@@ -89,7 +89,7 @@ Read `PROJECT_PLAN.md`, lines 261 to 385
 **Input:**
 
 - endLine: `520`
-- filePath: `/home/kel/dev/K-Downloader/docs/PROJECT_PLAN.md`
+- filePath: `/home/kel/dev/Khinsider-Downloader/docs/PROJECT_PLAN.md`
 - startLine: `261`
 
 **Result:**
@@ -198,11 +198,11 @@ _**Agent (copilot/auto)**_
 <tool-use data-tool-type="generic" data-tool-name="list_dir"><details>
 <summary>Tool use: **list_dir**</summary>
 
-Read `K-Downloader`
+Read `Khinsider Downloader`
 
 **Input:**
 
-- path: `/home/kel/dev/K-Downloader`
+- path: `/home/kel/dev/Khinsider-Downloader`
 
 **Result:**
 
@@ -331,16 +331,16 @@ Apply Patch
 
 ````
 *** Begin Patch
-*** Add File: /home/kel/dev/K-Downloader/scripts/package.json
+*** Add File: /home/kel/dev/Khinsider-Downloader/scripts/package.json
 +{
-+  "name": "k-downloader-feasibility-probe",
++  "name": "khinsider-downloader-feasibility-probe",
 +  "private": true,
 +  "type": "module",
 +  "dependencies": {
 +    "parse5": "^7.3.0"
 +  }
 +}
-*** Add File: /home/kel/dev/K-Downloader/scripts/verify-khinsider-access.mjs
+*** Add File: /home/kel/dev/Khinsider-Downloader/scripts/verify-khinsider-access.mjs
 +#!/usr/bin/env node
 +
 +import { lookup } from "node:dns/promises";
@@ -350,7 +350,7 @@ Apply Patch
 +const DEFAULT_ALBUM_URL =
 +  "https://downloads.khinsider.com/game-soundtracks/album/unreal-ii-the-awakening-original-soundtrack";
 +const SITE_HOST = "downloads.khinsider.com";
-+const USER_AGENT = `K-Downloader-feasibility-probe/0.1${process.env.K_DOWNLOADER_CONTACT ? ` (${process.env.K_DOWNLOADER_CONTACT})` : ""}`;
++const USER_AGENT = `Khinsider Downloader-feasibility-probe/0.1${process.env.KHINSIDER_DOWNLOADER_CONTACT ? ` (${process.env.KHINSIDER_DOWNLOADER_CONTACT})` : ""}`;
 +const PAGE_LIMIT_BYTES = 4 * 1024 * 1024;
 +const REQUEST_TIMEOUT_MS = 20_000;
 +const REDIRECT_LIMIT = 5;
@@ -678,7 +678,7 @@ Apply Patch
 +  console.error(`\nRESULT: FAIL: ${error.message}`);
 +  process.exitCode = 1;
 +});
-*** Add File: /home/kel/dev/K-Downloader/scripts/README.md
+*** Add File: /home/kel/dev/Khinsider-Downloader/scripts/README.md
 +# KHInsider public-access feasibility probe
 +
 +This probe checks whether Node.js's built-in `fetch` can read a public KHInsider
@@ -729,7 +729,7 @@ Apply Patch
 +For site operator contact details, optionally set a truthful user-agent suffix:
 +
 +```sh
-+K_DOWNLOADER_CONTACT='contact: you@example.org' node verify-khinsider-access.mjs
++KHINSIDER_DOWNLOADER_CONTACT='contact: you@example.org' node verify-khinsider-access.mjs
 +```
 +
 +Review KHInsider's applicable terms and request guidance before running it. Run
@@ -776,16 +776,16 @@ Generating patch (421 lines) in `package.json`, `verify-khinsider-access.mjs`, `
 
 ````
 *** Begin Patch
-*** Add File: /home/kel/dev/K-Downloader/scripts/package.json
+*** Add File: /home/kel/dev/Khinsider-Downloader/scripts/package.json
 +{
-+  "name": "k-downloader-feasibility-probe",
++  "name": "khinsider-downloader-feasibility-probe",
 +  "private": true,
 +  "type": "module",
 +  "dependencies": {
 +    "parse5": "^7.3.0"
 +  }
 +}
-*** Add File: /home/kel/dev/K-Downloader/scripts/verify-khinsider-access.mjs
+*** Add File: /home/kel/dev/Khinsider-Downloader/scripts/verify-khinsider-access.mjs
 +#!/usr/bin/env node
 +
 +import { lookup } from "node:dns/promises";
@@ -795,7 +795,7 @@ Generating patch (421 lines) in `package.json`, `verify-khinsider-access.mjs`, `
 +const DEFAULT_ALBUM_URL =
 +  "https://downloads.khinsider.com/game-soundtracks/album/unreal-ii-the-awakening-original-soundtrack";
 +const SITE_HOST = "downloads.khinsider.com";
-+const USER_AGENT = `K-Downloader-feasibility-probe/0.1${process.env.K_DOWNLOADER_CONTACT ? ` (${process.env.K_DOWNLOADER_CONTACT})` : ""}`;
++const USER_AGENT = `Khinsider Downloader-feasibility-probe/0.1${process.env.KHINSIDER_DOWNLOADER_CONTACT ? ` (${process.env.KHINSIDER_DOWNLOADER_CONTACT})` : ""}`;
 +const PAGE_LIMIT_BYTES = 4 * 1024 * 1024;
 +const REQUEST_TIMEOUT_MS = 20_000;
 +const REDIRECT_LIMIT = 5;
@@ -1123,7 +1123,7 @@ Generating patch (421 lines) in `package.json`, `verify-khinsider-access.mjs`, `
 +  console.error(`\nRESULT: FAIL: ${error.message}`);
 +  process.exitCode = 1;
 +});
-*** Add File: /home/kel/dev/K-Downloader/scripts/README.md
+*** Add File: /home/kel/dev/Khinsider-Downloader/scripts/README.md
 +# KHInsider public-access feasibility probe
 +
 +This probe checks whether Node.js's built-in `fetch` can read a public KHInsider
@@ -1174,7 +1174,7 @@ Generating patch (421 lines) in `package.json`, `verify-khinsider-access.mjs`, `
 +For site operator contact details, optionally set a truthful user-agent suffix:
 +
 +```sh
-+K_DOWNLOADER_CONTACT='contact: you@example.org' node verify-khinsider-access.mjs
++KHINSIDER_DOWNLOADER_CONTACT='contact: you@example.org' node verify-khinsider-access.mjs
 +```
 +
 +Review KHInsider's applicable terms and request guidance before running it. Run
@@ -1203,9 +1203,9 @@ Generating patch (421 lines) in `package.json`, `verify-khinsider-access.mjs`, `
 
 ```
 The following files were successfully edited:
-/home/kel/dev/K-Downloader/scripts/package.json
-/home/kel/dev/K-Downloader/scripts/verify-khinsider-access.mjs
-/home/kel/dev/K-Downloader/scripts/README.md
+/home/kel/dev/Khinsider-Downloader/scripts/package.json
+/home/kel/dev/Khinsider-Downloader/scripts/verify-khinsider-access.mjs
+/home/kel/dev/Khinsider-Downloader/scripts/README.md
 ```
 </details></tool-use>
 
@@ -1218,7 +1218,7 @@ _**Agent (copilot/auto)**_
 
 ```
 {
-  "name": "k-downloader-feasibility-probe",
+  "name": "khinsider-downloader-feasibility-probe",
   "private": true,
   "type": "module",
   "dependencies": {
@@ -1253,7 +1253,7 @@ import { parse } from "parse5";
 const DEFAULT_ALBUM_URL =
   "https://downloads.khinsider.com/game-soundtracks/album/unreal-ii-the-awakening-original-soundtrack";
 const SITE_HOST = "downloads.khinsider.com";
-const USER_AGENT = `K-Downloader-feasibility-probe/0.1${process.env.K_DOWNLOADER_CONTACT ? ` (${process.env.K_DOWNLOADER_CONTACT})` : ""}`;
+const USER_AGENT = `Khinsider Downloader-feasibility-probe/0.1${process.env.KHINSIDER_DOWNLOADER_CONTACT ? ` (${process.env.KHINSIDER_DOWNLOADER_CONTACT})` : ""}`;
 const PAGE_LIMIT_BYTES = 4 * 1024 * 1024;
 const REQUEST_TIMEOUT_MS = 20_000;
 const REDIRECT_LIMIT = 5;
@@ -1650,7 +1650,7 @@ node verify-khinsider-access.mjs --probe-media --max-media-bytes 8192
 For site operator contact details, optionally set a truthful user-agent suffix:
 
 ```sh
-K_DOWNLOADER_CONTACT='contact: you@example.org' node verify-khinsider-access.mjs
+KHINSIDER_DOWNLOADER_CONTACT='contact: you@example.org' node verify-khinsider-access.mjs
 ```
 
 Review KHInsider's applicable terms and request guidance before running it. Run
@@ -1700,7 +1700,7 @@ node:internal/modules/cjs/loader:1573
   throw err;
   ^
 
-Error: Cannot find module '/home/kel/dev/K-Downloader/verify-khinsider-access.mj
+Error: Cannot find module '/home/kel/dev/Khinsider-Downloader/verify-khinsider-access.mj
 s'
     at node:internal/modules/cjs/loader:1569:15
     at node:internal/main/check_syntax:33:20 {
@@ -1728,7 +1728,7 @@ cd scripts && npm install --ignore-scripts && node --check verify-khinsider-acce
 **Result:**
 
 ```
-kel@kel-EQ-Mint:~/dev/K-Downloader$  cd scripts && npm install --ignore-scripts
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  cd scripts && npm install --ignore-scripts
 && node --check verify-khinsider-access.mjs && node verify-khinsider-access.mjs
 --help
 
@@ -1764,12 +1764,12 @@ Checked `verify-khinsider-access.mjs`, no problems found
 
 **Input:**
 
-- filePaths: `["/home/kel/dev/K-Downloader/scripts/verify-khinsider-access.mjs"]`
+- filePaths: `["/home/kel/dev/Khinsider-Downloader/scripts/verify-khinsider-access.mjs"]`
 
 **Result:**
 
 ```
-<errors path="/home/kel/dev/K-Downloader/scripts/verify-khinsider-access.mjs">
+<errors path="/home/kel/dev/Khinsider-Downloader/scripts/verify-khinsider-access.mjs">
 No errors found
 </errors>
 ```
@@ -1784,7 +1784,7 @@ Read `scripts`
 
 **Input:**
 
-- path: `/home/kel/dev/K-Downloader/scripts`
+- path: `/home/kel/dev/Khinsider-Downloader/scripts`
 
 **Result:**
 
@@ -1810,11 +1810,11 @@ _**Agent (copilot/auto)**_
 <tool-use data-tool-type="generic" data-tool-name="list_dir"><details>
 <summary>Tool use: **list_dir**</summary>
 
-Read `K-Downloader`
+Read `Khinsider Downloader`
 
 **Input:**
 
-- path: `/home/kel/dev/K-Downloader`
+- path: `/home/kel/dev/Khinsider-Downloader`
 
 **Result:**
 
@@ -1845,7 +1845,7 @@ Local syntax, help, and editor diagnostics passed. I did not run the live check,
 _**User (2026-10-12 13:42:36Z)**_
 
 node verify-khinsider-access.mjs --probe-media
-Probe user-agent: K-Downloader-feasibility-probe/0.1
+Probe user-agent: Khinsider Downloader-feasibility-probe/0.1
 Authentication: none; cookies: none; automatic retries: none
 Album: https://downloads.khinsider.com/game-soundtracks/album/unreal-ii-the-awakening-original-soundtrack
 
@@ -1977,7 +1977,7 @@ Read `README.md`
 **Input:**
 
 - endLine: `120`
-- filePath: `/home/kel/dev/K-Downloader/scripts/README.md`
+- filePath: `/home/kel/dev/Khinsider-Downloader/scripts/README.md`
 - startLine: `1`
 
 **Result:**
@@ -2033,7 +2033,7 @@ node verify-khinsider-access.mjs --probe-media --max-media-bytes 8192
 For site operator contact details, optionally set a truthful user-agent suffix:
 
 ```sh
-K_DOWNLOADER_CONTACT='contact: you@example.org' node verify-khinsider-access.mjs
+KHINSIDER_DOWNLOADER_CONTACT='contact: you@example.org' node verify-khinsider-access.mjs
 ```
 
 Review KHInsider's applicable terms and request guidance before running it. Run
@@ -2054,7 +2054,7 @@ Read `verify-khinsider-access.mjs`, lines 1 to 110
 **Input:**
 
 - endLine: `110`
-- filePath: `/home/kel/dev/K-Downloader/scripts/verify-khinsider-access.mjs`
+- filePath: `/home/kel/dev/Khinsider-Downloader/scripts/verify-khinsider-access.mjs`
 - startLine: `1`
 
 **Result:**
@@ -2069,7 +2069,7 @@ import { parse } from "parse5";
 const DEFAULT_ALBUM_URL =
   "https://downloads.khinsider.com/game-soundtracks/album/unreal-ii-the-awakening-original-soundtrack";
 const SITE_HOST = "downloads.khinsider.com";
-const USER_AGENT = `K-Downloader-feasibility-probe/0.1${process.env.K_DOWNLOADER_CONTACT ? ` (${process.env.K_DOWNLOADER_CONTACT})` : ""}`;
+const USER_AGENT = `Khinsider Downloader-feasibility-probe/0.1${process.env.KHINSIDER_DOWNLOADER_CONTACT ? ` (${process.env.KHINSIDER_DOWNLOADER_CONTACT})` : ""}`;
 const PAGE_LIMIT_BYTES = 4 * 1024 * 1024;
 const REQUEST_TIMEOUT_MS = 20_000;
 const REDIRECT_LIMIT = 5;
@@ -2127,7 +2127,7 @@ Read `verify-khinsider-access.mjs`, lines 250 to 337
 **Input:**
 
 - endLine: `360`
-- filePath: `/home/kel/dev/K-Downloader/scripts/verify-khinsider-access.mjs`
+- filePath: `/home/kel/dev/Khinsider-Downloader/scripts/verify-khinsider-access.mjs`
 - startLine: `250`
 
 **Result:**
@@ -2196,7 +2196,7 @@ Apply Patch
 
 ````
 *** Begin Patch
-*** Update File: /home/kel/dev/K-Downloader/scripts/verify-khinsider-access.mjs
+*** Update File: /home/kel/dev/Khinsider-Downloader/scripts/verify-khinsider-access.mjs
 @@
  Options:
 +  --media-url URL       Probe this media URL directly (no album-page request)
@@ -2297,7 +2297,7 @@ Apply Patch
 @@
 -  audioLinks.forEach((link) => console.log(`  ${link.format ?? "format unknown"}: ${link.label} -> ${link.url.href}`));
 +  audioLinks.forEach((link) => console.log(`  ${link.format ?? "format unknown"}: ${link.label} -> ${displayUrl(link.url)}`));
-*** Update File: /home/kel/dev/K-Downloader/scripts/README.md
+*** Update File: /home/kel/dev/Khinsider-Downloader/scripts/README.md
 @@
  The media check sends `Range: bytes=0-0`. If the server honors ranges, it reads
  at most one byte. If the server ignores the range, the script reads at most
@@ -2347,7 +2347,7 @@ import { parse } from "parse5";
 const DEFAULT_ALBUM_URL =
   "https://downloads.khinsider.com/game-soundtracks/album/unreal-ii-the-awakening-original-soundtrack";
 const SITE_HOST = "downloads.khinsider.com";
-const USER_AGENT = `K-Downloader-feasibility-probe/0.1${process.env.K_DOWNLOADER_CONTACT ? ` (${process.env.K_DOWNLOADER_CONTACT})` : ""}`;
+const USER_AGENT = `Khinsider Downloader-feasibility-probe/0.1${process.env.KHINSIDER_DOWNLOADER_CONTACT ? ` (${process.env.KHINSIDER_DOWNLOADER_CONTACT})` : ""}`;
 const PAGE_LIMIT_BYTES = 4 * 1024 * 1024;
 const REQUEST_TIMEOUT_MS = 20_000;
 const REDIRECT_LIMIT = 5;
@@ -2783,7 +2783,7 @@ redacted in printed output in case the URL contains a temporary token.
 For site operator contact details, optionally set a truthful user-agent suffix:
 
 ```sh
-K_DOWNLOADER_CONTACT='contact: you@example.org' node verify-khinsider-access.mjs
+KHINSIDER_DOWNLOADER_CONTACT='contact: you@example.org' node verify-khinsider-access.mjs
 ```
 
 Review KHInsider's applicable terms and request guidance before running it. Run
@@ -2858,7 +2858,7 @@ Options:
 
 Without --probe-media or --media-url, the script stops after resolving an audio
 link on one track page. No login, cookies, or full audio downloads are used.
-Probe user-agent: K-Downloader-feasibility-probe/0.1
+Probe user-agent: Khinsider Downloader-feasibility-probe/0.1
 Authentication: none; cookies: none; automatic retries: none
 
 Bounded media probe: https://127.0.0.1/audio.mp3
@@ -2915,7 +2915,7 @@ _**User (2026-10-12 14:02:48Z)**_
 
 read -r -p 'Paste MP3 Request URL: ' MEDIA_URL
 Paste MP3 Request URL: https://lambda.vgmtreasurechest.com/soundtracks/unreal-ii-the-awakening-original-soundtrack/zdqtvwxw/01%20-%20Intro.mp3
-Probe user-agent: K-Downloader-feasibility-probe/0.1
+Probe user-agent: Khinsider Downloader-feasibility-probe/0.1
 Authentication: none; cookies: none; automatic retries: none
 
 Bounded media probe: https://lambda.vgmtreasurechest.com/soundtracks/unreal-ii-the-awakening-original-soundtrack/zdqtvwxw/01%20-%20Intro.mp3
@@ -3491,11 +3491,11 @@ _**Agent (copilot/auto)**_
 <tool-use data-tool-type="generic" data-tool-name="list_dir"><details>
 <summary>Tool use: **list_dir**</summary>
 
-Read `K-Downloader`
+Read `Khinsider Downloader`
 
 **Input:**
 
-- path: `/home/kel/dev/K-Downloader`
+- path: `/home/kel/dev/Khinsider-Downloader`
 
 **Result:**
 
@@ -3516,7 +3516,7 @@ Read `scripts`
 
 **Input:**
 
-- path: `/home/kel/dev/K-Downloader/scripts`
+- path: `/home/kel/dev/Khinsider-Downloader/scripts`
 
 **Result:**
 
@@ -3539,7 +3539,7 @@ Read `PROJECT_PLAN.md`, lines 115 to 260
 **Input:**
 
 - endLine: `260`
-- filePath: `/home/kel/dev/K-Downloader/docs/PROJECT_PLAN.md`
+- filePath: `/home/kel/dev/Khinsider-Downloader/docs/PROJECT_PLAN.md`
 - startLine: `115`
 
 **Result:**
@@ -3589,7 +3589,7 @@ Read `PROJECT_PLAN.md`, lines 261 to 365
 **Input:**
 
 - endLine: `365`
-- filePath: `/home/kel/dev/K-Downloader/docs/PROJECT_PLAN.md`
+- filePath: `/home/kel/dev/Khinsider-Downloader/docs/PROJECT_PLAN.md`
 - startLine: `261`
 
 **Result:**
@@ -3651,9 +3651,9 @@ Generating patch (276 lines) in `package.json`, `tsconfig.json`, `khinsider.ts`,
 
 ```
 *** Begin Patch
-*** Add File: /home/kel/dev/K-Downloader/package.json
+*** Add File: /home/kel/dev/Khinsider-Downloader/package.json
 +{
-+  "name": "k-downloader",
++  "name": "khinsider-downloader",
 +  "version": "0.1.0",
 +  "private": true,
 +  "type": "module",
@@ -3676,7 +3676,7 @@ Generating patch (276 lines) in `package.json`, `tsconfig.json`, `khinsider.ts`,
 +    "vitest": "^3.1.0"
 +  }
 +}
-*** Add File: /home/kel/dev/K-Downloader/tsconfig.json
+*** Add File: /home/kel/dev/Khinsider-Downloader/tsconfig.json
 +{
 +  "compilerOptions": {
 +    "target": "ES2022",
@@ -3689,7 +3689,7 @@ Generating patch (276 lines) in `package.json`, `tsconfig.json`, `khinsider.ts`,
 +  },
 +  "include": ["src/**/*.ts"]
 +}
-*** Add File: /home/kel/dev/K-Downloader/src/khinsider.ts
+*** Add File: /home/kel/dev/Khinsider-Downloader/src/khinsider.ts
 +import { chromium } from "playwright";
 +import { parse } from "parse5";
 +
@@ -3838,7 +3838,7 @@ Generating patch (276 lines) in `package.json`, `tsconfig.json`, `khinsider.ts`,
 +    await browser.close();
 +  }
 +}
-*** Add File: /home/kel/dev/K-Downloader/src/cli.ts
+*** Add File: /home/kel/dev/Khinsider-Downloader/src/cli.ts
 +import { inspectAlbum } from "./khinsider.js";
 +
 +function usage(): never {
@@ -3867,7 +3867,7 @@ Generating patch (276 lines) in `package.json`, `tsconfig.json`, `khinsider.ts`,
 +  console.error(`Discovery failed: ${error instanceof Error ? error.message : String(error)}`);
 +  process.exitCode = 1;
 +});
-*** Add File: /home/kel/dev/K-Downloader/tests/fixtures/album.html
+*** Add File: /home/kel/dev/Khinsider-Downloader/tests/fixtures/album.html
 +<!doctype html>
 +<html>
 +  <body>
@@ -3882,7 +3882,7 @@ Generating patch (276 lines) in `package.json`, `tsconfig.json`, `khinsider.ts`,
 +    <a href="/game-soundtracks/album/recommended-album">Recommended album</a>
 +  </body>
 +</html>
-*** Add File: /home/kel/dev/K-Downloader/tests/fixtures/track.html
+*** Add File: /home/kel/dev/Khinsider-Downloader/tests/fixtures/track.html
 +<!doctype html>
 +<html>
 +  <body>
@@ -3891,7 +3891,7 @@ Generating patch (276 lines) in `package.json`, `tsconfig.json`, `khinsider.ts`,
 +    <a href="https://downloads.khinsider.com/game-soundtracks/album/another.mp3">Another link</a>
 +  </body>
 +</html>
-*** Add File: /home/kel/dev/K-Downloader/tests/khinsider.test.ts
+*** Add File: /home/kel/dev/Khinsider-Downloader/tests/khinsider.test.ts
 +import { readFileSync } from "node:fs";
 +import { fileURLToPath } from "node:url";
 +import { describe, expect, it } from "vitest";
@@ -3933,13 +3933,13 @@ Generating patch (276 lines) in `package.json`, `tsconfig.json`, `khinsider.ts`,
 
 ```
 The following files were successfully edited:
-/home/kel/dev/K-Downloader/package.json
-/home/kel/dev/K-Downloader/tsconfig.json
-/home/kel/dev/K-Downloader/src/khinsider.ts
-/home/kel/dev/K-Downloader/src/cli.ts
-/home/kel/dev/K-Downloader/tests/fixtures/album.html
-/home/kel/dev/K-Downloader/tests/fixtures/track.html
-/home/kel/dev/K-Downloader/tests/khinsider.test.ts
+/home/kel/dev/Khinsider-Downloader/package.json
+/home/kel/dev/Khinsider-Downloader/tsconfig.json
+/home/kel/dev/Khinsider-Downloader/src/khinsider.ts
+/home/kel/dev/Khinsider-Downloader/src/cli.ts
+/home/kel/dev/Khinsider-Downloader/tests/fixtures/album.html
+/home/kel/dev/Khinsider-Downloader/tests/fixtures/track.html
+/home/kel/dev/Khinsider-Downloader/tests/khinsider.test.ts
 ```
 </details></tool-use>
 
@@ -3952,7 +3952,7 @@ _**Agent (copilot/auto)**_
 
 ```
 {
-  "name": "k-downloader",
+  "name": "khinsider-downloader",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -4344,12 +4344,12 @@ _**Agent (copilot/auto)**_
 <tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
 <summary>Tool use: **run_in_terminal**</summary>
 
-Running ` cd /home/kel/dev/K-Downloader && npm install && npm test && npm run build`
+Running ` cd /home/kel/dev/Khinsider-Downloader && npm install && npm test && npm run build`
 
 Install the new TypeScript, Playwright, and test dependencies, then run parser tests and strict compilation.
 
 ```bash
-cd /home/kel/dev/K-Downloader && npm install && npm test && npm run build
+cd /home/kel/dev/Khinsider-Downloader && npm install && npm test && npm run build
 ```
 
 **Result:**
@@ -4374,11 +4374,11 @@ npm warn install-scripts
 npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install
 -scripts approve <pkg>` to allow.
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run
 
 
- RUN  v3.2.7 /home/kel/dev/K-Downloader
+ RUN  v3.2.7 /home/kel/dev/Khinsider-Downloader
 
  ✓ tests/khinsider.test.ts (3 tests) 37ms
    ✓ KHInsider page parsing > keeps ordered track-page links and ignores bulk an
@@ -4394,7 +4394,7 @@ eir format 6ms
 onment 0ms, prepare 219ms)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 
 src/khinsider.ts:104:39 - error TS2339: Property 'filter' does not exist on type
@@ -4589,7 +4589,7 @@ Running ` npm test && npm run build`
 Rerun the focused parser tests and TypeScript build after fixing the generator iteration error.
 
 ```bash
-cd /home/kel/dev/K-Downloader && npm test && npm run build
+cd /home/kel/dev/Khinsider-Downloader && npm test && npm run build
 ```
 
 **Result:**
@@ -4597,11 +4597,11 @@ cd /home/kel/dev/K-Downloader && npm test && npm run build
 ```
 Note: The tool simplified the command to ` npm test && npm run build` (terminal ID=cd58d801-b218-4308-a484-ec8bd9a05b27). This is the output of running that command instead:
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run
 
 
- RUN  v3.2.7 /home/kel/dev/K-Downloader
+ RUN  v3.2.7 /home/kel/dev/Khinsider-Downloader
 
  ✓ tests/khinsider.test.ts (3 tests) 34ms
    ✓ KHInsider page parsing > keeps ordered track-page links and ignores bulk an
@@ -4617,7 +4617,7 @@ eir format 5ms
 onment 0ms, prepare 409ms)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 ```
 </details></tool-use>
@@ -4643,7 +4643,7 @@ npm run inspect -- https://downloads.khinsider.com/game-soundtracks/album/unreal
 
 ```
 
-> k-downloader@0.1.0 inspect
+> khinsider-downloader@0.1.0 inspect
 > tsx src/cli.ts inspect https://downloads.khinsider.com/game-soundtracks/album/
 unreal-ii-the-awakening-original-soundtrack
 
@@ -4729,7 +4729,7 @@ npm run inspect -- https://downloads.khinsider.com/game-soundtracks/album/unreal
 
 ```
 
-> k-downloader@0.1.0 inspect
+> khinsider-downloader@0.1.0 inspect
 > tsx src/cli.ts inspect https://downloads.khinsider.com/game-soundtracks/album/
 unreal-ii-the-awakening-original-soundtrack
 
@@ -4757,7 +4757,7 @@ node --input-type=module -e 'import { chromium } from "playwright"; const browse
 **Result:**
 
 ```
-kel@kel-EQ-Mint:~/dev/K-Downloader$  node --input-type=module -e 'import { chrom
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  node --input-type=module -e 'import { chrom
 ium } from "playwright"; const browser = await chromium.launch({ headless: false
  }); const context = await browser.newContext({ serviceWorkers: "block" }); try
 { const page = await context.newPage(); const response = await page.goto("https:
@@ -4789,18 +4789,18 @@ Generating patch (41 lines) in `khinsider.ts`, `package.json`, `README.md`
 
 ````
 *** Begin Patch
-*** Update File: /home/kel/dev/K-Downloader/src/khinsider.ts
+*** Update File: /home/kel/dev/Khinsider-Downloader/src/khinsider.ts
 @@
 -  const browser = await chromium.launch({ headless: true });
 +  const browser = await chromium.launch({ headless: false });
-*** Update File: /home/kel/dev/K-Downloader/package.json
+*** Update File: /home/kel/dev/Khinsider-Downloader/package.json
 @@
 -    "inspect": "tsx src/cli.ts inspect",
 +    "inspect": "tsx src/cli.ts inspect",
-*** Add File: /home/kel/dev/K-Downloader/README.md
-+# K-Downloader
+*** Add File: /home/kel/dev/Khinsider-Downloader/README.md
++# Khinsider Downloader
 +
-+K-Downloader is a Linux-first KHInsider album downloader. The first implemented
++Khinsider Downloader is a Linux-first KHInsider album downloader. The first implemented
 +slice is public album and track-link discovery; audio transfer, queue recovery,
 +GUI, optional account features, and packaging are not implemented yet.
 +
@@ -4836,9 +4836,9 @@ Generating patch (41 lines) in `khinsider.ts`, `package.json`, `README.md`
 
 ```
 The following files were successfully edited:
-/home/kel/dev/K-Downloader/src/khinsider.ts
-/home/kel/dev/K-Downloader/package.json
-/home/kel/dev/K-Downloader/README.md
+/home/kel/dev/Khinsider-Downloader/src/khinsider.ts
+/home/kel/dev/Khinsider-Downloader/package.json
+/home/kel/dev/Khinsider-Downloader/README.md
 ```
 </details></tool-use>
 
@@ -5018,7 +5018,7 @@ _**Agent (copilot/auto)**_
 
 ```
 {
-  "name": "k-downloader",
+  "name": "khinsider-downloader",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -5060,9 +5060,9 @@ _**Agent (copilot/auto)**_
 @@ lines 1-1 @@
 
 ````
-# K-Downloader
+# Khinsider Downloader
 
-K-Downloader is a Linux-first KHInsider album downloader. The first implemented
+Khinsider Downloader is a Linux-first KHInsider album downloader. The first implemented
 slice is public album and track-link discovery; audio transfer, queue recovery,
 GUI, optional account features, and packaging are not implemented yet.
 
@@ -5118,11 +5118,11 @@ npm test && npm run build && npm run inspect -- https://downloads.khinsider.com/
 
 ```
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run
 
 
- RUN  v3.2.7 /home/kel/dev/K-Downloader
+ RUN  v3.2.7 /home/kel/dev/Khinsider-Downloader
 
  ✓ tests/khinsider.test.ts (3 tests) 36ms
    ✓ KHInsider page parsing > keeps ordered track-page links and ignores bulk an
@@ -5138,11 +5138,11 @@ eir format 5ms
 onment 0ms, prepare 355ms)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 
 
-> k-downloader@0.1.0 inspect
+> khinsider-downloader@0.1.0 inspect
 > tsx src/cli.ts inspect https://downloads.khinsider.com/game-soundtracks/album/
 unreal-ii-the-awakening-original-soundtrack
 
@@ -5393,11 +5393,11 @@ npm test && npm run build && npm run inspect -- https://downloads.khinsider.com/
 
 ```
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run
 
 
- RUN  v3.2.7 /home/kel/dev/K-Downloader
+ RUN  v3.2.7 /home/kel/dev/Khinsider-Downloader
 
  ✓ tests/khinsider.test.ts (3 tests) 41ms
    ✓ KHInsider page parsing > keeps ordered track-page links and ignores bulk an
@@ -5413,11 +5413,11 @@ eir format 6ms
 onment 0ms, prepare 240ms)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 
 
-> k-downloader@0.1.0 inspect
+> khinsider-downloader@0.1.0 inspect
 > tsx src/cli.ts inspect https://downloads.khinsider.com/game-soundtracks/album/
 unreal-ii-the-awakening-original-soundtrack
 
@@ -5444,7 +5444,7 @@ Read `khinsider.ts`
 **Input:**
 
 - endLine: `220`
-- filePath: `/home/kel/dev/K-Downloader/src/khinsider.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/src/khinsider.ts`
 - startLine: `1`
 
 **Result:**
@@ -5531,7 +5531,7 @@ Read `cli.ts`
 **Input:**
 
 - endLine: `120`
-- filePath: `/home/kel/dev/K-Downloader/src/cli.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/src/cli.ts`
 - startLine: `1`
 
 **Result:**
@@ -5578,7 +5578,7 @@ Read `khinsider.test.ts`
 **Input:**
 
 - endLine: `160`
-- filePath: `/home/kel/dev/K-Downloader/tests/khinsider.test.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/tests/khinsider.test.ts`
 - startLine: `1`
 
 **Result:**
@@ -5689,7 +5689,7 @@ Generating patch (6 lines) in `package.json`
 
 ```
 *** Begin Patch
-*** Update File: /home/kel/dev/K-Downloader/package.json
+*** Update File: /home/kel/dev/Khinsider-Downloader/package.json
 @@
 -    "vitest": "^3.1.0"
 +    "vitest": "^5.0.4"
@@ -5701,7 +5701,7 @@ Generating patch (6 lines) in `package.json`
 
 ```
 The following files were successfully edited:
-/home/kel/dev/K-Downloader/package.json
+/home/kel/dev/Khinsider-Downloader/package.json
 ```
 </details></tool-use>
 
@@ -5714,7 +5714,7 @@ _**Agent (copilot/auto)**_
 
 ```
 {
-  "name": "k-downloader",
+  "name": "khinsider-downloader",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -5772,11 +5772,11 @@ npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install
 -scripts approve <pkg>` to allow.
 found 0 vulnerabilities
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  1 passed (1)
@@ -5785,7 +5785,7 @@ found 0 vulnerabilities
    Duration  1.35s (import 85%, transform 11%, tests 3%, worker 1%)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 ```
 </details></tool-use>
@@ -6229,11 +6229,11 @@ npm test && npm run build
 
 ```
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  1 passed (1)
@@ -6242,7 +6242,7 @@ npm test && npm run build
    Duration  1.44s (import 88%, transform 8%, tests 4%, worker 1%)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 
 src/cli.ts:12:18 - error TS2339: Property 'firstTrackAudio' does not exist on ty
@@ -6502,11 +6502,11 @@ npm test && npm run build
 
 ```
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  1 passed (1)
@@ -6515,7 +6515,7 @@ npm test && npm run build
    Duration  1.39s (import 93%, tests 3%, transform 2%, worker 2%)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 
 src/cli.ts:13:18 - error TS2304: Cannot find name 'planFormats'.
@@ -6801,11 +6801,11 @@ npm test && npm run build
 
 ```
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  1 passed (1)
@@ -6814,7 +6814,7 @@ npm test && npm run build
    Duration  1.12s (import 93%, tests 3%, transform 2%, worker 1%)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 ```
 </details></tool-use>
@@ -7046,7 +7046,7 @@ const resolveAddresses = async () => [{ address: "93.184.216.34", family: 4 }];
 const directories: string[] = [];
 
 async function temporaryDirectory(): Promise<string> {
-  const directory = await mkdtemp(join(tmpdir(), "k-downloader-test-"));
+  const directory = await mkdtemp(join(tmpdir(), "khinsider-downloader-test-"));
   directories.push(directory);
   return directory;
 }
@@ -7137,11 +7137,11 @@ npm test && npm run build
 
 ```
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  3 passed (3)
@@ -7150,7 +7150,7 @@ npm test && npm run build
    Duration  1.43s (import 65%, transform 19%, tests 13%, worker 4%)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 ```
 </details></tool-use>
@@ -7194,7 +7194,7 @@ export type AlbumManifest = {
 };
 
 export function defaultOutputRoot(): string {
-  return join(homedir(), "Music", "K-Downloader");
+  return join(homedir(), "Music", "Khinsider Downloader");
 }
 
 export function safeFileComponent(value: string): string {
@@ -7286,7 +7286,7 @@ Apply Patch
 
 ```
 *** Begin Patch
-*** Add File: /home/kel/dev/K-Downloader/tests/output.test.ts
+*** Add File: /home/kel/dev/Khinsider-Downloader/tests/output.test.ts
 +import { mkdtemp, readFile, rm } from "node:fs/promises";
 +import { tmpdir } from "node:os";
 +import { join } from "node:path";
@@ -7296,7 +7296,7 @@ Apply Patch
 +const temporaryDirectories: string[] = [];
 +
 +async function temporaryDirectory(): Promise<string> {
-+  const directory = await mkdtemp(join(tmpdir(), "k-downloader-output-test-"));
++  const directory = await mkdtemp(join(tmpdir(), "khinsider-downloader-output-test-"));
 +  temporaryDirectories.push(directory);
 +  return directory;
 +}
@@ -7361,7 +7361,7 @@ import { prepareAlbumDirectory, trackFilename, writeManifest } from "../src/outp
 const temporaryDirectories: string[] = [];
 
 async function temporaryDirectory(): Promise<string> {
-  const directory = await mkdtemp(join(tmpdir(), "k-downloader-output-test-"));
+  const directory = await mkdtemp(join(tmpdir(), "khinsider-downloader-output-test-"));
   temporaryDirectories.push(directory);
   return directory;
 }
@@ -7417,11 +7417,11 @@ npm test && npm run build
 
 ```
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  4 passed (4)
@@ -7430,7 +7430,7 @@ npm test && npm run build
    Duration  1.18s (import 62%, transform 18%, tests 16%, worker 4%)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 ```
 </details></tool-use>
@@ -7474,7 +7474,7 @@ export type AlbumManifest = {
 };
 
 export function defaultOutputRoot(): string {
-  return join(homedir(), "Music", "K-Downloader");
+  return join(homedir(), "Music", "Khinsider Downloader");
 }
 
 export function safeFileComponent(value: string): string {
@@ -7956,11 +7956,11 @@ npm test && npm run build
 
 ```
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  4 passed (4)
@@ -7969,7 +7969,7 @@ npm test && npm run build
    Duration  1.23s (import 66%, transform 17%, tests 14%, worker 4%)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 ```
 </details></tool-use>
@@ -8017,7 +8017,7 @@ function tracks(formats: string[][] = [["MP3"], ["MP3"]]): DiscoveredTrack[] {
 }
 
 async function temporaryDirectory(): Promise<string> {
-  const directory = await mkdtemp(join(tmpdir(), "k-downloader-album-test-"));
+  const directory = await mkdtemp(join(tmpdir(), "khinsider-downloader-album-test-"));
   temporaryDirectories.push(directory);
   return directory;
 }
@@ -8117,11 +8117,11 @@ npm test && npm run build
 
 ```
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  5 passed (5)
@@ -8130,7 +8130,7 @@ npm test && npm run build
    Duration  1.36s (import 59%, tests 22%, transform 16%, worker 3%)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 ```
 </details></tool-use>
@@ -8161,7 +8161,7 @@ Apply Patch
 
 ````
 *** Begin Patch
-*** Update File: /home/kel/dev/K-Downloader/src/cli.ts
+*** Update File: /home/kel/dev/Khinsider-Downloader/src/cli.ts
 @@
  import { inspectAlbum } from "./khinsider.js";
  import { planFormats } from "./formats.js";
@@ -8261,13 +8261,13 @@ Apply Patch
 +  else if (command === "download") await downloadCommand(albumUrl, args);
 +  else usage();
  }
-*** Update File: /home/kel/dev/K-Downloader/package.json
+*** Update File: /home/kel/dev/Khinsider-Downloader/package.json
 @@
      "build": "tsc --noEmit",
      "inspect": "tsx src/cli.ts inspect",
 +    "download": "tsx src/cli.ts download",
      "test": "vitest run"
-*** Update File: /home/kel/dev/K-Downloader/README.md
+*** Update File: /home/kel/dev/Khinsider-Downloader/README.md
 @@
 -The command opens a fresh visible Chromium context without a stored browser
 -profile, visits the album and its first track page, and prints the discovered
@@ -8279,7 +8279,7 @@ Apply Patch
 @@
 -## Development
 +To start a real single-album download, use the explicit command below. It prints
-+the format plan before transferring and defaults to `~/Music/K-Downloader`:
++the format plan before transferring and defaults to `~/Music/Khinsider Downloader`:
 +
 +```sh
 +npm run download -- 'https://downloads.khinsider.com/game-soundtracks/album/unreal-ii-the-awakening-original-soundtrack' --format prefer-lossless
@@ -8359,7 +8359,7 @@ Read `cli.ts`
 **Input:**
 
 - endLine: `100`
-- filePath: `/home/kel/dev/K-Downloader/src/cli.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/src/cli.ts`
 - startLine: `1`
 
 **Result:**
@@ -8412,15 +8412,15 @@ Read `README.md`
 **Input:**
 
 - endLine: `100`
-- filePath: `/home/kel/dev/K-Downloader/README.md`
+- filePath: `/home/kel/dev/Khinsider-Downloader/README.md`
 - startLine: `1`
 
 **Result:**
 
 ````
-# K-Downloader
+# Khinsider Downloader
 
-K-Downloader is a Linux-first KHInsider album downloader. The first implemented
+Khinsider Downloader is a Linux-first KHInsider album downloader. The first implemented
 slice is public album and track-link discovery; audio transfer, queue recovery,
 GUI, optional account features, and packaging are not implemented yet.
 
@@ -8461,14 +8461,14 @@ Read `package.json`
 **Input:**
 
 - endLine: `80`
-- filePath: `/home/kel/dev/K-Downloader/package.json`
+- filePath: `/home/kel/dev/Khinsider-Downloader/package.json`
 - startLine: `1`
 
 **Result:**
 
 ```
 {
-  "name": "k-downloader",
+  "name": "khinsider-downloader",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -8508,7 +8508,7 @@ Generating patch (118 lines) in `cli.ts`, `package.json`
 
 ```
 *** Begin Patch
-*** Update File: /home/kel/dev/K-Downloader/src/cli.ts
+*** Update File: /home/kel/dev/Khinsider-Downloader/src/cli.ts
 @@
  import { inspectAlbum } from "./khinsider.js";
  import { planFormats } from "./formats.js";
@@ -8615,10 +8615,10 @@ Generating patch (118 lines) in `cli.ts`, `package.json`
  
  main().catch((error: unknown) => {
 -  console.error(`Discovery failed: ${error instanceof Error ? error.message : String(error)}`);
-+  console.error(`K-Downloader failed: ${error instanceof Error ? error.message : String(error)}`);
++  console.error(`Khinsider Downloader failed: ${error instanceof Error ? error.message : String(error)}`);
    process.exitCode = 1;
  });
-*** Update File: /home/kel/dev/K-Downloader/package.json
+*** Update File: /home/kel/dev/Khinsider-Downloader/package.json
 @@
      "build": "tsc --noEmit",
      "inspect": "tsx src/cli.ts inspect",
@@ -8632,8 +8632,8 @@ Generating patch (118 lines) in `cli.ts`, `package.json`
 
 ```
 The following files were successfully edited:
-/home/kel/dev/K-Downloader/src/cli.ts
-/home/kel/dev/K-Downloader/package.json
+/home/kel/dev/Khinsider-Downloader/src/cli.ts
+/home/kel/dev/Khinsider-Downloader/package.json
 ```
 </details></tool-use>
 
@@ -8731,7 +8731,7 @@ async function main(): Promise<void> {
 }
 
 main().catch((error: unknown) => {
-  console.error(`K-Downloader failed: ${error instanceof Error ? error.message : String(error)}`);
+  console.error(`Khinsider Downloader failed: ${error instanceof Error ? error.message : String(error)}`);
   process.exitCode = 1;
 });
 ```
@@ -8754,7 +8754,7 @@ _**Agent (copilot/auto)**_
 
 ```
 {
-  "name": "k-downloader",
+  "name": "khinsider-downloader",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -8798,11 +8798,11 @@ npm test && npm run build && npm run inspect -- --help
 
 ```
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  5 passed (5)
@@ -8811,14 +8811,14 @@ npm test && npm run build && npm run inspect -- --help
    Duration  1.16s (import 63%, tests 25%, transform 6%, worker 6%)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 
 
-> k-downloader@0.1.0 inspect
+> khinsider-downloader@0.1.0 inspect
 > tsx src/cli.ts inspect --help
 
-K-Downloader failed: Invalid URL
+Khinsider Downloader failed: Invalid URL
 ```
 </details></tool-use>
 
@@ -8921,7 +8921,7 @@ async function main(): Promise<void> {
 }
 
 main().catch((error: unknown) => {
-  console.error(`K-Downloader failed: ${error instanceof Error ? error.message : String(error)}`);
+  console.error(`Khinsider Downloader failed: ${error instanceof Error ? error.message : String(error)}`);
   process.exitCode = 1;
 });
 ```
@@ -8944,11 +8944,11 @@ npm test && npm run build && npm run inspect -- --help; test $? -eq 2
 
 ```
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  5 passed (5)
@@ -8957,11 +8957,11 @@ npm test && npm run build && npm run inspect -- --help; test $? -eq 2
    Duration  1.05s (import 63%, tests 25%, transform 7%, worker 4%)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 
 
-> k-downloader@0.1.0 inspect
+> khinsider-downloader@0.1.0 inspect
 > tsx src/cli.ts inspect --help
 
 Usage:
@@ -8983,9 +8983,9 @@ _**Agent (copilot/auto)**_
 @@ lines 1-54 @@
 
 ````
-# K-Downloader
+# Khinsider Downloader
 
-K-Downloader is a Linux-first KHInsider album downloader. The current slice
+Khinsider Downloader is a Linux-first KHInsider album downloader. The current slice
 implements public single-album discovery, format preview and policy, sequential
 streaming, and manifest-backed reruns. Multi-album queues, artwork, the GUI,
 optional account features, and packaging are not implemented yet.
@@ -9013,7 +9013,7 @@ access methods.
 
 The CLI previews the selected formats before starting any transfer. The default
 format policy prefers lossless, falling back to MP3 when needed. The default
-destination is `~/Music/K-Downloader`.
+destination is `~/Music/Khinsider Downloader`.
 
 ```sh
 npm run download -- 'https://downloads.khinsider.com/game-soundtracks/album/unreal-ii-the-awakening-original-soundtrack'
@@ -9078,11 +9078,11 @@ npm test && npm run build && npm audit
 
 ```
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  5 passed (5)
@@ -9091,7 +9091,7 @@ npm test && npm run build && npm audit
    Duration  834ms (import 65%, tests 25%, transform 5%, worker 4%)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 
 found 0 vulnerabilities
@@ -9107,7 +9107,7 @@ Checked , no problems found
 
 **Input:**
 
-- filePaths: `["/home/kel/dev/K-Downloader/src","/home/kel/dev/K-Downloader/tests"]`
+- filePaths: `["/home/kel/dev/Khinsider-Downloader/src","/home/kel/dev/Khinsider-Downloader/tests"]`
 
 **Result:**
 
@@ -9154,7 +9154,7 @@ npm run inspect -- 'https://downloads.khinsider.com/game-soundtracks/album/unrea
 
 It opens visible Chromium, checks the album and track pages, and previews formats. I already ran it successfully: it found all 19 tracks and the first MP3 link.
 
-There’s also a `download` command, but it performs real transfers into `~/Music/K-Downloader`; it has mock-based tests, not a full live-album test. The desktop GUI, multi-album queue, artwork, and packaging still need implementation. Setup and commands are in `README.md`.
+There’s also a `download` command, but it performs real transfers into `~/Music/Khinsider Downloader`; it has mock-based tests, not a full live-album test. The desktop GUI, multi-album queue, artwork, and packaging still need implementation. Setup and commands are in `README.md`.
 
 ---
 
@@ -9192,7 +9192,7 @@ Read `downloader.ts`
 **Input:**
 
 - endLine: `280`
-- filePath: `/home/kel/dev/K-Downloader/src/downloader.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/src/downloader.ts`
 - startLine: `1`
 
 **Result:**
@@ -9281,7 +9281,7 @@ Read `output.ts`
 **Input:**
 
 - endLine: `250`
-- filePath: `/home/kel/dev/K-Downloader/src/output.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/src/output.ts`
 - startLine: `1`
 
 **Result:**
@@ -9314,7 +9314,7 @@ export type AlbumManifest = {
 };
 
 export function defaultOutputRoot(): string {
-  return join(homedir(), "Music", "K-Downloader");
+  return join(homedir(), "Music", "Khinsider Downloader");
 }
 
 export function safeFileComponent(value: string): string {
@@ -9359,14 +9359,14 @@ Read `package.json`
 **Input:**
 
 - endLine: `80`
-- filePath: `/home/kel/dev/K-Downloader/package.json`
+- filePath: `/home/kel/dev/Khinsider-Downloader/package.json`
 - startLine: `1`
 
 **Result:**
 
 ```
 {
-  "name": "k-downloader",
+  "name": "khinsider-downloader",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -9432,7 +9432,7 @@ export type AlbumManifest = {
 };
 
 export function defaultOutputRoot(): string {
-  return join(homedir(), "Music", "K-Downloader");
+  return join(homedir(), "Music", "Khinsider Downloader");
 }
 
 export function safeFileComponent(value: string): string {
@@ -9791,7 +9791,7 @@ function tracks(formats: string[][] = [["MP3"], ["MP3"]]): DiscoveredTrack[] {
 }
 
 async function temporaryDirectory(): Promise<string> {
-  const directory = await mkdtemp(join(tmpdir(), "k-downloader-album-test-"));
+  const directory = await mkdtemp(join(tmpdir(), "khinsider-downloader-album-test-"));
   temporaryDirectories.push(directory);
   return directory;
 }
@@ -9923,11 +9923,11 @@ npm test && npm run build
 
 ```
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  5 passed (5)
@@ -9936,7 +9936,7 @@ npm test && npm run build
    Duration  1.29s (import 53%, transform 22%, tests 22%, worker 3%)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 ```
 </details></tool-use>
@@ -9994,14 +9994,14 @@ Apply Patch
 
 ```
 *** Begin Patch
-*** Update File: /home/kel/dev/K-Downloader/package.json
+*** Update File: /home/kel/dev/Khinsider-Downloader/package.json
 @@
    "scripts": {
      "build": "tsc --noEmit",
 +    "build:gui": "node scripts/build-gui.mjs",
 +    "gui": "npm run build:gui && electron dist/electron/main.cjs",
      "inspect": "tsx src/cli.ts inspect",
-*** Add File: /home/kel/dev/K-Downloader/src/gui-types.ts
+*** Add File: /home/kel/dev/Khinsider-Downloader/src/gui-types.ts
 +export type GuiFormatPolicy =
 +  | { kind: "prefer-lossless" }
 +  | { kind: "lossless-only"; skipUnavailable: boolean }
@@ -10033,7 +10033,7 @@ Apply Patch
 +  outputRoot: string;
 +};
 +
-+export type KDownloaderApi = {
++export type KhinsiderDownloaderApi = {
 +  defaultOutputRoot: () => Promise<string>;
 +  chooseOutput: () => Promise<string | undefined>;
 +  inspect: (albumUrl: string) => Promise<GuiInspection>;
@@ -10044,14 +10044,14 @@ Apply Patch
 +
 +declare global {
 +  interface Window {
-+    kDownloader: KDownloaderApi;
++    khinsiderDownloader: KhinsiderDownloaderApi;
 +  }
 +}
-*** Add File: /home/kel/dev/K-Downloader/src/electron/preload.ts
+*** Add File: /home/kel/dev/Khinsider-Downloader/src/electron/preload.ts
 +import { contextBridge, ipcRenderer } from "electron";
-+import type { GuiDownloadRequest, GuiProgress, KDownloaderApi } from "../gui-types.js";
++import type { GuiDownloadRequest, GuiProgress, KhinsiderDownloaderApi } from "../gui-types.js";
 +
-+const api: KDownloaderApi = {
++const api: KhinsiderDownloaderApi = {
 +  defaultOutputRoot: () => ipcRenderer.invoke("output:default"),
 +  chooseOutput: () => ipcRenderer.invoke("output:choose"),
 +  inspect: (albumUrl: string) => ipcRenderer.invoke("album:inspect", albumUrl),
@@ -10064,8 +10064,8 @@ Apply Patch
 +  },
 +};
 +
-+contextBridge.exposeInMainWorld("kDownloader", api);
-*** Add File: /home/kel/dev/K-Downloader/src/electron/main.ts
++contextBridge.exposeInMainWorld("khinsiderDownloader", api);
+*** Add File: /home/kel/dev/Khinsider-Downloader/src/electron/main.ts
 +import { app, BrowserWindow, dialog, ipcMain } from "electron";
 +import { resolve } from "node:path";
 +import { downloadAlbum } from "../downloader.js";
@@ -10191,7 +10191,7 @@ Apply Patch
 +    minWidth: 760,
 +    minHeight: 620,
 +    backgroundColor: "#101717",
-+    title: "K-Downloader",
++    title: "Khinsider Downloader",
 +    webPreferences: {
 +      preload: resolve(__dirname, "preload.cjs"),
 +      contextIsolation: true,
@@ -10211,7 +10211,7 @@ Apply Patch
 +}
 +
 +app.whenReady().then(async () => {
-+  app.setName("K-Downloader");
++  app.setName("Khinsider Downloader");
 +  registerIpc();
 +  await createWindow();
 +  app.on("activate", () => {
@@ -10223,7 +10223,7 @@ Apply Patch
 +  for (const controller of downloads.values()) controller.abort();
 +  if (process.platform !== "darwin") app.quit();
 +});
-*** Add File: /home/kel/dev/K-Downloader/src/renderer.ts
+*** Add File: /home/kel/dev/Khinsider-Downloader/src/renderer.ts
 +import type { GuiFormatPolicy, GuiInspection, GuiProgress, GuiTrack } from "./gui-types.js";
 +
 +const albumInput = document.querySelector<HTMLTextAreaElement>("#album-url")!;
@@ -10338,7 +10338,7 @@ Apply Patch
 +  setBusy(true);
 +  setStatus("Opening visible Chromium to inspect pages", "working");
 +  try {
-+    inspection = await window.kDownloader.inspect(albumInput.value.trim());
++    inspection = await window.khinsiderDownloader.inspect(albumInput.value.trim());
 +    albumTitle.textContent = inspection.albumTitle;
 +    updateFormatOptions();
 +    setStatus("Preview ready", "success");
@@ -10352,7 +10352,7 @@ Apply Patch
 +});
 +
 +browseButton.addEventListener("click", async () => {
-+  const selected = await window.kDownloader.chooseOutput();
++  const selected = await window.khinsiderDownloader.chooseOutput();
 +  if (selected) outputInput.value = selected;
 +});
 +
@@ -10370,7 +10370,7 @@ Apply Patch
 +  setBusy(true);
 +  setStatus("Downloading", "working");
 +  try {
-+    const result = await window.kDownloader.download({ policy: currentPolicy(), outputRoot: outputInput.value });
++    const result = await window.khinsiderDownloader.download({ policy: currentPolicy(), outputRoot: outputInput.value });
 +    progress.value = inspection.trackCount;
 +    progress.max = inspection.trackCount;
 +    progressText.textContent = `${result.state} · ${result.directory}`;
@@ -10385,11 +10385,11 @@ Apply Patch
 +
 +cancelButton.addEventListener("click", async () => {
 +  cancelButton.disabled = true;
-+  await window.kDownloader.cancel();
++  await window.khinsiderDownloader.cancel();
 +  setStatus("Canceling active track…", "working");
 +});
 +
-+window.kDownloader.onProgress((event: GuiProgress) => {
++window.khinsiderDownloader.onProgress((event: GuiProgress) => {
 +  progress.max = event.totalTracks;
 +  progress.value = event.completedTracks;
 +  progressText.textContent = event.stage === "track-start"
@@ -10401,15 +10401,15 @@ Apply Patch
 +        : "Canceled";
 +});
 +
-+void window.kDownloader.defaultOutputRoot().then((value) => { outputInput.value = value; });
-*** Add File: /home/kel/dev/K-Downloader/gui/index.html
++void window.khinsiderDownloader.defaultOutputRoot().then((value) => { outputInput.value = value; });
+*** Add File: /home/kel/dev/Khinsider-Downloader/gui/index.html
 +<!doctype html>
 +<html lang="en">
 +  <head>
 +    <meta charset="UTF-8" />
 +    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 +    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'" />
-+    <title>K-Downloader</title>
++    <title>Khinsider Downloader</title>
 +    <link rel="stylesheet" href="./styles.css" />
 +    <script defer src="./renderer.js"></script>
 +  </head>
@@ -10419,7 +10419,7 @@ Apply Patch
 +        <div class="brand-lockup">
 +          <div class="brand-mark" aria-hidden="true">K</div>
 +          <div>
-+            <div class="brand-name">K-Downloader</div>
++            <div class="brand-name">Khinsider Downloader</div>
 +            <div class="brand-subtitle">SOUNDTRACK ARCHIVE</div>
 +          </div>
 +        </div>
@@ -10501,7 +10501,7 @@ Apply Patch
 +    </main>
 +  </body>
 +</html>
-*** Add File: /home/kel/dev/K-Downloader/gui/styles.css
+*** Add File: /home/kel/dev/Khinsider-Downloader/gui/styles.css
 +@import url("https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap");
 +
 +:root {
@@ -10621,7 +10621,7 @@ Apply Patch
 +  .results-header, .status-strip, .progress-footer { padding-left: 16px; padding-right: 16px; }
 +  th, td { padding-left: 7px; padding-right: 7px; }
 +}
-*** Add File: /home/kel/dev/K-Downloader/scripts/build-gui.mjs
+*** Add File: /home/kel/dev/Khinsider-Downloader/scripts/build-gui.mjs
 +import { cp, mkdir, rm } from "node:fs/promises";
 +import { dirname, resolve } from "node:path";
 +import { fileURLToPath } from "node:url";
@@ -10698,14 +10698,14 @@ Generating patch (671 lines) in `package.json`, `gui-types.ts`, `preload.ts`, `m
 
 ```
 *** Begin Patch
-*** Update File: /home/kel/dev/K-Downloader/package.json
+*** Update File: /home/kel/dev/Khinsider-Downloader/package.json
 @@
    "scripts": {
      "build": "tsc --noEmit",
 +    "build:gui": "node scripts/build-gui.mjs",
 +    "gui": "npm run build:gui && electron dist/electron/main.cjs",
      "inspect": "tsx src/cli.ts inspect",
-*** Add File: /home/kel/dev/K-Downloader/src/gui-types.ts
+*** Add File: /home/kel/dev/Khinsider-Downloader/src/gui-types.ts
 +export type GuiFormatPolicy =
 +  | { kind: "prefer-lossless" }
 +  | { kind: "lossless-only"; skipUnavailable: boolean }
@@ -10737,7 +10737,7 @@ Generating patch (671 lines) in `package.json`, `gui-types.ts`, `preload.ts`, `m
 +  outputRoot: string;
 +};
 +
-+export type KDownloaderApi = {
++export type KhinsiderDownloaderApi = {
 +  defaultOutputRoot: () => Promise<string>;
 +  chooseOutput: () => Promise<string | undefined>;
 +  inspect: (albumUrl: string) => Promise<GuiInspection>;
@@ -10748,14 +10748,14 @@ Generating patch (671 lines) in `package.json`, `gui-types.ts`, `preload.ts`, `m
 +
 +declare global {
 +  interface Window {
-+    kDownloader: KDownloaderApi;
++    khinsiderDownloader: KhinsiderDownloaderApi;
 +  }
 +}
-*** Add File: /home/kel/dev/K-Downloader/src/electron/preload.ts
+*** Add File: /home/kel/dev/Khinsider-Downloader/src/electron/preload.ts
 +import { contextBridge, ipcRenderer } from "electron";
-+import type { GuiDownloadRequest, GuiProgress, KDownloaderApi } from "../gui-types.js";
++import type { GuiDownloadRequest, GuiProgress, KhinsiderDownloaderApi } from "../gui-types.js";
 +
-+const api: KDownloaderApi = {
++const api: KhinsiderDownloaderApi = {
 +  defaultOutputRoot: () => ipcRenderer.invoke("output:default"),
 +  chooseOutput: () => ipcRenderer.invoke("output:choose"),
 +  inspect: (albumUrl: string) => ipcRenderer.invoke("album:inspect", albumUrl),
@@ -10768,8 +10768,8 @@ Generating patch (671 lines) in `package.json`, `gui-types.ts`, `preload.ts`, `m
 +  },
 +};
 +
-+contextBridge.exposeInMainWorld("kDownloader", api);
-*** Add File: /home/kel/dev/K-Downloader/src/electron/main.ts
++contextBridge.exposeInMainWorld("khinsiderDownloader", api);
+*** Add File: /home/kel/dev/Khinsider-Downloader/src/electron/main.ts
 +import { app, BrowserWindow, dialog, ipcMain } from "electron";
 +import { resolve } from "node:path";
 +import { downloadAlbum, type DownloadProgress } from "../downloader.js";
@@ -10894,7 +10894,7 @@ Generating patch (671 lines) in `package.json`, `gui-types.ts`, `preload.ts`, `m
 +    minWidth: 760,
 +    minHeight: 620,
 +    backgroundColor: "#101715",
-+    title: "K-Downloader",
++    title: "Khinsider Downloader",
 +    webPreferences: {
 +      preload: resolve(__dirname, "preload.cjs"),
 +      contextIsolation: true,
@@ -10914,7 +10914,7 @@ Generating patch (671 lines) in `package.json`, `gui-types.ts`, `preload.ts`, `m
 +}
 +
 +app.whenReady().then(async () => {
-+  app.setName("K-Downloader");
++  app.setName("Khinsider Downloader");
 +  registerIpc();
 +  await createWindow();
 +  app.on("activate", () => {
@@ -10926,7 +10926,7 @@ Generating patch (671 lines) in `package.json`, `gui-types.ts`, `preload.ts`, `m
 +  for (const controller of downloads.values()) controller.abort();
 +  if (process.platform !== "darwin") app.quit();
 +});
-*** Add File: /home/kel/dev/K-Downloader/src/renderer.ts
+*** Add File: /home/kel/dev/Khinsider-Downloader/src/renderer.ts
 +import type { GuiFormatPolicy, GuiInspection, GuiProgress, GuiTrack } from "./gui-types.js";
 +
 +const albumInput = document.querySelector<HTMLTextAreaElement>("#album-url")!;
@@ -11041,7 +11041,7 @@ Generating patch (671 lines) in `package.json`, `gui-types.ts`, `preload.ts`, `m
 +  setBusy(true);
 +  setStatus("Opening visible Chromium to inspect pages", "working");
 +  try {
-+    inspection = await window.kDownloader.inspect(albumInput.value.trim());
++    inspection = await window.khinsiderDownloader.inspect(albumInput.value.trim());
 +    albumTitle.textContent = inspection.albumTitle;
 +    updateFormatOptions();
 +    setStatus("Preview ready", "success");
@@ -11055,7 +11055,7 @@ Generating patch (671 lines) in `package.json`, `gui-types.ts`, `preload.ts`, `m
 +});
 +
 +browseButton.addEventListener("click", async () => {
-+  const selected = await window.kDownloader.chooseOutput();
++  const selected = await window.khinsiderDownloader.chooseOutput();
 +  if (selected) outputInput.value = selected;
 +});
 +
@@ -11073,7 +11073,7 @@ Generating patch (671 lines) in `package.json`, `gui-types.ts`, `preload.ts`, `m
 +  setBusy(true);
 +  setStatus("Downloading", "working");
 +  try {
-+    const result = await window.kDownloader.download({ policy: currentPolicy(), outputRoot: outputInput.value });
++    const result = await window.khinsiderDownloader.download({ policy: currentPolicy(), outputRoot: outputInput.value });
 +    progress.value = inspection.trackCount;
 +    progress.max = inspection.trackCount;
 +    progressText.textContent = `${result.state} · ${result.directory}`;
@@ -11088,11 +11088,11 @@ Generating patch (671 lines) in `package.json`, `gui-types.ts`, `preload.ts`, `m
 +
 +cancelButton.addEventListener("click", async () => {
 +  cancelButton.disabled = true;
-+  await window.kDownloader.cancel();
++  await window.khinsiderDownloader.cancel();
 +  setStatus("Canceling active track…", "working");
 +});
 +
-+window.kDownloader.onProgress((event: GuiProgress) => {
++window.khinsiderDownloader.onProgress((event: GuiProgress) => {
 +  progress.max = event.totalTracks;
 +  progress.value = event.completedTracks;
 +  progressText.textContent = event.stage === "track-start"
@@ -11104,15 +11104,15 @@ Generating patch (671 lines) in `package.json`, `gui-types.ts`, `preload.ts`, `m
 +        : "Canceled";
 +});
 +
-+void window.kDownloader.defaultOutputRoot().then((value) => { outputInput.value = value; });
-*** Add File: /home/kel/dev/K-Downloader/gui/index.html
++void window.khinsiderDownloader.defaultOutputRoot().then((value) => { outputInput.value = value; });
+*** Add File: /home/kel/dev/Khinsider-Downloader/gui/index.html
 +<!doctype html>
 +<html lang="en">
 +  <head>
 +    <meta charset="UTF-8" />
 +    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 +    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'" />
-+    <title>K-Downloader</title>
++    <title>Khinsider Downloader</title>
 +    <link rel="stylesheet" href="./styles.css" />
 +    <script defer src="./renderer.js"></script>
 +  </head>
@@ -11122,7 +11122,7 @@ Generating patch (671 lines) in `package.json`, `gui-types.ts`, `preload.ts`, `m
 +        <div class="brand-lockup">
 +          <div class="brand-mark" aria-hidden="true">K</div>
 +          <div>
-+            <div class="brand-name">K-Downloader</div>
++            <div class="brand-name">Khinsider Downloader</div>
 +            <div class="brand-subtitle">SOUNDTRACK ARCHIVE</div>
 +          </div>
 +        </div>
@@ -11204,7 +11204,7 @@ Generating patch (671 lines) in `package.json`, `gui-types.ts`, `preload.ts`, `m
 +    </main>
 +  </body>
 +</html>
-*** Add File: /home/kel/dev/K-Downloader/gui/styles.css
+*** Add File: /home/kel/dev/Khinsider-Downloader/gui/styles.css
 +@import url("https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap");
 +
 +:root {
@@ -11324,7 +11324,7 @@ Generating patch (671 lines) in `package.json`, `gui-types.ts`, `preload.ts`, `m
 +  .results-header, .status-strip, .progress-footer { padding-left: 16px; padding-right: 16px; }
 +  th, td { padding-left: 7px; padding-right: 7px; }
 +}
-*** Add File: /home/kel/dev/K-Downloader/scripts/build-gui.mjs
+*** Add File: /home/kel/dev/Khinsider-Downloader/scripts/build-gui.mjs
 +import { cp, mkdir, rm } from "node:fs/promises";
 +import { dirname, resolve } from "node:path";
 +import { fileURLToPath } from "node:url";
@@ -11375,14 +11375,14 @@ Generating patch (671 lines) in `package.json`, `gui-types.ts`, `preload.ts`, `m
 
 ```
 The following files were successfully edited:
-/home/kel/dev/K-Downloader/package.json
-/home/kel/dev/K-Downloader/src/gui-types.ts
-/home/kel/dev/K-Downloader/src/electron/preload.ts
-/home/kel/dev/K-Downloader/src/electron/main.ts
-/home/kel/dev/K-Downloader/src/renderer.ts
-/home/kel/dev/K-Downloader/gui/index.html
-/home/kel/dev/K-Downloader/gui/styles.css
-/home/kel/dev/K-Downloader/scripts/build-gui.mjs
+/home/kel/dev/Khinsider-Downloader/package.json
+/home/kel/dev/Khinsider-Downloader/src/gui-types.ts
+/home/kel/dev/Khinsider-Downloader/src/electron/preload.ts
+/home/kel/dev/Khinsider-Downloader/src/electron/main.ts
+/home/kel/dev/Khinsider-Downloader/src/renderer.ts
+/home/kel/dev/Khinsider-Downloader/gui/index.html
+/home/kel/dev/Khinsider-Downloader/gui/styles.css
+/home/kel/dev/Khinsider-Downloader/scripts/build-gui.mjs
 ```
 </details></tool-use>
 
@@ -11395,7 +11395,7 @@ _**Agent (copilot/auto)**_
 
 ```
 {
-  "name": "k-downloader",
+  "name": "khinsider-downloader",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -11474,7 +11474,7 @@ export type GuiDownloadRequest = {
   outputRoot: string;
 };
 
-export type KDownloaderApi = {
+export type KhinsiderDownloaderApi = {
   defaultOutputRoot: () => Promise<string>;
   chooseOutput: () => Promise<string | undefined>;
   inspect: (albumUrl: string) => Promise<GuiInspection>;
@@ -11485,7 +11485,7 @@ export type KDownloaderApi = {
 
 declare global {
   interface Window {
-    kDownloader: KDownloaderApi;
+    khinsiderDownloader: KhinsiderDownloaderApi;
   }
 }
 ```
@@ -11508,9 +11508,9 @@ _**Agent (copilot/auto)**_
 
 ```
 import { contextBridge, ipcRenderer } from "electron";
-import type { GuiDownloadRequest, GuiProgress, KDownloaderApi } from "../gui-types.js";
+import type { GuiDownloadRequest, GuiProgress, KhinsiderDownloaderApi } from "../gui-types.js";
 
-const api: KDownloaderApi = {
+const api: KhinsiderDownloaderApi = {
   defaultOutputRoot: () => ipcRenderer.invoke("output:default"),
   chooseOutput: () => ipcRenderer.invoke("output:choose"),
   inspect: (albumUrl: string) => ipcRenderer.invoke("album:inspect", albumUrl),
@@ -11523,7 +11523,7 @@ const api: KDownloaderApi = {
   },
 };
 
-contextBridge.exposeInMainWorld("kDownloader", api);
+contextBridge.exposeInMainWorld("khinsiderDownloader", api);
 ```
 </details></tool-use>
 
@@ -11667,7 +11667,7 @@ async function createWindow(): Promise<void> {
     minWidth: 760,
     minHeight: 620,
     backgroundColor: "#101715",
-    title: "K-Downloader",
+    title: "Khinsider Downloader",
     webPreferences: {
       preload: resolve(__dirname, "preload.cjs"),
       contextIsolation: true,
@@ -11687,7 +11687,7 @@ async function createWindow(): Promise<void> {
 }
 
 app.whenReady().then(async () => {
-  app.setName("K-Downloader");
+  app.setName("Khinsider Downloader");
   registerIpc();
   await createWindow();
   app.on("activate", () => {
@@ -11832,7 +11832,7 @@ inspectButton.addEventListener("click", async () => {
   setBusy(true);
   setStatus("Opening visible Chromium to inspect pages", "working");
   try {
-    inspection = await window.kDownloader.inspect(albumInput.value.trim());
+    inspection = await window.khinsiderDownloader.inspect(albumInput.value.trim());
     albumTitle.textContent = inspection.albumTitle;
     updateFormatOptions();
     setStatus("Preview ready", "success");
@@ -11846,7 +11846,7 @@ inspectButton.addEventListener("click", async () => {
 });
 
 browseButton.addEventListener("click", async () => {
-  const selected = await window.kDownloader.chooseOutput();
+  const selected = await window.khinsiderDownloader.chooseOutput();
   if (selected) outputInput.value = selected;
 });
 
@@ -11864,7 +11864,7 @@ downloadButton.addEventListener("click", async () => {
   setBusy(true);
   setStatus("Downloading", "working");
   try {
-    const result = await window.kDownloader.download({ policy: currentPolicy(), outputRoot: outputInput.value });
+    const result = await window.khinsiderDownloader.download({ policy: currentPolicy(), outputRoot: outputInput.value });
     progress.value = inspection.trackCount;
     progress.max = inspection.trackCount;
     progressText.textContent = `${result.state} · ${result.directory}`;
@@ -11879,11 +11879,11 @@ downloadButton.addEventListener("click", async () => {
 
 cancelButton.addEventListener("click", async () => {
   cancelButton.disabled = true;
-  await window.kDownloader.cancel();
+  await window.khinsiderDownloader.cancel();
   setStatus("Canceling active track…", "working");
 });
 
-window.kDownloader.onProgress((event: GuiProgress) => {
+window.khinsiderDownloader.onProgress((event: GuiProgress) => {
   progress.max = event.totalTracks;
   progress.value = event.completedTracks;
   progressText.textContent = event.stage === "track-start"
@@ -11895,7 +11895,7 @@ window.kDownloader.onProgress((event: GuiProgress) => {
         : "Canceled";
 });
 
-void window.kDownloader.defaultOutputRoot().then((value) => { outputInput.value = value; });
+void window.khinsiderDownloader.defaultOutputRoot().then((value) => { outputInput.value = value; });
 ```
 </details></tool-use>
 
@@ -11921,7 +11921,7 @@ _**Agent (copilot/auto)**_
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'" />
-    <title>K-Downloader</title>
+    <title>Khinsider Downloader</title>
     <link rel="stylesheet" href="./styles.css" />
     <script defer src="./renderer.js"></script>
   </head>
@@ -11931,7 +11931,7 @@ _**Agent (copilot/auto)**_
         <div class="brand-lockup">
           <div class="brand-mark" aria-hidden="true">K</div>
           <div>
-            <div class="brand-name">K-Downloader</div>
+            <div class="brand-name">Khinsider Downloader</div>
             <div class="brand-subtitle">SOUNDTRACK ARCHIVE</div>
           </div>
         </div>
@@ -12232,11 +12232,11 @@ npm run build && npm run build:gui
 
 ```
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -12393,9 +12393,9 @@ _**Agent (copilot/auto)**_
 @@ lines 1-74 @@
 
 ````
-# K-Downloader
+# Khinsider Downloader
 
-K-Downloader is a Linux-first KHInsider album downloader. The current slice
+Khinsider Downloader is a Linux-first KHInsider album downloader. The current slice
 implements public single-album discovery, format preview and policy, sequential
 streaming, and manifest-backed reruns. Multi-album queues, artwork, the GUI,
 optional account features, and packaging are not implemented yet.
@@ -12423,7 +12423,7 @@ access methods.
 
 The CLI previews the selected formats before starting any transfer. The default
 format policy prefers lossless, falling back to MP3 when needed. The default
-destination is `~/Music/K-Downloader`.
+destination is `~/Music/Khinsider Downloader`.
 
 ```sh
 npm run download -- 'https://downloads.khinsider.com/game-soundtracks/album/unreal-ii-the-awakening-original-soundtrack'
@@ -12452,7 +12452,7 @@ npm run gui
 Paste one album URL and choose **Inspect album**. A separate visible Chromium
 window opens during discovery. Review the per-track format preview, choose the
 destination and format policy, then select **Download**. The default destination
-is `~/Music/K-Downloader`. **Cancel active download** stops the current transfer
+is `~/Music/Khinsider Downloader`. **Cancel active download** stops the current transfer
 and prevents later tracks from starting.
 
 The GUI uses a context-isolated, sandboxed renderer with a narrow preload API.
@@ -12486,11 +12486,11 @@ npm test && npm run build && npm run build:gui && npm audit
 
 ```
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  5 passed (5)
@@ -12499,11 +12499,11 @@ npm test && npm run build && npm run build:gui && npm audit
    Duration  1.05s (import 46%, transform 31%, tests 20%, worker 3%)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -12520,7 +12520,7 @@ Checked , no problems found
 
 **Input:**
 
-- filePaths: `["/home/kel/dev/K-Downloader/src","/home/kel/dev/K-Downloader/gui"]`
+- filePaths: `["/home/kel/dev/Khinsider-Downloader/src","/home/kel/dev/Khinsider-Downloader/gui"]`
 
 **Result:**
 
@@ -12551,13 +12551,13 @@ npm run gui
 ```
 Command is running in terminal with ID=f4da8820-97a1-4f96-b5d5-6bff1d35fbc6
  The command became idle with output:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run gui
 
-> k-downloader@0.1.0 gui
+> khinsider-downloader@0.1.0 gui
 > npm run build:gui && electron dist/electron/main.cjs
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -12602,13 +12602,13 @@ Checked terminal output
 
 ```
 Output of terminal f4da8820-97a1-4f96-b5d5-6bff1d35fbc6:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run gui
 
-> k-downloader@0.1.0 gui
+> khinsider-downloader@0.1.0 gui
 > npm run build:gui && electron dist/electron/main.cjs
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -12631,13 +12631,13 @@ Checked terminal output
 
 ```
 Output of terminal f4da8820-97a1-4f96-b5d5-6bff1d35fbc6:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run gui
 
-> k-downloader@0.1.0 gui
+> khinsider-downloader@0.1.0 gui
 > npm run build:gui && electron dist/electron/main.cjs
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -12664,13 +12664,13 @@ Checked terminal output
 
 ```
 Output of terminal f4da8820-97a1-4f96-b5d5-6bff1d35fbc6:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run gui
 
-> k-downloader@0.1.0 gui
+> khinsider-downloader@0.1.0 gui
 > npm run build:gui && electron dist/electron/main.cjs
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -12693,13 +12693,13 @@ Checked terminal output
 
 ```
 Output of terminal f4da8820-97a1-4f96-b5d5-6bff1d35fbc6:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run gui
 
-> k-downloader@0.1.0 gui
+> khinsider-downloader@0.1.0 gui
 > npm run build:gui && electron dist/electron/main.cjs
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -12726,13 +12726,13 @@ Checked terminal output
 
 ```
 Output of terminal f4da8820-97a1-4f96-b5d5-6bff1d35fbc6:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run gui
 
-> k-downloader@0.1.0 gui
+> khinsider-downloader@0.1.0 gui
 > npm run build:gui && electron dist/electron/main.cjs
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -12755,13 +12755,13 @@ Checked terminal output
 
 ```
 Output of terminal f4da8820-97a1-4f96-b5d5-6bff1d35fbc6:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run gui
 
-> k-downloader@0.1.0 gui
+> khinsider-downloader@0.1.0 gui
 > npm run build:gui && electron dist/electron/main.cjs
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -12796,9 +12796,9 @@ Got last terminal command
 
 ```
 It was run in the directory:
-/home/kel/dev/K-Downloader
+/home/kel/dev/Khinsider-Downloader
 It has the following output:
-kel@kel-EQ-Mint:~/dev/K-Downloader$
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$
 ```
 </details></tool-use>
 
@@ -12817,13 +12817,13 @@ Checked terminal output
 
 ```
 Output of terminal f4da8820-97a1-4f96-b5d5-6bff1d35fbc6:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run gui
 
-> k-downloader@0.1.0 gui
+> khinsider-downloader@0.1.0 gui
 > npm run build:gui && electron dist/electron/main.cjs
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -12850,13 +12850,13 @@ Checked terminal output
 
 ```
 Output of terminal f4da8820-97a1-4f96-b5d5-6bff1d35fbc6:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run gui
 
-> k-downloader@0.1.0 gui
+> khinsider-downloader@0.1.0 gui
 > npm run build:gui && electron dist/electron/main.cjs
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -12885,7 +12885,7 @@ Added 2 todos
 _**User (2026-10-12 15:10:33Z)**_
 
 some albums have multiple CDs, as in the screencap. The downlaod needs to palce them in the proper folders:
-/home/kel/Music/K-Downloader/Unreal Tournament 2004 (Original Video Game Soundtrack) (2006)/CD1, etc.
+/home/kel/Music/Khinsider Downloader/Unreal Tournament 2004 (Original Video Game Soundtrack) (2006)/CD1, etc.
 There should be a setting to allow the user to select the label for those folders: CDx, Discx, etc. Do you understand the ask?
 
 ---
@@ -12929,7 +12929,7 @@ Read `khinsider.ts`
 **Input:**
 
 - endLine: `190`
-- filePath: `/home/kel/dev/K-Downloader/src/khinsider.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/src/khinsider.ts`
 - startLine: `1`
 
 **Result:**
@@ -13015,7 +13015,7 @@ Read `album.html`
 **Input:**
 
 - endLine: `120`
-- filePath: `/home/kel/dev/K-Downloader/tests/fixtures/album.html`
+- filePath: `/home/kel/dev/Khinsider-Downloader/tests/fixtures/album.html`
 - startLine: `1`
 
 **Result:**
@@ -13049,7 +13049,7 @@ Read `khinsider.test.ts`
 **Input:**
 
 - endLine: `140`
-- filePath: `/home/kel/dev/K-Downloader/tests/khinsider.test.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/tests/khinsider.test.ts`
 - startLine: `1`
 
 **Result:**
@@ -13101,14 +13101,14 @@ Read `package.json`
 **Input:**
 
 - endLine: `100`
-- filePath: `/home/kel/dev/K-Downloader/package.json`
+- filePath: `/home/kel/dev/Khinsider-Downloader/package.json`
 - startLine: `1`
 
 **Result:**
 
 ```
 {
-  "name": "k-downloader",
+  "name": "khinsider-downloader",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -13154,13 +13154,13 @@ Checked terminal output
 
 ```
 Output of terminal f4da8820-97a1-4f96-b5d5-6bff1d35fbc6:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run gui
 
-> k-downloader@0.1.0 gui
+> khinsider-downloader@0.1.0 gui
 > npm run build:gui && electron dist/electron/main.cjs
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -13512,7 +13512,7 @@ Task `Run KHInsider parser tests` failed with exit code 1.
 }
 ```
 
-- workspaceFolder: `/home/kel/dev/K-Downloader`
+- workspaceFolder: `/home/kel/dev/Khinsider-Downloader`
 
 **Result:**
 
@@ -13522,20 +13522,20 @@ Output:
  *  Executing task: npm test -- tests/khinsider.test.ts 
 
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run tests/khinsider.test.ts
 
 
 ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯ Startup Error ⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
-file:///home/kel/dev/K-Downloader/node_modules/rolldown/dist/shared/create-bundler-option-2b9QJDoZ.mjs:8
+file:///home/kel/dev/Khinsider-Downloader/node_modules/rolldown/dist/shared/create-bundler-option-2b9QJDoZ.mjs:8
 import { formatWithOptions, styleText } from "node:util";
                             ^^^^^^^^^
 SyntaxError: The requested module 'node:util' does not provide an export named 'styleText'
     at ModuleJob._instantiate (node:internal/modules/esm/module_job:123:21)
     at async ModuleJob.run (node:internal/modules/esm/module_job:191:5)
     at async ModuleLoader.import (node:internal/modules/esm/loader:336:24)
-    at async start (file:///home/kel/dev/K-Downloader/node_modules/vitest/dist/chunks/cac.DTXWs6Ni.js:2367:27)
-    at async CAC.run (file:///home/kel/dev/K-Downloader/node_modules/vitest/dist/chunks/cac.DTXWs6Ni.js:2344:2)
+    at async start (file:///home/kel/dev/Khinsider-Downloader/node_modules/vitest/dist/chunks/cac.DTXWs6Ni.js:2367:27)
+    at async CAC.run (file:///home/kel/dev/Khinsider-Downloader/node_modules/vitest/dist/chunks/cac.DTXWs6Ni.js:2344:2)
 
 
 
@@ -13593,7 +13593,7 @@ export type AlbumManifest = {
 };
 
 export function defaultOutputRoot(): string {
-  return join(homedir(), "Music", "K-Downloader");
+  return join(homedir(), "Music", "Khinsider Downloader");
 }
 
 export function safeFileComponent(value: string): string {
@@ -13960,7 +13960,7 @@ import { prepareAlbumDirectory, trackFilename, trackRelativePath, writeManifest 
 const temporaryDirectories: string[] = [];
 
 async function temporaryDirectory(): Promise<string> {
-  const directory = await mkdtemp(join(tmpdir(), "k-downloader-output-test-"));
+  const directory = await mkdtemp(join(tmpdir(), "khinsider-downloader-output-test-"));
   temporaryDirectories.push(directory);
   return directory;
 }
@@ -14049,7 +14049,7 @@ function tracks(formats: string[][] = [["MP3"], ["MP3"]]): DiscoveredTrack[] {
 }
 
 async function temporaryDirectory(): Promise<string> {
-  const directory = await mkdtemp(join(tmpdir(), "k-downloader-album-test-"));
+  const directory = await mkdtemp(join(tmpdir(), "khinsider-downloader-album-test-"));
   temporaryDirectories.push(directory);
   return directory;
 }
@@ -14216,13 +14216,13 @@ Killed terminal
 
 ```
 Successfully killed persistent terminal f4da8820-97a1-4f96-b5d5-6bff1d35fbc6. Final output before termination:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run gui
 
-> k-downloader@0.1.0 gui
+> khinsider-downloader@0.1.0 gui
 > npm run build:gui && electron dist/electron/main.cjs
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -14248,14 +14248,14 @@ npm test -- tests/khinsider.test.ts && npm run build
 **Result:**
 
 ```
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm test -- tests/khinsider.test.ts && npm
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm test -- tests/khinsider.test.ts && npm
 run build
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run tests/khinsider.test.ts
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  1 passed (1)
@@ -14264,7 +14264,7 @@ run build
    Duration  721ms (import 85%, transform 9%, tests 4%, worker 1%)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 ```
 </details></tool-use>
@@ -14372,7 +14372,7 @@ async function main(): Promise<void> {
 }
 
 main().catch((error: unknown) => {
-  console.error(`K-Downloader failed: ${error instanceof Error ? error.message : String(error)}`);
+  console.error(`Khinsider Downloader failed: ${error instanceof Error ? error.message : String(error)}`);
   process.exitCode = 1;
 });
 ```
@@ -14427,7 +14427,7 @@ export type GuiDownloadRequest = {
   discLabel: "CD" | "Disc";
 };
 
-export type KDownloaderApi = {
+export type KhinsiderDownloaderApi = {
   defaultOutputRoot: () => Promise<string>;
   chooseOutput: () => Promise<string | undefined>;
   inspect: (albumUrl: string) => Promise<GuiInspection>;
@@ -14438,7 +14438,7 @@ export type KDownloaderApi = {
 
 declare global {
   interface Window {
-    kDownloader: KDownloaderApi;
+    khinsiderDownloader: KhinsiderDownloaderApi;
   }
 }
 ```
@@ -14587,7 +14587,7 @@ async function createWindow(): Promise<void> {
     minWidth: 760,
     minHeight: 620,
     backgroundColor: "#101715",
-    title: "K-Downloader",
+    title: "Khinsider Downloader",
     webPreferences: {
       preload: resolve(__dirname, "preload.cjs"),
       contextIsolation: true,
@@ -14607,7 +14607,7 @@ async function createWindow(): Promise<void> {
 }
 
 app.whenReady().then(async () => {
-  app.setName("K-Downloader");
+  app.setName("Khinsider Downloader");
   registerIpc();
   await createWindow();
   app.on("activate", () => {
@@ -14758,7 +14758,7 @@ inspectButton.addEventListener("click", async () => {
   setBusy(true);
   setStatus("Opening visible Chromium to inspect pages", "working");
   try {
-    inspection = await window.kDownloader.inspect(albumInput.value.trim());
+    inspection = await window.khinsiderDownloader.inspect(albumInput.value.trim());
     albumTitle.textContent = inspection.albumTitle;
     updateFormatOptions();
     setStatus("Preview ready", "success");
@@ -14772,7 +14772,7 @@ inspectButton.addEventListener("click", async () => {
 });
 
 browseButton.addEventListener("click", async () => {
-  const selected = await window.kDownloader.chooseOutput();
+  const selected = await window.khinsiderDownloader.chooseOutput();
   if (selected) outputInput.value = selected;
 });
 
@@ -14790,7 +14790,7 @@ downloadButton.addEventListener("click", async () => {
   setBusy(true);
   setStatus("Downloading", "working");
   try {
-    const result = await window.kDownloader.download({ policy: currentPolicy(), outputRoot: outputInput.value });
+    const result = await window.khinsiderDownloader.download({ policy: currentPolicy(), outputRoot: outputInput.value });
     progress.value = inspection.trackCount;
     progress.max = inspection.trackCount;
     progressText.textContent = `${result.state} · ${result.directory}`;
@@ -14805,11 +14805,11 @@ downloadButton.addEventListener("click", async () => {
 
 cancelButton.addEventListener("click", async () => {
   cancelButton.disabled = true;
-  await window.kDownloader.cancel();
+  await window.khinsiderDownloader.cancel();
   setStatus("Canceling active track…", "working");
 });
 
-window.kDownloader.onProgress((event: GuiProgress) => {
+window.khinsiderDownloader.onProgress((event: GuiProgress) => {
   progress.max = event.totalTracks;
   progress.value = event.completedTracks;
   progressText.textContent = event.stage === "track-start"
@@ -14821,7 +14821,7 @@ window.kDownloader.onProgress((event: GuiProgress) => {
         : "Canceled";
 });
 
-void window.kDownloader.defaultOutputRoot().then((value) => { outputInput.value = value; });
+void window.khinsiderDownloader.defaultOutputRoot().then((value) => { outputInput.value = value; });
 ```
 </details></tool-use>
 
@@ -14846,7 +14846,7 @@ npm run build
 
 ```
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 
 src/renderer.ts:153:54 - error TS2345: Argument of type '{ policy: GuiFormatPoli
@@ -14855,7 +14855,7 @@ quest'.
   Property 'discLabel' is missing in type '{ policy: GuiFormatPolicy; outputRoot
 : string; }' but required in type 'GuiDownloadRequest'.
 
-153     const result = await window.kDownloader.download({ policy: currentPolicy
+153     const result = await window.khinsiderDownloader.download({ policy: currentPolicy
 (), outputRoot: outputInput.value });
                                                          ~~~~~~~~~~~~~~~~~~~~~~~
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -14894,7 +14894,7 @@ Read `renderer.ts`
 **Input:**
 
 - endLine: `210`
-- filePath: `/home/kel/dev/K-Downloader/src/renderer.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/src/renderer.ts`
 - startLine: `1`
 
 **Result:**
@@ -15064,7 +15064,7 @@ inspectButton.addEventListener("click", async () => {
   setBusy(true);
   setStatus("Opening visible Chromium to inspect pages", "working");
   try {
-    inspection = await window.kDownloader.inspect(albumInput.value.trim());
+    inspection = await window.khinsiderDownloader.inspect(albumInput.value.trim());
     albumTitle.textContent = inspection.albumTitle;
     updateFormatOptions();
     setStatus("Preview ready", "success");
@@ -15078,7 +15078,7 @@ inspectButton.addEventListener("click", async () => {
 });
 
 browseButton.addEventListener("click", async () => {
-  const selected = await window.kDownloader.chooseOutput();
+  const selected = await window.khinsiderDownloader.chooseOutput();
   if (selected) outputInput.value = selected;
 });
 
@@ -15097,7 +15097,7 @@ downloadButton.addEventListener("click", async () => {
   setBusy(true);
   setStatus("Downloading", "working");
   try {
-    const result = await window.kDownloader.download({
+    const result = await window.khinsiderDownloader.download({
       policy: currentPolicy(),
       outputRoot: outputInput.value,
       discLabel: discLabelSelect.value === "Disc" ? "Disc" : "CD",
@@ -15116,11 +15116,11 @@ downloadButton.addEventListener("click", async () => {
 
 cancelButton.addEventListener("click", async () => {
   cancelButton.disabled = true;
-  await window.kDownloader.cancel();
+  await window.khinsiderDownloader.cancel();
   setStatus("Canceling active track…", "working");
 });
 
-window.kDownloader.onProgress((event: GuiProgress) => {
+window.khinsiderDownloader.onProgress((event: GuiProgress) => {
   progress.max = event.totalTracks;
   progress.value = event.completedTracks;
   progressText.textContent = event.stage === "track-start"
@@ -15132,7 +15132,7 @@ window.kDownloader.onProgress((event: GuiProgress) => {
         : "Canceled";
 });
 
-void window.kDownloader.defaultOutputRoot().then((value) => { outputInput.value = value; });
+void window.khinsiderDownloader.defaultOutputRoot().then((value) => { outputInput.value = value; });
 ```
 </details></tool-use>
 
@@ -15158,7 +15158,7 @@ _**Agent (copilot/auto)**_
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'" />
-    <title>K-Downloader</title>
+    <title>Khinsider Downloader</title>
     <link rel="stylesheet" href="./styles.css" />
     <script defer src="./renderer.js"></script>
   </head>
@@ -15168,7 +15168,7 @@ _**Agent (copilot/auto)**_
         <div class="brand-lockup">
           <div class="brand-mark" aria-hidden="true">K</div>
           <div>
-            <div class="brand-name">K-Downloader</div>
+            <div class="brand-name">Khinsider Downloader</div>
             <div class="brand-subtitle">SOUNDTRACK ARCHIVE</div>
           </div>
         </div>
@@ -15413,7 +15413,7 @@ Read `README.md`, lines 20 to 60
 **Input:**
 
 - endLine: `60`
-- filePath: `/home/kel/dev/K-Downloader/README.md`
+- filePath: `/home/kel/dev/Khinsider-Downloader/README.md`
 - startLine: `20`
 
 **Result:**
@@ -15430,7 +15430,7 @@ access methods.
 
 The CLI previews the selected formats before starting any transfer. The default
 format policy prefers lossless, falling back to MP3 when needed. The default
-destination is `~/Music/K-Downloader`.
+destination is `~/Music/Khinsider Downloader`.
 
 ```sh
 npm run download -- 'https://downloads.khinsider.com/game-soundtracks/album/unreal-ii-the-awakening-original-soundtrack'
@@ -15459,7 +15459,7 @@ npm run gui
 Paste one album URL and choose **Inspect album**. A separate visible Chromium
 window opens during discovery. Review the per-track format preview, choose the
 destination and format policy, then select **Download**. The default destination
-is `~/Music/K-Downloader`. **Cancel active download** stops the current transfer
+is `~/Music/Khinsider Downloader`. **Cancel active download** stops the current transfer
 ````
 </details></tool-use>
 
@@ -15473,7 +15473,7 @@ Read `cli.ts`
 **Input:**
 
 - endLine: `110`
-- filePath: `/home/kel/dev/K-Downloader/src/cli.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/src/cli.ts`
 - startLine: `1`
 
 **Result:**
@@ -15628,7 +15628,7 @@ async function main(): Promise<void> {
 }
 
 main().catch((error: unknown) => {
-  console.error(`K-Downloader failed: ${error instanceof Error ? error.message : String(error)}`);
+  console.error(`Khinsider Downloader failed: ${error instanceof Error ? error.message : String(error)}`);
   process.exitCode = 1;
 });
 ```
@@ -15642,9 +15642,9 @@ _**Agent (copilot/auto)**_
 @@ lines 1-79 @@
 
 ````
-# K-Downloader
+# Khinsider Downloader
 
-K-Downloader is a Linux-first KHInsider album downloader. The current slice
+Khinsider Downloader is a Linux-first KHInsider album downloader. The current slice
 implements public single-album discovery, format preview and policy, sequential
 streaming, and manifest-backed reruns. Multi-album queues, artwork, the GUI,
 optional account features, and packaging are not implemented yet.
@@ -15672,7 +15672,7 @@ access methods.
 
 The CLI previews the selected formats before starting any transfer. The default
 format policy prefers lossless, falling back to MP3 when needed. The default
-destination is `~/Music/K-Downloader`.
+destination is `~/Music/Khinsider Downloader`.
 
 ```sh
 npm run download -- 'https://downloads.khinsider.com/game-soundtracks/album/unreal-ii-the-awakening-original-soundtrack'
@@ -15706,7 +15706,7 @@ npm run gui
 Paste one album URL and choose **Inspect album**. A separate visible Chromium
 window opens during discovery. Review the per-track format preview, choose the
 destination and format policy, then select **Download**. The default destination
-is `~/Music/K-Downloader`. **Cancel active download** stops the current transfer
+is `~/Music/Khinsider Downloader`. **Cancel active download** stops the current transfer
 and prevents later tracks from starting.
 
 The GUI uses a context-isolated, sandboxed renderer with a narrow preload API.
@@ -15744,11 +15744,11 @@ npm test && npm run build && npm run build:gui && npm audit
 
 ```
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  5 passed (5)
@@ -15757,11 +15757,11 @@ npm test && npm run build && npm run build:gui && npm audit
    Duration  773ms (import 52%, tests 22%, transform 22%, worker 3%)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -15791,13 +15791,13 @@ npm run gui
 ```
 Command is running in terminal with ID=59204618-6768-491f-8431-5fae8f878fc7
  The command became idle with output:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run gui
 
-> k-downloader@0.1.0 gui
+> khinsider-downloader@0.1.0 gui
 > npm run build:gui && electron dist/electron/main.cjs
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -15842,13 +15842,13 @@ Checked terminal output
 
 ```
 Output of terminal 59204618-6768-491f-8431-5fae8f878fc7:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run gui
 
-> k-downloader@0.1.0 gui
+> khinsider-downloader@0.1.0 gui
 > npm run build:gui && electron dist/electron/main.cjs
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -15891,30 +15891,30 @@ _**User (2026-10-12 15:18:33Z)**_
 
 [Terminal 59204618-6768-491f-8431-5fae8f878fc7 notification: command completed. The terminal has been cleaned up.]
 Terminal output:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run gui
 
-> k-downloader@0.1.0 gui
+> khinsider-downloader@0.1.0 gui
 > npm run build:gui && electron dist/electron/main.cjs
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
 Error occurred in handler for 'album:inspect': TypeError: Invalid URL
     at new URL (node:internal/url:895:25)
-    at validateAlbumUrl (/home/kel/dev/K-Downloader/dist/electron/main.cjs:472:15)
-    at /home/kel/dev/K-Downloader/dist/electron/main.cjs:607:25
+    at validateAlbumUrl (/home/kel/dev/Khinsider-Downloader/dist/electron/main.cjs:472:15)
+    at /home/kel/dev/Khinsider-Downloader/dist/electron/main.cjs:607:25
     at Session.<anonymous> (node:electron/js2c/browser_init:1:119988)
     at Session.emit (node:events:514:28) {
   code: 'ERR_INVALID_URL',
-  input: '/home/kel/Music/K-Downloader/Unreal Tournament 2004 (Original Video Game Soundtrack) (2006)'
+  input: '/home/kel/Music/Khinsider Downloader/Unreal Tournament 2004 (Original Video Game Soundtrack) (2006)'
 }
 [2998322:1012/101639.610886:ERROR:ui/gfx/x/atom_cache.cc:236] Add application/vnd.portal.filetransfer to kAtomsToCache
 [2998322:1012/101639.610940:ERROR:ui/gfx/x/atom_cache.cc:236] Add application/vnd.portal.files to kAtomsToCache
 Error occurred in handler for 'album:inspect': page.waitForTimeout: Target page, context or browser has been closed
-    at inspectAlbum (/home/kel/dev/K-Downloader/dist/electron/main.cjs:540:33)
-    at async /home/kel/dev/K-Downloader/dist/electron/main.cjs:608:20 {
+    at inspectAlbum (/home/kel/dev/Khinsider-Downloader/dist/electron/main.cjs:540:33)
+    at async /home/kel/dev/Khinsider-Downloader/dist/electron/main.cjs:608:20 {
   log: []
 }
 
@@ -15935,7 +15935,7 @@ Read `khinsider.ts`
 **Input:**
 
 - endLine: `220`
-- filePath: `/home/kel/dev/K-Downloader/src/khinsider.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/src/khinsider.ts`
 - startLine: `1`
 
 **Result:**
@@ -16023,7 +16023,7 @@ Read `main.ts`
 **Input:**
 
 - endLine: `280`
-- filePath: `/home/kel/dev/K-Downloader/src/electron/main.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/src/electron/main.ts`
 - startLine: `1`
 
 **Result:**
@@ -16089,16 +16089,16 @@ Read `preload.ts`
 **Input:**
 
 - endLine: `140`
-- filePath: `/home/kel/dev/K-Downloader/src/electron/preload.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/src/electron/preload.ts`
 - startLine: `1`
 
 **Result:**
 
 ```
 import { contextBridge, ipcRenderer } from "electron";
-import type { GuiDownloadRequest, GuiProgress, KDownloaderApi } from "../gui-types.js";
+import type { GuiDownloadRequest, GuiProgress, KhinsiderDownloaderApi } from "../gui-types.js";
 
-const api: KDownloaderApi = {
+const api: KhinsiderDownloaderApi = {
   defaultOutputRoot: () => ipcRenderer.invoke("output:default"),
   chooseOutput: () => ipcRenderer.invoke("output:choose"),
   inspect: (albumUrl: string) => ipcRenderer.invoke("album:inspect", albumUrl),
@@ -16111,7 +16111,7 @@ const api: KDownloaderApi = {
   },
 };
 
-contextBridge.exposeInMainWorld("kDownloader", api);
+contextBridge.exposeInMainWorld("khinsiderDownloader", api);
 ```
 </details></tool-use>
 
@@ -16125,7 +16125,7 @@ Read `gui-types.ts`
 **Input:**
 
 - endLine: `140`
-- filePath: `/home/kel/dev/K-Downloader/src/gui-types.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/src/gui-types.ts`
 - startLine: `1`
 
 **Result:**
@@ -16164,7 +16164,7 @@ export type GuiDownloadRequest = {
   discLabel: "CD" | "Disc";
 };
 
-export type KDownloaderApi = {
+export type KhinsiderDownloaderApi = {
   defaultOutputRoot: () => Promise<string>;
   chooseOutput: () => Promise<string | undefined>;
   inspect: (albumUrl: string) => Promise<GuiInspection>;
@@ -16175,7 +16175,7 @@ export type KDownloaderApi = {
 
 declare global {
   interface Window {
-    kDownloader: KDownloaderApi;
+    khinsiderDownloader: KhinsiderDownloaderApi;
   }
 }
 ```
@@ -16191,7 +16191,7 @@ Read `renderer.ts`
 **Input:**
 
 - endLine: `250`
-- filePath: `/home/kel/dev/K-Downloader/src/renderer.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/src/renderer.ts`
 - startLine: `1`
 
 **Result:**
@@ -16243,7 +16243,7 @@ Read `index.html`
 **Input:**
 
 - endLine: `200`
-- filePath: `/home/kel/dev/K-Downloader/gui/index.html`
+- filePath: `/home/kel/dev/Khinsider-Downloader/gui/index.html`
 - startLine: `1`
 
 **Result:**
@@ -16255,7 +16255,7 @@ Read `index.html`
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'" />
-    <title>K-Downloader</title>
+    <title>Khinsider Downloader</title>
     <link rel="stylesheet" href="./styles.css" />
     <script defer src="./renderer.js"></script>
   </head>
@@ -16265,7 +16265,7 @@ Read `index.html`
         <div class="brand-lockup">
           <div class="brand-mark" aria-hidden="true">K</div>
           <div>
-            <div class="brand-name">K-Downloader</div>
+            <div class="brand-name">Khinsider Downloader</div>
             <div class="brand-subtitle">SOUNDTRACK ARCHIVE</div>
           </div>
         </div>
@@ -16576,7 +16576,7 @@ export type GuiDownloadRequest = {
   discLabel: "CD" | "Disc";
 };
 
-export type KDownloaderApi = {
+export type KhinsiderDownloaderApi = {
   defaultOutputRoot: () => Promise<string>;
   chooseOutput: () => Promise<string | undefined>;
   inspect: (albumUrl: string) => Promise<GuiInspection>;
@@ -16589,7 +16589,7 @@ export type KDownloaderApi = {
 
 declare global {
   interface Window {
-    kDownloader: KDownloaderApi;
+    khinsiderDownloader: KhinsiderDownloaderApi;
   }
 }
 ```
@@ -16612,9 +16612,9 @@ _**Agent (copilot/auto)**_
 
 ```
 import { contextBridge, ipcRenderer } from "electron";
-import type { GuiDownloadRequest, GuiInspectionState, GuiProgress, KDownloaderApi } from "../gui-types.js";
+import type { GuiDownloadRequest, GuiInspectionState, GuiProgress, KhinsiderDownloaderApi } from "../gui-types.js";
 
-const api: KDownloaderApi = {
+const api: KhinsiderDownloaderApi = {
   defaultOutputRoot: () => ipcRenderer.invoke("output:default"),
   chooseOutput: () => ipcRenderer.invoke("output:choose"),
   inspect: (albumUrl: string) => ipcRenderer.invoke("album:inspect", albumUrl),
@@ -16633,7 +16633,7 @@ const api: KDownloaderApi = {
   },
 };
 
-contextBridge.exposeInMainWorld("kDownloader", api);
+contextBridge.exposeInMainWorld("khinsiderDownloader", api);
 ```
 </details></tool-use>
 
@@ -16812,7 +16812,7 @@ async function createWindow(): Promise<void> {
     minWidth: 760,
     minHeight: 620,
     backgroundColor: "#101715",
-    title: "K-Downloader",
+    title: "Khinsider Downloader",
     webPreferences: {
       preload: resolve(__dirname, "preload.cjs"),
       contextIsolation: true,
@@ -16835,7 +16835,7 @@ async function createWindow(): Promise<void> {
 }
 
 app.whenReady().then(async () => {
-  app.setName("K-Downloader");
+  app.setName("Khinsider Downloader");
   registerIpc();
   await createWindow();
   app.on("activate", () => {
@@ -17012,7 +17012,7 @@ inspectButton.addEventListener("click", async () => {
   setBusy(true);
   setStatus("Inspection in progress", "working");
   try {
-    inspection = await window.kDownloader.inspect(albumUrl);
+    inspection = await window.khinsiderDownloader.inspect(albumUrl);
     albumTitle.textContent = inspection.albumTitle;
     updateFormatOptions();
     setStatus("Preview ready", "success");
@@ -17028,7 +17028,7 @@ inspectButton.addEventListener("click", async () => {
 inspectionIndicator.addEventListener("click", async () => {
   if (inspectionIndicator.disabled) return;
   try {
-    inspectionBrowserVisible = await window.kDownloader.toggleInspectionBrowser();
+    inspectionBrowserVisible = await window.khinsiderDownloader.toggleInspectionBrowser();
     inspectionIndicator.setAttribute("aria-pressed", String(inspectionBrowserVisible));
     inspectionIndicatorText.textContent = inspectionBrowserVisible ? "Hide browser" : "Show browser";
   } catch (error) {
@@ -17036,7 +17036,7 @@ inspectionIndicator.addEventListener("click", async () => {
   }
 });
 
-window.kDownloader.onInspectionState((state: GuiInspectionState) => {
+window.khinsiderDownloader.onInspectionState((state: GuiInspectionState) => {
   inspectionBrowserVisible = state.browserVisible;
   inspectionIndicator.hidden = !state.active;
   inspectionIndicator.disabled = !state.browserReady;
@@ -17048,7 +17048,7 @@ window.kDownloader.onInspectionState((state: GuiInspectionState) => {
 });
 
 browseButton.addEventListener("click", async () => {
-  const selected = await window.kDownloader.chooseOutput();
+  const selected = await window.khinsiderDownloader.chooseOutput();
   if (selected) outputInput.value = selected;
 });
 
@@ -17067,7 +17067,7 @@ downloadButton.addEventListener("click", async () => {
   setBusy(true);
   setStatus("Downloading", "working");
   try {
-    const result = await window.kDownloader.download({
+    const result = await window.khinsiderDownloader.download({
       policy: currentPolicy(),
       outputRoot: outputInput.value,
       discLabel: discLabelSelect.value === "Disc" ? "Disc" : "CD",
@@ -17086,11 +17086,11 @@ downloadButton.addEventListener("click", async () => {
 
 cancelButton.addEventListener("click", async () => {
   cancelButton.disabled = true;
-  await window.kDownloader.cancel();
+  await window.khinsiderDownloader.cancel();
   setStatus("Canceling active track…", "working");
 });
 
-window.kDownloader.onProgress((event: GuiProgress) => {
+window.khinsiderDownloader.onProgress((event: GuiProgress) => {
   progress.max = event.totalTracks;
   progress.value = event.completedTracks;
   progressText.textContent = event.stage === "track-start"
@@ -17102,7 +17102,7 @@ window.kDownloader.onProgress((event: GuiProgress) => {
         : "Canceled";
 });
 
-void window.kDownloader.defaultOutputRoot().then((value) => { outputInput.value = value; });
+void window.khinsiderDownloader.defaultOutputRoot().then((value) => { outputInput.value = value; });
 ```
 </details></tool-use>
 
@@ -17128,7 +17128,7 @@ _**Agent (copilot/auto)**_
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'" />
-    <title>K-Downloader</title>
+    <title>Khinsider Downloader</title>
     <link rel="stylesheet" href="./styles.css" />
     <script defer src="./renderer.js"></script>
   </head>
@@ -17138,7 +17138,7 @@ _**Agent (copilot/auto)**_
         <div class="brand-lockup">
           <div class="brand-mark" aria-hidden="true">K</div>
           <div>
-            <div class="brand-name">K-Downloader</div>
+            <div class="brand-name">Khinsider Downloader</div>
             <div class="brand-subtitle">SOUNDTRACK ARCHIVE</div>
           </div>
         </div>
@@ -17397,11 +17397,11 @@ npm test && npm run build && npm run build:gui
 
 ```
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  5 passed (5)
@@ -17410,7 +17410,7 @@ npm test && npm run build && npm run build:gui
    Duration  967ms (import 56%, tests 25%, transform 16%, worker 4%)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 
 src/electron/main.ts:97:18 - error TS2551: Property 'setBrowserVisible' does not
@@ -17615,7 +17615,7 @@ async function createWindow(): Promise<void> {
     minWidth: 760,
     minHeight: 620,
     backgroundColor: "#101715",
-    title: "K-Downloader",
+    title: "Khinsider Downloader",
     webPreferences: {
       preload: resolve(__dirname, "preload.cjs"),
       contextIsolation: true,
@@ -17638,7 +17638,7 @@ async function createWindow(): Promise<void> {
 }
 
 app.whenReady().then(async () => {
-  app.setName("K-Downloader");
+  app.setName("Khinsider Downloader");
   registerIpc();
   await createWindow();
   app.on("activate", () => {
@@ -17670,11 +17670,11 @@ npm test && npm run build && npm run build:gui
 
 ```
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  5 passed (5)
@@ -17683,11 +17683,11 @@ npm test && npm run build && npm run build:gui
    Duration  664ms (import 63%, tests 29%, worker 4%, transform 4%)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -17951,20 +17951,20 @@ npm run build && npm run build:gui && npm test
 
 ```
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  5 passed (5)
@@ -18225,9 +18225,9 @@ _**Agent (copilot/auto)**_
 @@ lines 1-80 @@
 
 ````
-# K-Downloader
+# Khinsider Downloader
 
-K-Downloader is a Linux-first KHInsider album downloader. The current slice
+Khinsider Downloader is a Linux-first KHInsider album downloader. The current slice
 implements public single-album discovery, format preview and policy, sequential
 streaming, and manifest-backed reruns. Multi-album queues, artwork, the GUI,
 optional account features, and packaging are not implemented yet.
@@ -18255,7 +18255,7 @@ access methods.
 
 The CLI previews the selected formats before starting any transfer. The default
 format policy prefers lossless, falling back to MP3 when needed. The default
-destination is `~/Music/K-Downloader`.
+destination is `~/Music/Khinsider Downloader`.
 
 ```sh
 npm run download -- 'https://downloads.khinsider.com/game-soundtracks/album/unreal-ii-the-awakening-original-soundtrack'
@@ -18290,7 +18290,7 @@ Paste one album URL and choose **Inspect album**. A Chromium inspection window
 starts minimized while an in-progress indicator appears in the app; click that
 indicator to show or hide the browser. Review the per-track format preview, choose the
 destination and format policy, then select **Download**. The default destination
-is `~/Music/K-Downloader`. **Cancel active download** stops the current transfer
+is `~/Music/Khinsider Downloader`. **Cancel active download** stops the current transfer
 and prevents later tracks from starting.
 
 The GUI uses a context-isolated, sandboxed renderer with a narrow preload API.
@@ -18324,11 +18324,11 @@ npm test && npm run build && npm run build:gui && npm audit
 
 ```
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  5 passed (5)
@@ -18337,11 +18337,11 @@ npm test && npm run build && npm run build:gui && npm audit
    Duration  733ms (import 56%, tests 24%, transform 16%, worker 4%)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -18371,13 +18371,13 @@ npm run gui
 ```
 Command is running in terminal with ID=4e2cfca5-ba81-4e3a-8d4a-90f8da53bb15
  The command became idle with output:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run gui
 
-> k-downloader@0.1.0 gui
+> khinsider-downloader@0.1.0 gui
 > npm run build:gui && electron dist/electron/main.cjs
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -18422,13 +18422,13 @@ Checked terminal output
 
 ```
 Output of terminal 4e2cfca5-ba81-4e3a-8d4a-90f8da53bb15:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run gui
 
-> k-downloader@0.1.0 gui
+> khinsider-downloader@0.1.0 gui
 > npm run build:gui && electron dist/electron/main.cjs
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -18475,7 +18475,7 @@ Apply Patch
 
 ```
 *** Begin Patch
-*** Update File: /home/kel/dev/K-Downloader/gui/styles.css
+*** Update File: /home/kel/dev/Khinsider-Downloader/gui/styles.css
 @@
  .empty-state { min-height: 280px; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 36px; text-align: center; }
 +.empty-state[hidden] { display: none; }
@@ -18490,13 +18490,13 @@ _**User (2026-10-12 15:26:19Z)**_
 
 [Terminal 4e2cfca5-ba81-4e3a-8d4a-90f8da53bb15 notification: command completed. The terminal has been cleaned up.]
 Terminal output:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run gui
 
-> k-downloader@0.1.0 gui
+> khinsider-downloader@0.1.0 gui
 > npm run build:gui && electron dist/electron/main.cjs
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -18537,14 +18537,14 @@ Running ` npm run build:gui && node --input-type=module -e 'import \{ chromium \
 Rebuild the local renderer and verify in Chromium that the hidden empty-state element computes to display:none.
 
 ```bash
-npm run build:gui && node --input-type=module -e 'import { chromium } from "playwright"; const browser = await chromium.launch({ headless: true }); try { const page = await browser.newPage(); await page.goto("file:///home/kel/dev/K-Downloader/dist/gui/index.html"); const display = await page.locator(".empty-state").evaluate(element => { element.hidden = true; return getComputedStyle(element).display; }); console.log(`Hidden empty-state display: ${display}`); if (display !== "none") process.exitCode = 1; } finally { await browser.close(); }'
+npm run build:gui && node --input-type=module -e 'import { chromium } from "playwright"; const browser = await chromium.launch({ headless: true }); try { const page = await browser.newPage(); await page.goto("file:///home/kel/dev/Khinsider-Downloader/dist/gui/index.html"); const display = await page.locator(".empty-state").evaluate(element => { element.hidden = true; return getComputedStyle(element).display; }); console.log(`Hidden empty-state display: ${display}`); if (display !== "none") process.exitCode = 1; } finally { await browser.close(); }'
 ```
 
 **Result:**
 
 ```
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -18700,14 +18700,14 @@ Running ` npm run build:gui && node --input-type=module -e 'import \{ chromium \
 Rebuild and repeat the Chromium computed-style check for the hidden preview empty state.
 
 ```bash
-npm run build:gui && node --input-type=module -e 'import { chromium } from "playwright"; const browser = await chromium.launch({ headless: true }); try { const page = await browser.newPage(); await page.goto("file:///home/kel/dev/K-Downloader/dist/gui/index.html"); const display = await page.locator(".empty-state").evaluate(element => { element.hidden = true; return getComputedStyle(element).display; }); console.log(`Hidden empty-state display: ${display}`); if (display !== "none") process.exitCode = 1; } finally { await browser.close(); }'
+npm run build:gui && node --input-type=module -e 'import { chromium } from "playwright"; const browser = await chromium.launch({ headless: true }); try { const page = await browser.newPage(); await page.goto("file:///home/kel/dev/Khinsider-Downloader/dist/gui/index.html"); const display = await page.locator(".empty-state").evaluate(element => { element.hidden = true; return getComputedStyle(element).display; }); console.log(`Hidden empty-state display: ${display}`); if (display !== "none") process.exitCode = 1; } finally { await browser.close(); }'
 ```
 
 **Result:**
 
 ```
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -18737,13 +18737,13 @@ npm run gui
 ```
 Command is running in terminal with ID=fbefc3a9-e994-43a7-be73-503aef14c830
  The command became idle with output:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run gui
 
-> k-downloader@0.1.0 gui
+> khinsider-downloader@0.1.0 gui
 > npm run build:gui && electron dist/electron/main.cjs
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -18788,13 +18788,13 @@ Checked terminal output
 
 ```
 Output of terminal fbefc3a9-e994-43a7-be73-503aef14c830:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run gui
 
-> k-downloader@0.1.0 gui
+> khinsider-downloader@0.1.0 gui
 > npm run build:gui && electron dist/electron/main.cjs
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -18837,13 +18837,13 @@ _**User (2026-10-12 15:40:28Z)**_
 
 [Terminal fbefc3a9-e994-43a7-be73-503aef14c830 notification: command completed. The terminal has been cleaned up.]
 Terminal output:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run gui
 
-> k-downloader@0.1.0 gui
+> khinsider-downloader@0.1.0 gui
 > npm run build:gui && electron dist/electron/main.cjs
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -19049,7 +19049,7 @@ async function createWindow(): Promise<void> {
     minWidth: 760,
     minHeight: 620,
     backgroundColor: "#101715",
-    title: "K-Downloader",
+    title: "Khinsider Downloader",
     webPreferences: {
       preload: resolve(__dirname, "preload.cjs"),
       contextIsolation: true,
@@ -19075,7 +19075,7 @@ async function createWindow(): Promise<void> {
 }
 
 app.whenReady().then(async () => {
-  app.setName("K-Downloader");
+  app.setName("Khinsider Downloader");
   registerIpc();
   await createWindow();
   app.on("activate", () => {
@@ -19107,11 +19107,11 @@ npm run build && npm run build:gui
 
 ```
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -19140,13 +19140,13 @@ npm run gui
 ```
 Command is running in terminal with ID=04f48cc7-66ce-4b7b-a190-ff5fd3d54d9e
  The command became idle with output:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run gui
 
-> k-downloader@0.1.0 gui
+> khinsider-downloader@0.1.0 gui
 > npm run build:gui && electron dist/electron/main.cjs
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -19196,13 +19196,13 @@ _**User (2026-10-12 15:41:24Z)**_
 
 [Terminal 04f48cc7-66ce-4b7b-a190-ff5fd3d54d9e notification: command completed. The terminal has been cleaned up.]
 Terminal output:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run gui
 
-> k-downloader@0.1.0 gui
+> khinsider-downloader@0.1.0 gui
 > npm run build:gui && electron dist/electron/main.cjs
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -19237,7 +19237,7 @@ The GUI process has now closed, and its terminal output shows no JavaScript exce
 
 _**User (2026-10-12 16:00:34Z)**_
 
-push this project to 'https://github.com/kelmankenberg/K-Downloader.git' as an initial commit
+push this project to 'https://github.com/kelmankenberg/Khinsider-Downloader.git' as an initial commit
 
 ---
 
@@ -19286,7 +19286,7 @@ Ran `git_status`
 
 **Input:**
 
-- directory: `/home/kel/dev/K-Downloader`
+- directory: `/home/kel/dev/Khinsider-Downloader`
 
 **Result:**
 
@@ -19310,8 +19310,8 @@ Searched for files matching `**/.gitignore`, 2 matches
 
 ```
 2 total results
-/home/kel/dev/K-Downloader/.gitignore
-/home/kel/dev/K-Downloader/.specstory/.gitignore
+/home/kel/dev/Khinsider-Downloader/.gitignore
+/home/kel/dev/Khinsider-Downloader/.specstory/.gitignore
 ```
 </details></tool-use>
 
@@ -19330,26 +19330,26 @@ Searched for files matching `**/*`, 20 matches
 
 ```
 38 total results
-/home/kel/dev/K-Downloader/package-lock.json
-/home/kel/dev/K-Downloader/README.md
-/home/kel/dev/K-Downloader/package.json
-/home/kel/dev/K-Downloader/.gitignore
-/home/kel/dev/K-Downloader/scripts/build-gui.mjs
-/home/kel/dev/K-Downloader/scripts/README.md
-/home/kel/dev/K-Downloader/scripts/package.json
-/home/kel/dev/K-Downloader/scripts/package-lock.json
-/home/kel/dev/K-Downloader/scripts/verify-khinsider-access.mjs
-/home/kel/dev/K-Downloader/gui/styles.css
-/home/kel/dev/K-Downloader/gui/index.html
-/home/kel/dev/K-Downloader/docs/PROJECT_PLAN.md
-/home/kel/dev/K-Downloader/tsconfig.json
-/home/kel/dev/K-Downloader/tests/output.test.ts
-/home/kel/dev/K-Downloader/tests/formats.test.ts
-/home/kel/dev/K-Downloader/tests/downloader.test.ts
-/home/kel/dev/K-Downloader/tests/transfer.test.ts
-/home/kel/dev/K-Downloader/tests/khinsider.test.ts
-/home/kel/dev/K-Downloader/src/renderer.ts
-/home/kel/dev/K-Downloader/src/cli.ts
+/home/kel/dev/Khinsider-Downloader/package-lock.json
+/home/kel/dev/Khinsider-Downloader/README.md
+/home/kel/dev/Khinsider-Downloader/package.json
+/home/kel/dev/Khinsider-Downloader/.gitignore
+/home/kel/dev/Khinsider-Downloader/scripts/build-gui.mjs
+/home/kel/dev/Khinsider-Downloader/scripts/README.md
+/home/kel/dev/Khinsider-Downloader/scripts/package.json
+/home/kel/dev/Khinsider-Downloader/scripts/package-lock.json
+/home/kel/dev/Khinsider-Downloader/scripts/verify-khinsider-access.mjs
+/home/kel/dev/Khinsider-Downloader/gui/styles.css
+/home/kel/dev/Khinsider-Downloader/gui/index.html
+/home/kel/dev/Khinsider-Downloader/docs/PROJECT_PLAN.md
+/home/kel/dev/Khinsider-Downloader/tsconfig.json
+/home/kel/dev/Khinsider-Downloader/tests/output.test.ts
+/home/kel/dev/Khinsider-Downloader/tests/formats.test.ts
+/home/kel/dev/Khinsider-Downloader/tests/downloader.test.ts
+/home/kel/dev/Khinsider-Downloader/tests/transfer.test.ts
+/home/kel/dev/Khinsider-Downloader/tests/khinsider.test.ts
+/home/kel/dev/Khinsider-Downloader/src/renderer.ts
+/home/kel/dev/Khinsider-Downloader/src/cli.ts
 ...
 ```
 </details></tool-use>
@@ -19368,7 +19368,7 @@ Read `.gitignore`
 **Input:**
 
 - endLine: `100`
-- filePath: `/home/kel/dev/K-Downloader/.gitignore`
+- filePath: `/home/kel/dev/Khinsider-Downloader/.gitignore`
 - startLine: `1`
 
 **Result:**
@@ -19385,11 +19385,11 @@ _**Agent (copilot/auto)**_
 <tool-use data-tool-type="generic" data-tool-name="list_dir"><details>
 <summary>Tool use: **list_dir**</summary>
 
-Read `K-Downloader`
+Read `Khinsider Downloader`
 
 **Input:**
 
-- path: `/home/kel/dev/K-Downloader`
+- path: `/home/kel/dev/Khinsider-Downloader`
 
 **Result:**
 
@@ -19420,7 +19420,7 @@ Read `.vscode`
 
 **Input:**
 
-- path: `/home/kel/dev/K-Downloader/.vscode`
+- path: `/home/kel/dev/Khinsider-Downloader/.vscode`
 
 **Result:**
 
@@ -19439,7 +19439,7 @@ Read `.specstory`
 
 **Input:**
 
-- path: `/home/kel/dev/K-Downloader/.specstory`
+- path: `/home/kel/dev/Khinsider-Downloader/.specstory`
 
 **Result:**
 
@@ -19509,12 +19509,12 @@ _**Agent (copilot/auto)**_
 <tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
 <summary>Tool use: **run_in_terminal**</summary>
 
-Running ` git ls-remote --heads https://github.com/kelmankenberg/K-Downloader.git`
+Running ` git ls-remote --heads https://github.com/kelmankenberg/Khinsider-Downloader.git`
 
 Check whether the target GitHub repository already has branches before initializing and pushing an initial commit.
 
 ```bash
-git ls-remote --heads https://github.com/kelmankenberg/K-Downloader.git
+git ls-remote --heads https://github.com/kelmankenberg/Khinsider-Downloader.git
 ```
 
 **Result:**
@@ -19580,13 +19580,13 @@ Running ` git init -b main && git remote add origin https://github.com/kelmanken
 Initialize the workspace on main and set the requested GitHub repository as origin.
 
 ```bash
-git init -b main && git remote add origin https://github.com/kelmankenberg/K-Downloader.git
+git init -b main && git remote add origin https://github.com/kelmankenberg/Khinsider-Downloader.git
 ```
 
 **Result:**
 
 ```
-Initialized empty Git repository in /home/kel/dev/K-Downloader/.git/
+Initialized empty Git repository in /home/kel/dev/Khinsider-Downloader/.git/
 ```
 </details></tool-use>
 
@@ -19603,7 +19603,7 @@ Ran `git_add`
 
 **Input:**
 
-- directory: `/home/kel/dev/K-Downloader`
+- directory: `/home/kel/dev/Khinsider-Downloader`
 - files:
 
 ```
@@ -19638,7 +19638,7 @@ Ran `git_status`
 
 **Input:**
 
-- directory: `/home/kel/dev/K-Downloader`
+- directory: `/home/kel/dev/Khinsider-Downloader`
 
 **Result:**
 
@@ -19669,13 +19669,13 @@ Ran `git_commit`
 **Input:**
 
 - description: `Add the single-album CLI and engine, Electron GUI, multi-disc output, feasibility probe, documentation, and tests.`
-- directory: `/home/kel/dev/K-Downloader`
-- message: `Initial K-Downloader implementation`
+- directory: `/home/kel/dev/Khinsider-Downloader`
+- message: `Initial Khinsider Downloader implementation`
 
 **Result:**
 
 ```
-{"data":{"output":"[main (root-commit) 550be98] Initial K-Downloader implementation\n 31 files changed, 5044 insertions(+)\n create mode 100644 .gitignore\n create mode 100644 README.md\n create mode 100644 docs/PROJECT_PLAN.md\n create mode 100644 gui/index.html\n create mode 100644 gui/styles.css\n create mode 100644 package-lock.json\n create mode 100644 package.json\n create mode 100644 scripts/README.md\n create mode 100644 scripts/build-gui.mjs\n create mode 100644 scripts/package-lock.json\n create mode 100644 scripts/package.json\n create mode 100644 scripts/verify-khinsider-access.mjs\n create mode 100644 src/cli.ts\n create mode 100644 src/downloader.ts\n create mode 100644 src/electron/main.ts\n create mode 100644 src/electron/preload.ts\n create mode 100644 src/formats.ts\n create mode 100644 src/gui-types.ts\n create mode 100644 src/khinsider.ts\n create mode 100644 src/output.ts\n create mode 100644 src/renderer.ts\n create mode 100644 src/transfer.ts\n create mode 100644 tests/downloader.test.ts\n create mode 100644 tests/fixtures/album.html\n create mode 100644 tests/fixtures/multi-disc-album.html\n create mode 100644 tests/fixtures/track.html\n create mode 100644 tests/formats.test.ts\n create mode 100644 tests/khinsider.test.ts\n create mode 100644 tests/output.test.ts\n create mode 100644 tests/transfer.test.ts\n create mode 100644 tsconfig.json\n"}}
+{"data":{"output":"[main (root-commit) 550be98] Initial Khinsider Downloader implementation\n 31 files changed, 5044 insertions(+)\n create mode 100644 .gitignore\n create mode 100644 README.md\n create mode 100644 docs/PROJECT_PLAN.md\n create mode 100644 gui/index.html\n create mode 100644 gui/styles.css\n create mode 100644 package-lock.json\n create mode 100644 package.json\n create mode 100644 scripts/README.md\n create mode 100644 scripts/build-gui.mjs\n create mode 100644 scripts/package-lock.json\n create mode 100644 scripts/package.json\n create mode 100644 scripts/verify-khinsider-access.mjs\n create mode 100644 src/cli.ts\n create mode 100644 src/downloader.ts\n create mode 100644 src/electron/main.ts\n create mode 100644 src/electron/preload.ts\n create mode 100644 src/formats.ts\n create mode 100644 src/gui-types.ts\n create mode 100644 src/khinsider.ts\n create mode 100644 src/output.ts\n create mode 100644 src/renderer.ts\n create mode 100644 src/transfer.ts\n create mode 100644 tests/downloader.test.ts\n create mode 100644 tests/fixtures/album.html\n create mode 100644 tests/fixtures/multi-disc-album.html\n create mode 100644 tests/fixtures/track.html\n create mode 100644 tests/formats.test.ts\n create mode 100644 tests/khinsider.test.ts\n create mode 100644 tests/output.test.ts\n create mode 100644 tests/transfer.test.ts\n create mode 100644 tsconfig.json\n"}}
 ```
 </details></tool-use>
 
@@ -19688,7 +19688,7 @@ Ran `git_push`
 
 **Input:**
 
-- directory: `/home/kel/dev/K-Downloader`
+- directory: `/home/kel/dev/Khinsider-Downloader`
 
 **Result:**
 
@@ -19706,7 +19706,7 @@ Ran `git_status`
 
 **Input:**
 
-- directory: `/home/kel/dev/K-Downloader`
+- directory: `/home/kel/dev/Khinsider-Downloader`
 
 **Result:**
 
@@ -19717,9 +19717,9 @@ Ran `git_status`
 
 _**Agent (copilot/auto)**_
 
-Pushed the initial commit to `https://github.com/kelmankenberg/K-Downloader.git` on .
+Pushed the initial commit to `https://github.com/kelmankenberg/Khinsider-Downloader.git` on .
 
-Commit: `550be98` (`Initial K-Downloader implementation`). The branch now tracks `origin/main`; `.vscode` and `.specstory` remain local and were not included.
+Commit: `550be98` (`Initial Khinsider Downloader implementation`). The branch now tracks `origin/main`; `.vscode` and `.specstory` remain local and were not included.
 
 _**Agent (copilot/auto)**_
 
@@ -19753,7 +19753,7 @@ Ran `git_status`
 
 **Input:**
 
-- directory: `/home/kel/dev/K-Downloader`
+- directory: `/home/kel/dev/Khinsider-Downloader`
 
 **Result:**
 
@@ -19772,7 +19772,7 @@ Read `main.ts`
 **Input:**
 
 - endLine: `300`
-- filePath: `/home/kel/dev/K-Downloader/src/electron/main.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/src/electron/main.ts`
 - startLine: `1`
 
 **Result:**
@@ -19839,16 +19839,16 @@ Read `preload.ts`
 **Input:**
 
 - endLine: `160`
-- filePath: `/home/kel/dev/K-Downloader/src/electron/preload.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/src/electron/preload.ts`
 - startLine: `1`
 
 **Result:**
 
 ```
 import { contextBridge, ipcRenderer } from "electron";
-import type { GuiDownloadRequest, GuiInspectionState, GuiProgress, KDownloaderApi } from "../gui-types.js";
+import type { GuiDownloadRequest, GuiInspectionState, GuiProgress, KhinsiderDownloaderApi } from "../gui-types.js";
 
-const api: KDownloaderApi = {
+const api: KhinsiderDownloaderApi = {
   defaultOutputRoot: () => ipcRenderer.invoke("output:default"),
   chooseOutput: () => ipcRenderer.invoke("output:choose"),
   inspect: (albumUrl: string) => ipcRenderer.invoke("album:inspect", albumUrl),
@@ -19867,7 +19867,7 @@ const api: KDownloaderApi = {
   },
 };
 
-contextBridge.exposeInMainWorld("kDownloader", api);
+contextBridge.exposeInMainWorld("khinsiderDownloader", api);
 ```
 </details></tool-use>
 
@@ -19881,7 +19881,7 @@ Read `gui-types.ts`
 **Input:**
 
 - endLine: `180`
-- filePath: `/home/kel/dev/K-Downloader/src/gui-types.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/src/gui-types.ts`
 - startLine: `1`
 
 **Result:**
@@ -19926,7 +19926,7 @@ export type GuiDownloadRequest = {
   discLabel: "CD" | "Disc";
 };
 
-export type KDownloaderApi = {
+export type KhinsiderDownloaderApi = {
   defaultOutputRoot: () => Promise<string>;
   chooseOutput: () => Promise<string | undefined>;
   inspect: (albumUrl: string) => Promise<GuiInspection>;
@@ -19939,7 +19939,7 @@ export type KDownloaderApi = {
 
 declare global {
   interface Window {
-    kDownloader: KDownloaderApi;
+    khinsiderDownloader: KhinsiderDownloaderApi;
   }
 }
 ```
@@ -19955,7 +19955,7 @@ Read `index.html`
 **Input:**
 
 - endLine: `180`
-- filePath: `/home/kel/dev/K-Downloader/gui/index.html`
+- filePath: `/home/kel/dev/Khinsider-Downloader/gui/index.html`
 - startLine: `1`
 
 **Result:**
@@ -19967,7 +19967,7 @@ Read `index.html`
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'" />
-    <title>K-Downloader</title>
+    <title>Khinsider Downloader</title>
     <link rel="stylesheet" href="./styles.css" />
     <script defer src="./renderer.js"></script>
   </head>
@@ -19977,7 +19977,7 @@ Read `index.html`
         <div class="brand-lockup">
           <div class="brand-mark" aria-hidden="true">K</div>
           <div>
-            <div class="brand-name">K-Downloader</div>
+            <div class="brand-name">Khinsider Downloader</div>
             <div class="brand-subtitle">SOUNDTRACK ARCHIVE</div>
           </div>
         </div>
@@ -20011,7 +20011,7 @@ Read `styles.css`
 **Input:**
 
 - endLine: `260`
-- filePath: `/home/kel/dev/K-Downloader/gui/styles.css`
+- filePath: `/home/kel/dev/Khinsider-Downloader/gui/styles.css`
 - startLine: `1`
 
 **Result:**
@@ -20158,7 +20158,7 @@ export type GuiDownloadRequest = {
   discLabel: "CD" | "Disc";
 };
 
-export type KDownloaderApi = {
+export type KhinsiderDownloaderApi = {
   minimizeWindow: () => Promise<void>;
   toggleMaximizeWindow: () => Promise<boolean>;
   closeWindow: () => Promise<void>;
@@ -20175,7 +20175,7 @@ export type KDownloaderApi = {
 
 declare global {
   interface Window {
-    kDownloader: KDownloaderApi;
+    khinsiderDownloader: KhinsiderDownloaderApi;
   }
 }
 ```
@@ -20198,9 +20198,9 @@ _**Agent (copilot/auto)**_
 
 ```
 import { contextBridge, ipcRenderer } from "electron";
-import type { GuiDownloadRequest, GuiInspectionState, GuiProgress, GuiWindowState, KDownloaderApi } from "../gui-types.js";
+import type { GuiDownloadRequest, GuiInspectionState, GuiProgress, GuiWindowState, KhinsiderDownloaderApi } from "../gui-types.js";
 
-const api: KDownloaderApi = {
+const api: KhinsiderDownloaderApi = {
   minimizeWindow: () => ipcRenderer.invoke("window:minimize"),
   toggleMaximizeWindow: () => ipcRenderer.invoke("window:toggle-maximize"),
   closeWindow: () => ipcRenderer.invoke("window:close"),
@@ -20227,7 +20227,7 @@ const api: KDownloaderApi = {
   },
 };
 
-contextBridge.exposeInMainWorld("kDownloader", api);
+contextBridge.exposeInMainWorld("khinsiderDownloader", api);
 ```
 </details></tool-use>
 
@@ -20442,7 +20442,7 @@ async function createWindow(): Promise<void> {
     minWidth: 760,
     minHeight: 620,
     backgroundColor: "#101715",
-    title: "K-Downloader",
+    title: "Khinsider Downloader",
     webPreferences: {
       preload: resolve(__dirname, "preload.cjs"),
       contextIsolation: true,
@@ -20471,7 +20471,7 @@ async function createWindow(): Promise<void> {
 }
 
 app.whenReady().then(async () => {
-  app.setName("K-Downloader");
+  app.setName("Khinsider Downloader");
   Menu.setApplicationMenu(null);
   registerIpc();
   await createWindow();
@@ -20509,7 +20509,7 @@ _**Agent (copilot/auto)**_
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'" />
-    <title>K-Downloader</title>
+    <title>Khinsider Downloader</title>
     <link rel="stylesheet" href="./styles.css" />
     <script defer src="./renderer.js"></script>
   </head>
@@ -20518,7 +20518,7 @@ _**Agent (copilot/auto)**_
       <header class="topbar">
         <div class="brand-lockup">
           <div class="app-icon" aria-hidden="true">K</div>
-          <div class="brand-name">K-Downloader</div>
+          <div class="brand-name">Khinsider Downloader</div>
         </div>
         <nav class="window-controls" aria-label="Window controls">
           <button id="minimize-window" class="window-control" type="button" aria-label="Minimize window" title="Minimize">
@@ -20792,11 +20792,11 @@ npm run build && npm run build:gui
 
 ```
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -20955,13 +20955,13 @@ function setBusy(value: boolean): void {
   if (inspection) renderTracks();
 }
 
-minimizeWindowButton.addEventListener("click", () => { void window.kDownloader.minimizeWindow(); });
+minimizeWindowButton.addEventListener("click", () => { void window.khinsiderDownloader.minimizeWindow(); });
 maximizeWindowButton.addEventListener("click", async () => {
-  const maximized = await window.kDownloader.toggleMaximizeWindow();
+  const maximized = await window.khinsiderDownloader.toggleMaximizeWindow();
   updateMaximizeButton(maximized);
 });
-closeWindowButton.addEventListener("click", () => { void window.kDownloader.closeWindow(); });
-window.kDownloader.onWindowState(({ maximized }) => updateMaximizeButton(maximized));
+closeWindowButton.addEventListener("click", () => { void window.khinsiderDownloader.closeWindow(); });
+window.khinsiderDownloader.onWindowState(({ maximized }) => updateMaximizeButton(maximized));
 
 inspectButton.addEventListener("click", async () => {
   errorText.textContent = "";
@@ -20980,7 +20980,7 @@ inspectButton.addEventListener("click", async () => {
   setBusy(true);
   setStatus("Inspection in progress", "working");
   try {
-    inspection = await window.kDownloader.inspect(albumUrl);
+    inspection = await window.khinsiderDownloader.inspect(albumUrl);
     albumTitle.textContent = inspection.albumTitle;
     updateFormatOptions();
     setStatus("Preview ready", "success");
@@ -20996,7 +20996,7 @@ inspectButton.addEventListener("click", async () => {
 inspectionIndicator.addEventListener("click", async () => {
   if (inspectionIndicator.disabled) return;
   try {
-    inspectionBrowserVisible = await window.kDownloader.toggleInspectionBrowser();
+    inspectionBrowserVisible = await window.khinsiderDownloader.toggleInspectionBrowser();
     inspectionIndicator.setAttribute("aria-pressed", String(inspectionBrowserVisible));
     inspectionIndicatorText.textContent = inspectionBrowserVisible ? "Hide browser" : "Show browser";
   } catch (error) {
@@ -21004,7 +21004,7 @@ inspectionIndicator.addEventListener("click", async () => {
   }
 });
 
-window.kDownloader.onInspectionState((state: GuiInspectionState) => {
+window.khinsiderDownloader.onInspectionState((state: GuiInspectionState) => {
   inspectionBrowserVisible = state.browserVisible;
   inspectionIndicator.hidden = !state.active;
   inspectionIndicator.disabled = !state.browserReady;
@@ -21016,7 +21016,7 @@ window.kDownloader.onInspectionState((state: GuiInspectionState) => {
 });
 
 browseButton.addEventListener("click", async () => {
-  const selected = await window.kDownloader.chooseOutput();
+  const selected = await window.khinsiderDownloader.chooseOutput();
   if (selected) outputInput.value = selected;
 });
 
@@ -21035,7 +21035,7 @@ downloadButton.addEventListener("click", async () => {
   setBusy(true);
   setStatus("Downloading", "working");
   try {
-    const result = await window.kDownloader.download({
+    const result = await window.khinsiderDownloader.download({
       policy: currentPolicy(),
       outputRoot: outputInput.value,
       discLabel: discLabelSelect.value === "Disc" ? "Disc" : "CD",
@@ -21054,11 +21054,11 @@ downloadButton.addEventListener("click", async () => {
 
 cancelButton.addEventListener("click", async () => {
   cancelButton.disabled = true;
-  await window.kDownloader.cancel();
+  await window.khinsiderDownloader.cancel();
   setStatus("Canceling active track…", "working");
 });
 
-window.kDownloader.onProgress((event: GuiProgress) => {
+window.khinsiderDownloader.onProgress((event: GuiProgress) => {
   progress.max = event.totalTracks;
   progress.value = event.completedTracks;
   progressText.textContent = event.stage === "track-start"
@@ -21070,7 +21070,7 @@ window.kDownloader.onProgress((event: GuiProgress) => {
         : "Canceled";
 });
 
-void window.kDownloader.defaultOutputRoot().then((value) => { outputInput.value = value; });
+void window.khinsiderDownloader.defaultOutputRoot().then((value) => { outputInput.value = value; });
 ```
 </details></tool-use>
 
@@ -21099,11 +21099,11 @@ npm test && npm run build && npm run build:gui && npm audit
 
 ```
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  5 passed (5)
@@ -21112,11 +21112,11 @@ npm test && npm run build && npm run build:gui && npm audit
    Duration  1.12s (transform 52%, import 35%, tests 12%, worker 2%)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -21146,13 +21146,13 @@ npm run gui
 ```
 Command is running in terminal with ID=983c36fd-ca08-4064-95dc-0b9ebd3b373b
  The command became idle with output:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run gui
 
-> k-downloader@0.1.0 gui
+> khinsider-downloader@0.1.0 gui
 > npm run build:gui && electron dist/electron/main.cjs
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -21197,13 +21197,13 @@ Checked terminal output
 
 ```
 Output of terminal 983c36fd-ca08-4064-95dc-0b9ebd3b373b:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run gui
 
-> k-downloader@0.1.0 gui
+> khinsider-downloader@0.1.0 gui
 > npm run build:gui && electron dist/electron/main.cjs
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -21249,7 +21249,7 @@ Read `index.html`
 **Input:**
 
 - endLine: `180`
-- filePath: `/home/kel/dev/K-Downloader/gui/index.html`
+- filePath: `/home/kel/dev/Khinsider-Downloader/gui/index.html`
 - startLine: `1`
 
 **Result:**
@@ -21261,7 +21261,7 @@ Read `index.html`
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'" />
-    <title>K-Downloader</title>
+    <title>Khinsider Downloader</title>
     <link rel="stylesheet" href="./styles.css" />
     <script defer src="./renderer.js"></script>
   </head>
@@ -21270,7 +21270,7 @@ Read `index.html`
       <header class="topbar">
         <div class="brand-lockup">
           <div class="app-icon" aria-hidden="true">K</div>
-          <div class="brand-name">K-Downloader</div>
+          <div class="brand-name">Khinsider Downloader</div>
         </div>
         <nav class="window-controls" aria-label="Window controls">
           <button id="minimize-window" class="window-control" type="button" aria-label="Minimize window" title="Minimize">
@@ -21307,7 +21307,7 @@ Read `renderer.ts`
 **Input:**
 
 - endLine: `280`
-- filePath: `/home/kel/dev/K-Downloader/src/renderer.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/src/renderer.ts`
 - startLine: `1`
 
 **Result:**
@@ -21355,7 +21355,7 @@ Read `styles.css`
 **Input:**
 
 - endLine: `260`
-- filePath: `/home/kel/dev/K-Downloader/gui/styles.css`
+- filePath: `/home/kel/dev/Khinsider-Downloader/gui/styles.css`
 - startLine: `1`
 
 **Result:**
@@ -21420,14 +21420,14 @@ Read `package.json`
 **Input:**
 
 - endLine: `100`
-- filePath: `/home/kel/dev/K-Downloader/package.json`
+- filePath: `/home/kel/dev/Khinsider-Downloader/package.json`
 - startLine: `1`
 
 **Result:**
 
 ```
 {
-  "name": "k-downloader",
+  "name": "khinsider-downloader",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -21497,7 +21497,7 @@ _**Agent (copilot/auto)**_
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'" />
-    <title>K-Downloader</title>
+    <title>Khinsider Downloader</title>
     <link rel="stylesheet" href="./styles.css" />
     <script defer src="./renderer.js"></script>
   </head>
@@ -21506,7 +21506,7 @@ _**Agent (copilot/auto)**_
       <header class="topbar">
         <div class="brand-lockup">
           <div class="app-icon" aria-hidden="true">K</div>
-          <div class="brand-name">K-Downloader</div>
+          <div class="brand-name">Khinsider Downloader</div>
         </div>
         <div class="titlebar-actions">
           <div id="more-menu-wrap" class="more-menu-wrap">
@@ -21812,13 +21812,13 @@ function setBusy(value: boolean): void {
   if (inspection) renderTracks();
 }
 
-minimizeWindowButton.addEventListener("click", () => { void window.kDownloader.minimizeWindow(); });
+minimizeWindowButton.addEventListener("click", () => { void window.khinsiderDownloader.minimizeWindow(); });
 maximizeWindowButton.addEventListener("click", async () => {
-  const maximized = await window.kDownloader.toggleMaximizeWindow();
+  const maximized = await window.khinsiderDownloader.toggleMaximizeWindow();
   updateMaximizeButton(maximized);
 });
-closeWindowButton.addEventListener("click", () => { void window.kDownloader.closeWindow(); });
-window.kDownloader.onWindowState(({ maximized }) => updateMaximizeButton(maximized));
+closeWindowButton.addEventListener("click", () => { void window.khinsiderDownloader.closeWindow(); });
+window.khinsiderDownloader.onWindowState(({ maximized }) => updateMaximizeButton(maximized));
 
 moreButton.addEventListener("click", () => {
   moreMenu.hidden = !moreMenu.hidden;
@@ -21859,7 +21859,7 @@ inspectButton.addEventListener("click", async () => {
   setBusy(true);
   setStatus("Inspection in progress", "working");
   try {
-    inspection = await window.kDownloader.inspect(albumUrl);
+    inspection = await window.khinsiderDownloader.inspect(albumUrl);
     albumTitle.textContent = inspection.albumTitle;
     updateFormatOptions();
     setStatus("Preview ready", "success");
@@ -21875,7 +21875,7 @@ inspectButton.addEventListener("click", async () => {
 inspectionIndicator.addEventListener("click", async () => {
   if (inspectionIndicator.disabled) return;
   try {
-    inspectionBrowserVisible = await window.kDownloader.toggleInspectionBrowser();
+    inspectionBrowserVisible = await window.khinsiderDownloader.toggleInspectionBrowser();
     inspectionIndicator.setAttribute("aria-pressed", String(inspectionBrowserVisible));
     inspectionIndicatorText.textContent = inspectionBrowserVisible ? "Hide browser" : "Show browser";
   } catch (error) {
@@ -21883,7 +21883,7 @@ inspectionIndicator.addEventListener("click", async () => {
   }
 });
 
-window.kDownloader.onInspectionState((state: GuiInspectionState) => {
+window.khinsiderDownloader.onInspectionState((state: GuiInspectionState) => {
   inspectionBrowserVisible = state.browserVisible;
   inspectionIndicator.hidden = !state.active;
   inspectionIndicator.disabled = !state.browserReady;
@@ -21895,7 +21895,7 @@ window.kDownloader.onInspectionState((state: GuiInspectionState) => {
 });
 
 browseButton.addEventListener("click", async () => {
-  const selected = await window.kDownloader.chooseOutput();
+  const selected = await window.khinsiderDownloader.chooseOutput();
   if (selected) outputInput.value = selected;
 });
 
@@ -21914,7 +21914,7 @@ downloadButton.addEventListener("click", async () => {
   setBusy(true);
   setStatus("Downloading", "working");
   try {
-    const result = await window.kDownloader.download({
+    const result = await window.khinsiderDownloader.download({
       policy: currentPolicy(),
       outputRoot: outputInput.value,
       discLabel: discLabelSelect.value === "Disc" ? "Disc" : "CD",
@@ -21933,11 +21933,11 @@ downloadButton.addEventListener("click", async () => {
 
 cancelButton.addEventListener("click", async () => {
   cancelButton.disabled = true;
-  await window.kDownloader.cancel();
+  await window.khinsiderDownloader.cancel();
   setStatus("Canceling active track…", "working");
 });
 
-window.kDownloader.onProgress((event: GuiProgress) => {
+window.khinsiderDownloader.onProgress((event: GuiProgress) => {
   progress.max = event.totalTracks;
   progress.value = event.completedTracks;
   progressText.textContent = event.stage === "track-start"
@@ -21949,7 +21949,7 @@ window.kDownloader.onProgress((event: GuiProgress) => {
         : "Canceled";
 });
 
-void window.kDownloader.defaultOutputRoot().then((value) => { outputInput.value = value; });
+void window.khinsiderDownloader.defaultOutputRoot().then((value) => { outputInput.value = value; });
 ```
 </details></tool-use>
 
@@ -22137,11 +22137,11 @@ npm test && npm run build && npm run build:gui && npm audit
 
 ```
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  5 passed (5)
@@ -22150,11 +22150,11 @@ npm test && npm run build && npm run build:gui && npm audit
    Duration  998ms (import 55%, tests 28%, transform 14%, worker 4%)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -22184,13 +22184,13 @@ npm run gui
 ```
 Command is running in terminal with ID=5e9010e6-f303-4bb5-904b-0258e687aee4
  The command became idle with output:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run gui
 
-> k-downloader@0.1.0 gui
+> khinsider-downloader@0.1.0 gui
 > npm run build:gui && electron dist/electron/main.cjs
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -22234,13 +22234,13 @@ Checked terminal output
 
 ```
 Output of terminal 5e9010e6-f303-4bb5-904b-0258e687aee4:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run gui
 
-> k-downloader@0.1.0 gui
+> khinsider-downloader@0.1.0 gui
 > npm run build:gui && electron dist/electron/main.cjs
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -22260,9 +22260,9 @@ _**Agent (copilot/auto)**_
 @@ lines 1-83 @@
 
 ````
-# K-Downloader
+# Khinsider Downloader
 
-K-Downloader is a Linux-first KHInsider album downloader. The current slice
+Khinsider Downloader is a Linux-first KHInsider album downloader. The current slice
 implements public single-album discovery, format preview and policy, sequential
 streaming, and manifest-backed reruns. Multi-album queues, artwork, the GUI,
 optional account features, and packaging are not implemented yet.
@@ -22290,7 +22290,7 @@ access methods.
 
 The CLI previews the selected formats before starting any transfer. The default
 format policy prefers lossless, falling back to MP3 when needed. The default
-destination is `~/Music/K-Downloader`.
+destination is `~/Music/Khinsider Downloader`.
 
 ```sh
 npm run download -- 'https://downloads.khinsider.com/game-soundtracks/album/unreal-ii-the-awakening-original-soundtrack'
@@ -22325,7 +22325,7 @@ Paste one album URL and choose **Inspect album**. A Chromium inspection window
 starts minimized while an in-progress indicator appears in the app; click that
 indicator to show or hide the browser. Review the per-track format preview, choose the
 destination and format policy, then select **Download**. The default destination
-is `~/Music/K-Downloader`. **Cancel active download** stops the current transfer
+is `~/Music/Khinsider Downloader`. **Cancel active download** stops the current transfer
 and prevents later tracks from starting.
 
 Open **More > Settings** in the titlebar or press `Ctrl+,`. The Settings view is
@@ -22365,13 +22365,13 @@ _**User (2026-10-12 16:21:06Z)**_
 
 [Terminal 983c36fd-ca08-4064-95dc-0b9ebd3b373b notification: command completed. The terminal has been cleaned up.]
 Terminal output:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run gui
 
-> k-downloader@0.1.0 gui
+> khinsider-downloader@0.1.0 gui
 > npm run build:gui && electron dist/electron/main.cjs
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -22408,13 +22408,13 @@ _**User (2026-10-12 16:21:20Z)**_
 
 [Terminal 5e9010e6-f303-4bb5-904b-0258e687aee4 notification: command completed. The terminal has been cleaned up.]
 Terminal output:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run gui
 
-> k-downloader@0.1.0 gui
+> khinsider-downloader@0.1.0 gui
 > npm run build:gui && electron dist/electron/main.cjs
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -22508,7 +22508,7 @@ Read `styles.css`
 **Input:**
 
 - endLine: `240`
-- filePath: `/home/kel/dev/K-Downloader/gui/styles.css`
+- filePath: `/home/kel/dev/Khinsider-Downloader/gui/styles.css`
 - startLine: `1`
 
 **Result:**
@@ -22573,7 +22573,7 @@ Read `renderer.ts`, lines 1 to 130
 **Input:**
 
 - endLine: `130`
-- filePath: `/home/kel/dev/K-Downloader/src/renderer.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/src/renderer.ts`
 - startLine: `1`
 
 **Result:**
@@ -22620,7 +22620,7 @@ Read `index.html`, lines 135 to 140
 **Input:**
 
 - endLine: `210`
-- filePath: `/home/kel/dev/K-Downloader/gui/index.html`
+- filePath: `/home/kel/dev/Khinsider-Downloader/gui/index.html`
 - startLine: `135`
 
 **Result:**
@@ -22655,7 +22655,7 @@ export type Appearance = {
 };
 
 export const defaultAppearance: Appearance = { mode: "system", theme: "mint" };
-export const appearanceStorageKey = "k-downloader.appearance";
+export const appearanceStorageKey = "khinsider-downloader.appearance";
 
 export function parseAppearance(raw: string | null): Appearance {
   try {
@@ -22897,13 +22897,13 @@ function setBusy(value: boolean): void {
   if (inspection) renderTracks();
 }
 
-minimizeWindowButton.addEventListener("click", () => { void window.kDownloader.minimizeWindow(); });
+minimizeWindowButton.addEventListener("click", () => { void window.khinsiderDownloader.minimizeWindow(); });
 maximizeWindowButton.addEventListener("click", async () => {
-  const maximized = await window.kDownloader.toggleMaximizeWindow();
+  const maximized = await window.khinsiderDownloader.toggleMaximizeWindow();
   updateMaximizeButton(maximized);
 });
-closeWindowButton.addEventListener("click", () => { void window.kDownloader.closeWindow(); });
-window.kDownloader.onWindowState(({ maximized }) => updateMaximizeButton(maximized));
+closeWindowButton.addEventListener("click", () => { void window.khinsiderDownloader.closeWindow(); });
+window.khinsiderDownloader.onWindowState(({ maximized }) => updateMaximizeButton(maximized));
 
 moreButton.addEventListener("click", () => {
   moreMenu.hidden = !moreMenu.hidden;
@@ -22944,7 +22944,7 @@ inspectButton.addEventListener("click", async () => {
   setBusy(true);
   setStatus("Inspection in progress", "working");
   try {
-    inspection = await window.kDownloader.inspect(albumUrl);
+    inspection = await window.khinsiderDownloader.inspect(albumUrl);
     albumTitle.textContent = inspection.albumTitle;
     updateFormatOptions();
     setStatus("Preview ready", "success");
@@ -22960,7 +22960,7 @@ inspectButton.addEventListener("click", async () => {
 inspectionIndicator.addEventListener("click", async () => {
   if (inspectionIndicator.disabled) return;
   try {
-    inspectionBrowserVisible = await window.kDownloader.toggleInspectionBrowser();
+    inspectionBrowserVisible = await window.khinsiderDownloader.toggleInspectionBrowser();
     inspectionIndicator.setAttribute("aria-pressed", String(inspectionBrowserVisible));
     inspectionIndicatorText.textContent = inspectionBrowserVisible ? "Hide browser" : "Show browser";
   } catch (error) {
@@ -22968,7 +22968,7 @@ inspectionIndicator.addEventListener("click", async () => {
   }
 });
 
-window.kDownloader.onInspectionState((state: GuiInspectionState) => {
+window.khinsiderDownloader.onInspectionState((state: GuiInspectionState) => {
   inspectionBrowserVisible = state.browserVisible;
   inspectionIndicator.hidden = !state.active;
   inspectionIndicator.disabled = !state.browserReady;
@@ -22980,7 +22980,7 @@ window.kDownloader.onInspectionState((state: GuiInspectionState) => {
 });
 
 browseButton.addEventListener("click", async () => {
-  const selected = await window.kDownloader.chooseOutput();
+  const selected = await window.khinsiderDownloader.chooseOutput();
   if (selected) outputInput.value = selected;
 });
 
@@ -22999,7 +22999,7 @@ downloadButton.addEventListener("click", async () => {
   setBusy(true);
   setStatus("Downloading", "working");
   try {
-    const result = await window.kDownloader.download({
+    const result = await window.khinsiderDownloader.download({
       policy: currentPolicy(),
       outputRoot: outputInput.value,
       discLabel: discLabelSelect.value === "Disc" ? "Disc" : "CD",
@@ -23018,11 +23018,11 @@ downloadButton.addEventListener("click", async () => {
 
 cancelButton.addEventListener("click", async () => {
   cancelButton.disabled = true;
-  await window.kDownloader.cancel();
+  await window.khinsiderDownloader.cancel();
   setStatus("Canceling active track…", "working");
 });
 
-window.kDownloader.onProgress((event: GuiProgress) => {
+window.khinsiderDownloader.onProgress((event: GuiProgress) => {
   progress.max = event.totalTracks;
   progress.value = event.completedTracks;
   progressText.textContent = event.stage === "track-start"
@@ -23034,7 +23034,7 @@ window.kDownloader.onProgress((event: GuiProgress) => {
         : "Canceled";
 });
 
-void window.kDownloader.defaultOutputRoot().then((value) => { outputInput.value = value; });
+void window.khinsiderDownloader.defaultOutputRoot().then((value) => { outputInput.value = value; });
 ```
 </details></tool-use>
 
@@ -23060,7 +23060,7 @@ _**Agent (copilot/auto)**_
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'" />
-    <title>K-Downloader</title>
+    <title>Khinsider Downloader</title>
     <link rel="stylesheet" href="./styles.css" />
     <script defer src="./renderer.js"></script>
   </head>
@@ -23069,7 +23069,7 @@ _**Agent (copilot/auto)**_
       <header class="topbar">
         <div class="brand-lockup">
           <div class="app-icon" aria-hidden="true">K</div>
-          <div class="brand-name">K-Downloader</div>
+          <div class="brand-name">Khinsider Downloader</div>
         </div>
         <div class="titlebar-actions">
           <div id="more-menu-wrap" class="more-menu-wrap">
@@ -23278,11 +23278,11 @@ npm test -- tests/appearance.test.ts && npm run build
 
 ```
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run tests/appearance.test.ts
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  1 passed (1)
@@ -23291,7 +23291,7 @@ npm test -- tests/appearance.test.ts && npm run build
    Duration  229ms (transform 64%, import 24%, tests 6%, worker 5%)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 ```
 </details></tool-use>
@@ -23551,20 +23551,20 @@ npm run build && npm run build:gui && npm test -- tests/appearance.test.ts
 
 ```
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run tests/appearance.test.ts
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  1 passed (1)
@@ -23595,7 +23595,7 @@ export type Appearance = {
 };
 
 export const defaultAppearance: Appearance = { mode: "system", theme: "mint" };
-export const appearanceStorageKey = "k-downloader.appearance";
+export const appearanceStorageKey = "khinsider-downloader.appearance";
 
 export function parseAppearance(raw: string | null): Appearance {
   try {
@@ -23707,8 +23707,8 @@ describe("appearance controls in Chromium", () => {
       const errors: string[] = [];
       page.on("pageerror", (error) => errors.push(error.message));
       await page.addInitScript(() => {
-        window.kDownloader = {
-          defaultOutputRoot: async () => "/tmp/K-Downloader",
+        window.khinsiderDownloader = {
+          defaultOutputRoot: async () => "/tmp/Khinsider Downloader",
           chooseOutput: async () => undefined,
           inspect: async () => ({ albumTitle: "Fixture", trackCount: 0, tracks: [] }),
           download: async () => ({ state: "complete", directory: "/tmp" }),
@@ -23761,11 +23761,11 @@ describe("appearance controls in Chromium", () => {
       await page.emulateMedia({ colorScheme: "light" });
       await page.emulateMedia({ colorScheme: "dark" });
       expect(await page.locator("html").getAttribute("data-mode")).toBe("light");
-      await page.screenshot({ path: "/tmp/k-downloader-appearance-light.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-appearance-light.png" });
       await page.setViewportSize({ width: 760, height: 620 });
       await page.getByRole("radio", { name: "Dark", exact: true }).check();
       await page.getByRole("radio", { name: "Mint", exact: true }).check();
-      await page.screenshot({ path: "/tmp/k-downloader-appearance-dark.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-appearance-dark.png" });
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
       await page.keyboard.press("Escape");
       await page.locator("#workspace").waitFor({ state: "visible" });
@@ -23803,16 +23803,16 @@ npm run build:gui && npm test -- tests/appearance.test.ts
 
 ```
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run tests/appearance.test.ts
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
  ❯ tests/appearance.test.ts (4 tests | 1 failed) 30007ms
    ❯ appearance controls in Chromium (1)
@@ -23892,8 +23892,8 @@ describe("appearance controls in Chromium", () => {
       const errors: string[] = [];
       page.on("pageerror", (error) => errors.push(error.message));
       await page.addInitScript(() => {
-        window.kDownloader = {
-          defaultOutputRoot: async () => "/tmp/K-Downloader",
+        window.khinsiderDownloader = {
+          defaultOutputRoot: async () => "/tmp/Khinsider Downloader",
           chooseOutput: async () => undefined,
           inspect: async () => ({ albumTitle: "Fixture", trackCount: 0, tracks: [] }),
           download: async () => ({ state: "complete", directory: "/tmp" }),
@@ -23946,11 +23946,11 @@ describe("appearance controls in Chromium", () => {
       await page.emulateMedia({ colorScheme: "light" });
       await page.emulateMedia({ colorScheme: "dark" });
       expect(await page.locator("html").getAttribute("data-mode")).toBe("light");
-      await page.screenshot({ path: "/tmp/k-downloader-appearance-light.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-appearance-light.png" });
       await page.setViewportSize({ width: 760, height: 620 });
       await page.getByRole("radio", { name: "Dark", exact: true }).check();
       await page.getByRole("radio", { name: "Mint", exact: true }).check();
-      await page.screenshot({ path: "/tmp/k-downloader-appearance-dark.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-appearance-dark.png" });
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
       await page.keyboard.press("Escape");
       await page.locator("#workspace").waitFor({ state: "visible" });
@@ -23980,11 +23980,11 @@ npm test -- tests/appearance.test.ts
 
 ```
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run tests/appearance.test.ts
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  1 passed (1)
@@ -24008,14 +24008,14 @@ Read `package.json`
 **Input:**
 
 - endLine: `80`
-- filePath: `/home/kel/dev/K-Downloader/package.json`
+- filePath: `/home/kel/dev/Khinsider-Downloader/package.json`
 - startLine: `1`
 
 **Result:**
 
 ```
 {
-  "name": "k-downloader",
+  "name": "khinsider-downloader",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -24052,11 +24052,11 @@ _**Agent (copilot/auto)**_
 <tool-use data-tool-type="generic" data-tool-name="view_image"><details>
 <summary>Tool use: **view_image**</summary>
 
-Viewed image `k-downloader-appearance-light.png`
+Viewed image `khinsider-downloader-appearance-light.png`
 
 **Input:**
 
-- filePath: `/tmp/k-downloader-appearance-light.png`
+- filePath: `/tmp/khinsider-downloader-appearance-light.png`
 </details></tool-use>
 
 _**Agent (copilot/auto)**_
@@ -24064,11 +24064,11 @@ _**Agent (copilot/auto)**_
 <tool-use data-tool-type="generic" data-tool-name="view_image"><details>
 <summary>Tool use: **view_image**</summary>
 
-Viewed image `k-downloader-appearance-dark.png`
+Viewed image `khinsider-downloader-appearance-dark.png`
 
 **Input:**
 
-- filePath: `/tmp/k-downloader-appearance-dark.png`
+- filePath: `/tmp/khinsider-downloader-appearance-dark.png`
 </details></tool-use>
 
 _**Agent (copilot/auto)**_
@@ -24089,12 +24089,12 @@ Generating patch (39 lines) in `package.json`, `styles.css`, `README.md`
 
 ````
 *** Begin Patch
-*** Update File: /home/kel/dev/K-Downloader/package.json
+*** Update File: /home/kel/dev/Khinsider-Downloader/package.json
 @@
      "download": "tsx src/cli.ts download",
 +    "pretest": "npm run build:gui",
      "test": "vitest run"
-*** Update File: /home/kel/dev/K-Downloader/gui/styles.css
+*** Update File: /home/kel/dev/Khinsider-Downloader/gui/styles.css
 @@
 -.swatch-mint { background: #83bd42; }
 -.swatch-ocean { background: #008b83; }
@@ -24111,7 +24111,7 @@ Generating patch (39 lines) in `package.json`, `styles.css`, `README.md`
 +:root[data-mode="light"] .swatch-amber { background: #805c05; }
 +:root[data-mode="light"] .swatch-rose { background: #a03058; }
 +:root[data-mode="light"] .swatch-monochrome { background: #46515a; }
-*** Update File: /home/kel/dev/K-Downloader/README.md
+*** Update File: /home/kel/dev/Khinsider-Downloader/README.md
 @@
 -Open **More > Settings** in the titlebar or press `Ctrl+,`. The Settings view is
 -currently a placeholder; return with **Back to downloader** or press `Esc`.
@@ -24134,9 +24134,9 @@ Generating patch (39 lines) in `package.json`, `styles.css`, `README.md`
 
 ```
 The following files were successfully edited:
-/home/kel/dev/K-Downloader/package.json
-/home/kel/dev/K-Downloader/gui/styles.css
-/home/kel/dev/K-Downloader/README.md
+/home/kel/dev/Khinsider-Downloader/package.json
+/home/kel/dev/Khinsider-Downloader/gui/styles.css
+/home/kel/dev/Khinsider-Downloader/README.md
 ```
 </details></tool-use>
 
@@ -24149,7 +24149,7 @@ _**Agent (copilot/auto)**_
 
 ```
 {
-  "name": "k-downloader",
+  "name": "khinsider-downloader",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -24446,9 +24446,9 @@ _**Agent (copilot/auto)**_
 @@ lines 1-89 @@
 
 ````
-# K-Downloader
+# Khinsider Downloader
 
-K-Downloader is a Linux-first KHInsider album downloader. The current slice
+Khinsider Downloader is a Linux-first KHInsider album downloader. The current slice
 implements public single-album discovery, format preview and policy, sequential
 streaming, and manifest-backed reruns. Multi-album queues, artwork, the GUI,
 optional account features, and packaging are not implemented yet.
@@ -24476,7 +24476,7 @@ access methods.
 
 The CLI previews the selected formats before starting any transfer. The default
 format policy prefers lossless, falling back to MP3 when needed. The default
-destination is `~/Music/K-Downloader`.
+destination is `~/Music/Khinsider Downloader`.
 
 ```sh
 npm run download -- 'https://downloads.khinsider.com/game-soundtracks/album/unreal-ii-the-awakening-original-soundtrack'
@@ -24511,7 +24511,7 @@ Paste one album URL and choose **Inspect album**. A Chromium inspection window
 starts minimized while an in-progress indicator appears in the app; click that
 indicator to show or hide the browser. Review the per-track format preview, choose the
 destination and format policy, then select **Download**. The default destination
-is `~/Music/K-Downloader`. **Cancel active download** stops the current transfer
+is `~/Music/Khinsider Downloader`. **Cancel active download** stops the current transfer
 and prevents later tracks from starting.
 
 Open **More > Settings** in the titlebar or press `Ctrl+,`. Under **Appearance**,
@@ -24554,20 +24554,20 @@ npm test && npm run build
 
 ```
 
-> k-downloader@0.1.0 pretest
+> khinsider-downloader@0.1.0 pretest
 > npm run build:gui
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  6 passed (6)
@@ -24576,7 +24576,7 @@ Built Electron main/preload and local renderer into dist/.
    Duration  1.74s (tests 58%, import 39%, transform 2%, worker 1%)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 ```
 </details></tool-use>
@@ -24595,7 +24595,7 @@ Running ` node --input-type=module -e 'import \{ \_electron as electron \} from 
 Exercise the real Electron app's Appearance controls and saved preferences, restore System + Mint, and close it cleanly.
 
 ```bash
-node --input-type=module -e 'import { _electron as electron } from "playwright"; import { createRequire } from "node:module"; const require = createRequire(import.meta.url); const app = await electron.launch({ executablePath: require("electron"), args: ["dist/electron/main.cjs"] }); try { const page = await app.firstWindow(); await page.waitForFunction(() => document.documentElement.dataset.mode); await page.keyboard.press("Control+Comma"); await page.getByRole("heading", { name: "Appearance", exact: true }).waitFor(); await page.getByRole("radio", { name: "Dark", exact: true }).check(); await page.getByRole("radio", { name: "Ocean", exact: true }).check(); const state = await page.evaluate(() => ({ mode: document.documentElement.dataset.mode, theme: document.documentElement.dataset.theme, saved: JSON.parse(localStorage.getItem("k-downloader.appearance")) })); console.log(JSON.stringify(state)); if (state.mode !== "dark" || state.theme !== "ocean") throw new Error("Appearance failed in Electron"); await page.getByRole("radio", { name: "System", exact: true }).check(); await page.getByRole("radio", { name: "Mint", exact: true }).check(); await page.getByRole("button", { name: "Close window", exact: true }).click(); } finally { await app.close(); }'
+node --input-type=module -e 'import { _electron as electron } from "playwright"; import { createRequire } from "node:module"; const require = createRequire(import.meta.url); const app = await electron.launch({ executablePath: require("electron"), args: ["dist/electron/main.cjs"] }); try { const page = await app.firstWindow(); await page.waitForFunction(() => document.documentElement.dataset.mode); await page.keyboard.press("Control+Comma"); await page.getByRole("heading", { name: "Appearance", exact: true }).waitFor(); await page.getByRole("radio", { name: "Dark", exact: true }).check(); await page.getByRole("radio", { name: "Ocean", exact: true }).check(); const state = await page.evaluate(() => ({ mode: document.documentElement.dataset.mode, theme: document.documentElement.dataset.theme, saved: JSON.parse(localStorage.getItem("khinsider-downloader.appearance")) })); console.log(JSON.stringify(state)); if (state.mode !== "dark" || state.theme !== "ocean") throw new Error("Appearance failed in Electron"); await page.getByRole("radio", { name: "System", exact: true }).check(); await page.getByRole("radio", { name: "Mint", exact: true }).check(); await page.getByRole("button", { name: "Close window", exact: true }).click(); } finally { await app.close(); }'
 ```
 
 **Result:**
@@ -24622,10 +24622,10 @@ Checked `appearance.ts`, `renderer.ts`, `appearance.test.ts`, `styles.css`, no p
 
 ```
 [
-  "/home/kel/dev/K-Downloader/src/appearance.ts",
-  "/home/kel/dev/K-Downloader/src/renderer.ts",
-  "/home/kel/dev/K-Downloader/tests/appearance.test.ts",
-  "/home/kel/dev/K-Downloader/gui/styles.css"
+  "/home/kel/dev/Khinsider-Downloader/src/appearance.ts",
+  "/home/kel/dev/Khinsider-Downloader/src/renderer.ts",
+  "/home/kel/dev/Khinsider-Downloader/tests/appearance.test.ts",
+  "/home/kel/dev/Khinsider-Downloader/gui/styles.css"
 ]
 ```
 
@@ -24633,16 +24633,16 @@ Checked `appearance.ts`, `renderer.ts`, `appearance.test.ts`, `styles.css`, no p
 **Result:**
 
 ```
-<errors path="/home/kel/dev/K-Downloader/src/appearance.ts">
+<errors path="/home/kel/dev/Khinsider-Downloader/src/appearance.ts">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/src/renderer.ts">
+<errors path="/home/kel/dev/Khinsider-Downloader/src/renderer.ts">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/tests/appearance.test.ts">
+<errors path="/home/kel/dev/Khinsider-Downloader/tests/appearance.test.ts">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/gui/styles.css">
+<errors path="/home/kel/dev/Khinsider-Downloader/gui/styles.css">
 No errors found
 </errors>
 ```
@@ -24666,13 +24666,13 @@ npm run gui
 ```
 Command is running in terminal with ID=6f64a0f5-6b52-418e-82eb-3e8bdacc1b04
  The command became idle with output:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run gui
 
-> k-downloader@0.1.0 gui
+> khinsider-downloader@0.1.0 gui
 > npm run build:gui && electron dist/electron/main.cjs
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -24748,7 +24748,7 @@ Read `appearance.ts`
 **Input:**
 
 - endLine: `180`
-- filePath: `/home/kel/dev/K-Downloader/src/appearance.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/src/appearance.ts`
 - startLine: `1`
 
 **Result:**
@@ -24762,7 +24762,7 @@ export type Appearance = {
 };
 
 export const defaultAppearance: Appearance = { mode: "system", theme: "mint" };
-export const appearanceStorageKey = "k-downloader.appearance";
+export const appearanceStorageKey = "khinsider-downloader.appearance";
 
 export function parseAppearance(raw: string | null): Appearance {
   try {
@@ -24816,7 +24816,7 @@ Read `main.ts`, lines 1 to 95
 **Input:**
 
 - endLine: `95`
-- filePath: `/home/kel/dev/K-Downloader/src/electron/main.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/src/electron/main.ts`
 - startLine: `1`
 
 **Result:**
@@ -24882,7 +24882,7 @@ Read `main.ts`, lines 220 to 237
 **Input:**
 
 - endLine: `310`
-- filePath: `/home/kel/dev/K-Downloader/src/electron/main.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/src/electron/main.ts`
 - startLine: `220`
 
 **Result:**
@@ -24893,7 +24893,7 @@ Read `main.ts`, lines 220 to 237
 }
 
 app.whenReady().then(async () => {
-  app.setName("K-Downloader");
+  app.setName("Khinsider Downloader");
   Menu.setApplicationMenu(null);
   registerIpc();
   await createWindow();
@@ -24919,16 +24919,16 @@ Read `preload.ts`
 **Input:**
 
 - endLine: `120`
-- filePath: `/home/kel/dev/K-Downloader/src/electron/preload.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/src/electron/preload.ts`
 - startLine: `1`
 
 **Result:**
 
 ```
 import { contextBridge, ipcRenderer } from "electron";
-import type { GuiDownloadRequest, GuiInspectionState, GuiProgress, GuiWindowState, KDownloaderApi } from "../gui-types.js";
+import type { GuiDownloadRequest, GuiInspectionState, GuiProgress, GuiWindowState, KhinsiderDownloaderApi } from "../gui-types.js";
 
-const api: KDownloaderApi = {
+const api: KhinsiderDownloaderApi = {
   minimizeWindow: () => ipcRenderer.invoke("window:minimize"),
   toggleMaximizeWindow: () => ipcRenderer.invoke("window:toggle-maximize"),
   closeWindow: () => ipcRenderer.invoke("window:close"),
@@ -24955,7 +24955,7 @@ const api: KDownloaderApi = {
   },
 };
 
-contextBridge.exposeInMainWorld("kDownloader", api);
+contextBridge.exposeInMainWorld("khinsiderDownloader", api);
 ```
 </details></tool-use>
 
@@ -24969,7 +24969,7 @@ Read `gui-types.ts`, lines 40 to 63
 **Input:**
 
 - endLine: `120`
-- filePath: `/home/kel/dev/K-Downloader/src/gui-types.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/src/gui-types.ts`
 - startLine: `40`
 
 **Result:**
@@ -24979,7 +24979,7 @@ Read `gui-types.ts`, lines 40 to 63
   discLabel: "CD" | "Disc";
 };
 
-export type KDownloaderApi = {
+export type KhinsiderDownloaderApi = {
   minimizeWindow: () => Promise<void>;
   toggleMaximizeWindow: () => Promise<boolean>;
   closeWindow: () => Promise<void>;
@@ -24996,7 +24996,7 @@ export type KDownloaderApi = {
 
 declare global {
   interface Window {
-    kDownloader: KDownloaderApi;
+    khinsiderDownloader: KhinsiderDownloaderApi;
   }
 }
 ```
@@ -25140,7 +25140,7 @@ export type GuiDownloadRequest = {
   discLabel: "CD" | "Disc";
 };
 
-export type KDownloaderApi = {
+export type KhinsiderDownloaderApi = {
   systemTheme: () => Promise<boolean>;
   onSystemTheme: (listener: (dark: boolean) => void) => () => void;
   minimizeWindow: () => Promise<void>;
@@ -25159,7 +25159,7 @@ export type KDownloaderApi = {
 
 declare global {
   interface Window {
-    kDownloader: KDownloaderApi;
+    khinsiderDownloader: KhinsiderDownloaderApi;
   }
 }
 ```
@@ -25182,9 +25182,9 @@ _**Agent (copilot/auto)**_
 
 ```
 import { contextBridge, ipcRenderer } from "electron";
-import type { GuiDownloadRequest, GuiInspectionState, GuiProgress, GuiWindowState, KDownloaderApi } from "../gui-types.js";
+import type { GuiDownloadRequest, GuiInspectionState, GuiProgress, GuiWindowState, KhinsiderDownloaderApi } from "../gui-types.js";
 
-const api: KDownloaderApi = {
+const api: KhinsiderDownloaderApi = {
   systemTheme: () => ipcRenderer.invoke("appearance:system-theme"),
   onSystemTheme: (listener: (dark: boolean) => void) => {
     const handler = (_event: Electron.IpcRendererEvent, dark: boolean) => listener(dark);
@@ -25217,7 +25217,7 @@ const api: KDownloaderApi = {
   },
 };
 
-contextBridge.exposeInMainWorld("kDownloader", api);
+contextBridge.exposeInMainWorld("khinsiderDownloader", api);
 ```
 </details></tool-use>
 
@@ -25450,7 +25450,7 @@ async function createWindow(): Promise<void> {
     minWidth: 760,
     minHeight: 620,
     backgroundColor: "#101715",
-    title: "K-Downloader",
+    title: "Khinsider Downloader",
     webPreferences: {
       preload: resolve(__dirname, "preload.cjs"),
       contextIsolation: true,
@@ -25479,7 +25479,7 @@ async function createWindow(): Promise<void> {
 }
 
 app.whenReady().then(async () => {
-  app.setName("K-Downloader");
+  app.setName("Khinsider Downloader");
   nativeTheme.themeSource = "system";
   nativeTheme.on("updated", sendSystemTheme);
   stopThemeMonitor = await monitorCinnamonTheme((dark) => {
@@ -25527,7 +25527,7 @@ export type Appearance = {
 };
 
 export const defaultAppearance: Appearance = { mode: "system", theme: "mint" };
-export const appearanceStorageKey = "k-downloader.appearance";
+export const appearanceStorageKey = "khinsider-downloader.appearance";
 
 export function parseAppearance(raw: string | null): Appearance {
   try {
@@ -25581,14 +25581,14 @@ export function initializeAppearance(): void {
     preferences.theme = input.value as Appearance["theme"];
     save();
   }));
-  if (window.kDownloader?.onSystemTheme && window.kDownloader?.systemTheme) {
+  if (window.khinsiderDownloader?.onSystemTheme && window.khinsiderDownloader?.systemTheme) {
     let updateReceived = false;
-    window.kDownloader.onSystemTheme((dark) => {
+    window.khinsiderDownloader.onSystemTheme((dark) => {
       updateReceived = true;
       systemDark = dark;
       apply();
     });
-    void window.kDownloader.systemTheme().then((dark) => {
+    void window.khinsiderDownloader.systemTheme().then((dark) => {
       if (!updateReceived) {
         systemDark = dark;
         apply();
@@ -25627,24 +25627,24 @@ npm run build && npm test -- tests/appearance.test.ts
 
 ```
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 
 
-> k-downloader@0.1.0 pretest
+> khinsider-downloader@0.1.0 pretest
 > npm run build:gui
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run tests/appearance.test.ts
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  1 passed (1)
@@ -25714,7 +25714,7 @@ describe("appearance controls in Chromium", () => {
       const errors: string[] = [];
       page.on("pageerror", (error) => errors.push(error.message));
       await page.addInitScript(() => {
-        window.kDownloader = {
+        window.khinsiderDownloader = {
           systemTheme: async () => matchMedia("(prefers-color-scheme: dark)").matches,
           onSystemTheme: (listener) => {
             const media = matchMedia("(prefers-color-scheme: dark)");
@@ -25722,7 +25722,7 @@ describe("appearance controls in Chromium", () => {
             media.addEventListener("change", handler);
             return () => media.removeEventListener("change", handler);
           },
-          defaultOutputRoot: async () => "/tmp/K-Downloader",
+          defaultOutputRoot: async () => "/tmp/Khinsider Downloader",
           chooseOutput: async () => undefined,
           inspect: async () => ({ albumTitle: "Fixture", trackCount: 0, tracks: [] }),
           download: async () => ({ state: "complete", directory: "/tmp" }),
@@ -25775,11 +25775,11 @@ describe("appearance controls in Chromium", () => {
       await page.emulateMedia({ colorScheme: "light" });
       await page.emulateMedia({ colorScheme: "dark" });
       expect(await page.locator("html").getAttribute("data-mode")).toBe("light");
-      await page.screenshot({ path: "/tmp/k-downloader-appearance-light.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-appearance-light.png" });
       await page.setViewportSize({ width: 760, height: 620 });
       await page.getByRole("radio", { name: "Dark", exact: true }).check();
       await page.getByRole("radio", { name: "Mint", exact: true }).check();
-      await page.screenshot({ path: "/tmp/k-downloader-appearance-dark.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-appearance-dark.png" });
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
       await page.keyboard.press("Escape");
       await page.locator("#workspace").waitFor({ state: "visible" });
@@ -25792,7 +25792,7 @@ describe("appearance controls in Chromium", () => {
 
 describe("Electron native theme updates", () => {
   it("updates System mode through preload but preserves explicit Light and Dark", async () => {
-    const userData = await mkdtemp(resolve(tmpdir(), "k-downloader-theme-test-"));
+    const userData = await mkdtemp(resolve(tmpdir(), "khinsider-downloader-theme-test-"));
     const require = createRequire(import.meta.url);
     const app = await electron.launch({
       executablePath: require("electron"),
@@ -25842,20 +25842,20 @@ npm test -- tests/appearance.test.ts
 
 ```
 
-> k-downloader@0.1.0 pretest
+> khinsider-downloader@0.1.0 pretest
 > npm run build:gui
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run tests/appearance.test.ts
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  1 passed (1)
@@ -25877,9 +25877,9 @@ _**Agent (copilot/auto)**_
 @@ lines 1-93 @@
 
 ````
-# K-Downloader
+# Khinsider Downloader
 
-K-Downloader is a Linux-first KHInsider album downloader. The current slice
+Khinsider Downloader is a Linux-first KHInsider album downloader. The current slice
 implements public single-album discovery, format preview and policy, sequential
 streaming, and manifest-backed reruns. Multi-album queues, artwork, the GUI,
 optional account features, and packaging are not implemented yet.
@@ -25907,7 +25907,7 @@ access methods.
 
 The CLI previews the selected formats before starting any transfer. The default
 format policy prefers lossless, falling back to MP3 when needed. The default
-destination is `~/Music/K-Downloader`.
+destination is `~/Music/Khinsider Downloader`.
 
 ```sh
 npm run download -- 'https://downloads.khinsider.com/game-soundtracks/album/unreal-ii-the-awakening-original-soundtrack'
@@ -25942,7 +25942,7 @@ Paste one album URL and choose **Inspect album**. A Chromium inspection window
 starts minimized while an in-progress indicator appears in the app; click that
 indicator to show or hide the browser. Review the per-track format preview, choose the
 destination and format policy, then select **Download**. The default destination
-is `~/Music/K-Downloader`. **Cancel active download** stops the current transfer
+is `~/Music/Khinsider Downloader`. **Cancel active download** stops the current transfer
 and prevents later tracks from starting.
 
 Open **More > Settings** in the titlebar or press `Ctrl+,`. Under **Appearance**,
@@ -25997,20 +25997,20 @@ npm test && npm run build
 
 ```
 
-> k-downloader@0.1.0 pretest
+> khinsider-downloader@0.1.0 pretest
 > npm run build:gui
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  6 passed (6)
@@ -26019,7 +26019,7 @@ Built Electron main/preload and local renderer into dist/.
    Duration  3.21s (tests 73%, import 25%, transform 1%, worker 1%)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 ```
 </details></tool-use>
@@ -26037,11 +26037,11 @@ Checked `system-theme.ts`, `main.ts`, `preload.ts`, `appearance.ts`, `appearance
 
 ```
 [
-  "/home/kel/dev/K-Downloader/src/electron/system-theme.ts",
-  "/home/kel/dev/K-Downloader/src/electron/main.ts",
-  "/home/kel/dev/K-Downloader/src/electron/preload.ts",
-  "/home/kel/dev/K-Downloader/src/appearance.ts",
-  "/home/kel/dev/K-Downloader/tests/appearance.test.ts"
+  "/home/kel/dev/Khinsider-Downloader/src/electron/system-theme.ts",
+  "/home/kel/dev/Khinsider-Downloader/src/electron/main.ts",
+  "/home/kel/dev/Khinsider-Downloader/src/electron/preload.ts",
+  "/home/kel/dev/Khinsider-Downloader/src/appearance.ts",
+  "/home/kel/dev/Khinsider-Downloader/tests/appearance.test.ts"
 ]
 ```
 
@@ -26049,19 +26049,19 @@ Checked `system-theme.ts`, `main.ts`, `preload.ts`, `appearance.ts`, `appearance
 **Result:**
 
 ```
-<errors path="/home/kel/dev/K-Downloader/src/electron/system-theme.ts">
+<errors path="/home/kel/dev/Khinsider-Downloader/src/electron/system-theme.ts">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/src/electron/main.ts">
+<errors path="/home/kel/dev/Khinsider-Downloader/src/electron/main.ts">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/src/electron/preload.ts">
+<errors path="/home/kel/dev/Khinsider-Downloader/src/electron/preload.ts">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/src/appearance.ts">
+<errors path="/home/kel/dev/Khinsider-Downloader/src/appearance.ts">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/tests/appearance.test.ts">
+<errors path="/home/kel/dev/Khinsider-Downloader/tests/appearance.test.ts">
 No errors found
 </errors>
 ```
@@ -26086,13 +26086,13 @@ Killed terminal
 
 ```
 Successfully killed persistent terminal 6f64a0f5-6b52-418e-82eb-3e8bdacc1b04. Final output before termination:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run gui
 
-> k-downloader@0.1.0 gui
+> khinsider-downloader@0.1.0 gui
 > npm run build:gui && electron dist/electron/main.cjs
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -26117,13 +26117,13 @@ npm run gui
 ```
 Command is running in terminal with ID=5cb5ebe6-0b86-411b-952e-f8fdf4db0fe1
  The command became idle with output:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run gui
 
-> k-downloader@0.1.0 gui
+> khinsider-downloader@0.1.0 gui
 > npm run build:gui && electron dist/electron/main.cjs
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -26189,7 +26189,7 @@ Read `styles.css`, lines 80 to 228
 **Input:**
 
 - endLine: `320`
-- filePath: `/home/kel/dev/K-Downloader/gui/styles.css`
+- filePath: `/home/kel/dev/Khinsider-Downloader/gui/styles.css`
 - startLine: `80`
 
 **Result:**
@@ -26482,16 +26482,16 @@ Running ` npm run build:gui && node --input-type=module -e 'import \{ chromium \
 Build and verify a 200-track preview keeps both the transfer footer and bottom statusbar visible at normal and minimum window sizes.
 
 ```bash
-npm run build:gui && node --input-type=module -e 'import { chromium } from "playwright"; const browser = await chromium.launch(); try { const page = await browser.newPage(); await page.goto("file:///home/kel/dev/K-Downloader/dist/gui/index.html"); await page.evaluate(() => { document.querySelector("#empty-state").hidden = true; document.querySelector("#track-table").hidden = false; document.querySelector("#track-rows").innerHTML = Array.from({length: 200}, (_, index) => `<tr><td>CD1</td><td>${index + 1}</td><td>Track ${index + 1}</td><td>MP3, FLAC</td><td>FLAC</td><td>Ready</td></tr>`).join(""); }); for (const viewport of [{width:1120,height:780},{width:760,height:620}]) { await page.setViewportSize(viewport); const result = await page.evaluate(() => { const footer = document.querySelector(".app-footer").getBoundingClientRect(); const transfer = document.querySelector(".progress-footer").getBoundingClientRect(); const list = document.querySelector(".table-wrap"); return { viewport: innerHeight, footerBottom: footer.bottom, transferBottom: transfer.bottom, listScrolls: list.scrollHeight > list.clientHeight, pageHeight: document.documentElement.scrollHeight }; }); console.log(JSON.stringify(result)); if (result.footerBottom > viewport.height || result.transferBottom > viewport.height || !result.listScrolls || result.pageHeight > viewport.height) throw new Error("Footer layout regression"); } } finally { await browser.close(); }'
+npm run build:gui && node --input-type=module -e 'import { chromium } from "playwright"; const browser = await chromium.launch(); try { const page = await browser.newPage(); await page.goto("file:///home/kel/dev/Khinsider-Downloader/dist/gui/index.html"); await page.evaluate(() => { document.querySelector("#empty-state").hidden = true; document.querySelector("#track-table").hidden = false; document.querySelector("#track-rows").innerHTML = Array.from({length: 200}, (_, index) => `<tr><td>CD1</td><td>${index + 1}</td><td>Track ${index + 1}</td><td>MP3, FLAC</td><td>FLAC</td><td>Ready</td></tr>`).join(""); }); for (const viewport of [{width:1120,height:780},{width:760,height:620}]) { await page.setViewportSize(viewport); const result = await page.evaluate(() => { const footer = document.querySelector(".app-footer").getBoundingClientRect(); const transfer = document.querySelector(".progress-footer").getBoundingClientRect(); const list = document.querySelector(".table-wrap"); return { viewport: innerHeight, footerBottom: footer.bottom, transferBottom: transfer.bottom, listScrolls: list.scrollHeight > list.clientHeight, pageHeight: document.documentElement.scrollHeight }; }); console.log(JSON.stringify(result)); if (result.footerBottom > viewport.height || result.transferBottom > viewport.height || !result.listScrolls || result.pageHeight > viewport.height) throw new Error("Footer layout regression"); } } finally { await browser.close(); }'
 ```
 
 **Result:**
 
 ```
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run build:gui && node --input-type=modu
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run build:gui && node --input-type=modu
 le -e 'import { chromium } from "playwright"; const browser = await chromium.lau
 nch(); try { const page = await browser.newPage(); await page.goto("file:///home
-/kel/dev/K-Downloader/dist/gui/index.html"); await page.evaluate(() => { documen
+/kel/dev/Khinsider Downloader/dist/gui/index.html"); await page.evaluate(() => { documen
 t.querySelector("#empty-state").hidden = true; document.querySelector("#track-ta
 ble").hidden = false; document.querySelector("#track-rows").innerHTML = Array.fr
 om({length: 200}, (_, index) => `<tr><td>CD1</td><td>${index + 1}</td><td>Track
@@ -26508,7 +26508,7 @@ rollHeight }; }); console.log(JSON.stringify(result)); if (result.footerBottom >
 ls || result.pageHeight > viewport.height) throw new Error("Footer layout regres
 sion"); } } finally { await browser.close(); }'
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -26533,7 +26533,7 @@ Read `appearance.test.ts`, lines 35 to 156
 **Input:**
 
 - endLine: `160`
-- filePath: `/home/kel/dev/K-Downloader/tests/appearance.test.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/tests/appearance.test.ts`
 - startLine: `35`
 
 **Result:**
@@ -26553,7 +26553,7 @@ describe("appearance controls in Chromium", () => {
       const errors: string[] = [];
       page.on("pageerror", (error) => errors.push(error.message));
       await page.addInitScript(() => {
-        window.kDownloader = {
+        window.khinsiderDownloader = {
           systemTheme: async () => matchMedia("(prefers-color-scheme: dark)").matches,
           onSystemTheme: (listener) => {
             const media = matchMedia("(prefers-color-scheme: dark)");
@@ -26561,7 +26561,7 @@ describe("appearance controls in Chromium", () => {
             media.addEventListener("change", handler);
             return () => media.removeEventListener("change", handler);
           },
-          defaultOutputRoot: async () => "/tmp/K-Downloader",
+          defaultOutputRoot: async () => "/tmp/Khinsider Downloader",
           chooseOutput: async () => undefined,
           inspect: async () => ({ albumTitle: "Fixture", trackCount: 0, tracks: [] }),
           download: async () => ({ state: "complete", directory: "/tmp" }),
@@ -26639,7 +26639,7 @@ describe("appearance controls in Chromium", () => {
       const errors: string[] = [];
       page.on("pageerror", (error) => errors.push(error.message));
       await page.addInitScript(() => {
-        window.kDownloader = {
+        window.khinsiderDownloader = {
           systemTheme: async () => matchMedia("(prefers-color-scheme: dark)").matches,
           onSystemTheme: (listener) => {
             const media = matchMedia("(prefers-color-scheme: dark)");
@@ -26647,7 +26647,7 @@ describe("appearance controls in Chromium", () => {
             media.addEventListener("change", handler);
             return () => media.removeEventListener("change", handler);
           },
-          defaultOutputRoot: async () => "/tmp/K-Downloader",
+          defaultOutputRoot: async () => "/tmp/Khinsider Downloader",
           chooseOutput: async () => undefined,
           inspect: async () => ({
             albumTitle: "Large multi-disc fixture",
@@ -26709,11 +26709,11 @@ describe("appearance controls in Chromium", () => {
       await page.emulateMedia({ colorScheme: "light" });
       await page.emulateMedia({ colorScheme: "dark" });
       expect(await page.locator("html").getAttribute("data-mode")).toBe("light");
-      await page.screenshot({ path: "/tmp/k-downloader-appearance-light.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-appearance-light.png" });
       await page.setViewportSize({ width: 760, height: 620 });
       await page.getByRole("radio", { name: "Dark", exact: true }).check();
       await page.getByRole("radio", { name: "Mint", exact: true }).check();
-      await page.screenshot({ path: "/tmp/k-downloader-appearance-dark.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-appearance-dark.png" });
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
       await page.keyboard.press("Escape");
       await page.locator("#workspace").waitFor({ state: "visible" });
@@ -26745,7 +26745,7 @@ describe("appearance controls in Chromium", () => {
         expect(scrolled.listScrollTop).toBeGreaterThan(0);
         expect(scrolled.footerBottom).toBe(initial.footerBottom);
         expect(scrolled.transferBottom).toBe(initial.transferBottom);
-        await page.screenshot({ path: `/tmp/k-downloader-long-preview-${viewport.width}.png` });
+        await page.screenshot({ path: `/tmp/khinsider-downloader-long-preview-${viewport.width}.png` });
       }
       expect(errors).toEqual([]);
     } finally {
@@ -26756,7 +26756,7 @@ describe("appearance controls in Chromium", () => {
 
 describe("Electron native theme updates", () => {
   it("updates System mode through preload but preserves explicit Light and Dark", async () => {
-    const userData = await mkdtemp(resolve(tmpdir(), "k-downloader-theme-test-"));
+    const userData = await mkdtemp(resolve(tmpdir(), "khinsider-downloader-theme-test-"));
     const require = createRequire(import.meta.url);
     const app = await electron.launch({
       executablePath: require("electron"),
@@ -26806,20 +26806,20 @@ npm test -- tests/appearance.test.ts && npm run build
 
 ```
 
-> k-downloader@0.1.0 pretest
+> khinsider-downloader@0.1.0 pretest
 > npm run build:gui
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run tests/appearance.test.ts
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  1 passed (1)
@@ -26828,7 +26828,7 @@ Built Electron main/preload and local renderer into dist/.
    Duration  3.65s (tests 85%, import 14%, transform 1%)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 ```
 </details></tool-use>
@@ -26850,8 +26850,8 @@ Checked `styles.css`, `appearance.test.ts`, no problems found
 
 ```
 [
-  "/home/kel/dev/K-Downloader/gui/styles.css",
-  "/home/kel/dev/K-Downloader/tests/appearance.test.ts"
+  "/home/kel/dev/Khinsider-Downloader/gui/styles.css",
+  "/home/kel/dev/Khinsider-Downloader/tests/appearance.test.ts"
 ]
 ```
 
@@ -26859,10 +26859,10 @@ Checked `styles.css`, `appearance.test.ts`, no problems found
 **Result:**
 
 ```
-<errors path="/home/kel/dev/K-Downloader/gui/styles.css">
+<errors path="/home/kel/dev/Khinsider-Downloader/gui/styles.css">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/tests/appearance.test.ts">
+<errors path="/home/kel/dev/Khinsider-Downloader/tests/appearance.test.ts">
 No errors found
 </errors>
 ```
@@ -26873,11 +26873,11 @@ _**Agent (copilot/auto)**_
 <tool-use data-tool-type="generic" data-tool-name="view_image"><details>
 <summary>Tool use: **view_image**</summary>
 
-Viewed image `k-downloader-long-preview-760.png`
+Viewed image `khinsider-downloader-long-preview-760.png`
 
 **Input:**
 
-- filePath: `/tmp/k-downloader-long-preview-760.png`
+- filePath: `/tmp/khinsider-downloader-long-preview-760.png`
 </details></tool-use>
 
 _**Agent (copilot/auto)**_
@@ -26885,11 +26885,11 @@ _**Agent (copilot/auto)**_
 <tool-use data-tool-type="generic" data-tool-name="view_image"><details>
 <summary>Tool use: **view_image**</summary>
 
-Viewed image `k-downloader-long-preview-1120.png`
+Viewed image `khinsider-downloader-long-preview-1120.png`
 
 **Input:**
 
-- filePath: `/tmp/k-downloader-long-preview-1120.png`
+- filePath: `/tmp/khinsider-downloader-long-preview-1120.png`
 </details></tool-use>
 
 _**Agent (copilot/auto)**_
@@ -26919,13 +26919,13 @@ Killed terminal
 
 ```
 Successfully killed persistent terminal 5cb5ebe6-0b86-411b-952e-f8fdf4db0fe1. Final output before termination:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run gui
 
-> k-downloader@0.1.0 gui
+> khinsider-downloader@0.1.0 gui
 > npm run build:gui && electron dist/electron/main.cjs
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -26950,13 +26950,13 @@ npm run gui
 ```
 Command is running in terminal with ID=6e641198-b75f-40ee-964b-293a46c8fe5e
  The command became idle with output:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run gui
 
-> k-downloader@0.1.0 gui
+> khinsider-downloader@0.1.0 gui
 > npm run build:gui && electron dist/electron/main.cjs
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -27006,13 +27006,13 @@ _**User (2026-10-12 17:05:47Z)**_
 
 [Terminal 6e641198-b75f-40ee-964b-293a46c8fe5e notification: command completed. The terminal has been cleaned up.]
 Terminal output:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run gui
 
-> k-downloader@0.1.0 gui
+> khinsider-downloader@0.1.0 gui
 > npm run build:gui && electron dist/electron/main.cjs
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -27085,7 +27085,7 @@ src/renderer.ts
 227:  if (inspectionIndicator.disabled) return;
 230:    inspectionIndicator.setAttribute("aria-pressed", String(inspectionBrowserVisible));
 231:    inspectionIndicatorText.textContent = inspectionBrowserVisible ? "Hide browser" : "Show browser";
-237:window.kDownloader.onInspectionState((state: GuiInspectionState) => {
+237:window.khinsiderDownloader.onInspectionState((state: GuiInspectionState) => {
 239:  inspectionIndicator.hidden = !state.active;
 240:  inspectionIndicator.disabled = !state.browserReady;
 241:  inspectionIndicator.setAttribute("aria-pressed", String(state.browserVisible));
@@ -27141,7 +27141,7 @@ Read `index.html`, lines 94 to 128
 **Input:**
 
 - endLine: `128`
-- filePath: `/home/kel/dev/K-Downloader/gui/index.html`
+- filePath: `/home/kel/dev/Khinsider-Downloader/gui/index.html`
 - startLine: `94`
 
 **Result:**
@@ -27195,7 +27195,7 @@ Read `appearance.test.ts`, lines 40 to 115
 **Input:**
 
 - endLine: `115`
-- filePath: `/home/kel/dev/K-Downloader/tests/appearance.test.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/tests/appearance.test.ts`
 - startLine: `40`
 
 **Result:**
@@ -27210,7 +27210,7 @@ describe("appearance controls in Chromium", () => {
       const errors: string[] = [];
       page.on("pageerror", (error) => errors.push(error.message));
       await page.addInitScript(() => {
-        window.kDownloader = {
+        window.khinsiderDownloader = {
           systemTheme: async () => matchMedia("(prefers-color-scheme: dark)").matches,
           onSystemTheme: (listener) => {
             const media = matchMedia("(prefers-color-scheme: dark)");
@@ -27218,7 +27218,7 @@ describe("appearance controls in Chromium", () => {
             media.addEventListener("change", handler);
             return () => media.removeEventListener("change", handler);
           },
-          defaultOutputRoot: async () => "/tmp/K-Downloader",
+          defaultOutputRoot: async () => "/tmp/Khinsider Downloader",
           chooseOutput: async () => undefined,
           inspect: async () => ({
             albumTitle: "Large multi-disc fixture",
@@ -27436,13 +27436,13 @@ function setBusy(value: boolean): void {
   if (inspection) renderTracks();
 }
 
-minimizeWindowButton.addEventListener("click", () => { void window.kDownloader.minimizeWindow(); });
+minimizeWindowButton.addEventListener("click", () => { void window.khinsiderDownloader.minimizeWindow(); });
 maximizeWindowButton.addEventListener("click", async () => {
-  const maximized = await window.kDownloader.toggleMaximizeWindow();
+  const maximized = await window.khinsiderDownloader.toggleMaximizeWindow();
   updateMaximizeButton(maximized);
 });
-closeWindowButton.addEventListener("click", () => { void window.kDownloader.closeWindow(); });
-window.kDownloader.onWindowState(({ maximized }) => updateMaximizeButton(maximized));
+closeWindowButton.addEventListener("click", () => { void window.khinsiderDownloader.closeWindow(); });
+window.khinsiderDownloader.onWindowState(({ maximized }) => updateMaximizeButton(maximized));
 
 moreButton.addEventListener("click", () => {
   moreMenu.hidden = !moreMenu.hidden;
@@ -27483,7 +27483,7 @@ inspectButton.addEventListener("click", async () => {
   setBusy(true);
   updateInspectionIndicator({ active: true, browserReady: false, browserVisible: false });
   try {
-    inspection = await window.kDownloader.inspect(albumUrl);
+    inspection = await window.khinsiderDownloader.inspect(albumUrl);
     albumTitle.textContent = inspection.albumTitle;
     updateFormatOptions();
     setStatus("Preview ready", "success");
@@ -27500,7 +27500,7 @@ inspectButton.addEventListener("click", async () => {
 inspectionIndicator.addEventListener("click", async () => {
   if (inspectionIndicator.disabled) return;
   try {
-    inspectionBrowserVisible = await window.kDownloader.toggleInspectionBrowser();
+    inspectionBrowserVisible = await window.khinsiderDownloader.toggleInspectionBrowser();
     inspectionIndicator.setAttribute("aria-pressed", String(inspectionBrowserVisible));
     inspectionIndicatorText.textContent = inspectionBrowserVisible ? "Hide browser" : "Show browser";
   } catch (error) {
@@ -27508,10 +27508,10 @@ inspectionIndicator.addEventListener("click", async () => {
   }
 });
 
-window.kDownloader.onInspectionState(updateInspectionIndicator);
+window.khinsiderDownloader.onInspectionState(updateInspectionIndicator);
 
 browseButton.addEventListener("click", async () => {
-  const selected = await window.kDownloader.chooseOutput();
+  const selected = await window.khinsiderDownloader.chooseOutput();
   if (selected) outputInput.value = selected;
 });
 
@@ -27530,7 +27530,7 @@ downloadButton.addEventListener("click", async () => {
   setBusy(true);
   setStatus("Downloading", "working");
   try {
-    const result = await window.kDownloader.download({
+    const result = await window.khinsiderDownloader.download({
       policy: currentPolicy(),
       outputRoot: outputInput.value,
       discLabel: discLabelSelect.value === "Disc" ? "Disc" : "CD",
@@ -27549,11 +27549,11 @@ downloadButton.addEventListener("click", async () => {
 
 cancelButton.addEventListener("click", async () => {
   cancelButton.disabled = true;
-  await window.kDownloader.cancel();
+  await window.khinsiderDownloader.cancel();
   setStatus("Canceling active track…", "working");
 });
 
-window.kDownloader.onProgress((event: GuiProgress) => {
+window.khinsiderDownloader.onProgress((event: GuiProgress) => {
   progress.max = event.totalTracks;
   progress.value = event.completedTracks;
   progressText.textContent = event.stage === "track-start"
@@ -27565,7 +27565,7 @@ window.kDownloader.onProgress((event: GuiProgress) => {
         : "Canceled";
 });
 
-void window.kDownloader.defaultOutputRoot().then((value) => { outputInput.value = value; });
+void window.khinsiderDownloader.defaultOutputRoot().then((value) => { outputInput.value = value; });
 ```
 </details></tool-use>
 
@@ -27591,7 +27591,7 @@ _**Agent (copilot/auto)**_
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'" />
-    <title>K-Downloader</title>
+    <title>Khinsider Downloader</title>
     <link rel="stylesheet" href="./styles.css" />
     <script defer src="./renderer.js"></script>
   </head>
@@ -27600,7 +27600,7 @@ _**Agent (copilot/auto)**_
       <header class="topbar">
         <div class="brand-lockup">
           <div class="app-icon" aria-hidden="true">K</div>
-          <div class="brand-name">K-Downloader</div>
+          <div class="brand-name">Khinsider Downloader</div>
         </div>
         <div class="titlebar-actions">
           <div id="more-menu-wrap" class="more-menu-wrap">
@@ -28021,24 +28021,24 @@ npm run build && npm test -- tests/appearance.test.ts
 
 ```
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 
 
-> k-downloader@0.1.0 pretest
+> khinsider-downloader@0.1.0 pretest
 > npm run build:gui
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run tests/appearance.test.ts
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  1 passed (1)
@@ -28111,7 +28111,7 @@ describe("appearance controls in Chromium", () => {
       await page.addInitScript(() => {
         let inspectionListener: ((state: GuiInspectionState) => void) | undefined;
         let browserVisible = false;
-        window.kDownloader = {
+        window.khinsiderDownloader = {
           systemTheme: async () => matchMedia("(prefers-color-scheme: dark)").matches,
           onSystemTheme: (listener) => {
             const media = matchMedia("(prefers-color-scheme: dark)");
@@ -28119,7 +28119,7 @@ describe("appearance controls in Chromium", () => {
             media.addEventListener("change", handler);
             return () => media.removeEventListener("change", handler);
           },
-          defaultOutputRoot: async () => "/tmp/K-Downloader",
+          defaultOutputRoot: async () => "/tmp/Khinsider Downloader",
           chooseOutput: async () => undefined,
           inspect: async () => {
             browserVisible = false;
@@ -28202,11 +28202,11 @@ describe("appearance controls in Chromium", () => {
       await page.emulateMedia({ colorScheme: "light" });
       await page.emulateMedia({ colorScheme: "dark" });
       expect(await page.locator("html").getAttribute("data-mode")).toBe("light");
-      await page.screenshot({ path: "/tmp/k-downloader-appearance-light.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-appearance-light.png" });
       await page.setViewportSize({ width: 760, height: 620 });
       await page.getByRole("radio", { name: "Dark", exact: true }).check();
       await page.getByRole("radio", { name: "Mint", exact: true }).check();
-      await page.screenshot({ path: "/tmp/k-downloader-appearance-dark.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-appearance-dark.png" });
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
       await page.keyboard.press("Escape");
       await page.locator("#workspace").waitFor({ state: "visible" });
@@ -28219,7 +28219,7 @@ describe("appearance controls in Chromium", () => {
         const animation = element.getAnimations()[0];
         return animation?.playState === "running" && animation.effect?.getTiming().iterations === Infinity;
       })).toBe(true);
-      await page.screenshot({ path: "/tmp/k-downloader-single-inspection-indicator.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-single-inspection-indicator.png" });
       await page.locator("#inspection-indicator").click();
       expect(await page.locator("#inspection-indicator-text").textContent()).toBe("Hide browser");
       await page.locator("#inspection-indicator").click();
@@ -28254,7 +28254,7 @@ describe("appearance controls in Chromium", () => {
         expect(scrolled.listScrollTop).toBeGreaterThan(0);
         expect(scrolled.footerBottom).toBe(initial.footerBottom);
         expect(scrolled.transferBottom).toBe(initial.transferBottom);
-        await page.screenshot({ path: `/tmp/k-downloader-long-preview-${viewport.width}.png` });
+        await page.screenshot({ path: `/tmp/khinsider-downloader-long-preview-${viewport.width}.png` });
       }
       await page.getByRole("button", { name: "Inspect album", exact: true }).click();
       await page.locator("#inspection-indicator").waitFor({ state: "visible" });
@@ -28271,7 +28271,7 @@ describe("appearance controls in Chromium", () => {
 
 describe("Electron native theme updates", () => {
   it("updates System mode through preload but preserves explicit Light and Dark", async () => {
-    const userData = await mkdtemp(resolve(tmpdir(), "k-downloader-theme-test-"));
+    const userData = await mkdtemp(resolve(tmpdir(), "khinsider-downloader-theme-test-"));
     const require = createRequire(import.meta.url);
     const app = await electron.launch({
       executablePath: require("electron"),
@@ -28321,20 +28321,20 @@ npm test -- tests/appearance.test.ts && npm run build
 
 ```
 
-> k-downloader@0.1.0 pretest
+> khinsider-downloader@0.1.0 pretest
 > npm run build:gui
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run tests/appearance.test.ts
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  1 passed (1)
@@ -28343,7 +28343,7 @@ Built Electron main/preload and local renderer into dist/.
    Duration  3.28s (tests 88%, import 11%, transform 1%)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 ```
 </details></tool-use>
@@ -28365,9 +28365,9 @@ Checked `renderer.ts`, `styles.css`, `appearance.test.ts`, no problems found
 
 ```
 [
-  "/home/kel/dev/K-Downloader/src/renderer.ts",
-  "/home/kel/dev/K-Downloader/gui/styles.css",
-  "/home/kel/dev/K-Downloader/tests/appearance.test.ts"
+  "/home/kel/dev/Khinsider-Downloader/src/renderer.ts",
+  "/home/kel/dev/Khinsider-Downloader/gui/styles.css",
+  "/home/kel/dev/Khinsider-Downloader/tests/appearance.test.ts"
 ]
 ```
 
@@ -28375,13 +28375,13 @@ Checked `renderer.ts`, `styles.css`, `appearance.test.ts`, no problems found
 **Result:**
 
 ```
-<errors path="/home/kel/dev/K-Downloader/src/renderer.ts">
+<errors path="/home/kel/dev/Khinsider-Downloader/src/renderer.ts">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/gui/styles.css">
+<errors path="/home/kel/dev/Khinsider-Downloader/gui/styles.css">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/tests/appearance.test.ts">
+<errors path="/home/kel/dev/Khinsider-Downloader/tests/appearance.test.ts">
 No errors found
 </errors>
 ```
@@ -28392,11 +28392,11 @@ _**Agent (copilot/auto)**_
 <tool-use data-tool-type="generic" data-tool-name="view_image"><details>
 <summary>Tool use: **view_image**</summary>
 
-Viewed image `k-downloader-single-inspection-indicator.png`
+Viewed image `khinsider-downloader-single-inspection-indicator.png`
 
 **Input:**
 
-- filePath: `/tmp/k-downloader-single-inspection-indicator.png`
+- filePath: `/tmp/khinsider-downloader-single-inspection-indicator.png`
 </details></tool-use>
 
 _**Agent (copilot/auto)**_
@@ -28429,13 +28429,13 @@ npm run gui
 ```
 Command is running in terminal with ID=c5ba0ef2-4939-4535-ba4c-b870247e55f9
  The command became idle with output:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run gui
 
-> k-downloader@0.1.0 gui
+> khinsider-downloader@0.1.0 gui
 > npm run build:gui && electron dist/electron/main.cjs
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -28485,13 +28485,13 @@ _**User (2026-10-12 17:11:18Z)**_
 
 [Terminal c5ba0ef2-4939-4535-ba4c-b870247e55f9 notification: command completed. The terminal has been cleaned up.]
 Terminal output:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run gui
 
-> k-downloader@0.1.0 gui
+> khinsider-downloader@0.1.0 gui
 > npm run build:gui && electron dist/electron/main.cjs
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -28544,7 +28544,7 @@ Read `khinsider.ts`, lines 155 to 218
 **Input:**
 
 - endLine: `260`
-- filePath: `/home/kel/dev/K-Downloader/src/khinsider.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/src/khinsider.ts`
 - startLine: `155`
 
 **Result:**
@@ -28611,7 +28611,7 @@ Read `main.ts`, lines 110 to 220
 **Input:**
 
 - endLine: `220`
-- filePath: `/home/kel/dev/K-Downloader/src/electron/main.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/src/electron/main.ts`
 - startLine: `110`
 
 **Result:**
@@ -28676,7 +28676,7 @@ Read `renderer.ts`, lines 40 to 105
 **Input:**
 
 - endLine: `105`
-- filePath: `/home/kel/dev/K-Downloader/src/renderer.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/src/renderer.ts`
 - startLine: `40`
 
 **Result:**
@@ -28751,7 +28751,7 @@ Read `renderer.ts`, lines 150 to 307
 **Input:**
 
 - endLine: `360`
-- filePath: `/home/kel/dev/K-Downloader/src/renderer.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/src/renderer.ts`
 - startLine: `150`
 
 **Result:**
@@ -28785,13 +28785,13 @@ function setBusy(value: boolean): void {
   if (inspection) renderTracks();
 }
 
-minimizeWindowButton.addEventListener("click", () => { void window.kDownloader.minimizeWindow(); });
+minimizeWindowButton.addEventListener("click", () => { void window.khinsiderDownloader.minimizeWindow(); });
 maximizeWindowButton.addEventListener("click", async () => {
-  const maximized = await window.kDownloader.toggleMaximizeWindow();
+  const maximized = await window.khinsiderDownloader.toggleMaximizeWindow();
   updateMaximizeButton(maximized);
 });
-closeWindowButton.addEventListener("click", () => { void window.kDownloader.closeWindow(); });
-window.kDownloader.onWindowState(({ maximized }) => updateMaximizeButton(maximized));
+closeWindowButton.addEventListener("click", () => { void window.khinsiderDownloader.closeWindow(); });
+window.khinsiderDownloader.onWindowState(({ maximized }) => updateMaximizeButton(maximized));
 
 moreButton.addEventListener("click", () => {
   moreMenu.hidden = !moreMenu.hidden;
@@ -28817,7 +28817,7 @@ Read `appearance.test.ts`, lines 40 to 241
 **Input:**
 
 - endLine: `250`
-- filePath: `/home/kel/dev/K-Downloader/tests/appearance.test.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/tests/appearance.test.ts`
 - startLine: `40`
 
 **Result:**
@@ -28835,7 +28835,7 @@ describe("appearance controls in Chromium", () => {
       await page.addInitScript(() => {
         let inspectionListener: ((state: GuiInspectionState) => void) | undefined;
         let browserVisible = false;
-        window.kDownloader = {
+        window.khinsiderDownloader = {
           systemTheme: async () => matchMedia("(prefers-color-scheme: dark)").matches,
           onSystemTheme: (listener) => {
             const media = matchMedia("(prefers-color-scheme: dark)");
@@ -28843,7 +28843,7 @@ describe("appearance controls in Chromium", () => {
             media.addEventListener("change", handler);
             return () => media.removeEventListener("change", handler);
           },
-          defaultOutputRoot: async () => "/tmp/K-Downloader",
+          defaultOutputRoot: async () => "/tmp/Khinsider Downloader",
           chooseOutput: async () => undefined,
           inspect: async () => {
             browserVisible = false;
@@ -29341,7 +29341,7 @@ async function createWindow(): Promise<void> {
     minWidth: 760,
     minHeight: 620,
     backgroundColor: "#101715",
-    title: "K-Downloader",
+    title: "Khinsider Downloader",
     webPreferences: {
       preload: resolve(__dirname, "preload.cjs"),
       contextIsolation: true,
@@ -29370,7 +29370,7 @@ async function createWindow(): Promise<void> {
 }
 
 app.whenReady().then(async () => {
-  app.setName("K-Downloader");
+  app.setName("Khinsider Downloader");
   nativeTheme.themeSource = "system";
   nativeTheme.on("updated", sendSystemTheme);
   stopThemeMonitor = await monitorCinnamonTheme((dark) => {
@@ -29453,7 +29453,7 @@ export type GuiDownloadRequest = {
   discLabel: "CD" | "Disc";
 };
 
-export type KDownloaderApi = {
+export type KhinsiderDownloaderApi = {
   systemTheme: () => Promise<boolean>;
   onSystemTheme: (listener: (dark: boolean) => void) => () => void;
   minimizeWindow: () => Promise<void>;
@@ -29472,7 +29472,7 @@ export type KDownloaderApi = {
 
 declare global {
   interface Window {
-    kDownloader: KDownloaderApi;
+    khinsiderDownloader: KhinsiderDownloaderApi;
   }
 }
 ```
@@ -29674,13 +29674,13 @@ function setBusy(value: boolean): void {
   if (inspection) renderTracks();
 }
 
-minimizeWindowButton.addEventListener("click", () => { void window.kDownloader.minimizeWindow(); });
+minimizeWindowButton.addEventListener("click", () => { void window.khinsiderDownloader.minimizeWindow(); });
 maximizeWindowButton.addEventListener("click", async () => {
-  const maximized = await window.kDownloader.toggleMaximizeWindow();
+  const maximized = await window.khinsiderDownloader.toggleMaximizeWindow();
   updateMaximizeButton(maximized);
 });
-closeWindowButton.addEventListener("click", () => { void window.kDownloader.closeWindow(); });
-window.kDownloader.onWindowState(({ maximized }) => updateMaximizeButton(maximized));
+closeWindowButton.addEventListener("click", () => { void window.khinsiderDownloader.closeWindow(); });
+window.khinsiderDownloader.onWindowState(({ maximized }) => updateMaximizeButton(maximized));
 
 moreButton.addEventListener("click", () => {
   moreMenu.hidden = !moreMenu.hidden;
@@ -29723,7 +29723,7 @@ inspectButton.addEventListener("click", async () => {
   setBusy(true);
   updateInspectionIndicator({ active: true, browserReady: false, browserVisible: false });
   try {
-    inspection = await window.kDownloader.inspect(albumUrl);
+    inspection = await window.khinsiderDownloader.inspect(albumUrl);
     if (!inspection) {
       setStatus("Inspection canceled");
       return;
@@ -29749,7 +29749,7 @@ inspectButton.addEventListener("click", async () => {
 inspectionIndicator.addEventListener("click", async () => {
   if (inspectionIndicator.disabled) return;
   try {
-    inspectionBrowserVisible = await window.kDownloader.toggleInspectionBrowser();
+    inspectionBrowserVisible = await window.khinsiderDownloader.toggleInspectionBrowser();
     inspectionIndicator.setAttribute("aria-pressed", String(inspectionBrowserVisible));
     inspectionIndicatorText.textContent = inspectionBrowserVisible ? "Hide browser" : "Show browser";
   } catch (error) {
@@ -29757,10 +29757,10 @@ inspectionIndicator.addEventListener("click", async () => {
   }
 });
 
-window.kDownloader.onInspectionState(updateInspectionIndicator);
+window.khinsiderDownloader.onInspectionState(updateInspectionIndicator);
 
 browseButton.addEventListener("click", async () => {
-  const selected = await window.kDownloader.chooseOutput();
+  const selected = await window.khinsiderDownloader.chooseOutput();
   if (selected) outputInput.value = selected;
 });
 
@@ -29779,7 +29779,7 @@ downloadButton.addEventListener("click", async () => {
   setBusy(true);
   setStatus("Downloading", "working");
   try {
-    const result = await window.kDownloader.download({
+    const result = await window.khinsiderDownloader.download({
       policy: currentPolicy(),
       outputRoot: outputInput.value,
       discLabel: discLabelSelect.value === "Disc" ? "Disc" : "CD",
@@ -29805,7 +29805,7 @@ cancelButton.addEventListener("click", async () => {
     inspectionIndicatorText.textContent = "Canceling…";
   } else setStatus("Canceling active track…", "working");
   try {
-    await window.kDownloader.cancel();
+    await window.khinsiderDownloader.cancel();
   } catch (error) {
     errorText.textContent = error instanceof Error ? error.message : String(error);
     inspectionCancelRequested = false;
@@ -29813,7 +29813,7 @@ cancelButton.addEventListener("click", async () => {
   }
 });
 
-window.kDownloader.onProgress((event: GuiProgress) => {
+window.khinsiderDownloader.onProgress((event: GuiProgress) => {
   progress.max = event.totalTracks;
   progress.value = event.completedTracks;
   progressText.textContent = event.stage === "track-start"
@@ -29825,7 +29825,7 @@ window.kDownloader.onProgress((event: GuiProgress) => {
         : "Canceled";
 });
 
-void window.kDownloader.defaultOutputRoot().then((value) => { outputInput.value = value; });
+void window.khinsiderDownloader.defaultOutputRoot().then((value) => { outputInput.value = value; });
 ```
 </details></tool-use>
 
@@ -29846,24 +29846,24 @@ npm run build && npm test -- tests/appearance.test.ts tests/khinsider.test.ts
 
 ```
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 
 
-> k-downloader@0.1.0 pretest
+> khinsider-downloader@0.1.0 pretest
 > npm run build:gui
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run tests/appearance.test.ts tests/khinsider.test.ts
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  2 passed (2)
@@ -29887,7 +29887,7 @@ Read `khinsider.test.ts`
 **Input:**
 
 - endLine: `145`
-- filePath: `/home/kel/dev/K-Downloader/tests/khinsider.test.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/tests/khinsider.test.ts`
 - startLine: `1`
 
 **Result:**
@@ -30111,7 +30111,7 @@ describe("appearance controls in Chromium", () => {
       await page.addInitScript(() => {
         let inspectionListener: ((state: GuiInspectionState) => void) | undefined;
         let browserVisible = false;
-        window.kDownloader = {
+        window.khinsiderDownloader = {
           systemTheme: async () => matchMedia("(prefers-color-scheme: dark)").matches,
           onSystemTheme: (listener) => {
             const media = matchMedia("(prefers-color-scheme: dark)");
@@ -30119,7 +30119,7 @@ describe("appearance controls in Chromium", () => {
             media.addEventListener("change", handler);
             return () => media.removeEventListener("change", handler);
           },
-          defaultOutputRoot: async () => "/tmp/K-Downloader",
+          defaultOutputRoot: async () => "/tmp/Khinsider Downloader",
           chooseOutput: async () => undefined,
           inspect: async () => {
             let canceled = false;
@@ -30209,11 +30209,11 @@ describe("appearance controls in Chromium", () => {
       await page.emulateMedia({ colorScheme: "light" });
       await page.emulateMedia({ colorScheme: "dark" });
       expect(await page.locator("html").getAttribute("data-mode")).toBe("light");
-      await page.screenshot({ path: "/tmp/k-downloader-appearance-light.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-appearance-light.png" });
       await page.setViewportSize({ width: 760, height: 620 });
       await page.getByRole("radio", { name: "Dark", exact: true }).check();
       await page.getByRole("radio", { name: "Mint", exact: true }).check();
-      await page.screenshot({ path: "/tmp/k-downloader-appearance-dark.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-appearance-dark.png" });
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
       await page.keyboard.press("Escape");
       await page.locator("#workspace").waitFor({ state: "visible" });
@@ -30234,7 +30234,7 @@ describe("appearance controls in Chromium", () => {
         const animation = element.getAnimations()[0];
         return animation?.playState === "running" && animation.effect?.getTiming().iterations === Infinity;
       })).toBe(true);
-      await page.screenshot({ path: "/tmp/k-downloader-single-inspection-indicator.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-single-inspection-indicator.png" });
       await page.locator("#inspection-indicator").click();
       expect(await page.locator("#inspection-indicator-text").textContent()).toBe("Hide browser");
       await page.locator("#inspection-indicator").click();
@@ -30269,7 +30269,7 @@ describe("appearance controls in Chromium", () => {
         expect(scrolled.listScrollTop).toBeGreaterThan(0);
         expect(scrolled.footerBottom).toBe(initial.footerBottom);
         expect(scrolled.transferBottom).toBe(initial.transferBottom);
-        await page.screenshot({ path: `/tmp/k-downloader-long-preview-${viewport.width}.png` });
+        await page.screenshot({ path: `/tmp/khinsider-downloader-long-preview-${viewport.width}.png` });
       }
       await page.getByRole("button", { name: "Inspect album", exact: true }).click();
       await page.locator("#inspection-indicator").waitFor({ state: "visible" });
@@ -30286,7 +30286,7 @@ describe("appearance controls in Chromium", () => {
 
 describe("Electron native theme updates", () => {
   it("updates System mode through preload but preserves explicit Light and Dark", async () => {
-    const userData = await mkdtemp(resolve(tmpdir(), "k-downloader-theme-test-"));
+    const userData = await mkdtemp(resolve(tmpdir(), "khinsider-downloader-theme-test-"));
     const require = createRequire(import.meta.url);
     const app = await electron.launch({
       executablePath: require("electron"),
@@ -30336,20 +30336,20 @@ npm test -- tests/khinsider.test.ts tests/appearance.test.ts && npm run build
 
 ```
 
-> k-downloader@0.1.0 pretest
+> khinsider-downloader@0.1.0 pretest
 > npm run build:gui
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run tests/khinsider.test.ts tests/appearance.test.ts
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  2 passed (2)
@@ -30358,7 +30358,7 @@ Built Electron main/preload and local renderer into dist/.
    Duration  3.39s (tests 78%, import 19%, transform 2%)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 ```
 </details></tool-use>
@@ -30501,9 +30501,9 @@ _**Agent (copilot/auto)**_
 @@ lines 1-97 @@
 
 ````
-# K-Downloader
+# Khinsider Downloader
 
-K-Downloader is a Linux-first KHInsider album downloader. The current slice
+Khinsider Downloader is a Linux-first KHInsider album downloader. The current slice
 implements public single-album discovery, format preview and policy, sequential
 streaming, and manifest-backed reruns. Multi-album queues, artwork, the GUI,
 optional account features, and packaging are not implemented yet.
@@ -30531,7 +30531,7 @@ access methods.
 
 The CLI previews the selected formats before starting any transfer. The default
 format policy prefers lossless, falling back to MP3 when needed. The default
-destination is `~/Music/K-Downloader`.
+destination is `~/Music/Khinsider Downloader`.
 
 ```sh
 npm run download -- 'https://downloads.khinsider.com/game-soundtracks/album/unreal-ii-the-awakening-original-soundtrack'
@@ -30566,7 +30566,7 @@ Paste one album URL and choose **Inspect album**. A Chromium inspection window
 starts minimized while an in-progress indicator appears in the app; click that
 indicator to show or hide the browser. Review the per-track format preview, choose the
 destination and format policy, then select **Download**. The default destination
-is `~/Music/K-Downloader`. **Cancel active download** stops the current transfer
+is `~/Music/Khinsider Downloader`. **Cancel active download** stops the current transfer
 and prevents later tracks from starting.
 
 While inspection is running, the same button becomes **Cancel inspection**.
@@ -30625,20 +30625,20 @@ npm test -- tests/khinsider.test.ts tests/appearance.test.ts && npm run build
 
 ```
 
-> k-downloader@0.1.0 pretest
+> khinsider-downloader@0.1.0 pretest
 > npm run build:gui
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run tests/khinsider.test.ts tests/appearance.test.ts
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  2 passed (2)
@@ -30647,7 +30647,7 @@ Built Electron main/preload and local renderer into dist/.
    Duration  4.42s (tests 77%, import 21%, transform 2%)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 ```
 </details></tool-use>
@@ -30665,11 +30665,11 @@ Checked `khinsider.ts`, `main.ts`, `renderer.ts`, `khinsider.test.ts`, `appearan
 
 ```
 [
-  "/home/kel/dev/K-Downloader/src/khinsider.ts",
-  "/home/kel/dev/K-Downloader/src/electron/main.ts",
-  "/home/kel/dev/K-Downloader/src/renderer.ts",
-  "/home/kel/dev/K-Downloader/tests/khinsider.test.ts",
-  "/home/kel/dev/K-Downloader/tests/appearance.test.ts"
+  "/home/kel/dev/Khinsider-Downloader/src/khinsider.ts",
+  "/home/kel/dev/Khinsider-Downloader/src/electron/main.ts",
+  "/home/kel/dev/Khinsider-Downloader/src/renderer.ts",
+  "/home/kel/dev/Khinsider-Downloader/tests/khinsider.test.ts",
+  "/home/kel/dev/Khinsider-Downloader/tests/appearance.test.ts"
 ]
 ```
 
@@ -30677,19 +30677,19 @@ Checked `khinsider.ts`, `main.ts`, `renderer.ts`, `khinsider.test.ts`, `appearan
 **Result:**
 
 ```
-<errors path="/home/kel/dev/K-Downloader/src/khinsider.ts">
+<errors path="/home/kel/dev/Khinsider-Downloader/src/khinsider.ts">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/src/electron/main.ts">
+<errors path="/home/kel/dev/Khinsider-Downloader/src/electron/main.ts">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/src/renderer.ts">
+<errors path="/home/kel/dev/Khinsider-Downloader/src/renderer.ts">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/tests/khinsider.test.ts">
+<errors path="/home/kel/dev/Khinsider-Downloader/tests/khinsider.test.ts">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/tests/appearance.test.ts">
+<errors path="/home/kel/dev/Khinsider-Downloader/tests/appearance.test.ts">
 No errors found
 </errors>
 ```
@@ -30717,13 +30717,13 @@ npm run gui
 ```
 Command is running in terminal with ID=a01edc98-8a8d-4d60-941f-ce3e1a7bfc47
  The command became idle with output:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run gui
 
-> k-downloader@0.1.0 gui
+> khinsider-downloader@0.1.0 gui
 > npm run build:gui && electron dist/electron/main.cjs
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -30800,7 +30800,7 @@ Read `main.ts`, lines 200 to 268
 **Input:**
 
 - endLine: `310`
-- filePath: `/home/kel/dev/K-Downloader/src/electron/main.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/src/electron/main.ts`
 - startLine: `200`
 
 **Result:**
@@ -30825,7 +30825,7 @@ async function createWindow(): Promise<void> {
     minWidth: 760,
     minHeight: 620,
     backgroundColor: "#101715",
-    title: "K-Downloader",
+    title: "Khinsider Downloader",
     webPreferences: {
       preload: resolve(__dirname, "preload.cjs"),
       contextIsolation: true,
@@ -30854,7 +30854,7 @@ async function createWindow(): Promise<void> {
 }
 
 app.whenReady().then(async () => {
-  app.setName("K-Downloader");
+  app.setName("Khinsider Downloader");
   nativeTheme.themeSource = "system";
   nativeTheme.on("updated", sendSystemTheme);
   stopThemeMonitor = await monitorCinnamonTheme((dark) => {
@@ -30887,7 +30887,7 @@ Read `build-gui.mjs`
 **Input:**
 
 - endLine: `140`
-- filePath: `/home/kel/dev/K-Downloader/scripts/build-gui.mjs`
+- filePath: `/home/kel/dev/Khinsider-Downloader/scripts/build-gui.mjs`
 - startLine: `1`
 
 **Result:**
@@ -30948,7 +30948,7 @@ Read `index.html`, lines 12 to 57
 **Input:**
 
 - endLine: `57`
-- filePath: `/home/kel/dev/K-Downloader/gui/index.html`
+- filePath: `/home/kel/dev/Khinsider-Downloader/gui/index.html`
 - startLine: `12`
 
 **Result:**
@@ -30958,7 +30958,7 @@ Read `index.html`, lines 12 to 57
       <header class="topbar">
         <div class="brand-lockup">
           <div class="app-icon" aria-hidden="true">K</div>
-          <div class="brand-name">K-Downloader</div>
+          <div class="brand-name">Khinsider Downloader</div>
         </div>
         <div class="titlebar-actions">
           <div id="more-menu-wrap" class="more-menu-wrap">
@@ -31006,7 +31006,7 @@ Read `renderer.ts`, lines 1 to 115
 **Input:**
 
 - endLine: `115`
-- filePath: `/home/kel/dev/K-Downloader/src/renderer.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/src/renderer.ts`
 - startLine: `1`
 
 **Result:**
@@ -31054,7 +31054,7 @@ Read `renderer.ts`, lines 175 to 222
 **Input:**
 
 - endLine: `222`
-- filePath: `/home/kel/dev/K-Downloader/src/renderer.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/src/renderer.ts`
 - startLine: `175`
 
 **Result:**
@@ -31066,13 +31066,13 @@ Read `renderer.ts`, lines 175 to 222
   if (inspection) renderTracks();
 }
 
-minimizeWindowButton.addEventListener("click", () => { void window.kDownloader.minimizeWindow(); });
+minimizeWindowButton.addEventListener("click", () => { void window.khinsiderDownloader.minimizeWindow(); });
 maximizeWindowButton.addEventListener("click", async () => {
-  const maximized = await window.kDownloader.toggleMaximizeWindow();
+  const maximized = await window.khinsiderDownloader.toggleMaximizeWindow();
   updateMaximizeButton(maximized);
 });
-closeWindowButton.addEventListener("click", () => { void window.kDownloader.closeWindow(); });
-window.kDownloader.onWindowState(({ maximized }) => updateMaximizeButton(maximized));
+closeWindowButton.addEventListener("click", () => { void window.khinsiderDownloader.closeWindow(); });
+window.khinsiderDownloader.onWindowState(({ maximized }) => updateMaximizeButton(maximized));
 
 moreButton.addEventListener("click", () => {
   moreMenu.hidden = !moreMenu.hidden;
@@ -31413,7 +31413,7 @@ async function createWindow(): Promise<void> {
     minWidth: 760,
     minHeight: 620,
     backgroundColor: "#101715",
-    title: "K-Downloader",
+    title: "Khinsider Downloader",
     webPreferences: {
       preload: resolve(__dirname, "preload.cjs"),
       contextIsolation: true,
@@ -31451,7 +31451,7 @@ async function createWindow(): Promise<void> {
 }
 
 app.whenReady().then(async () => {
-  app.setName("K-Downloader");
+  app.setName("Khinsider Downloader");
   nativeTheme.themeSource = "system";
   nativeTheme.on("updated", sendSystemTheme);
   stopThemeMonitor = await monitorCinnamonTheme((dark) => {
@@ -31534,7 +31534,7 @@ export type GuiDownloadRequest = {
   discLabel: "CD" | "Disc";
 };
 
-export type KDownloaderApi = {
+export type KhinsiderDownloaderApi = {
   restoreWindowBounds: () => Promise<void>;
   zoom: (direction: "in" | "out" | "reset") => Promise<number>;
   systemTheme: () => Promise<boolean>;
@@ -31555,7 +31555,7 @@ export type KDownloaderApi = {
 
 declare global {
   interface Window {
-    kDownloader: KDownloaderApi;
+    khinsiderDownloader: KhinsiderDownloaderApi;
   }
 }
 ```
@@ -31578,9 +31578,9 @@ _**Agent (copilot/auto)**_
 
 ```
 import { contextBridge, ipcRenderer } from "electron";
-import type { GuiDownloadRequest, GuiInspectionState, GuiProgress, GuiWindowState, KDownloaderApi } from "../gui-types.js";
+import type { GuiDownloadRequest, GuiInspectionState, GuiProgress, GuiWindowState, KhinsiderDownloaderApi } from "../gui-types.js";
 
-const api: KDownloaderApi = {
+const api: KhinsiderDownloaderApi = {
   restoreWindowBounds: () => ipcRenderer.invoke("window:restore-bounds"),
   zoom: (direction) => ipcRenderer.invoke("window:zoom", direction),
   systemTheme: () => ipcRenderer.invoke("appearance:system-theme"),
@@ -31615,7 +31615,7 @@ const api: KDownloaderApi = {
   },
 };
 
-contextBridge.exposeInMainWorld("kDownloader", api);
+contextBridge.exposeInMainWorld("khinsiderDownloader", api);
 ```
 </details></tool-use>
 
@@ -31675,24 +31675,24 @@ npm run build && npm test -- tests/window-state.test.ts
 
 ```
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 
 
-> k-downloader@0.1.0 pretest
+> khinsider-downloader@0.1.0 pretest
 > npm run build:gui
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run tests/window-state.test.ts
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  1 passed (1)
@@ -31951,7 +31951,7 @@ _**Agent (copilot/auto)**_
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'" />
-    <title>K-Downloader</title>
+    <title>Khinsider Downloader</title>
     <link rel="stylesheet" href="./styles.css" />
     <script defer src="./renderer.js"></script>
   </head>
@@ -31960,7 +31960,7 @@ _**Agent (copilot/auto)**_
       <header class="topbar">
         <div class="brand-lockup">
           <div class="app-icon" aria-hidden="true">K</div>
-          <div class="brand-name">K-Downloader</div>
+          <div class="brand-name">Khinsider Downloader</div>
         </div>
         <div class="titlebar-actions">
           <div id="more-menu-wrap" class="more-menu-wrap">
@@ -32328,13 +32328,13 @@ function setBusy(value: boolean): void {
   if (inspection) renderTracks();
 }
 
-minimizeWindowButton.addEventListener("click", () => { void window.kDownloader.minimizeWindow(); });
+minimizeWindowButton.addEventListener("click", () => { void window.khinsiderDownloader.minimizeWindow(); });
 maximizeWindowButton.addEventListener("click", async () => {
-  const maximized = await window.kDownloader.toggleMaximizeWindow();
+  const maximized = await window.khinsiderDownloader.toggleMaximizeWindow();
   updateMaximizeButton(maximized);
 });
-closeWindowButton.addEventListener("click", () => { void window.kDownloader.closeWindow(); });
-window.kDownloader.onWindowState(({ maximized }) => updateMaximizeButton(maximized));
+closeWindowButton.addEventListener("click", () => { void window.khinsiderDownloader.closeWindow(); });
+window.khinsiderDownloader.onWindowState(({ maximized }) => updateMaximizeButton(maximized));
 
 moreButton.addEventListener("click", () => {
   moreMenu.hidden = !moreMenu.hidden;
@@ -32343,7 +32343,7 @@ moreButton.addEventListener("click", () => {
 settingsMenuItem.addEventListener("click", () => setSettingsOpen(true));
 restoreBoundsMenuItem.addEventListener("click", () => {
   closeMoreMenu();
-  void window.kDownloader.restoreWindowBounds();
+  void window.khinsiderDownloader.restoreWindowBounds();
 });
 changelogMenuItem.addEventListener("click", () => {
   closeMoreMenu();
@@ -32357,7 +32357,7 @@ document.addEventListener("keydown", (event) => {
   if (event.ctrlKey && ["0", "-", "_", "=", "+"].includes(event.key)) {
     event.preventDefault();
     const direction = event.key === "0" ? "reset" : ["-", "_"].includes(event.key) ? "out" : "in";
-    void window.kDownloader.zoom(direction);
+    void window.khinsiderDownloader.zoom(direction);
   } else if ((event.ctrlKey || event.metaKey) && event.key === ",") {
     event.preventDefault();
     setSettingsOpen(!settingsOpen);
@@ -32372,7 +32372,7 @@ document.addEventListener("keydown", (event) => {
 document.addEventListener("wheel", (event) => {
   if (!event.ctrlKey || event.deltaY === 0) return;
   event.preventDefault();
-  void window.kDownloader.zoom(event.deltaY < 0 ? "in" : "out");
+  void window.khinsiderDownloader.zoom(event.deltaY < 0 ? "in" : "out");
 }, { passive: false });
 
 inspectButton.addEventListener("click", async () => {
@@ -32394,7 +32394,7 @@ inspectButton.addEventListener("click", async () => {
   setBusy(true);
   updateInspectionIndicator({ active: true, browserReady: false, browserVisible: false });
   try {
-    inspection = await window.kDownloader.inspect(albumUrl);
+    inspection = await window.khinsiderDownloader.inspect(albumUrl);
     if (!inspection) {
       setStatus("Inspection canceled");
       return;
@@ -32420,7 +32420,7 @@ inspectButton.addEventListener("click", async () => {
 inspectionIndicator.addEventListener("click", async () => {
   if (inspectionIndicator.disabled) return;
   try {
-    inspectionBrowserVisible = await window.kDownloader.toggleInspectionBrowser();
+    inspectionBrowserVisible = await window.khinsiderDownloader.toggleInspectionBrowser();
     inspectionIndicator.setAttribute("aria-pressed", String(inspectionBrowserVisible));
     inspectionIndicatorText.textContent = inspectionBrowserVisible ? "Hide browser" : "Show browser";
   } catch (error) {
@@ -32428,10 +32428,10 @@ inspectionIndicator.addEventListener("click", async () => {
   }
 });
 
-window.kDownloader.onInspectionState(updateInspectionIndicator);
+window.khinsiderDownloader.onInspectionState(updateInspectionIndicator);
 
 browseButton.addEventListener("click", async () => {
-  const selected = await window.kDownloader.chooseOutput();
+  const selected = await window.khinsiderDownloader.chooseOutput();
   if (selected) outputInput.value = selected;
 });
 
@@ -32450,7 +32450,7 @@ downloadButton.addEventListener("click", async () => {
   setBusy(true);
   setStatus("Downloading", "working");
   try {
-    const result = await window.kDownloader.download({
+    const result = await window.khinsiderDownloader.download({
       policy: currentPolicy(),
       outputRoot: outputInput.value,
       discLabel: discLabelSelect.value === "Disc" ? "Disc" : "CD",
@@ -32476,7 +32476,7 @@ cancelButton.addEventListener("click", async () => {
     inspectionIndicatorText.textContent = "Canceling…";
   } else setStatus("Canceling active track…", "working");
   try {
-    await window.kDownloader.cancel();
+    await window.khinsiderDownloader.cancel();
   } catch (error) {
     errorText.textContent = error instanceof Error ? error.message : String(error);
     inspectionCancelRequested = false;
@@ -32484,7 +32484,7 @@ cancelButton.addEventListener("click", async () => {
   }
 });
 
-window.kDownloader.onProgress((event: GuiProgress) => {
+window.khinsiderDownloader.onProgress((event: GuiProgress) => {
   progress.max = event.totalTracks;
   progress.value = event.completedTracks;
   progressText.textContent = event.stage === "track-start"
@@ -32496,7 +32496,7 @@ window.kDownloader.onProgress((event: GuiProgress) => {
         : "Canceled";
 });
 
-void window.kDownloader.defaultOutputRoot().then((value) => { outputInput.value = value; });
+void window.khinsiderDownloader.defaultOutputRoot().then((value) => { outputInput.value = value; });
 ```
 </details></tool-use>
 
@@ -32798,24 +32798,24 @@ npm run build && npm test -- tests/window-state.test.ts tests/appearance.test.ts
 
 ```
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 
 
-> k-downloader@0.1.0 pretest
+> khinsider-downloader@0.1.0 pretest
 > npm run build:gui
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run tests/window-state.test.ts tests/appearance.test.ts
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  2 passed (2)
@@ -32843,16 +32843,16 @@ Apply Patch
 
 ```
 *** Begin Patch
-*** Update File: /home/kel/dev/K-Downloader/gui/styles.css
+*** Update File: /home/kel/dev/Khinsider-Downloader/gui/styles.css
 @@
 -@media (max-width: 920px) {
 +@media (min-width: 721px) and (max-width: 920px) {
-*** Update File: /home/kel/dev/K-Downloader/tests/appearance.test.ts
+*** Update File: /home/kel/dev/Khinsider-Downloader/tests/appearance.test.ts
 @@
-         window.kDownloader = {
+         window.khinsiderDownloader = {
 +          restoreWindowBounds: async () => {},
 +          zoom: async () => 1,
-*** Update File: /home/kel/dev/K-Downloader/tests/window-state.test.ts
+*** Update File: /home/kel/dev/Khinsider-Downloader/tests/window-state.test.ts
 @@
  import { centeredBounds, parseWindowState, startupBounds } from "../src/electron/window-state.js";
 +import { _electron as electron } from "playwright";
@@ -32865,7 +32865,7 @@ Apply Patch
 +
 +describe("desktop More menu and zoom", () => {
 +  it("shows the built changelog, limits its width, zooms, and restores saved geometry", async () => {
-+    const userData = await mkdtemp(resolve(tmpdir(), "k-downloader-window-test-"));
++    const userData = await mkdtemp(resolve(tmpdir(), "khinsider-downloader-window-test-"));
 +    const require = createRequire(import.meta.url);
 +    const launch = () => electron.launch({
 +      executablePath: require("electron"),
@@ -32886,7 +32886,7 @@ Apply Patch
 +      await page.getByRole("separator", { name: "Changelog panel width" }).focus();
 +      await page.keyboard.press("End");
 +      expect(await page.locator("#changelog-drawer").evaluate((element) => element.getBoundingClientRect().width / innerWidth)).toBeCloseTo(.4, 2);
-+      await page.screenshot({ path: "/tmp/k-downloader-changelog.png" });
++      await page.screenshot({ path: "/tmp/khinsider-downloader-changelog.png" });
 +      await page.keyboard.press("Escape");
 +      expect(await page.locator("#changelog-drawer").getAttribute("data-open")).toBe("false");
 +      await page.getByRole("button", { name: "More options", exact: true }).click();
@@ -32952,13 +32952,13 @@ _**User (2026-10-12 17:23:31Z)**_
 
 [Terminal a01edc98-8a8d-4d60-941f-ce3e1a7bfc47 notification: command completed. The terminal has been cleaned up.]
 Terminal output:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run gui
 
-> k-downloader@0.1.0 gui
+> khinsider-downloader@0.1.0 gui
 > npm run build:gui && electron dist/electron/main.cjs
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -33349,7 +33349,7 @@ describe("appearance controls in Chromium", () => {
       await page.addInitScript(() => {
         let inspectionListener: ((state: GuiInspectionState) => void) | undefined;
         let browserVisible = false;
-        window.kDownloader = {
+        window.khinsiderDownloader = {
           restoreWindowBounds: async () => {},
           zoom: async () => 1,
           systemTheme: async () => matchMedia("(prefers-color-scheme: dark)").matches,
@@ -33359,7 +33359,7 @@ describe("appearance controls in Chromium", () => {
             media.addEventListener("change", handler);
             return () => media.removeEventListener("change", handler);
           },
-          defaultOutputRoot: async () => "/tmp/K-Downloader",
+          defaultOutputRoot: async () => "/tmp/Khinsider Downloader",
           chooseOutput: async () => undefined,
           inspect: async () => {
             let canceled = false;
@@ -33449,11 +33449,11 @@ describe("appearance controls in Chromium", () => {
       await page.emulateMedia({ colorScheme: "light" });
       await page.emulateMedia({ colorScheme: "dark" });
       expect(await page.locator("html").getAttribute("data-mode")).toBe("light");
-      await page.screenshot({ path: "/tmp/k-downloader-appearance-light.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-appearance-light.png" });
       await page.setViewportSize({ width: 760, height: 620 });
       await page.getByRole("radio", { name: "Dark", exact: true }).check();
       await page.getByRole("radio", { name: "Mint", exact: true }).check();
-      await page.screenshot({ path: "/tmp/k-downloader-appearance-dark.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-appearance-dark.png" });
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
       await page.keyboard.press("Escape");
       await page.locator("#workspace").waitFor({ state: "visible" });
@@ -33474,7 +33474,7 @@ describe("appearance controls in Chromium", () => {
         const animation = element.getAnimations()[0];
         return animation?.playState === "running" && animation.effect?.getTiming().iterations === Infinity;
       })).toBe(true);
-      await page.screenshot({ path: "/tmp/k-downloader-single-inspection-indicator.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-single-inspection-indicator.png" });
       await page.locator("#inspection-indicator").click();
       expect(await page.locator("#inspection-indicator-text").textContent()).toBe("Hide browser");
       await page.locator("#inspection-indicator").click();
@@ -33509,7 +33509,7 @@ describe("appearance controls in Chromium", () => {
         expect(scrolled.listScrollTop).toBeGreaterThan(0);
         expect(scrolled.footerBottom).toBe(initial.footerBottom);
         expect(scrolled.transferBottom).toBe(initial.transferBottom);
-        await page.screenshot({ path: `/tmp/k-downloader-long-preview-${viewport.width}.png` });
+        await page.screenshot({ path: `/tmp/khinsider-downloader-long-preview-${viewport.width}.png` });
       }
       await page.getByRole("button", { name: "Inspect album", exact: true }).click();
       await page.locator("#inspection-indicator").waitFor({ state: "visible" });
@@ -33526,7 +33526,7 @@ describe("appearance controls in Chromium", () => {
 
 describe("Electron native theme updates", () => {
   it("updates System mode through preload but preserves explicit Light and Dark", async () => {
-    const userData = await mkdtemp(resolve(tmpdir(), "k-downloader-theme-test-"));
+    const userData = await mkdtemp(resolve(tmpdir(), "khinsider-downloader-theme-test-"));
     const require = createRequire(import.meta.url);
     const app = await electron.launch({
       executablePath: require("electron"),
@@ -33603,7 +33603,7 @@ describe("window geometry", () => {
 
 describe("desktop More menu and zoom", () => {
   it("renders and resizes the changelog, zooms, and persists window bounds", async () => {
-    const userData = await mkdtemp(resolve(tmpdir(), "k-downloader-window-test-"));
+    const userData = await mkdtemp(resolve(tmpdir(), "khinsider-downloader-window-test-"));
     const require = createRequire(import.meta.url);
     const launch = () => electron.launch({
       executablePath: require("electron"),
@@ -33622,7 +33622,7 @@ describe("desktop More menu and zoom", () => {
       await page.getByRole("separator", { name: "Changelog panel width" }).focus();
       await page.keyboard.press("End");
       expect(await page.locator("#changelog-drawer").evaluate((element) => element.getBoundingClientRect().width / innerWidth)).toBeCloseTo(.4, 2);
-      await page.screenshot({ path: "/tmp/k-downloader-changelog.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-changelog.png" });
       await page.keyboard.press("Escape");
       expect(await page.locator("#changelog-drawer").getAttribute("data-open")).toBe("false");
       await page.getByRole("button", { name: "More options", exact: true }).click();
@@ -33688,20 +33688,20 @@ npm test -- tests/window-state.test.ts && npm run build
 
 ```
 
-> k-downloader@0.1.0 pretest
+> khinsider-downloader@0.1.0 pretest
 > npm run build:gui
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run tests/window-state.test.ts
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  1 passed (1)
@@ -33710,7 +33710,7 @@ Built Electron main/preload and local renderer into dist/.
    Duration  3.33s (tests 87%, import 12%, transform 1%)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 ```
 </details></tool-use>
@@ -33732,11 +33732,11 @@ Checked `changelog.ts`, `window-state.ts`, `main.ts`, `window-state.test.ts`, `a
 
 ```
 [
-  "/home/kel/dev/K-Downloader/src/changelog.ts",
-  "/home/kel/dev/K-Downloader/src/electron/window-state.ts",
-  "/home/kel/dev/K-Downloader/src/electron/main.ts",
-  "/home/kel/dev/K-Downloader/tests/window-state.test.ts",
-  "/home/kel/dev/K-Downloader/tests/appearance.test.ts"
+  "/home/kel/dev/Khinsider-Downloader/src/changelog.ts",
+  "/home/kel/dev/Khinsider-Downloader/src/electron/window-state.ts",
+  "/home/kel/dev/Khinsider-Downloader/src/electron/main.ts",
+  "/home/kel/dev/Khinsider-Downloader/tests/window-state.test.ts",
+  "/home/kel/dev/Khinsider-Downloader/tests/appearance.test.ts"
 ]
 ```
 
@@ -33744,19 +33744,19 @@ Checked `changelog.ts`, `window-state.ts`, `main.ts`, `window-state.test.ts`, `a
 **Result:**
 
 ```
-<errors path="/home/kel/dev/K-Downloader/src/changelog.ts">
+<errors path="/home/kel/dev/Khinsider-Downloader/src/changelog.ts">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/src/electron/window-state.ts">
+<errors path="/home/kel/dev/Khinsider-Downloader/src/electron/window-state.ts">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/src/electron/main.ts">
+<errors path="/home/kel/dev/Khinsider-Downloader/src/electron/main.ts">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/tests/window-state.test.ts">
+<errors path="/home/kel/dev/Khinsider-Downloader/tests/window-state.test.ts">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/tests/appearance.test.ts">
+<errors path="/home/kel/dev/Khinsider-Downloader/tests/appearance.test.ts">
 No errors found
 </errors>
 ```
@@ -33767,11 +33767,11 @@ _**Agent (copilot/auto)**_
 <tool-use data-tool-type="generic" data-tool-name="view_image"><details>
 <summary>Tool use: **view_image**</summary>
 
-Viewed image `k-downloader-changelog.png`
+Viewed image `khinsider-downloader-changelog.png`
 
 **Input:**
 
-- filePath: `/tmp/k-downloader-changelog.png`
+- filePath: `/tmp/khinsider-downloader-changelog.png`
 </details></tool-use>
 
 _**Agent (copilot/auto)**_
@@ -33814,7 +33814,7 @@ describe("window geometry", () => {
 
 describe("desktop More menu and zoom", () => {
   it("renders and resizes the changelog, zooms, and persists window bounds", async () => {
-    const userData = await mkdtemp(resolve(tmpdir(), "k-downloader-window-test-"));
+    const userData = await mkdtemp(resolve(tmpdir(), "khinsider-downloader-window-test-"));
     const require = createRequire(import.meta.url);
     const launch = () => electron.launch({
       executablePath: require("electron"),
@@ -33841,7 +33841,7 @@ describe("desktop More menu and zoom", () => {
       await page.mouse.move(1, handle.y + 40);
       await page.mouse.up();
       expect(await page.locator("#changelog-drawer").evaluate((element) => element.getBoundingClientRect().width / innerWidth)).toBeCloseTo(.4, 2);
-      await page.screenshot({ path: "/tmp/k-downloader-changelog.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-changelog.png" });
       await page.keyboard.press("Escape");
       expect(await page.locator("#changelog-drawer").getAttribute("data-open")).toBe("false");
       await page.getByRole("button", { name: "More options", exact: true }).click();
@@ -33909,9 +33909,9 @@ _**Agent (copilot/auto)**_
 @@ lines 1-111 @@
 
 ````
-# K-Downloader
+# Khinsider Downloader
 
-K-Downloader is a Linux-first KHInsider album downloader. The current slice
+Khinsider Downloader is a Linux-first KHInsider album downloader. The current slice
 implements public single-album discovery, format preview and policy, sequential
 streaming, and manifest-backed reruns. Multi-album queues, artwork, the GUI,
 optional account features, and packaging are not implemented yet.
@@ -33939,7 +33939,7 @@ access methods.
 
 The CLI previews the selected formats before starting any transfer. The default
 format policy prefers lossless, falling back to MP3 when needed. The default
-destination is `~/Music/K-Downloader`.
+destination is `~/Music/Khinsider Downloader`.
 
 ```sh
 npm run download -- 'https://downloads.khinsider.com/game-soundtracks/album/unreal-ii-the-awakening-original-soundtrack'
@@ -33974,7 +33974,7 @@ Paste one album URL and choose **Inspect album**. A Chromium inspection window
 starts minimized while an in-progress indicator appears in the app; click that
 indicator to show or hide the browser. Review the per-track format preview, choose the
 destination and format policy, then select **Download**. The default destination
-is `~/Music/K-Downloader`. **Cancel active download** stops the current transfer
+is `~/Music/Khinsider Downloader`. **Cancel active download** stops the current transfer
 and prevents later tracks from starting.
 
 While inspection is running, the same button becomes **Cancel inspection**.
@@ -34047,20 +34047,20 @@ npm test -- tests/window-state.test.ts && npm run build
 
 ```
 
-> k-downloader@0.1.0 pretest
+> khinsider-downloader@0.1.0 pretest
 > npm run build:gui
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run tests/window-state.test.ts
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  1 passed (1)
@@ -34069,7 +34069,7 @@ Built Electron main/preload and local renderer into dist/.
    Duration  3.59s (tests 89%, import 10%, transform 1%)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 ```
 </details></tool-use>
@@ -34095,20 +34095,20 @@ npm test && npm run build && npm audit
 
 ```
 
-> k-downloader@0.1.0 pretest
+> khinsider-downloader@0.1.0 pretest
 > npm run build:gui
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  7 passed (7)
@@ -34117,7 +34117,7 @@ Built Electron main/preload and local renderer into dist/.
    Duration  3.56s (tests 79%, import 16%, transform 4%)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 
 found 0 vulnerabilities
@@ -34129,11 +34129,11 @@ _**Agent (copilot/auto)**_
 <tool-use data-tool-type="generic" data-tool-name="view_image"><details>
 <summary>Tool use: **view_image**</summary>
 
-Viewed image `k-downloader-changelog.png`
+Viewed image `khinsider-downloader-changelog.png`
 
 **Input:**
 
-- filePath: `/tmp/k-downloader-changelog.png`
+- filePath: `/tmp/khinsider-downloader-changelog.png`
 </details></tool-use>
 
 _**Agent (copilot/auto)**_
@@ -34158,13 +34158,13 @@ npm run gui
 ```
 Command is running in terminal with ID=5b392e65-ce66-4481-bbf4-2b99bcb00b57
  The command became idle with output:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run gui
 
-> k-downloader@0.1.0 gui
+> khinsider-downloader@0.1.0 gui
 > npm run build:gui && electron dist/electron/main.cjs
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -34240,7 +34240,7 @@ Read `index.html`, lines 17 to 60
 **Input:**
 
 - endLine: `60`
-- filePath: `/home/kel/dev/K-Downloader/gui/index.html`
+- filePath: `/home/kel/dev/Khinsider-Downloader/gui/index.html`
 - startLine: `17`
 
 **Result:**
@@ -34297,7 +34297,7 @@ Read `build-gui.mjs`
 **Input:**
 
 - endLine: `85`
-- filePath: `/home/kel/dev/K-Downloader/scripts/build-gui.mjs`
+- filePath: `/home/kel/dev/Khinsider-Downloader/scripts/build-gui.mjs`
 - startLine: `1`
 
 **Result:**
@@ -34360,14 +34360,14 @@ Read `package.json`, lines 1 to 22
 **Input:**
 
 - endLine: `22`
-- filePath: `/home/kel/dev/K-Downloader/package.json`
+- filePath: `/home/kel/dev/Khinsider-Downloader/package.json`
 - startLine: `1`
 
 **Result:**
 
 ```
 {
-  "name": "k-downloader",
+  "name": "khinsider-downloader",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -34401,7 +34401,7 @@ Read `styles.css`, lines 107 to 126
 **Input:**
 
 - endLine: `126`
-- filePath: `/home/kel/dev/K-Downloader/gui/styles.css`
+- filePath: `/home/kel/dev/Khinsider-Downloader/gui/styles.css`
 - startLine: `107`
 
 **Result:**
@@ -34446,7 +34446,7 @@ _**Agent (copilot/auto)**_
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'" />
-    <title>K-Downloader</title>
+    <title>Khinsider Downloader</title>
     <link rel="stylesheet" href="./styles.css" />
     <script defer src="./renderer.js"></script>
   </head>
@@ -34455,7 +34455,7 @@ _**Agent (copilot/auto)**_
       <header class="topbar">
         <div class="brand-lockup">
           <div class="app-icon" aria-hidden="true">K</div>
-          <div class="brand-name">K-Downloader</div>
+          <div class="brand-name">Khinsider Downloader</div>
         </div>
         <div class="titlebar-actions">
           <div id="more-menu-wrap" class="more-menu-wrap">
@@ -34477,7 +34477,7 @@ _**Agent (copilot/auto)**_
                 <span>Changelog</span>
               </button>
               <div class="more-menu-separator" role="separator"></div>
-              <div class="more-menu-info"><span>K-Downloader</span><span id="menu-app-version"></span></div>
+              <div class="more-menu-info"><span>Khinsider Downloader</span><span id="menu-app-version"></span></div>
             </div>
           </div>
           <nav class="window-controls" aria-label="Window controls">
@@ -34896,13 +34896,13 @@ function setBusy(value: boolean): void {
   if (inspection) renderTracks();
 }
 
-minimizeWindowButton.addEventListener("click", () => { void window.kDownloader.minimizeWindow(); });
+minimizeWindowButton.addEventListener("click", () => { void window.khinsiderDownloader.minimizeWindow(); });
 maximizeWindowButton.addEventListener("click", async () => {
-  const maximized = await window.kDownloader.toggleMaximizeWindow();
+  const maximized = await window.khinsiderDownloader.toggleMaximizeWindow();
   updateMaximizeButton(maximized);
 });
-closeWindowButton.addEventListener("click", () => { void window.kDownloader.closeWindow(); });
-window.kDownloader.onWindowState(({ maximized }) => updateMaximizeButton(maximized));
+closeWindowButton.addEventListener("click", () => { void window.khinsiderDownloader.closeWindow(); });
+window.khinsiderDownloader.onWindowState(({ maximized }) => updateMaximizeButton(maximized));
 
 moreButton.addEventListener("click", () => {
   moreMenu.hidden = !moreMenu.hidden;
@@ -34911,7 +34911,7 @@ moreButton.addEventListener("click", () => {
 settingsMenuItem.addEventListener("click", () => setSettingsOpen(true));
 restoreBoundsMenuItem.addEventListener("click", () => {
   closeMoreMenu();
-  void window.kDownloader.restoreWindowBounds();
+  void window.khinsiderDownloader.restoreWindowBounds();
 });
 changelogMenuItem.addEventListener("click", () => {
   closeMoreMenu();
@@ -34925,7 +34925,7 @@ document.addEventListener("keydown", (event) => {
   if (event.ctrlKey && ["0", "-", "_", "=", "+"].includes(event.key)) {
     event.preventDefault();
     const direction = event.key === "0" ? "reset" : ["-", "_"].includes(event.key) ? "out" : "in";
-    void window.kDownloader.zoom(direction);
+    void window.khinsiderDownloader.zoom(direction);
   } else if ((event.ctrlKey || event.metaKey) && event.key === ",") {
     event.preventDefault();
     setSettingsOpen(!settingsOpen);
@@ -34940,7 +34940,7 @@ document.addEventListener("keydown", (event) => {
 document.addEventListener("wheel", (event) => {
   if (!event.ctrlKey || event.deltaY === 0) return;
   event.preventDefault();
-  void window.kDownloader.zoom(event.deltaY < 0 ? "in" : "out");
+  void window.khinsiderDownloader.zoom(event.deltaY < 0 ? "in" : "out");
 }, { passive: false });
 
 inspectButton.addEventListener("click", async () => {
@@ -34962,7 +34962,7 @@ inspectButton.addEventListener("click", async () => {
   setBusy(true);
   updateInspectionIndicator({ active: true, browserReady: false, browserVisible: false });
   try {
-    inspection = await window.kDownloader.inspect(albumUrl);
+    inspection = await window.khinsiderDownloader.inspect(albumUrl);
     if (!inspection) {
       setStatus("Inspection canceled");
       return;
@@ -34988,7 +34988,7 @@ inspectButton.addEventListener("click", async () => {
 inspectionIndicator.addEventListener("click", async () => {
   if (inspectionIndicator.disabled) return;
   try {
-    inspectionBrowserVisible = await window.kDownloader.toggleInspectionBrowser();
+    inspectionBrowserVisible = await window.khinsiderDownloader.toggleInspectionBrowser();
     inspectionIndicator.setAttribute("aria-pressed", String(inspectionBrowserVisible));
     inspectionIndicatorText.textContent = inspectionBrowserVisible ? "Hide browser" : "Show browser";
   } catch (error) {
@@ -34996,10 +34996,10 @@ inspectionIndicator.addEventListener("click", async () => {
   }
 });
 
-window.kDownloader.onInspectionState(updateInspectionIndicator);
+window.khinsiderDownloader.onInspectionState(updateInspectionIndicator);
 
 browseButton.addEventListener("click", async () => {
-  const selected = await window.kDownloader.chooseOutput();
+  const selected = await window.khinsiderDownloader.chooseOutput();
   if (selected) outputInput.value = selected;
 });
 
@@ -35018,7 +35018,7 @@ downloadButton.addEventListener("click", async () => {
   setBusy(true);
   setStatus("Downloading", "working");
   try {
-    const result = await window.kDownloader.download({
+    const result = await window.khinsiderDownloader.download({
       policy: currentPolicy(),
       outputRoot: outputInput.value,
       discLabel: discLabelSelect.value === "Disc" ? "Disc" : "CD",
@@ -35044,7 +35044,7 @@ cancelButton.addEventListener("click", async () => {
     inspectionIndicatorText.textContent = "Canceling…";
   } else setStatus("Canceling active track…", "working");
   try {
-    await window.kDownloader.cancel();
+    await window.khinsiderDownloader.cancel();
   } catch (error) {
     errorText.textContent = error instanceof Error ? error.message : String(error);
     inspectionCancelRequested = false;
@@ -35052,7 +35052,7 @@ cancelButton.addEventListener("click", async () => {
   }
 });
 
-window.kDownloader.onProgress((event: GuiProgress) => {
+window.khinsiderDownloader.onProgress((event: GuiProgress) => {
   progress.max = event.totalTracks;
   progress.value = event.completedTracks;
   progressText.textContent = event.stage === "track-start"
@@ -35064,7 +35064,7 @@ window.kDownloader.onProgress((event: GuiProgress) => {
         : "Canceled";
 });
 
-void window.kDownloader.defaultOutputRoot().then((value) => { outputInput.value = value; });
+void window.khinsiderDownloader.defaultOutputRoot().then((value) => { outputInput.value = value; });
 ```
 </details></tool-use>
 
@@ -35396,7 +35396,7 @@ describe("window geometry", () => {
 
 describe("desktop More menu and zoom", () => {
   it("renders and resizes the changelog, zooms, and persists window bounds", async () => {
-    const userData = await mkdtemp(resolve(tmpdir(), "k-downloader-window-test-"));
+    const userData = await mkdtemp(resolve(tmpdir(), "khinsider-downloader-window-test-"));
     const require = createRequire(import.meta.url);
     const launch = () => electron.launch({
       executablePath: require("electron"),
@@ -35414,7 +35414,7 @@ describe("desktop More menu and zoom", () => {
       ]);
       const manifest = JSON.parse(await readFile(resolve("package.json"), "utf8"));
       expect(await page.locator("#menu-app-version").textContent()).toBe(manifest.version);
-      expect(await page.locator(".more-menu-info").innerText()).toContain("K-Downloader");
+      expect(await page.locator(".more-menu-info").innerText()).toContain("Khinsider Downloader");
       expect(await page.locator(".more-menu-separator").isVisible()).toBe(true);
       await page.getByRole("menuitem", { name: "Changelog", exact: true }).click();
       await page.locator("#changelog-drawer").waitFor({ state: "visible" });
@@ -35430,7 +35430,7 @@ describe("desktop More menu and zoom", () => {
       await page.mouse.move(1, handle.y + 40);
       await page.mouse.up();
       expect(await page.locator("#changelog-drawer").evaluate((element) => element.getBoundingClientRect().width / innerWidth)).toBeCloseTo(.4, 2);
-      await page.screenshot({ path: "/tmp/k-downloader-changelog.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-changelog.png" });
       await page.keyboard.press("Escape");
       expect(await page.locator("#changelog-drawer").getAttribute("data-open")).toBe("false");
       await page.getByRole("button", { name: "More options", exact: true }).click();
@@ -35499,20 +35499,20 @@ npm test -- tests/window-state.test.ts && npm run build
 
 ```
 
-> k-downloader@0.1.0 pretest
+> khinsider-downloader@0.1.0 pretest
 > npm run build:gui
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run tests/window-state.test.ts
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  1 passed (1)
@@ -35521,14 +35521,14 @@ Built Electron main/preload and local renderer into dist/.
    Duration  3.52s (tests 89%, import 10%, transform 1%)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 ```
 </details></tool-use>
 
 _**Agent (copilot/auto)**_
 
-The Electron test confirms the requested order and the footer shows **K-Downloader 0.1.0**, taken from the package manifest. The build passes. I’ll leave the current GUI running so I don’t interrupt any inspection or download; the menu update will appear after reopening it.
+The Electron test confirms the requested order and the footer shows **Khinsider Downloader 0.1.0**, taken from the package manifest. The build passes. I’ll leave the current GUI running so I don’t interrupt any inspection or download; the menu update will appear after reopening it.
 
 _**Agent (copilot/auto)**_
 
@@ -35543,9 +35543,9 @@ Checked `renderer.ts`, `styles.css`, `window-state.test.ts`, no problems found
 
 ```
 [
-  "/home/kel/dev/K-Downloader/src/renderer.ts",
-  "/home/kel/dev/K-Downloader/gui/styles.css",
-  "/home/kel/dev/K-Downloader/tests/window-state.test.ts"
+  "/home/kel/dev/Khinsider-Downloader/src/renderer.ts",
+  "/home/kel/dev/Khinsider-Downloader/gui/styles.css",
+  "/home/kel/dev/Khinsider-Downloader/tests/window-state.test.ts"
 ]
 ```
 
@@ -35553,13 +35553,13 @@ Checked `renderer.ts`, `styles.css`, `window-state.test.ts`, no problems found
 **Result:**
 
 ```
-<errors path="/home/kel/dev/K-Downloader/src/renderer.ts">
+<errors path="/home/kel/dev/Khinsider-Downloader/src/renderer.ts">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/gui/styles.css">
+<errors path="/home/kel/dev/Khinsider-Downloader/gui/styles.css">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/tests/window-state.test.ts">
+<errors path="/home/kel/dev/Khinsider-Downloader/tests/window-state.test.ts">
 No errors found
 </errors>
 ```
@@ -35573,7 +35573,7 @@ Updated the More menu to:
 2. Settings
 3. Changelog
 4. Separator
-5. K-Downloader 0.1.0
+5. Khinsider Downloader 0.1.0
 
 The version comes from `package.json` during build. Electron tests and type-check pass. Reopen the GUI to see the update.
 
@@ -35591,13 +35591,13 @@ _**User (2026-10-12 17:29:48Z)**_
 
 [Terminal 5b392e65-ce66-4481-bbf4-2b99bcb00b57 notification: command completed. The terminal has been cleaned up.]
 Terminal output:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run gui
 
-> k-downloader@0.1.0 gui
+> khinsider-downloader@0.1.0 gui
 > npm run build:gui && electron dist/electron/main.cjs
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -35672,7 +35672,7 @@ Read `changelog.md`
 **Input:**
 
 - endLine: `160`
-- filePath: `/home/kel/dev/K-Downloader/changelog.md`
+- filePath: `/home/kel/dev/Khinsider-Downloader/changelog.md`
 - startLine: `1`
 
 **Result:**
@@ -35716,14 +35716,14 @@ Read `package.json`
 **Input:**
 
 - endLine: `75`
-- filePath: `/home/kel/dev/K-Downloader/package.json`
+- filePath: `/home/kel/dev/Khinsider-Downloader/package.json`
 - startLine: `1`
 
 **Result:**
 
 ```
 {
-  "name": "k-downloader",
+  "name": "khinsider-downloader",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -35767,7 +35767,7 @@ Ran `git_status`
 
 **Input:**
 
-- directory: `/home/kel/dev/K-Downloader`
+- directory: `/home/kel/dev/Khinsider-Downloader`
 
 **Result:**
 
@@ -35806,7 +35806,7 @@ Ran `git_log_or_diff`
 **Input:**
 
 - action: `diff`
-- directory: `/home/kel/dev/K-Downloader`
+- directory: `/home/kel/dev/Khinsider-Downloader`
 - revision_range: `HEAD -- README.md gui package.json scripts/build-gui.mjs src tests`
 
 **Result:**
@@ -35830,12 +35830,12 @@ Ran `git_log_or_diff`
 **Input:**
 
 - action: `log`
-- directory: `/home/kel/dev/K-Downloader`
+- directory: `/home/kel/dev/Khinsider-Downloader`
 
 **Result:**
 
 ```
-{"data":{"output":"a848177 feat: add appearance settings for light, dark, and system modes\n1783193 feat: add settings menu and more options to the titlebar\nd9623db Add VSCode configuration files for project setup\n550be98 Initial K-Downloader implementation"}}
+{"data":{"output":"a848177 feat: add appearance settings for light, dark, and system modes\n1783193 feat: add settings menu and more options to the titlebar\nd9623db Add VSCode configuration files for project setup\n550be98 Initial Khinsider Downloader implementation"}}
 ```
 </details></tool-use>
 
@@ -35995,20 +35995,20 @@ npm test && npm run build && npm audit
 
 ```
 
-> k-downloader@0.1.0 pretest
+> khinsider-downloader@0.1.0 pretest
 > npm run build:gui
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  7 passed (7)
@@ -36017,7 +36017,7 @@ Built Electron main/preload and local renderer into dist/.
    Duration  3.66s (tests 83%, import 16%, worker 1%)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 
 found 0 vulnerabilities
@@ -36053,7 +36053,7 @@ Ran `git_add`
 
 **Input:**
 
-- directory: `/home/kel/dev/K-Downloader`
+- directory: `/home/kel/dev/Khinsider-Downloader`
 - files:
 
 ```
@@ -36095,7 +36095,7 @@ Ran `git_status`
 
 **Input:**
 
-- directory: `/home/kel/dev/K-Downloader`
+- directory: `/home/kel/dev/Khinsider-Downloader`
 
 **Result:**
 
@@ -36118,7 +36118,7 @@ Ran `git_commit`
 **Input:**
 
 - description: `Add restore and zoom controls, package-derived menu version, inspection cancellation, consolidated animated status, and viewport-bound scrolling. Update changelog and cover desktop workflows with regression tests.`
-- directory: `/home/kel/dev/K-Downloader`
+- directory: `/home/kel/dev/Khinsider-Downloader`
 - message: `feat: add changelog drawer and persistent window controls`
 
 **Result:**
@@ -36137,7 +36137,7 @@ Ran `git_push`
 
 **Input:**
 
-- directory: `/home/kel/dev/K-Downloader`
+- directory: `/home/kel/dev/Khinsider-Downloader`
 
 **Result:**
 
@@ -36163,7 +36163,7 @@ Ran `git_status`
 
 **Input:**
 
-- directory: `/home/kel/dev/K-Downloader`
+- directory: `/home/kel/dev/Khinsider-Downloader`
 
 **Result:**
 
@@ -36240,7 +36240,7 @@ Read `index.html`, lines 145 to 182
 **Input:**
 
 - endLine: `245`
-- filePath: `/home/kel/dev/K-Downloader/gui/index.html`
+- filePath: `/home/kel/dev/Khinsider-Downloader/gui/index.html`
 - startLine: `145`
 
 **Result:**
@@ -36327,7 +36327,7 @@ Read `renderer.ts`, lines 1 to 106
 **Input:**
 
 - endLine: `106`
-- filePath: `/home/kel/dev/K-Downloader/src/renderer.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/src/renderer.ts`
 - startLine: `1`
 
 **Result:**
@@ -36386,7 +36386,7 @@ _**Agent (copilot/auto)**_
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'" />
-    <title>K-Downloader</title>
+    <title>Khinsider Downloader</title>
     <link rel="stylesheet" href="./styles.css" />
     <script defer src="./renderer.js"></script>
   </head>
@@ -36395,7 +36395,7 @@ _**Agent (copilot/auto)**_
       <header class="topbar">
         <div class="brand-lockup">
           <div class="app-icon" aria-hidden="true">K</div>
-          <div class="brand-name">K-Downloader</div>
+          <div class="brand-name">Khinsider Downloader</div>
         </div>
         <div class="titlebar-actions">
           <div id="more-menu-wrap" class="more-menu-wrap">
@@ -36417,7 +36417,7 @@ _**Agent (copilot/auto)**_
                 <span>Changelog</span>
               </button>
               <div class="more-menu-separator" role="separator"></div>
-              <div class="more-menu-info"><span>K-Downloader</span><span id="menu-app-version"></span></div>
+              <div class="more-menu-info"><span>Khinsider Downloader</span><span id="menu-app-version"></span></div>
             </div>
           </div>
           <nav class="window-controls" aria-label="Window controls">
@@ -36826,13 +36826,13 @@ function setBusy(value: boolean): void {
   if (inspection) renderTracks();
 }
 
-minimizeWindowButton.addEventListener("click", () => { void window.kDownloader.minimizeWindow(); });
+minimizeWindowButton.addEventListener("click", () => { void window.khinsiderDownloader.minimizeWindow(); });
 maximizeWindowButton.addEventListener("click", async () => {
-  const maximized = await window.kDownloader.toggleMaximizeWindow();
+  const maximized = await window.khinsiderDownloader.toggleMaximizeWindow();
   updateMaximizeButton(maximized);
 });
-closeWindowButton.addEventListener("click", () => { void window.kDownloader.closeWindow(); });
-window.kDownloader.onWindowState(({ maximized }) => updateMaximizeButton(maximized));
+closeWindowButton.addEventListener("click", () => { void window.khinsiderDownloader.closeWindow(); });
+window.khinsiderDownloader.onWindowState(({ maximized }) => updateMaximizeButton(maximized));
 
 moreButton.addEventListener("click", () => {
   moreMenu.hidden = !moreMenu.hidden;
@@ -36843,7 +36843,7 @@ appearanceNav.addEventListener("click", () => selectSettingsPage("appearance"));
 shortcutsNav.addEventListener("click", () => selectSettingsPage("shortcuts"));
 restoreBoundsMenuItem.addEventListener("click", () => {
   closeMoreMenu();
-  void window.kDownloader.restoreWindowBounds();
+  void window.khinsiderDownloader.restoreWindowBounds();
 });
 changelogMenuItem.addEventListener("click", () => {
   closeMoreMenu();
@@ -36857,7 +36857,7 @@ document.addEventListener("keydown", (event) => {
   if (event.ctrlKey && ["0", "-", "_", "=", "+"].includes(event.key)) {
     event.preventDefault();
     const direction = event.key === "0" ? "reset" : ["-", "_"].includes(event.key) ? "out" : "in";
-    void window.kDownloader.zoom(direction);
+    void window.khinsiderDownloader.zoom(direction);
   } else if ((event.ctrlKey || event.metaKey) && event.key === ",") {
     event.preventDefault();
     setSettingsOpen(!settingsOpen);
@@ -36872,7 +36872,7 @@ document.addEventListener("keydown", (event) => {
 document.addEventListener("wheel", (event) => {
   if (!event.ctrlKey || event.deltaY === 0) return;
   event.preventDefault();
-  void window.kDownloader.zoom(event.deltaY < 0 ? "in" : "out");
+  void window.khinsiderDownloader.zoom(event.deltaY < 0 ? "in" : "out");
 }, { passive: false });
 
 inspectButton.addEventListener("click", async () => {
@@ -36894,7 +36894,7 @@ inspectButton.addEventListener("click", async () => {
   setBusy(true);
   updateInspectionIndicator({ active: true, browserReady: false, browserVisible: false });
   try {
-    inspection = await window.kDownloader.inspect(albumUrl);
+    inspection = await window.khinsiderDownloader.inspect(albumUrl);
     if (!inspection) {
       setStatus("Inspection canceled");
       return;
@@ -36920,7 +36920,7 @@ inspectButton.addEventListener("click", async () => {
 inspectionIndicator.addEventListener("click", async () => {
   if (inspectionIndicator.disabled) return;
   try {
-    inspectionBrowserVisible = await window.kDownloader.toggleInspectionBrowser();
+    inspectionBrowserVisible = await window.khinsiderDownloader.toggleInspectionBrowser();
     inspectionIndicator.setAttribute("aria-pressed", String(inspectionBrowserVisible));
     inspectionIndicatorText.textContent = inspectionBrowserVisible ? "Hide browser" : "Show browser";
   } catch (error) {
@@ -36928,10 +36928,10 @@ inspectionIndicator.addEventListener("click", async () => {
   }
 });
 
-window.kDownloader.onInspectionState(updateInspectionIndicator);
+window.khinsiderDownloader.onInspectionState(updateInspectionIndicator);
 
 browseButton.addEventListener("click", async () => {
-  const selected = await window.kDownloader.chooseOutput();
+  const selected = await window.khinsiderDownloader.chooseOutput();
   if (selected) outputInput.value = selected;
 });
 
@@ -36950,7 +36950,7 @@ downloadButton.addEventListener("click", async () => {
   setBusy(true);
   setStatus("Downloading", "working");
   try {
-    const result = await window.kDownloader.download({
+    const result = await window.khinsiderDownloader.download({
       policy: currentPolicy(),
       outputRoot: outputInput.value,
       discLabel: discLabelSelect.value === "Disc" ? "Disc" : "CD",
@@ -36976,7 +36976,7 @@ cancelButton.addEventListener("click", async () => {
     inspectionIndicatorText.textContent = "Canceling…";
   } else setStatus("Canceling active track…", "working");
   try {
-    await window.kDownloader.cancel();
+    await window.khinsiderDownloader.cancel();
   } catch (error) {
     errorText.textContent = error instanceof Error ? error.message : String(error);
     inspectionCancelRequested = false;
@@ -36984,7 +36984,7 @@ cancelButton.addEventListener("click", async () => {
   }
 });
 
-window.kDownloader.onProgress((event: GuiProgress) => {
+window.khinsiderDownloader.onProgress((event: GuiProgress) => {
   progress.max = event.totalTracks;
   progress.value = event.completedTracks;
   progressText.textContent = event.stage === "track-start"
@@ -36996,7 +36996,7 @@ window.kDownloader.onProgress((event: GuiProgress) => {
         : "Canceled";
 });
 
-void window.kDownloader.defaultOutputRoot().then((value) => { outputInput.value = value; });
+void window.khinsiderDownloader.defaultOutputRoot().then((value) => { outputInput.value = value; });
 ```
 </details></tool-use>
 
@@ -37324,20 +37324,20 @@ npm test -- tests/appearance.test.ts && npm run build
 
 ```
 
-> k-downloader@0.1.0 pretest
+> khinsider-downloader@0.1.0 pretest
 > npm run build:gui
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run tests/appearance.test.ts
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  1 passed (1)
@@ -37346,7 +37346,7 @@ Built Electron main/preload and local renderer into dist/.
    Duration  4.09s (tests 88%, import 12%)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 ```
 </details></tool-use>
@@ -37414,7 +37414,7 @@ describe("appearance controls in Chromium", () => {
       await page.addInitScript(() => {
         let inspectionListener: ((state: GuiInspectionState) => void) | undefined;
         let browserVisible = false;
-        window.kDownloader = {
+        window.khinsiderDownloader = {
           restoreWindowBounds: async () => {},
           zoom: async () => 1,
           systemTheme: async () => matchMedia("(prefers-color-scheme: dark)").matches,
@@ -37424,7 +37424,7 @@ describe("appearance controls in Chromium", () => {
             media.addEventListener("change", handler);
             return () => media.removeEventListener("change", handler);
           },
-          defaultOutputRoot: async () => "/tmp/K-Downloader",
+          defaultOutputRoot: async () => "/tmp/Khinsider Downloader",
           chooseOutput: async () => undefined,
           inspect: async () => {
             let canceled = false;
@@ -37493,7 +37493,7 @@ describe("appearance controls in Chromium", () => {
       ]);
       for (const viewport of [{ width: 1120, height: 780 }, { width: 760, height: 620 }]) {
         await page.setViewportSize(viewport);
-        await page.screenshot({ path: `/tmp/k-downloader-shortcuts-${viewport.width}.png` });
+        await page.screenshot({ path: `/tmp/khinsider-downloader-shortcuts-${viewport.width}.png` });
         expect(await page.evaluate(() => {
           const content = document.querySelector<HTMLElement>(".settings-content")!;
           const footer = document.querySelector<HTMLElement>(".app-footer")!.getBoundingClientRect();
@@ -37539,11 +37539,11 @@ describe("appearance controls in Chromium", () => {
       await page.emulateMedia({ colorScheme: "light" });
       await page.emulateMedia({ colorScheme: "dark" });
       expect(await page.locator("html").getAttribute("data-mode")).toBe("light");
-      await page.screenshot({ path: "/tmp/k-downloader-appearance-light.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-appearance-light.png" });
       await page.setViewportSize({ width: 760, height: 620 });
       await page.getByRole("radio", { name: "Dark", exact: true }).check();
       await page.getByRole("radio", { name: "Mint", exact: true }).check();
-      await page.screenshot({ path: "/tmp/k-downloader-appearance-dark.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-appearance-dark.png" });
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
       await page.keyboard.press("Escape");
       await page.locator("#workspace").waitFor({ state: "visible" });
@@ -37564,7 +37564,7 @@ describe("appearance controls in Chromium", () => {
         const animation = element.getAnimations()[0];
         return animation?.playState === "running" && animation.effect?.getTiming().iterations === Infinity;
       })).toBe(true);
-      await page.screenshot({ path: "/tmp/k-downloader-single-inspection-indicator.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-single-inspection-indicator.png" });
       await page.locator("#inspection-indicator").click();
       expect(await page.locator("#inspection-indicator-text").textContent()).toBe("Hide browser");
       await page.locator("#inspection-indicator").click();
@@ -37599,7 +37599,7 @@ describe("appearance controls in Chromium", () => {
         expect(scrolled.listScrollTop).toBeGreaterThan(0);
         expect(scrolled.footerBottom).toBe(initial.footerBottom);
         expect(scrolled.transferBottom).toBe(initial.transferBottom);
-        await page.screenshot({ path: `/tmp/k-downloader-long-preview-${viewport.width}.png` });
+        await page.screenshot({ path: `/tmp/khinsider-downloader-long-preview-${viewport.width}.png` });
       }
       await page.getByRole("button", { name: "Inspect album", exact: true }).click();
       await page.locator("#inspection-indicator").waitFor({ state: "visible" });
@@ -37616,7 +37616,7 @@ describe("appearance controls in Chromium", () => {
 
 describe("Electron native theme updates", () => {
   it("updates System mode through preload but preserves explicit Light and Dark", async () => {
-    const userData = await mkdtemp(resolve(tmpdir(), "k-downloader-theme-test-"));
+    const userData = await mkdtemp(resolve(tmpdir(), "khinsider-downloader-theme-test-"));
     const require = createRequire(import.meta.url);
     const app = await electron.launch({
       executablePath: require("electron"),
@@ -37665,9 +37665,9 @@ _**Agent (copilot/auto)**_
 @@ lines 1-114 @@
 
 ````
-# K-Downloader
+# Khinsider Downloader
 
-K-Downloader is a Linux-first KHInsider album downloader. The current slice
+Khinsider Downloader is a Linux-first KHInsider album downloader. The current slice
 implements public single-album discovery, format preview and policy, sequential
 streaming, and manifest-backed reruns. Multi-album queues, artwork, the GUI,
 optional account features, and packaging are not implemented yet.
@@ -37695,7 +37695,7 @@ access methods.
 
 The CLI previews the selected formats before starting any transfer. The default
 format policy prefers lossless, falling back to MP3 when needed. The default
-destination is `~/Music/K-Downloader`.
+destination is `~/Music/Khinsider Downloader`.
 
 ```sh
 npm run download -- 'https://downloads.khinsider.com/game-soundtracks/album/unreal-ii-the-awakening-original-soundtrack'
@@ -37730,7 +37730,7 @@ Paste one album URL and choose **Inspect album**. A Chromium inspection window
 starts minimized while an in-progress indicator appears in the app; click that
 indicator to show or hide the browser. Review the per-track format preview, choose the
 destination and format policy, then select **Download**. The default destination
-is `~/Music/K-Downloader`. **Cancel active download** stops the current transfer
+is `~/Music/Khinsider Downloader`. **Cancel active download** stops the current transfer
 and prevents later tracks from starting.
 
 While inspection is running, the same button becomes **Cancel inspection**.
@@ -37859,20 +37859,20 @@ npm test -- tests/appearance.test.ts && npm run build
 
 ```
 
-> k-downloader@0.1.0 pretest
+> khinsider-downloader@0.1.0 pretest
 > npm run build:gui
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run tests/appearance.test.ts
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  1 passed (1)
@@ -37881,7 +37881,7 @@ Built Electron main/preload and local renderer into dist/.
    Duration  3.73s (tests 88%, import 11%, transform 1%)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 ```
 </details></tool-use>
@@ -37903,9 +37903,9 @@ Checked `renderer.ts`, `styles.css`, `appearance.test.ts`, no problems found
 
 ```
 [
-  "/home/kel/dev/K-Downloader/src/renderer.ts",
-  "/home/kel/dev/K-Downloader/gui/styles.css",
-  "/home/kel/dev/K-Downloader/tests/appearance.test.ts"
+  "/home/kel/dev/Khinsider-Downloader/src/renderer.ts",
+  "/home/kel/dev/Khinsider-Downloader/gui/styles.css",
+  "/home/kel/dev/Khinsider-Downloader/tests/appearance.test.ts"
 ]
 ```
 
@@ -37913,13 +37913,13 @@ Checked `renderer.ts`, `styles.css`, `appearance.test.ts`, no problems found
 **Result:**
 
 ```
-<errors path="/home/kel/dev/K-Downloader/src/renderer.ts">
+<errors path="/home/kel/dev/Khinsider-Downloader/src/renderer.ts">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/gui/styles.css">
+<errors path="/home/kel/dev/Khinsider-Downloader/gui/styles.css">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/tests/appearance.test.ts">
+<errors path="/home/kel/dev/Khinsider-Downloader/tests/appearance.test.ts">
 No errors found
 </errors>
 ```
@@ -37930,11 +37930,11 @@ _**Agent (copilot/auto)**_
 <tool-use data-tool-type="generic" data-tool-name="view_image"><details>
 <summary>Tool use: **view_image**</summary>
 
-Viewed image `k-downloader-shortcuts-1120.png`
+Viewed image `khinsider-downloader-shortcuts-1120.png`
 
 **Input:**
 
-- filePath: `/tmp/k-downloader-shortcuts-1120.png`
+- filePath: `/tmp/khinsider-downloader-shortcuts-1120.png`
 </details></tool-use>
 
 _**Agent (copilot/auto)**_
@@ -37942,11 +37942,11 @@ _**Agent (copilot/auto)**_
 <tool-use data-tool-type="generic" data-tool-name="view_image"><details>
 <summary>Tool use: **view_image**</summary>
 
-Viewed image `k-downloader-shortcuts-760.png`
+Viewed image `khinsider-downloader-shortcuts-760.png`
 
 **Input:**
 
-- filePath: `/tmp/k-downloader-shortcuts-760.png`
+- filePath: `/tmp/khinsider-downloader-shortcuts-760.png`
 </details></tool-use>
 
 _**Agent (copilot/auto)**_
@@ -37979,13 +37979,13 @@ npm run gui
 ```
 Command is running in terminal with ID=aae91859-de8e-4cad-aec5-69980ec997d9
  The command became idle with output:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run gui
 
-> k-downloader@0.1.0 gui
+> khinsider-downloader@0.1.0 gui
 > npm run build:gui && electron dist/electron/main.cjs
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -38075,7 +38075,7 @@ Ran `git_status`
 
 **Input:**
 
-- directory: `/home/kel/dev/K-Downloader`
+- directory: `/home/kel/dev/Khinsider-Downloader`
 
 **Result:**
 
@@ -38094,7 +38094,7 @@ Read `changelog.md`
 **Input:**
 
 - endLine: `110`
-- filePath: `/home/kel/dev/K-Downloader/changelog.md`
+- filePath: `/home/kel/dev/Khinsider-Downloader/changelog.md`
 - startLine: `1`
 
 **Result:**
@@ -38224,20 +38224,20 @@ npm test && npm run build
 
 ```
 
-> k-downloader@0.1.0 pretest
+> khinsider-downloader@0.1.0 pretest
 > npm run build:gui
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  7 passed (7)
@@ -38246,7 +38246,7 @@ Built Electron main/preload and local renderer into dist/.
    Duration  3.93s (tests 84%, import 15%, transform 1%, worker 1%)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 ```
 </details></tool-use>
@@ -38280,7 +38280,7 @@ Ran `git_add`
 
 **Input:**
 
-- directory: `/home/kel/dev/K-Downloader`
+- directory: `/home/kel/dev/Khinsider-Downloader`
 - files:
 
 ```
@@ -38319,7 +38319,7 @@ Ran `git_status`
 
 **Input:**
 
-- directory: `/home/kel/dev/K-Downloader`
+- directory: `/home/kel/dev/Khinsider-Downloader`
 
 **Result:**
 
@@ -38342,7 +38342,7 @@ Ran `git_commit`
 **Input:**
 
 - description: `Add Appearance and Shortcuts pages in the Settings rail, preserve appearance selections, present grouped keyboard shortcuts, and update documentation, changelog, and browser regression coverage.`
-- directory: `/home/kel/dev/K-Downloader`
+- directory: `/home/kel/dev/Khinsider-Downloader`
 - message: `feat: add Settings navigation and shortcut reference`
 
 **Result:**
@@ -38361,7 +38361,7 @@ Ran `git_push`
 
 **Input:**
 
-- directory: `/home/kel/dev/K-Downloader`
+- directory: `/home/kel/dev/Khinsider-Downloader`
 
 **Result:**
 
@@ -38379,7 +38379,7 @@ Ran `git_status`
 
 **Input:**
 
-- directory: `/home/kel/dev/K-Downloader`
+- directory: `/home/kel/dev/Khinsider-Downloader`
 
 **Result:**
 
@@ -38430,14 +38430,14 @@ Read `package.json`
 **Input:**
 
 - endLine: `110`
-- filePath: `/home/kel/dev/K-Downloader/package.json`
+- filePath: `/home/kel/dev/Khinsider-Downloader/package.json`
 - startLine: `1`
 
 **Result:**
 
 ```
 {
-  "name": "k-downloader",
+  "name": "khinsider-downloader",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -38482,7 +38482,7 @@ Read `build-gui.mjs`
 **Input:**
 
 - endLine: `110`
-- filePath: `/home/kel/dev/K-Downloader/scripts/build-gui.mjs`
+- filePath: `/home/kel/dev/Khinsider-Downloader/scripts/build-gui.mjs`
 - startLine: `1`
 
 **Result:**
@@ -38567,7 +38567,7 @@ Read `docs`
 
 **Input:**
 
-- path: `/home/kel/dev/K-Downloader/docs`
+- path: `/home/kel/dev/Khinsider-Downloader/docs`
 
 **Result:**
 
@@ -38586,15 +38586,15 @@ Read `README.md`
 **Input:**
 
 - endLine: `155`
-- filePath: `/home/kel/dev/K-Downloader/README.md`
+- filePath: `/home/kel/dev/Khinsider-Downloader/README.md`
 - startLine: `1`
 
 **Result:**
 
 ````
-# K-Downloader
+# Khinsider Downloader
 
-K-Downloader is a Linux-first KHInsider album downloader. The current slice
+Khinsider Downloader is a Linux-first KHInsider album downloader. The current slice
 implements public single-album discovery, format preview and policy, sequential
 streaming, and manifest-backed reruns. Multi-album queues, artwork, the GUI,
 optional account features, and packaging are not implemented yet.
@@ -38622,7 +38622,7 @@ access methods.
 
 The CLI previews the selected formats before starting any transfer. The default
 format policy prefers lossless, falling back to MP3 when needed. The default
-destination is `~/Music/K-Downloader`.
+destination is `~/Music/Khinsider Downloader`.
 
 ```sh
 npm run download -- 'https://downloads.khinsider.com/game-soundtracks/album/unreal-ii-the-awakening-original-soundtrack'
@@ -38790,7 +38790,7 @@ exists (`git tag --list "$TAG"`); inspect it rather than moving or overwriting i
 Create and push the annotated tag:
 
 ```sh
-git tag -a "$TAG" -m "K-Downloader $VERSION"
+git tag -a "$TAG" -m "Khinsider Downloader $VERSION"
 git push origin "$TAG"
 ```
 
@@ -38799,10 +38799,10 @@ notes source:
 
 ```sh
 gh release create "$TAG" \
-  --repo kelmankenberg/K-Downloader \
+  --repo kelmankenberg/Khinsider Downloader \
   --verify-tag \
   --draft \
-  --title "K-Downloader $VERSION" \
+  --title "Khinsider Downloader $VERSION" \
   --notes-file changelog.md
 ```
 
@@ -38815,9 +38815,9 @@ and prominently state **source-only release; no Linux installers included**.
 Open the draft, review its tag, notes, and release type, then publish:
 
 ```sh
-gh release view "$TAG" --repo kelmankenberg/K-Downloader --web
-gh release edit "$TAG" --repo kelmankenberg/K-Downloader --draft=false
-gh release view "$TAG" --repo kelmankenberg/K-Downloader
+gh release view "$TAG" --repo kelmankenberg/Khinsider Downloader --web
+gh release edit "$TAG" --repo kelmankenberg/Khinsider Downloader --draft=false
+gh release view "$TAG" --repo kelmankenberg/Khinsider Downloader
 ```
 
 On the GitHub website, the equivalent is **Releases > Draft a new release**:
@@ -39019,7 +39019,7 @@ exists (`git tag --list "$TAG"`); inspect it rather than moving or overwriting i
 Create and push the annotated tag:
 
 ```sh
-git tag -a "$TAG" -m "K-Downloader $VERSION"
+git tag -a "$TAG" -m "Khinsider Downloader $VERSION"
 git push origin "$TAG"
 ```
 
@@ -39028,10 +39028,10 @@ notes source:
 
 ```sh
 gh release create "$TAG" \
-  --repo kelmankenberg/K-Downloader \
+  --repo kelmankenberg/Khinsider Downloader \
   --verify-tag \
   --draft \
-  --title "K-Downloader $VERSION" \
+  --title "Khinsider Downloader $VERSION" \
   --notes-file changelog.md
 ```
 
@@ -39044,9 +39044,9 @@ and prominently state **source-only release; no Linux installers included**.
 Open the draft, review its tag, notes, and release type, then publish:
 
 ```sh
-gh release view "$TAG" --repo kelmankenberg/K-Downloader --web
-gh release edit "$TAG" --repo kelmankenberg/K-Downloader --draft=false
-gh release view "$TAG" --repo kelmankenberg/K-Downloader
+gh release view "$TAG" --repo kelmankenberg/Khinsider Downloader --web
+gh release edit "$TAG" --repo kelmankenberg/Khinsider Downloader --draft=false
+gh release view "$TAG" --repo kelmankenberg/Khinsider Downloader
 ```
 
 On the GitHub website, the equivalent is **Releases > Draft a new release**:
@@ -39111,13 +39111,13 @@ _**User (2026-10-12 18:01:44Z)**_
 
 [Terminal aae91859-de8e-4cad-aec5-69980ec997d9 notification: command completed. The terminal has been cleaned up.]
 Terminal output:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run gui
 
-> k-downloader@0.1.0 gui
+> khinsider-downloader@0.1.0 gui
 > npm run build:gui && electron dist/electron/main.cjs
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -39169,7 +39169,7 @@ Read `main.ts`, lines 1 to 80
 **Input:**
 
 - endLine: `80`
-- filePath: `/home/kel/dev/K-Downloader/src/electron/main.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/src/electron/main.ts`
 - startLine: `1`
 
 **Result:**
@@ -39239,7 +39239,7 @@ Read `main.ts`, lines 225 to 299
 **Input:**
 
 - endLine: `335`
-- filePath: `/home/kel/dev/K-Downloader/src/electron/main.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/src/electron/main.ts`
 - startLine: `225`
 
 **Result:**
@@ -39261,7 +39261,7 @@ async function createWindow(): Promise<void> {
     minWidth: 760,
     minHeight: 620,
     backgroundColor: "#101715",
-    title: "K-Downloader",
+    title: "Khinsider Downloader",
     webPreferences: {
       preload: resolve(__dirname, "preload.cjs"),
       contextIsolation: true,
@@ -39310,7 +39310,7 @@ Read `window-state.test.ts`
 **Input:**
 
 - endLine: `190`
-- filePath: `/home/kel/dev/K-Downloader/tests/window-state.test.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/tests/window-state.test.ts`
 - startLine: `1`
 
 **Result:**
@@ -39344,7 +39344,7 @@ describe("window geometry", () => {
 
 describe("desktop More menu and zoom", () => {
   it("renders and resizes the changelog, zooms, and persists window bounds", async () => {
-    const userData = await mkdtemp(resolve(tmpdir(), "k-downloader-window-test-"));
+    const userData = await mkdtemp(resolve(tmpdir(), "khinsider-downloader-window-test-"));
     const require = createRequire(import.meta.url);
     const launch = () => electron.launch({
       executablePath: require("electron"),
@@ -39394,7 +39394,7 @@ let instanceNoticeOpen = false;
 let cinnamonDark: boolean | undefined;
 let stopThemeMonitor: (() => void) | undefined;
 
-app.setName("K-Downloader");
+app.setName("Khinsider Downloader");
 const primaryInstance = app.requestSingleInstanceLock();
 if (!primaryInstance) app.quit();
 else app.on("second-instance", () => {
@@ -39418,8 +39418,8 @@ async function notifyExistingInstance(): Promise<void> {
   try {
     await dialog.showMessageBox(window, {
       type: "info",
-      title: "K-Downloader is already running",
-      message: "K-Downloader is already running.",
+      title: "Khinsider Downloader is already running",
+      message: "Khinsider Downloader is already running.",
       detail: "Only one instance can run. Continue in the existing window.",
       buttons: ["Show running app"],
       defaultId: 0,
@@ -39651,7 +39651,7 @@ async function createWindow(): Promise<void> {
     minWidth: 760,
     minHeight: 620,
     backgroundColor: "#101715",
-    title: "K-Downloader",
+    title: "Khinsider Downloader",
     webPreferences: {
       preload: resolve(__dirname, "preload.cjs"),
       contextIsolation: true,
@@ -39731,24 +39731,24 @@ npm run build && npm test -- tests/window-state.test.ts
 
 ```
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 
 
-> k-downloader@0.1.0 pretest
+> khinsider-downloader@0.1.0 pretest
 > npm run build:gui
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run tests/window-state.test.ts
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  1 passed (1)
@@ -39799,7 +39799,7 @@ describe("window geometry", () => {
 
 describe("desktop More menu and zoom", () => {
   it("renders and resizes the changelog, zooms, and persists window bounds", async () => {
-    const userData = await mkdtemp(resolve(tmpdir(), "k-downloader-window-test-"));
+    const userData = await mkdtemp(resolve(tmpdir(), "khinsider-downloader-window-test-"));
     const require = createRequire(import.meta.url);
     const launch = () => electron.launch({
       executablePath: require("electron"),
@@ -39817,7 +39817,7 @@ describe("desktop More menu and zoom", () => {
       ]);
       const manifest = JSON.parse(await readFile(resolve("package.json"), "utf8"));
       expect(await page.locator("#menu-app-version").textContent()).toBe(manifest.version);
-      expect(await page.locator(".more-menu-info").innerText()).toContain("K-Downloader");
+      expect(await page.locator(".more-menu-info").innerText()).toContain("Khinsider Downloader");
       expect(await page.locator(".more-menu-separator").isVisible()).toBe(true);
       await page.getByRole("menuitem", { name: "Changelog", exact: true }).click();
       await page.locator("#changelog-drawer").waitFor({ state: "visible" });
@@ -39833,7 +39833,7 @@ describe("desktop More menu and zoom", () => {
       await page.mouse.move(1, handle.y + 40);
       await page.mouse.up();
       expect(await page.locator("#changelog-drawer").evaluate((element) => element.getBoundingClientRect().width / innerWidth)).toBeCloseTo(.4, 2);
-      await page.screenshot({ path: "/tmp/k-downloader-changelog.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-changelog.png" });
       await page.keyboard.press("Escape");
       expect(await page.locator("#changelog-drawer").getAttribute("data-open")).toBe("false");
       await page.getByRole("button", { name: "More options", exact: true }).click();
@@ -39885,7 +39885,7 @@ describe("desktop More menu and zoom", () => {
 
 describe("single-instance desktop", () => {
   it("rejects a second launch, restores the primary window, and shows a confirmation", async () => {
-    const userData = await mkdtemp(resolve(tmpdir(), "k-downloader-instance-test-"));
+    const userData = await mkdtemp(resolve(tmpdir(), "khinsider-downloader-instance-test-"));
     const require = createRequire(import.meta.url);
     const executablePath: string = require("electron");
     const args = [resolve("dist/electron/main.cjs"), `--user-data-dir=${userData}`];
@@ -39920,7 +39920,7 @@ describe("single-instance desktop", () => {
       }));
       expect(state.windowCount).toBe(1);
       expect(state.visible).toBe(true);
-      expect(state.notice.message).toBe("K-Downloader is already running.");
+      expect(state.notice.message).toBe("Khinsider Downloader is already running.");
       expect(state.notice.buttons).toEqual(["Show running app"]);
     } finally {
       if (secondary && secondary.exitCode === null) secondary.kill();
@@ -39949,20 +39949,20 @@ npm test -- tests/window-state.test.ts && npm run build
 
 ```
 
-> k-downloader@0.1.0 pretest
+> khinsider-downloader@0.1.0 pretest
 > npm run build:gui
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run tests/window-state.test.ts
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  1 passed (1)
@@ -39971,7 +39971,7 @@ Built Electron main/preload and local renderer into dist/.
    Duration  5.18s (tests 93%, import 7%, transform 1%)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 ```
 </details></tool-use>
@@ -40012,7 +40012,7 @@ let instanceNoticeOpen = false;
 let cinnamonDark: boolean | undefined;
 let stopThemeMonitor: (() => void) | undefined;
 
-app.setName("K-Downloader");
+app.setName("Khinsider Downloader");
 const primaryInstance = app.requestSingleInstanceLock();
 if (!primaryInstance) app.quit();
 else app.on("second-instance", () => {
@@ -40036,8 +40036,8 @@ async function notifyExistingInstance(): Promise<void> {
   try {
     await dialog.showMessageBox(window, {
       type: "info",
-      title: "K-Downloader is already running",
-      message: "K-Downloader is already running.",
+      title: "Khinsider Downloader is already running",
+      message: "Khinsider Downloader is already running.",
       detail: "Only one instance can run. Continue in the existing window.",
       buttons: ["Show running app"],
       defaultId: 0,
@@ -40269,7 +40269,7 @@ async function createWindow(): Promise<void> {
     minWidth: 760,
     minHeight: 620,
     backgroundColor: "#101715",
-    title: "K-Downloader",
+    title: "Khinsider Downloader",
     webPreferences: {
       preload: resolve(__dirname, "preload.cjs"),
       contextIsolation: true,
@@ -40352,9 +40352,9 @@ _**Agent (copilot/auto)**_
 @@ lines 1-118 @@
 
 ````
-# K-Downloader
+# Khinsider Downloader
 
-K-Downloader is a Linux-first KHInsider album downloader. The current slice
+Khinsider Downloader is a Linux-first KHInsider album downloader. The current slice
 implements public single-album discovery, format preview and policy, sequential
 streaming, and manifest-backed reruns. Multi-album queues, artwork, the GUI,
 optional account features, and packaging are not implemented yet.
@@ -40382,7 +40382,7 @@ access methods.
 
 The CLI previews the selected formats before starting any transfer. The default
 format policy prefers lossless, falling back to MP3 when needed. The default
-destination is `~/Music/K-Downloader`.
+destination is `~/Music/Khinsider Downloader`.
 
 ```sh
 npm run download -- 'https://downloads.khinsider.com/game-soundtracks/album/unreal-ii-the-awakening-original-soundtrack'
@@ -40421,7 +40421,7 @@ Paste one album URL and choose **Inspect album**. A Chromium inspection window
 starts minimized while an in-progress indicator appears in the app; click that
 indicator to show or hide the browser. Review the per-track format preview, choose the
 destination and format policy, then select **Download**. The default destination
-is `~/Music/K-Downloader`. **Cancel active download** stops the current transfer
+is `~/Music/Khinsider Downloader`. **Cancel active download** stops the current transfer
 and prevents later tracks from starting.
 
 While inspection is running, the same button becomes **Cancel inspection**.
@@ -40564,20 +40564,20 @@ npm test && npm run build
 
 ```
 
-> k-downloader@0.1.0 pretest
+> khinsider-downloader@0.1.0 pretest
 > npm run build:gui
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  7 passed (7)
@@ -40586,7 +40586,7 @@ Built Electron main/preload and local renderer into dist/.
    Duration  5.24s (tests 85%, import 14%)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 ```
 </details></tool-use>
@@ -40604,8 +40604,8 @@ Checked `main.ts`, `window-state.test.ts`, no problems found
 
 ```
 [
-  "/home/kel/dev/K-Downloader/src/electron/main.ts",
-  "/home/kel/dev/K-Downloader/tests/window-state.test.ts"
+  "/home/kel/dev/Khinsider-Downloader/src/electron/main.ts",
+  "/home/kel/dev/Khinsider-Downloader/tests/window-state.test.ts"
 ]
 ```
 
@@ -40613,10 +40613,10 @@ Checked `main.ts`, `window-state.test.ts`, no problems found
 **Result:**
 
 ```
-<errors path="/home/kel/dev/K-Downloader/src/electron/main.ts">
+<errors path="/home/kel/dev/Khinsider-Downloader/src/electron/main.ts">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/tests/window-state.test.ts">
+<errors path="/home/kel/dev/Khinsider-Downloader/tests/window-state.test.ts">
 No errors found
 </errors>
 ```
@@ -40644,13 +40644,13 @@ npm run gui
 ```
 Command is running in terminal with ID=844ca3b5-c730-4a77-8f1b-feb9fffce4cf
  The command became idle with output:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run gui
 
-> k-downloader@0.1.0 gui
+> khinsider-downloader@0.1.0 gui
 > npm run build:gui && electron dist/electron/main.cjs
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -40700,13 +40700,13 @@ _**User (2026-10-12 18:06:39Z)**_
 
 [Terminal 844ca3b5-c730-4a77-8f1b-feb9fffce4cf notification: command completed. The terminal has been cleaned up.]
 Terminal output:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run gui
 
-> k-downloader@0.1.0 gui
+> khinsider-downloader@0.1.0 gui
 > npm run build:gui && electron dist/electron/main.cjs
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -40789,7 +40789,7 @@ Read `build-gui.mjs`
 **Input:**
 
 - endLine: `100`
-- filePath: `/home/kel/dev/K-Downloader/scripts/build-gui.mjs`
+- filePath: `/home/kel/dev/Khinsider-Downloader/scripts/build-gui.mjs`
 - startLine: `1`
 
 **Result:**
@@ -40857,7 +40857,7 @@ Read `main.ts`, lines 272 to 305
 **Input:**
 
 - endLine: `305`
-- filePath: `/home/kel/dev/K-Downloader/src/electron/main.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/src/electron/main.ts`
 - startLine: `272`
 
 **Result:**
@@ -40873,7 +40873,7 @@ Read `main.ts`, lines 272 to 305
     minWidth: 760,
     minHeight: 620,
     backgroundColor: "#101715",
-    title: "K-Downloader",
+    title: "Khinsider Downloader",
     webPreferences: {
       preload: resolve(__dirname, "preload.cjs"),
       contextIsolation: true,
@@ -40910,14 +40910,14 @@ Read `package.json`
 **Input:**
 
 - endLine: `80`
-- filePath: `/home/kel/dev/K-Downloader/package.json`
+- filePath: `/home/kel/dev/Khinsider-Downloader/package.json`
 - startLine: `1`
 
 **Result:**
 
 ```
 {
-  "name": "k-downloader",
+  "name": "khinsider-downloader",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -40970,7 +40970,7 @@ import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const output = resolve(root, "assets/k-downloader.png");
+const output = resolve(root, "assets/khinsider-downloader.png");
 const browser = await chromium.launch({ headless: true });
 try {
   const page = await browser.newPage({ viewport: { width: 512, height: 512 }, deviceScaleFactor: 1 });
@@ -41010,7 +41010,7 @@ node scripts/generate-icon.mjs
 **Result:**
 
 ```
-Generated /home/kel/dev/K-Downloader/assets/k-downloader.png (512x512 transparen
+Generated /home/kel/dev/Khinsider-Downloader/assets/khinsider-downloader.png (512x512 transparen
 t PNG).
 ```
 </details></tool-use>
@@ -41024,11 +41024,11 @@ _**Agent (copilot/auto)**_
 <tool-use data-tool-type="generic" data-tool-name="view_image"><details>
 <summary>Tool use: **view_image**</summary>
 
-Viewed image `k-downloader.png`
+Viewed image `khinsider-downloader.png`
 
 **Input:**
 
-- filePath: `/home/kel/dev/K-Downloader/assets/k-downloader.png`
+- filePath: `/home/kel/dev/Khinsider-Downloader/assets/khinsider-downloader.png`
 </details></tool-use>
 
 _**Agent (copilot/auto)**_
@@ -41087,7 +41087,7 @@ await Promise.all([
 await Promise.all([
   cp(resolve(root, "gui/index.html"), resolve(output, "gui/index.html")),
   cp(resolve(root, "gui/styles.css"), resolve(output, "gui/styles.css")),
-  cp(resolve(root, "assets/k-downloader.png"), resolve(output, "assets/k-downloader.png")),
+  cp(resolve(root, "assets/khinsider-downloader.png"), resolve(output, "assets/khinsider-downloader.png")),
 ]);
 console.log("Built Electron main/preload and local renderer into dist/.");
 ```
@@ -41133,7 +41133,7 @@ let instanceNoticeOpen = false;
 let cinnamonDark: boolean | undefined;
 let stopThemeMonitor: (() => void) | undefined;
 
-app.setName("K-Downloader");
+app.setName("Khinsider Downloader");
 const primaryInstance = app.requestSingleInstanceLock();
 if (!primaryInstance) app.quit();
 else app.on("second-instance", () => {
@@ -41157,8 +41157,8 @@ async function notifyExistingInstance(): Promise<void> {
   try {
     await dialog.showMessageBox(window, {
       type: "info",
-      title: "K-Downloader is already running",
-      message: "K-Downloader is already running.",
+      title: "Khinsider Downloader is already running",
+      message: "Khinsider Downloader is already running.",
       detail: "Only one instance can run. Continue in the existing window.",
       buttons: ["Show running app"],
       defaultId: 0,
@@ -41390,8 +41390,8 @@ async function createWindow(): Promise<void> {
     minWidth: 760,
     minHeight: 620,
     backgroundColor: "#101715",
-    title: "K-Downloader",
-    icon: resolve(__dirname, "../assets/k-downloader.png"),
+    title: "Khinsider Downloader",
+    icon: resolve(__dirname, "../assets/khinsider-downloader.png"),
     webPreferences: {
       preload: resolve(__dirname, "preload.cjs"),
       contextIsolation: true,
@@ -41503,7 +41503,7 @@ describe("window geometry", () => {
 
 describe("desktop More menu and zoom", () => {
   it("renders and resizes the changelog, zooms, and persists window bounds", async () => {
-    const userData = await mkdtemp(resolve(tmpdir(), "k-downloader-window-test-"));
+    const userData = await mkdtemp(resolve(tmpdir(), "khinsider-downloader-window-test-"));
     const require = createRequire(import.meta.url);
     const launch = () => electron.launch({
       executablePath: require("electron"),
@@ -41516,7 +41516,7 @@ describe("desktop More menu and zoom", () => {
       page.setDefaultTimeout(5_000);
       await page.waitForFunction(() => document.documentElement.dataset.mode);
       const icon = await app.evaluate(({ nativeImage }) => {
-        const image = nativeImage.createFromPath("dist/assets/k-downloader.png");
+        const image = nativeImage.createFromPath("dist/assets/khinsider-downloader.png");
         const bitmap = image.getBitmap();
         return { empty: image.isEmpty(), size: image.getSize(), firstAlpha: bitmap[3], clippedAlpha: bitmap[bitmap.length - 1] };
       });
@@ -41524,14 +41524,14 @@ describe("desktop More menu and zoom", () => {
       expect(icon.size).toEqual({ width: 512, height: 512 });
       expect(icon.firstAlpha).toBe(255);
       expect(icon.clippedAlpha).toBe(0);
-      expect(await readFile(resolve("dist/assets/k-downloader.png"))).toEqual(await readFile(resolve("assets/k-downloader.png")));
+      expect(await readFile(resolve("dist/assets/khinsider-downloader.png"))).toEqual(await readFile(resolve("assets/khinsider-downloader.png")));
       await page.getByRole("button", { name: "More options", exact: true }).click();
       expect((await page.getByRole("menuitem").allTextContents()).map((text) => text.replace(/\s+/g, " ").trim())).toEqual([
         "Restore Size/Position", "Settings Ctrl+,", "Changelog",
       ]);
       const manifest = JSON.parse(await readFile(resolve("package.json"), "utf8"));
       expect(await page.locator("#menu-app-version").textContent()).toBe(manifest.version);
-      expect(await page.locator(".more-menu-info").innerText()).toContain("K-Downloader");
+      expect(await page.locator(".more-menu-info").innerText()).toContain("Khinsider Downloader");
       expect(await page.locator(".more-menu-separator").isVisible()).toBe(true);
       await page.getByRole("menuitem", { name: "Changelog", exact: true }).click();
       await page.locator("#changelog-drawer").waitFor({ state: "visible" });
@@ -41547,7 +41547,7 @@ describe("desktop More menu and zoom", () => {
       await page.mouse.move(1, handle.y + 40);
       await page.mouse.up();
       expect(await page.locator("#changelog-drawer").evaluate((element) => element.getBoundingClientRect().width / innerWidth)).toBeCloseTo(.4, 2);
-      await page.screenshot({ path: "/tmp/k-downloader-changelog.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-changelog.png" });
       await page.keyboard.press("Escape");
       expect(await page.locator("#changelog-drawer").getAttribute("data-open")).toBe("false");
       await page.getByRole("button", { name: "More options", exact: true }).click();
@@ -41599,7 +41599,7 @@ describe("desktop More menu and zoom", () => {
 
 describe("single-instance desktop", () => {
   it("rejects a second launch, restores the primary window, and shows a confirmation", async () => {
-    const userData = await mkdtemp(resolve(tmpdir(), "k-downloader-instance-test-"));
+    const userData = await mkdtemp(resolve(tmpdir(), "khinsider-downloader-instance-test-"));
     const require = createRequire(import.meta.url);
     const executablePath: string = require("electron");
     const args = [resolve("dist/electron/main.cjs"), `--user-data-dir=${userData}`];
@@ -41634,7 +41634,7 @@ describe("single-instance desktop", () => {
       }));
       expect(state.windowCount).toBe(1);
       expect(state.visible).toBe(true);
-      expect(state.notice.message).toBe("K-Downloader is already running.");
+      expect(state.notice.message).toBe("Khinsider Downloader is already running.");
       expect(state.notice.buttons).toEqual(["Show running app"]);
     } finally {
       if (secondary && secondary.exitCode === null) secondary.kill();
@@ -41804,7 +41804,7 @@ npm audit
   and copies the local HTML/CSS assets.
 - The GUI build embeds the root [changelog.md](../changelog.md) and the version
   from [package.json](../package.json). Rebuild after changing either file.
-- The build copies [assets/k-downloader.png](../assets/k-downloader.png) into
+- The build copies [assets/khinsider-downloader.png](../assets/khinsider-downloader.png) into
   `dist/assets/`; Electron uses it as the window/taskbar icon. Regenerate the
   source icon with `node scripts/generate-icon.mjs` if the brand mark changes.
 - `npm audit` reports dependency advisories. Review and resolve release-blocking
@@ -41872,7 +41872,7 @@ exists (`git tag --list "$TAG"`); inspect it rather than moving or overwriting i
 Create and push the annotated tag:
 
 ```sh
-git tag -a "$TAG" -m "K-Downloader $VERSION"
+git tag -a "$TAG" -m "Khinsider Downloader $VERSION"
 git push origin "$TAG"
 ```
 
@@ -41881,10 +41881,10 @@ notes source:
 
 ```sh
 gh release create "$TAG" \
-  --repo kelmankenberg/K-Downloader \
+  --repo kelmankenberg/Khinsider Downloader \
   --verify-tag \
   --draft \
-  --title "K-Downloader $VERSION" \
+  --title "Khinsider Downloader $VERSION" \
   --notes-file changelog.md
 ```
 
@@ -41897,9 +41897,9 @@ and prominently state **source-only release; no Linux installers included**.
 Open the draft, review its tag, notes, and release type, then publish:
 
 ```sh
-gh release view "$TAG" --repo kelmankenberg/K-Downloader --web
-gh release edit "$TAG" --repo kelmankenberg/K-Downloader --draft=false
-gh release view "$TAG" --repo kelmankenberg/K-Downloader
+gh release view "$TAG" --repo kelmankenberg/Khinsider Downloader --web
+gh release edit "$TAG" --repo kelmankenberg/Khinsider Downloader --draft=false
+gh release view "$TAG" --repo kelmankenberg/Khinsider Downloader
 ```
 
 On the GitHub website, the equivalent is **Releases > Draft a new release**:
@@ -41916,7 +41916,7 @@ Before uploading AppImage, `.deb`, or `.rpm` assets, define supported Linux
 versions/architectures and implement a packaging workflow. It must include
 runtime dependencies, browser provisioning, desktop integration, CLI invocation,
 and normal sandbox support. Test the actual artifacts on the declared targets.
-Installer desktop entries must also reference the K-Downloader icon; window
+Installer desktop entries must also reference the Khinsider Downloader icon; window
 icon configuration alone does not install a desktop launcher or override every
 Linux desktop's taskbar grouping behavior.
 
@@ -41944,20 +41944,20 @@ npm test -- tests/window-state.test.ts && npm run build
 
 ```
 
-> k-downloader@0.1.0 pretest
+> khinsider-downloader@0.1.0 pretest
 > npm run build:gui
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run tests/window-state.test.ts
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  1 passed (1)
@@ -41966,7 +41966,7 @@ Built Electron main/preload and local renderer into dist/.
    Duration  6.26s (tests 91%, import 8%, transform 1%)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 ```
 </details></tool-use>
@@ -41988,10 +41988,10 @@ Checked `generate-icon.mjs`, `build-gui.mjs`, `main.ts`, `window-state.test.ts`,
 
 ```
 [
-  "/home/kel/dev/K-Downloader/scripts/generate-icon.mjs",
-  "/home/kel/dev/K-Downloader/scripts/build-gui.mjs",
-  "/home/kel/dev/K-Downloader/src/electron/main.ts",
-  "/home/kel/dev/K-Downloader/tests/window-state.test.ts"
+  "/home/kel/dev/Khinsider-Downloader/scripts/generate-icon.mjs",
+  "/home/kel/dev/Khinsider-Downloader/scripts/build-gui.mjs",
+  "/home/kel/dev/Khinsider-Downloader/src/electron/main.ts",
+  "/home/kel/dev/Khinsider-Downloader/tests/window-state.test.ts"
 ]
 ```
 
@@ -41999,16 +41999,16 @@ Checked `generate-icon.mjs`, `build-gui.mjs`, `main.ts`, `window-state.test.ts`,
 **Result:**
 
 ```
-<errors path="/home/kel/dev/K-Downloader/scripts/generate-icon.mjs">
+<errors path="/home/kel/dev/Khinsider-Downloader/scripts/generate-icon.mjs">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/scripts/build-gui.mjs">
+<errors path="/home/kel/dev/Khinsider-Downloader/scripts/build-gui.mjs">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/src/electron/main.ts">
+<errors path="/home/kel/dev/Khinsider-Downloader/src/electron/main.ts">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/tests/window-state.test.ts">
+<errors path="/home/kel/dev/Khinsider-Downloader/tests/window-state.test.ts">
 No errors found
 </errors>
 ```
@@ -42040,13 +42040,13 @@ npm run gui
 ```
 Command is running in terminal with ID=f9441e43-303e-4c28-964c-43c14b72e162
  The command became idle with output:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run gui
 
-> k-downloader@0.1.0 gui
+> khinsider-downloader@0.1.0 gui
 > npm run build:gui && electron dist/electron/main.cjs
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -42078,7 +42078,7 @@ This note is not a signal to end the turn — pick one of the actions below and 
 
 _**Agent (copilot/auto)**_
 
-Created `assets/k-downloader.png`, matching the titlebar’s Mint K mark. The GUI build includes it, and Electron uses it as the window/taskbar icon.
+Created `assets/khinsider-downloader.png`, matching the titlebar’s Mint K mark. The GUI build includes it, and Electron uses it as the window/taskbar icon.
 
 Image-loading tests and build pass. The updated GUI is open. Future installer desktop entries will also need to reference this icon.
 
@@ -42088,13 +42088,13 @@ _**User (2026-10-12 18:11:07Z)**_
 
 [Terminal f9441e43-303e-4c28-964c-43c14b72e162 notification: command completed. The terminal has been cleaned up.]
 Terminal output:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run gui
 
-> k-downloader@0.1.0 gui
+> khinsider-downloader@0.1.0 gui
 > npm run build:gui && electron dist/electron/main.cjs
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -42130,7 +42130,7 @@ The GUI closed without reported errors. Reopen it with `npm run gui`.
 _**User (2026-10-12 18:13:22Z)**_
 
 now also create a Help panel that works like the Changelog panel. It should appear from the right side when Help is selected from the More menu (directly under the Changelog menu item).
-Create Help content that is presented in that panel. The content should include complete help on all features of K-Downloader. Sections within the help content should be collapsible/expandable.
+Create Help content that is presented in that panel. The content should include complete help on all features of Khinsider Downloader. Sections within the help content should be collapsible/expandable.
 
 ---
 
@@ -42154,7 +42154,7 @@ Read `changelog.ts`
 **Input:**
 
 - endLine: `180`
-- filePath: `/home/kel/dev/K-Downloader/src/changelog.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/src/changelog.ts`
 - startLine: `1`
 
 **Result:**
@@ -42215,7 +42215,7 @@ Read `renderer.ts`, lines 1 to 108
 **Input:**
 
 - endLine: `108`
-- filePath: `/home/kel/dev/K-Downloader/src/renderer.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/src/renderer.ts`
 - startLine: `1`
 
 **Result:**
@@ -42265,14 +42265,14 @@ Read `renderer.ts`, lines 210 to 270
 **Input:**
 
 - endLine: `270`
-- filePath: `/home/kel/dev/K-Downloader/src/renderer.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/src/renderer.ts`
 - startLine: `210`
 
 **Result:**
 
 ```
-closeWindowButton.addEventListener("click", () => { void window.kDownloader.closeWindow(); });
-window.kDownloader.onWindowState(({ maximized }) => updateMaximizeButton(maximized));
+closeWindowButton.addEventListener("click", () => { void window.khinsiderDownloader.closeWindow(); });
+window.khinsiderDownloader.onWindowState(({ maximized }) => updateMaximizeButton(maximized));
 
 moreButton.addEventListener("click", () => {
   moreMenu.hidden = !moreMenu.hidden;
@@ -42283,7 +42283,7 @@ appearanceNav.addEventListener("click", () => selectSettingsPage("appearance"));
 shortcutsNav.addEventListener("click", () => selectSettingsPage("shortcuts"));
 restoreBoundsMenuItem.addEventListener("click", () => {
   closeMoreMenu();
-  void window.kDownloader.restoreWindowBounds();
+  void window.khinsiderDownloader.restoreWindowBounds();
 });
 changelogMenuItem.addEventListener("click", () => {
   closeMoreMenu();
@@ -42297,7 +42297,7 @@ document.addEventListener("keydown", (event) => {
   if (event.ctrlKey && ["0", "-", "_", "=", "+"].includes(event.key)) {
     event.preventDefault();
     const direction = event.key === "0" ? "reset" : ["-", "_"].includes(event.key) ? "out" : "in";
-    void window.kDownloader.zoom(direction);
+    void window.khinsiderDownloader.zoom(direction);
   } else if ((event.ctrlKey || event.metaKey) && event.key === ",") {
     event.preventDefault();
     setSettingsOpen(!settingsOpen);
@@ -42312,7 +42312,7 @@ document.addEventListener("keydown", (event) => {
 document.addEventListener("wheel", (event) => {
   if (!event.ctrlKey || event.deltaY === 0) return;
   event.preventDefault();
-  void window.kDownloader.zoom(event.deltaY < 0 ? "in" : "out");
+  void window.khinsiderDownloader.zoom(event.deltaY < 0 ? "in" : "out");
 }, { passive: false });
 
 inspectButton.addEventListener("click", async () => {
@@ -42333,13 +42333,13 @@ Read `index.html`, lines 16 to 52
 **Input:**
 
 - endLine: `52`
-- filePath: `/home/kel/dev/K-Downloader/gui/index.html`
+- filePath: `/home/kel/dev/Khinsider-Downloader/gui/index.html`
 - startLine: `16`
 
 **Result:**
 
 ```
-          <div class="brand-name">K-Downloader</div>
+          <div class="brand-name">Khinsider Downloader</div>
         </div>
         <div class="titlebar-actions">
           <div id="more-menu-wrap" class="more-menu-wrap">
@@ -42361,7 +42361,7 @@ Read `index.html`, lines 16 to 52
                 <span>Changelog</span>
               </button>
               <div class="more-menu-separator" role="separator"></div>
-              <div class="more-menu-info"><span>K-Downloader</span><span id="menu-app-version"></span></div>
+              <div class="more-menu-info"><span>Khinsider Downloader</span><span id="menu-app-version"></span></div>
             </div>
           </div>
           <nav class="window-controls" aria-label="Window controls">
@@ -42386,7 +42386,7 @@ Read `index.html`, lines 205 to 223
 **Input:**
 
 - endLine: `265`
-- filePath: `/home/kel/dev/K-Downloader/gui/index.html`
+- filePath: `/home/kel/dev/Khinsider-Downloader/gui/index.html`
 - startLine: `205`
 
 **Result:**
@@ -42424,7 +42424,7 @@ Read `styles.css`, lines 269 to 288
 **Input:**
 
 - endLine: `325`
-- filePath: `/home/kel/dev/K-Downloader/gui/styles.css`
+- filePath: `/home/kel/dev/Khinsider-Downloader/gui/styles.css`
 - startLine: `269`
 
 **Result:**
@@ -42581,20 +42581,20 @@ npm test -- tests/window-state.test.ts && npm run build
 
 ```
 
-> k-downloader@0.1.0 pretest
+> khinsider-downloader@0.1.0 pretest
 > npm run build:gui
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run tests/window-state.test.ts
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  1 passed (1)
@@ -42603,7 +42603,7 @@ Built Electron main/preload and local renderer into dist/.
    Duration  5.06s (tests 93%, import 7%)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 ```
 </details></tool-use>
@@ -42620,7 +42620,7 @@ _**Agent (copilot/auto)**_
 @@ lines 1-1 @@
 
 ````
-# K-Downloader Help
+# Khinsider Downloader Help
 
 ## Getting Started
 
@@ -42674,7 +42674,7 @@ between tracks in the same album.
 
 ## Destination and Disc Folders
 
-The default root is `~/Music/K-Downloader`. Type another root in **Save album
+The default root is `~/Music/Khinsider Downloader`. Type another root in **Save album
 under** or use the folder-picker button. The app creates an album-title folder
 under that root. Select the root, not a pre-created album folder, to avoid
 unintentional nesting.
@@ -42972,7 +42972,7 @@ await Promise.all([
 await Promise.all([
   cp(resolve(root, "gui/index.html"), resolve(output, "gui/index.html")),
   cp(resolve(root, "gui/styles.css"), resolve(output, "gui/styles.css")),
-  cp(resolve(root, "assets/k-downloader.png"), resolve(output, "assets/k-downloader.png")),
+  cp(resolve(root, "assets/khinsider-downloader.png"), resolve(output, "assets/khinsider-downloader.png")),
 ]);
 console.log("Built Electron main/preload and local renderer into dist/.");
 ```
@@ -43000,7 +43000,7 @@ _**Agent (copilot/auto)**_
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'" />
-    <title>K-Downloader</title>
+    <title>Khinsider Downloader</title>
     <link rel="stylesheet" href="./styles.css" />
     <script defer src="./renderer.js"></script>
   </head>
@@ -43009,7 +43009,7 @@ _**Agent (copilot/auto)**_
       <header class="topbar">
         <div class="brand-lockup">
           <div class="app-icon" aria-hidden="true">K</div>
-          <div class="brand-name">K-Downloader</div>
+          <div class="brand-name">Khinsider Downloader</div>
         </div>
         <div class="titlebar-actions">
           <div id="more-menu-wrap" class="more-menu-wrap">
@@ -43035,7 +43035,7 @@ _**Agent (copilot/auto)**_
                 <span>Help</span>
               </button>
               <div class="more-menu-separator" role="separator"></div>
-              <div class="more-menu-info"><span>K-Downloader</span><span id="menu-app-version"></span></div>
+              <div class="more-menu-info"><span>Khinsider Downloader</span><span id="menu-app-version"></span></div>
             </div>
           </div>
           <nav class="window-controls" aria-label="Window controls">
@@ -43461,13 +43461,13 @@ function setBusy(value: boolean): void {
   if (inspection) renderTracks();
 }
 
-minimizeWindowButton.addEventListener("click", () => { void window.kDownloader.minimizeWindow(); });
+minimizeWindowButton.addEventListener("click", () => { void window.khinsiderDownloader.minimizeWindow(); });
 maximizeWindowButton.addEventListener("click", async () => {
-  const maximized = await window.kDownloader.toggleMaximizeWindow();
+  const maximized = await window.khinsiderDownloader.toggleMaximizeWindow();
   updateMaximizeButton(maximized);
 });
-closeWindowButton.addEventListener("click", () => { void window.kDownloader.closeWindow(); });
-window.kDownloader.onWindowState(({ maximized }) => updateMaximizeButton(maximized));
+closeWindowButton.addEventListener("click", () => { void window.khinsiderDownloader.closeWindow(); });
+window.khinsiderDownloader.onWindowState(({ maximized }) => updateMaximizeButton(maximized));
 
 moreButton.addEventListener("click", () => {
   moreMenu.hidden = !moreMenu.hidden;
@@ -43478,7 +43478,7 @@ appearanceNav.addEventListener("click", () => selectSettingsPage("appearance"));
 shortcutsNav.addEventListener("click", () => selectSettingsPage("shortcuts"));
 restoreBoundsMenuItem.addEventListener("click", () => {
   closeMoreMenu();
-  void window.kDownloader.restoreWindowBounds();
+  void window.khinsiderDownloader.restoreWindowBounds();
 });
 changelogMenuItem.addEventListener("click", () => {
   closeMoreMenu();
@@ -43498,7 +43498,7 @@ document.addEventListener("keydown", (event) => {
   if (event.ctrlKey && ["0", "-", "_", "=", "+"].includes(event.key)) {
     event.preventDefault();
     const direction = event.key === "0" ? "reset" : ["-", "_"].includes(event.key) ? "out" : "in";
-    void window.kDownloader.zoom(direction);
+    void window.khinsiderDownloader.zoom(direction);
   } else if ((event.ctrlKey || event.metaKey) && event.key === ",") {
     event.preventDefault();
     setSettingsOpen(!settingsOpen);
@@ -43514,7 +43514,7 @@ document.addEventListener("keydown", (event) => {
 document.addEventListener("wheel", (event) => {
   if (!event.ctrlKey || event.deltaY === 0) return;
   event.preventDefault();
-  void window.kDownloader.zoom(event.deltaY < 0 ? "in" : "out");
+  void window.khinsiderDownloader.zoom(event.deltaY < 0 ? "in" : "out");
 }, { passive: false });
 
 inspectButton.addEventListener("click", async () => {
@@ -43536,7 +43536,7 @@ inspectButton.addEventListener("click", async () => {
   setBusy(true);
   updateInspectionIndicator({ active: true, browserReady: false, browserVisible: false });
   try {
-    inspection = await window.kDownloader.inspect(albumUrl);
+    inspection = await window.khinsiderDownloader.inspect(albumUrl);
     if (!inspection) {
       setStatus("Inspection canceled");
       return;
@@ -43562,7 +43562,7 @@ inspectButton.addEventListener("click", async () => {
 inspectionIndicator.addEventListener("click", async () => {
   if (inspectionIndicator.disabled) return;
   try {
-    inspectionBrowserVisible = await window.kDownloader.toggleInspectionBrowser();
+    inspectionBrowserVisible = await window.khinsiderDownloader.toggleInspectionBrowser();
     inspectionIndicator.setAttribute("aria-pressed", String(inspectionBrowserVisible));
     inspectionIndicatorText.textContent = inspectionBrowserVisible ? "Hide browser" : "Show browser";
   } catch (error) {
@@ -43570,10 +43570,10 @@ inspectionIndicator.addEventListener("click", async () => {
   }
 });
 
-window.kDownloader.onInspectionState(updateInspectionIndicator);
+window.khinsiderDownloader.onInspectionState(updateInspectionIndicator);
 
 browseButton.addEventListener("click", async () => {
-  const selected = await window.kDownloader.chooseOutput();
+  const selected = await window.khinsiderDownloader.chooseOutput();
   if (selected) outputInput.value = selected;
 });
 
@@ -43592,7 +43592,7 @@ downloadButton.addEventListener("click", async () => {
   setBusy(true);
   setStatus("Downloading", "working");
   try {
-    const result = await window.kDownloader.download({
+    const result = await window.khinsiderDownloader.download({
       policy: currentPolicy(),
       outputRoot: outputInput.value,
       discLabel: discLabelSelect.value === "Disc" ? "Disc" : "CD",
@@ -43618,7 +43618,7 @@ cancelButton.addEventListener("click", async () => {
     inspectionIndicatorText.textContent = "Canceling…";
   } else setStatus("Canceling active track…", "working");
   try {
-    await window.kDownloader.cancel();
+    await window.khinsiderDownloader.cancel();
   } catch (error) {
     errorText.textContent = error instanceof Error ? error.message : String(error);
     inspectionCancelRequested = false;
@@ -43626,7 +43626,7 @@ cancelButton.addEventListener("click", async () => {
   }
 });
 
-window.kDownloader.onProgress((event: GuiProgress) => {
+window.khinsiderDownloader.onProgress((event: GuiProgress) => {
   progress.max = event.totalTracks;
   progress.value = event.completedTracks;
   progressText.textContent = event.stage === "track-start"
@@ -43638,7 +43638,7 @@ window.kDownloader.onProgress((event: GuiProgress) => {
         : "Canceled";
 });
 
-void window.kDownloader.defaultOutputRoot().then((value) => { outputInput.value = value; });
+void window.khinsiderDownloader.defaultOutputRoot().then((value) => { outputInput.value = value; });
 ```
 </details></tool-use>
 
@@ -43987,11 +43987,11 @@ npm run build && npm run build:gui
 
 ```
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -44039,7 +44039,7 @@ describe("window geometry", () => {
 
 describe("desktop More menu and zoom", () => {
   it("renders and resizes the changelog, zooms, and persists window bounds", async () => {
-    const userData = await mkdtemp(resolve(tmpdir(), "k-downloader-window-test-"));
+    const userData = await mkdtemp(resolve(tmpdir(), "khinsider-downloader-window-test-"));
     const require = createRequire(import.meta.url);
     const launch = () => electron.launch({
       executablePath: require("electron"),
@@ -44052,7 +44052,7 @@ describe("desktop More menu and zoom", () => {
       page.setDefaultTimeout(5_000);
       await page.waitForFunction(() => document.documentElement.dataset.mode);
       const icon = await app.evaluate(({ nativeImage }) => {
-        const image = nativeImage.createFromPath("dist/assets/k-downloader.png");
+        const image = nativeImage.createFromPath("dist/assets/khinsider-downloader.png");
         const bitmap = image.getBitmap();
         return { empty: image.isEmpty(), size: image.getSize(), firstAlpha: bitmap[3], clippedAlpha: bitmap[bitmap.length - 1] };
       });
@@ -44060,14 +44060,14 @@ describe("desktop More menu and zoom", () => {
       expect(icon.size).toEqual({ width: 512, height: 512 });
       expect(icon.firstAlpha).toBe(255);
       expect(icon.clippedAlpha).toBe(0);
-      expect(await readFile(resolve("dist/assets/k-downloader.png"))).toEqual(await readFile(resolve("assets/k-downloader.png")));
+      expect(await readFile(resolve("dist/assets/khinsider-downloader.png"))).toEqual(await readFile(resolve("assets/khinsider-downloader.png")));
       await page.getByRole("button", { name: "More options", exact: true }).click();
       expect((await page.getByRole("menuitem").allTextContents()).map((text) => text.replace(/\s+/g, " ").trim())).toEqual([
         "Restore Size/Position", "Settings Ctrl+,", "Changelog", "Help",
       ]);
       const manifest = JSON.parse(await readFile(resolve("package.json"), "utf8"));
       expect(await page.locator("#menu-app-version").textContent()).toBe(manifest.version);
-      expect(await page.locator(".more-menu-info").innerText()).toContain("K-Downloader");
+      expect(await page.locator(".more-menu-info").innerText()).toContain("Khinsider Downloader");
       expect(await page.locator(".more-menu-separator").isVisible()).toBe(true);
       await page.getByRole("menuitem", { name: "Changelog", exact: true }).click();
       await page.locator("#changelog-drawer").waitFor({ state: "visible" });
@@ -44083,7 +44083,7 @@ describe("desktop More menu and zoom", () => {
       await page.mouse.move(1, handle.y + 40);
       await page.mouse.up();
       expect(await page.locator("#changelog-drawer").evaluate((element) => element.getBoundingClientRect().width / innerWidth)).toBeCloseTo(.4, 2);
-      await page.screenshot({ path: "/tmp/k-downloader-changelog.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-changelog.png" });
       await page.keyboard.press("Escape");
       expect(await page.locator("#changelog-drawer").getAttribute("data-open")).toBe("false");
       await page.getByRole("button", { name: "More options", exact: true }).click();
@@ -44121,9 +44121,9 @@ describe("desktop More menu and zoom", () => {
       await page.mouse.up();
       expect(await page.locator("#help-drawer").evaluate((element) => element.getBoundingClientRect().width / innerWidth)).toBeCloseTo(.4, 2);
       await page.locator("#help-content summary").first().click();
-      await page.screenshot({ path: "/tmp/k-downloader-help-1120.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-help-1120.png" });
       await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].setSize(760, 620));
-      await page.screenshot({ path: "/tmp/k-downloader-help-760.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-help-760.png" });
       expect(await page.locator("#help-content").evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
       await page.keyboard.press("Escape");
       expect(await page.locator("#help-drawer").getAttribute("data-open")).toBe("false");
@@ -44187,7 +44187,7 @@ describe("desktop More menu and zoom", () => {
 
 describe("single-instance desktop", () => {
   it("rejects a second launch, restores the primary window, and shows a confirmation", async () => {
-    const userData = await mkdtemp(resolve(tmpdir(), "k-downloader-instance-test-"));
+    const userData = await mkdtemp(resolve(tmpdir(), "khinsider-downloader-instance-test-"));
     const require = createRequire(import.meta.url);
     const executablePath: string = require("electron");
     const args = [resolve("dist/electron/main.cjs"), `--user-data-dir=${userData}`];
@@ -44222,7 +44222,7 @@ describe("single-instance desktop", () => {
       }));
       expect(state.windowCount).toBe(1);
       expect(state.visible).toBe(true);
-      expect(state.notice.message).toBe("K-Downloader is already running.");
+      expect(state.notice.message).toBe("Khinsider Downloader is already running.");
       expect(state.notice.buttons).toEqual(["Show running app"]);
     } finally {
       if (secondary && secondary.exitCode === null) secondary.kill();
@@ -44301,7 +44301,7 @@ describe("appearance controls in Chromium", () => {
       await page.addInitScript(() => {
         let inspectionListener: ((state: GuiInspectionState) => void) | undefined;
         let browserVisible = false;
-        window.kDownloader = {
+        window.khinsiderDownloader = {
           restoreWindowBounds: async () => {},
           zoom: async () => 1,
           systemTheme: async () => matchMedia("(prefers-color-scheme: dark)").matches,
@@ -44311,7 +44311,7 @@ describe("appearance controls in Chromium", () => {
             media.addEventListener("change", handler);
             return () => media.removeEventListener("change", handler);
           },
-          defaultOutputRoot: async () => "/tmp/K-Downloader",
+          defaultOutputRoot: async () => "/tmp/Khinsider Downloader",
           chooseOutput: async () => undefined,
           inspect: async () => {
             let canceled = false;
@@ -44380,7 +44380,7 @@ describe("appearance controls in Chromium", () => {
       ]);
       for (const viewport of [{ width: 1120, height: 780 }, { width: 760, height: 620 }]) {
         await page.setViewportSize(viewport);
-        await page.screenshot({ path: `/tmp/k-downloader-shortcuts-${viewport.width}.png` });
+        await page.screenshot({ path: `/tmp/khinsider-downloader-shortcuts-${viewport.width}.png` });
         expect(await page.evaluate(() => {
           const content = document.querySelector<HTMLElement>(".settings-content")!;
           const footer = document.querySelector<HTMLElement>(".app-footer")!.getBoundingClientRect();
@@ -44426,11 +44426,11 @@ describe("appearance controls in Chromium", () => {
       await page.emulateMedia({ colorScheme: "light" });
       await page.emulateMedia({ colorScheme: "dark" });
       expect(await page.locator("html").getAttribute("data-mode")).toBe("light");
-      await page.screenshot({ path: "/tmp/k-downloader-appearance-light.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-appearance-light.png" });
       await page.setViewportSize({ width: 760, height: 620 });
       await page.getByRole("radio", { name: "Dark", exact: true }).check();
       await page.getByRole("radio", { name: "Mint", exact: true }).check();
-      await page.screenshot({ path: "/tmp/k-downloader-appearance-dark.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-appearance-dark.png" });
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
       await page.keyboard.press("Escape");
       await page.locator("#workspace").waitFor({ state: "visible" });
@@ -44451,7 +44451,7 @@ describe("appearance controls in Chromium", () => {
         const animation = element.getAnimations()[0];
         return animation?.playState === "running" && animation.effect?.getTiming().iterations === Infinity;
       })).toBe(true);
-      await page.screenshot({ path: "/tmp/k-downloader-single-inspection-indicator.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-single-inspection-indicator.png" });
       await page.locator("#inspection-indicator").click();
       expect(await page.locator("#inspection-indicator-text").textContent()).toBe("Hide browser");
       await page.locator("#inspection-indicator").click();
@@ -44486,7 +44486,7 @@ describe("appearance controls in Chromium", () => {
         expect(scrolled.listScrollTop).toBeGreaterThan(0);
         expect(scrolled.footerBottom).toBe(initial.footerBottom);
         expect(scrolled.transferBottom).toBe(initial.transferBottom);
-        await page.screenshot({ path: `/tmp/k-downloader-long-preview-${viewport.width}.png` });
+        await page.screenshot({ path: `/tmp/khinsider-downloader-long-preview-${viewport.width}.png` });
       }
       await page.getByRole("button", { name: "Inspect album", exact: true }).click();
       await page.locator("#inspection-indicator").waitFor({ state: "visible" });
@@ -44503,7 +44503,7 @@ describe("appearance controls in Chromium", () => {
 
 describe("Electron native theme updates", () => {
   it("updates System mode through preload but preserves explicit Light and Dark", async () => {
-    const userData = await mkdtemp(resolve(tmpdir(), "k-downloader-theme-test-"));
+    const userData = await mkdtemp(resolve(tmpdir(), "khinsider-downloader-theme-test-"));
     const require = createRequire(import.meta.url);
     const app = await electron.launch({
       executablePath: require("electron"),
@@ -44553,20 +44553,20 @@ npm test -- tests/window-state.test.ts tests/appearance.test.ts && npm run build
 
 ```
 
-> k-downloader@0.1.0 pretest
+> khinsider-downloader@0.1.0 pretest
 > npm run build:gui
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run tests/window-state.test.ts tests/appearance.test.ts
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
  ❯ tests/appearance.test.ts (6 tests | 1 failed) 3153ms
    ❯ appearance controls in Chromium (1)
@@ -44667,7 +44667,7 @@ describe("appearance controls in Chromium", () => {
       await page.addInitScript(() => {
         let inspectionListener: ((state: GuiInspectionState) => void) | undefined;
         let browserVisible = false;
-        window.kDownloader = {
+        window.khinsiderDownloader = {
           restoreWindowBounds: async () => {},
           zoom: async () => 1,
           systemTheme: async () => matchMedia("(prefers-color-scheme: dark)").matches,
@@ -44677,7 +44677,7 @@ describe("appearance controls in Chromium", () => {
             media.addEventListener("change", handler);
             return () => media.removeEventListener("change", handler);
           },
-          defaultOutputRoot: async () => "/tmp/K-Downloader",
+          defaultOutputRoot: async () => "/tmp/Khinsider Downloader",
           chooseOutput: async () => undefined,
           inspect: async () => {
             let canceled = false;
@@ -44746,7 +44746,7 @@ describe("appearance controls in Chromium", () => {
       ]);
       for (const viewport of [{ width: 1120, height: 780 }, { width: 760, height: 620 }]) {
         await page.setViewportSize(viewport);
-        await page.screenshot({ path: `/tmp/k-downloader-shortcuts-${viewport.width}.png` });
+        await page.screenshot({ path: `/tmp/khinsider-downloader-shortcuts-${viewport.width}.png` });
         expect(await page.evaluate(() => {
           const content = document.querySelector<HTMLElement>(".settings-content")!;
           const footer = document.querySelector<HTMLElement>(".app-footer")!.getBoundingClientRect();
@@ -44792,11 +44792,11 @@ describe("appearance controls in Chromium", () => {
       await page.emulateMedia({ colorScheme: "light" });
       await page.emulateMedia({ colorScheme: "dark" });
       expect(await page.locator("html").getAttribute("data-mode")).toBe("light");
-      await page.screenshot({ path: "/tmp/k-downloader-appearance-light.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-appearance-light.png" });
       await page.setViewportSize({ width: 760, height: 620 });
       await page.getByRole("radio", { name: "Dark", exact: true }).check();
       await page.getByRole("radio", { name: "Mint", exact: true }).check();
-      await page.screenshot({ path: "/tmp/k-downloader-appearance-dark.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-appearance-dark.png" });
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
       await page.keyboard.press("Escape");
       await page.locator("#workspace").waitFor({ state: "visible" });
@@ -44817,7 +44817,7 @@ describe("appearance controls in Chromium", () => {
         const animation = element.getAnimations()[0];
         return animation?.playState === "running" && animation.effect?.getTiming().iterations === Infinity;
       })).toBe(true);
-      await page.screenshot({ path: "/tmp/k-downloader-single-inspection-indicator.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-single-inspection-indicator.png" });
       await page.locator("#inspection-indicator").click();
       expect(await page.locator("#inspection-indicator-text").textContent()).toBe("Hide browser");
       await page.locator("#inspection-indicator").click();
@@ -44852,7 +44852,7 @@ describe("appearance controls in Chromium", () => {
         expect(scrolled.listScrollTop).toBeGreaterThan(0);
         expect(scrolled.footerBottom).toBe(initial.footerBottom);
         expect(scrolled.transferBottom).toBe(initial.transferBottom);
-        await page.screenshot({ path: `/tmp/k-downloader-long-preview-${viewport.width}.png` });
+        await page.screenshot({ path: `/tmp/khinsider-downloader-long-preview-${viewport.width}.png` });
       }
       await page.getByRole("button", { name: "Inspect album", exact: true }).click();
       await page.locator("#inspection-indicator").waitFor({ state: "visible" });
@@ -44869,7 +44869,7 @@ describe("appearance controls in Chromium", () => {
 
 describe("Electron native theme updates", () => {
   it("updates System mode through preload but preserves explicit Light and Dark", async () => {
-    const userData = await mkdtemp(resolve(tmpdir(), "k-downloader-theme-test-"));
+    const userData = await mkdtemp(resolve(tmpdir(), "khinsider-downloader-theme-test-"));
     const require = createRequire(import.meta.url);
     const app = await electron.launch({
       executablePath: require("electron"),
@@ -44919,20 +44919,20 @@ npm test -- tests/window-state.test.ts tests/appearance.test.ts && npm run build
 
 ```
 
-> k-downloader@0.1.0 pretest
+> khinsider-downloader@0.1.0 pretest
 > npm run build:gui
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run tests/window-state.test.ts tests/appearance.test.ts
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  2 passed (2)
@@ -44941,7 +44941,7 @@ Built Electron main/preload and local renderer into dist/.
    Duration  6.72s (tests 92%, import 7%, transform 1%)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 ```
 </details></tool-use>
@@ -44963,12 +44963,12 @@ Checked `drawer.ts`, `changelog.ts`, `help.ts`, `renderer.ts`, `window-state.tes
 
 ```
 [
-  "/home/kel/dev/K-Downloader/src/drawer.ts",
-  "/home/kel/dev/K-Downloader/src/changelog.ts",
-  "/home/kel/dev/K-Downloader/src/help.ts",
-  "/home/kel/dev/K-Downloader/src/renderer.ts",
-  "/home/kel/dev/K-Downloader/tests/window-state.test.ts",
-  "/home/kel/dev/K-Downloader/tests/appearance.test.ts"
+  "/home/kel/dev/Khinsider-Downloader/src/drawer.ts",
+  "/home/kel/dev/Khinsider-Downloader/src/changelog.ts",
+  "/home/kel/dev/Khinsider-Downloader/src/help.ts",
+  "/home/kel/dev/Khinsider-Downloader/src/renderer.ts",
+  "/home/kel/dev/Khinsider-Downloader/tests/window-state.test.ts",
+  "/home/kel/dev/Khinsider-Downloader/tests/appearance.test.ts"
 ]
 ```
 
@@ -44976,22 +44976,22 @@ Checked `drawer.ts`, `changelog.ts`, `help.ts`, `renderer.ts`, `window-state.tes
 **Result:**
 
 ```
-<errors path="/home/kel/dev/K-Downloader/src/drawer.ts">
+<errors path="/home/kel/dev/Khinsider-Downloader/src/drawer.ts">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/src/changelog.ts">
+<errors path="/home/kel/dev/Khinsider-Downloader/src/changelog.ts">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/src/help.ts">
+<errors path="/home/kel/dev/Khinsider-Downloader/src/help.ts">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/src/renderer.ts">
+<errors path="/home/kel/dev/Khinsider-Downloader/src/renderer.ts">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/tests/window-state.test.ts">
+<errors path="/home/kel/dev/Khinsider-Downloader/tests/window-state.test.ts">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/tests/appearance.test.ts">
+<errors path="/home/kel/dev/Khinsider-Downloader/tests/appearance.test.ts">
 No errors found
 </errors>
 ```
@@ -45002,11 +45002,11 @@ _**Agent (copilot/auto)**_
 <tool-use data-tool-type="generic" data-tool-name="view_image"><details>
 <summary>Tool use: **view_image**</summary>
 
-Viewed image `k-downloader-help-1120.png`
+Viewed image `khinsider-downloader-help-1120.png`
 
 **Input:**
 
-- filePath: `/tmp/k-downloader-help-1120.png`
+- filePath: `/tmp/khinsider-downloader-help-1120.png`
 </details></tool-use>
 
 _**Agent (copilot/auto)**_
@@ -45014,11 +45014,11 @@ _**Agent (copilot/auto)**_
 <tool-use data-tool-type="generic" data-tool-name="view_image"><details>
 <summary>Tool use: **view_image**</summary>
 
-Viewed image `k-downloader-help-760.png`
+Viewed image `khinsider-downloader-help-760.png`
 
 **Input:**
 
-- filePath: `/tmp/k-downloader-help-760.png`
+- filePath: `/tmp/khinsider-downloader-help-760.png`
 </details></tool-use>
 
 _**Agent (copilot/auto)**_
@@ -45033,9 +45033,9 @@ _**Agent (copilot/auto)**_
 @@ lines 1-126 @@
 
 ````
-# K-Downloader
+# Khinsider Downloader
 
-K-Downloader is a Linux-first KHInsider album downloader. The current slice
+Khinsider Downloader is a Linux-first KHInsider album downloader. The current slice
 implements public single-album discovery, format preview and policy, sequential
 streaming, and manifest-backed reruns. Multi-album queues, artwork, the GUI,
 optional account features, and packaging are not implemented yet.
@@ -45063,7 +45063,7 @@ access methods.
 
 The CLI previews the selected formats before starting any transfer. The default
 format policy prefers lossless, falling back to MP3 when needed. The default
-destination is `~/Music/K-Downloader`.
+destination is `~/Music/Khinsider Downloader`.
 
 ```sh
 npm run download -- 'https://downloads.khinsider.com/game-soundtracks/album/unreal-ii-the-awakening-original-soundtrack'
@@ -45102,7 +45102,7 @@ Paste one album URL and choose **Inspect album**. A Chromium inspection window
 starts minimized while an in-progress indicator appears in the app; click that
 indicator to show or hide the browser. Review the per-track format preview, choose the
 destination and format policy, then select **Download**. The default destination
-is `~/Music/K-Downloader`. **Cancel active download** stops the current transfer
+is `~/Music/Khinsider Downloader`. **Cancel active download** stops the current transfer
 and prevents later tracks from starting.
 
 While inspection is running, the same button becomes **Cancel inspection**.
@@ -45252,7 +45252,7 @@ npm audit
   from [package.json](../package.json). Rebuild after changing either file.
 - Help content is embedded from [HELP.md](HELP.md). Its level-two headings
   become expandable sections in the Help drawer. Rebuild after editing it.
-- The build copies [assets/k-downloader.png](../assets/k-downloader.png) into
+- The build copies [assets/khinsider-downloader.png](../assets/khinsider-downloader.png) into
   `dist/assets/`; Electron uses it as the window/taskbar icon. Regenerate the
   source icon with `node scripts/generate-icon.mjs` if the brand mark changes.
 - `npm audit` reports dependency advisories. Review and resolve release-blocking
@@ -45320,7 +45320,7 @@ exists (`git tag --list "$TAG"`); inspect it rather than moving or overwriting i
 Create and push the annotated tag:
 
 ```sh
-git tag -a "$TAG" -m "K-Downloader $VERSION"
+git tag -a "$TAG" -m "Khinsider Downloader $VERSION"
 git push origin "$TAG"
 ```
 
@@ -45329,10 +45329,10 @@ notes source:
 
 ```sh
 gh release create "$TAG" \
-  --repo kelmankenberg/K-Downloader \
+  --repo kelmankenberg/Khinsider Downloader \
   --verify-tag \
   --draft \
-  --title "K-Downloader $VERSION" \
+  --title "Khinsider Downloader $VERSION" \
   --notes-file changelog.md
 ```
 
@@ -45345,9 +45345,9 @@ and prominently state **source-only release; no Linux installers included**.
 Open the draft, review its tag, notes, and release type, then publish:
 
 ```sh
-gh release view "$TAG" --repo kelmankenberg/K-Downloader --web
-gh release edit "$TAG" --repo kelmankenberg/K-Downloader --draft=false
-gh release view "$TAG" --repo kelmankenberg/K-Downloader
+gh release view "$TAG" --repo kelmankenberg/Khinsider Downloader --web
+gh release edit "$TAG" --repo kelmankenberg/Khinsider Downloader --draft=false
+gh release view "$TAG" --repo kelmankenberg/Khinsider Downloader
 ```
 
 On the GitHub website, the equivalent is **Releases > Draft a new release**:
@@ -45364,7 +45364,7 @@ Before uploading AppImage, `.deb`, or `.rpm` assets, define supported Linux
 versions/architectures and implement a packaging workflow. It must include
 runtime dependencies, browser provisioning, desktop integration, CLI invocation,
 and normal sandbox support. Test the actual artifacts on the declared targets.
-Installer desktop entries must also reference the K-Downloader icon; window
+Installer desktop entries must also reference the Khinsider Downloader icon; window
 icon configuration alone does not install a desktop launcher or override every
 Linux desktop's taskbar grouping behavior.
 
@@ -45464,20 +45464,20 @@ npm test && npm run build
 
 ```
 
-> k-downloader@0.1.0 pretest
+> khinsider-downloader@0.1.0 pretest
 > npm run build:gui
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  7 passed (7)
@@ -45486,7 +45486,7 @@ Built Electron main/preload and local renderer into dist/.
    Duration  6.74s (tests 86%, import 13%, transform 1%)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 ```
 </details></tool-use>
@@ -45513,13 +45513,13 @@ npm run gui
 ```
 Command is running in terminal with ID=fbc69ba9-005e-4e6a-b887-8c40aceb7922
  The command became idle with output:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run gui
 
-> k-downloader@0.1.0 gui
+> khinsider-downloader@0.1.0 gui
 > npm run build:gui && electron dist/electron/main.cjs
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -45575,9 +45575,9 @@ what is the best method for users to submit app issues? Is this done through git
 
 _**Agent (copilot/auto)**_
 
-Yes. **GitHub Issues** is the best fit for K-Downloader:
+Yes. **GitHub Issues** is the best fit for Khinsider Downloader:
 
-https://github.com/kelmankenberg/K-Downloader/issues
+https://github.com/kelmankenberg/Khinsider-Downloader/issues
 
 I recommend a **Report an Issue** item in the More menu that opens GitHub in the user’s browser, plus issue templates for **Bug Report** and **Feature Request**.
 
@@ -45607,16 +45607,16 @@ Read `preload.ts`
 **Input:**
 
 - endLine: `90`
-- filePath: `/home/kel/dev/K-Downloader/src/electron/preload.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/src/electron/preload.ts`
 - startLine: `1`
 
 **Result:**
 
 ```
 import { contextBridge, ipcRenderer } from "electron";
-import type { GuiDownloadRequest, GuiInspectionState, GuiProgress, GuiWindowState, KDownloaderApi } from "../gui-types.js";
+import type { GuiDownloadRequest, GuiInspectionState, GuiProgress, GuiWindowState, KhinsiderDownloaderApi } from "../gui-types.js";
 
-const api: KDownloaderApi = {
+const api: KhinsiderDownloaderApi = {
   restoreWindowBounds: () => ipcRenderer.invoke("window:restore-bounds"),
   zoom: (direction) => ipcRenderer.invoke("window:zoom", direction),
   systemTheme: () => ipcRenderer.invoke("appearance:system-theme"),
@@ -45730,7 +45730,7 @@ Read `gui-types.ts`, lines 40 to 67
 **Input:**
 
 - endLine: `105`
-- filePath: `/home/kel/dev/K-Downloader/src/gui-types.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/src/gui-types.ts`
 - startLine: `40`
 
 **Result:**
@@ -45740,7 +45740,7 @@ Read `gui-types.ts`, lines 40 to 67
   discLabel: "CD" | "Disc";
 };
 
-export type KDownloaderApi = {
+export type KhinsiderDownloaderApi = {
   restoreWindowBounds: () => Promise<void>;
   zoom: (direction: "in" | "out" | "reset") => Promise<number>;
   systemTheme: () => Promise<boolean>;
@@ -45761,7 +45761,7 @@ export type KDownloaderApi = {
 
 declare global {
   interface Window {
-    kDownloader: KDownloaderApi;
+    khinsiderDownloader: KhinsiderDownloaderApi;
   }
 }
 ```
@@ -45777,7 +45777,7 @@ Read `index.html`, lines 20 to 52
 **Input:**
 
 - endLine: `52`
-- filePath: `/home/kel/dev/K-Downloader/gui/index.html`
+- filePath: `/home/kel/dev/Khinsider-Downloader/gui/index.html`
 - startLine: `20`
 
 **Result:**
@@ -45805,7 +45805,7 @@ Read `index.html`, lines 20 to 52
                 <span>Help</span>
               </button>
               <div class="more-menu-separator" role="separator"></div>
-              <div class="more-menu-info"><span>K-Downloader</span><span id="menu-app-version"></span></div>
+              <div class="more-menu-info"><span>Khinsider Downloader</span><span id="menu-app-version"></span></div>
             </div>
           </div>
           <nav class="window-controls" aria-label="Window controls">
@@ -45837,7 +45837,7 @@ Apply Patch
 
 ```
 *** Begin Patch
-*** Update File: /home/kel/dev/K-Downloader/src/electron/main.ts
+*** Update File: /home/kel/dev/Khinsider-Downloader/src/electron/main.ts
 @@
 -import { app, BrowserWindow, dialog, ipcMain, Menu, nativeTheme, screen } from "electron";
 +import { app, BrowserWindow, dialog, ipcMain, Menu, nativeTheme, screen, shell } from "electron";
@@ -45845,7 +45845,7 @@ Apply Patch
  function registerIpc(): void {
 +  ipcMain.handle("support:report-issue", async (event) => {
 +    const window = assertWindowSender(event.sender.id);
-+    const url = "https://github.com/kelmankenberg/K-Downloader/issues/new/choose";
++    const url = "https://github.com/kelmankenberg/Khinsider-Downloader/issues/new/choose";
 +    try {
 +      await shell.openExternal(url);
 +    } catch {
@@ -45858,15 +45858,15 @@ Apply Patch
 +      });
 +    }
 +  });
-*** Update File: /home/kel/dev/K-Downloader/src/electron/preload.ts
+*** Update File: /home/kel/dev/Khinsider-Downloader/src/electron/preload.ts
 @@
- const api: KDownloaderApi = {
+ const api: KhinsiderDownloaderApi = {
 +  reportIssue: () => ipcRenderer.invoke("support:report-issue"),
-*** Update File: /home/kel/dev/K-Downloader/src/gui-types.ts
+*** Update File: /home/kel/dev/Khinsider-Downloader/src/gui-types.ts
 @@
- export type KDownloaderApi = {
+ export type KhinsiderDownloaderApi = {
 +  reportIssue: () => Promise<void>;
-*** Update File: /home/kel/dev/K-Downloader/gui/index.html
+*** Update File: /home/kel/dev/Khinsider-Downloader/gui/index.html
 @@
                  <span>Help</span>
                </button>
@@ -45874,7 +45874,7 @@ Apply Patch
 +                <i data-lucide="bug" aria-hidden="true"></i>
 +                <span>Report an Issue</span>
 +              </button>
-*** Update File: /home/kel/dev/K-Downloader/src/renderer.ts
+*** Update File: /home/kel/dev/Khinsider-Downloader/src/renderer.ts
 @@
 -import { ArrowLeft, CircleHelp, Copy, createIcons, EllipsisVertical, Keyboard, LoaderCircle, Minus, Palette, Scan, ScrollText, Settings, Square, X } from "lucide";
 +import { ArrowLeft, Bug, CircleHelp, Copy, createIcons, EllipsisVertical, Keyboard, LoaderCircle, Minus, Palette, Scan, ScrollText, Settings, Square, X } from "lucide";
@@ -45891,7 +45891,7 @@ Apply Patch
  });
 +reportIssueMenuItem.addEventListener("click", () => {
 +  closeMoreMenu();
-+  void window.kDownloader.reportIssue();
++  void window.khinsiderDownloader.reportIssue();
 +});
 *** End Patch
 ```
@@ -45912,13 +45912,13 @@ _**User (2026-10-12 18:30:38Z)**_
 
 [Terminal fbc69ba9-005e-4e6a-b887-8c40aceb7922 notification: command completed. The terminal has been cleaned up.]
 Terminal output:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run gui
 
-> k-downloader@0.1.0 gui
+> khinsider-downloader@0.1.0 gui
 > npm run build:gui && electron dist/electron/main.cjs
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -45999,7 +45999,7 @@ let instanceNoticeOpen = false;
 let cinnamonDark: boolean | undefined;
 let stopThemeMonitor: (() => void) | undefined;
 
-app.setName("K-Downloader");
+app.setName("Khinsider Downloader");
 const primaryInstance = app.requestSingleInstanceLock();
 if (!primaryInstance) app.quit();
 else app.on("second-instance", () => {
@@ -46023,8 +46023,8 @@ async function notifyExistingInstance(): Promise<void> {
   try {
     await dialog.showMessageBox(window, {
       type: "info",
-      title: "K-Downloader is already running",
-      message: "K-Downloader is already running.",
+      title: "Khinsider Downloader is already running",
+      message: "Khinsider Downloader is already running.",
       detail: "Only one instance can run. Continue in the existing window.",
       buttons: ["Show running app"],
       defaultId: 0,
@@ -46104,7 +46104,7 @@ function sendWindowState(window: BrowserWindow): void {
 function registerIpc(): void {
   ipcMain.handle("support:report-issue", async (event) => {
     const window = assertWindowSender(event.sender.id);
-    const url = "https://github.com/kelmankenberg/K-Downloader/issues/new/choose";
+    const url = "https://github.com/kelmankenberg/Khinsider-Downloader/issues/new/choose";
     try {
       await shell.openExternal(url);
     } catch {
@@ -46271,8 +46271,8 @@ async function createWindow(): Promise<void> {
     minWidth: 760,
     minHeight: 620,
     backgroundColor: "#101715",
-    title: "K-Downloader",
-    icon: resolve(__dirname, "../assets/k-downloader.png"),
+    title: "Khinsider Downloader",
+    icon: resolve(__dirname, "../assets/khinsider-downloader.png"),
     webPreferences: {
       preload: resolve(__dirname, "preload.cjs"),
       contextIsolation: true,
@@ -46356,9 +46356,9 @@ _**Agent (copilot/auto)**_
 
 ```
 import { contextBridge, ipcRenderer } from "electron";
-import type { GuiDownloadRequest, GuiInspectionState, GuiProgress, GuiWindowState, KDownloaderApi } from "../gui-types.js";
+import type { GuiDownloadRequest, GuiInspectionState, GuiProgress, GuiWindowState, KhinsiderDownloaderApi } from "../gui-types.js";
 
-const api: KDownloaderApi = {
+const api: KhinsiderDownloaderApi = {
   reportIssue: () => ipcRenderer.invoke("support:report-issue"),
   restoreWindowBounds: () => ipcRenderer.invoke("window:restore-bounds"),
   zoom: (direction) => ipcRenderer.invoke("window:zoom", direction),
@@ -46394,7 +46394,7 @@ const api: KDownloaderApi = {
   },
 };
 
-contextBridge.exposeInMainWorld("kDownloader", api);
+contextBridge.exposeInMainWorld("khinsiderDownloader", api);
 ```
 </details></tool-use>
 
@@ -46457,7 +46457,7 @@ export type GuiDownloadRequest = {
   discLabel: "CD" | "Disc";
 };
 
-export type KDownloaderApi = {
+export type KhinsiderDownloaderApi = {
   reportIssue: () => Promise<void>;
   restoreWindowBounds: () => Promise<void>;
   zoom: (direction: "in" | "out" | "reset") => Promise<number>;
@@ -46479,7 +46479,7 @@ export type KDownloaderApi = {
 
 declare global {
   interface Window {
-    kDownloader: KDownloaderApi;
+    khinsiderDownloader: KhinsiderDownloaderApi;
   }
 }
 ```
@@ -46507,7 +46507,7 @@ _**Agent (copilot/auto)**_
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'" />
-    <title>K-Downloader</title>
+    <title>Khinsider Downloader</title>
     <link rel="stylesheet" href="./styles.css" />
     <script defer src="./renderer.js"></script>
   </head>
@@ -46516,7 +46516,7 @@ _**Agent (copilot/auto)**_
       <header class="topbar">
         <div class="brand-lockup">
           <div class="app-icon" aria-hidden="true">K</div>
-          <div class="brand-name">K-Downloader</div>
+          <div class="brand-name">Khinsider Downloader</div>
         </div>
         <div class="titlebar-actions">
           <div id="more-menu-wrap" class="more-menu-wrap">
@@ -46546,7 +46546,7 @@ _**Agent (copilot/auto)**_
                 <span>Report an Issue</span>
               </button>
               <div class="more-menu-separator" role="separator"></div>
-              <div class="more-menu-info"><span>K-Downloader</span><span id="menu-app-version"></span></div>
+              <div class="more-menu-info"><span>Khinsider Downloader</span><span id="menu-app-version"></span></div>
             </div>
           </div>
           <nav class="window-controls" aria-label="Window controls">
@@ -46973,13 +46973,13 @@ function setBusy(value: boolean): void {
   if (inspection) renderTracks();
 }
 
-minimizeWindowButton.addEventListener("click", () => { void window.kDownloader.minimizeWindow(); });
+minimizeWindowButton.addEventListener("click", () => { void window.khinsiderDownloader.minimizeWindow(); });
 maximizeWindowButton.addEventListener("click", async () => {
-  const maximized = await window.kDownloader.toggleMaximizeWindow();
+  const maximized = await window.khinsiderDownloader.toggleMaximizeWindow();
   updateMaximizeButton(maximized);
 });
-closeWindowButton.addEventListener("click", () => { void window.kDownloader.closeWindow(); });
-window.kDownloader.onWindowState(({ maximized }) => updateMaximizeButton(maximized));
+closeWindowButton.addEventListener("click", () => { void window.khinsiderDownloader.closeWindow(); });
+window.khinsiderDownloader.onWindowState(({ maximized }) => updateMaximizeButton(maximized));
 
 moreButton.addEventListener("click", () => {
   moreMenu.hidden = !moreMenu.hidden;
@@ -46990,7 +46990,7 @@ appearanceNav.addEventListener("click", () => selectSettingsPage("appearance"));
 shortcutsNav.addEventListener("click", () => selectSettingsPage("shortcuts"));
 restoreBoundsMenuItem.addEventListener("click", () => {
   closeMoreMenu();
-  void window.kDownloader.restoreWindowBounds();
+  void window.khinsiderDownloader.restoreWindowBounds();
 });
 changelogMenuItem.addEventListener("click", () => {
   closeMoreMenu();
@@ -47004,7 +47004,7 @@ helpMenuItem.addEventListener("click", () => {
 });
 reportIssueMenuItem.addEventListener("click", () => {
   closeMoreMenu();
-  void window.kDownloader.reportIssue();
+  void window.khinsiderDownloader.reportIssue();
 });
 closeSettingsButton.addEventListener("click", () => setSettingsOpen(false));
 document.addEventListener("click", (event) => {
@@ -47014,7 +47014,7 @@ document.addEventListener("keydown", (event) => {
   if (event.ctrlKey && ["0", "-", "_", "=", "+"].includes(event.key)) {
     event.preventDefault();
     const direction = event.key === "0" ? "reset" : ["-", "_"].includes(event.key) ? "out" : "in";
-    void window.kDownloader.zoom(direction);
+    void window.khinsiderDownloader.zoom(direction);
   } else if ((event.ctrlKey || event.metaKey) && event.key === ",") {
     event.preventDefault();
     setSettingsOpen(!settingsOpen);
@@ -47030,7 +47030,7 @@ document.addEventListener("keydown", (event) => {
 document.addEventListener("wheel", (event) => {
   if (!event.ctrlKey || event.deltaY === 0) return;
   event.preventDefault();
-  void window.kDownloader.zoom(event.deltaY < 0 ? "in" : "out");
+  void window.khinsiderDownloader.zoom(event.deltaY < 0 ? "in" : "out");
 }, { passive: false });
 
 inspectButton.addEventListener("click", async () => {
@@ -47052,7 +47052,7 @@ inspectButton.addEventListener("click", async () => {
   setBusy(true);
   updateInspectionIndicator({ active: true, browserReady: false, browserVisible: false });
   try {
-    inspection = await window.kDownloader.inspect(albumUrl);
+    inspection = await window.khinsiderDownloader.inspect(albumUrl);
     if (!inspection) {
       setStatus("Inspection canceled");
       return;
@@ -47078,7 +47078,7 @@ inspectButton.addEventListener("click", async () => {
 inspectionIndicator.addEventListener("click", async () => {
   if (inspectionIndicator.disabled) return;
   try {
-    inspectionBrowserVisible = await window.kDownloader.toggleInspectionBrowser();
+    inspectionBrowserVisible = await window.khinsiderDownloader.toggleInspectionBrowser();
     inspectionIndicator.setAttribute("aria-pressed", String(inspectionBrowserVisible));
     inspectionIndicatorText.textContent = inspectionBrowserVisible ? "Hide browser" : "Show browser";
   } catch (error) {
@@ -47086,10 +47086,10 @@ inspectionIndicator.addEventListener("click", async () => {
   }
 });
 
-window.kDownloader.onInspectionState(updateInspectionIndicator);
+window.khinsiderDownloader.onInspectionState(updateInspectionIndicator);
 
 browseButton.addEventListener("click", async () => {
-  const selected = await window.kDownloader.chooseOutput();
+  const selected = await window.khinsiderDownloader.chooseOutput();
   if (selected) outputInput.value = selected;
 });
 
@@ -47108,7 +47108,7 @@ downloadButton.addEventListener("click", async () => {
   setBusy(true);
   setStatus("Downloading", "working");
   try {
-    const result = await window.kDownloader.download({
+    const result = await window.khinsiderDownloader.download({
       policy: currentPolicy(),
       outputRoot: outputInput.value,
       discLabel: discLabelSelect.value === "Disc" ? "Disc" : "CD",
@@ -47134,7 +47134,7 @@ cancelButton.addEventListener("click", async () => {
     inspectionIndicatorText.textContent = "Canceling…";
   } else setStatus("Canceling active track…", "working");
   try {
-    await window.kDownloader.cancel();
+    await window.khinsiderDownloader.cancel();
   } catch (error) {
     errorText.textContent = error instanceof Error ? error.message : String(error);
     inspectionCancelRequested = false;
@@ -47142,7 +47142,7 @@ cancelButton.addEventListener("click", async () => {
   }
 });
 
-window.kDownloader.onProgress((event: GuiProgress) => {
+window.khinsiderDownloader.onProgress((event: GuiProgress) => {
   progress.max = event.totalTracks;
   progress.value = event.completedTracks;
   progressText.textContent = event.stage === "track-start"
@@ -47154,7 +47154,7 @@ window.kDownloader.onProgress((event: GuiProgress) => {
         : "Canceled";
 });
 
-void window.kDownloader.defaultOutputRoot().then((value) => { outputInput.value = value; });
+void window.khinsiderDownloader.defaultOutputRoot().then((value) => { outputInput.value = value; });
 ```
 </details></tool-use>
 
@@ -47175,11 +47175,11 @@ npm run build && npm run build:gui
 
 ```
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -47199,7 +47199,7 @@ _**Agent (copilot/auto)**_
 
 ```
 name: Bug Report
-description: Report a reproducible problem with K-Downloader.
+description: Report a reproducible problem with Khinsider Downloader.
 title: "[Bug]: "
 labels: [bug]
 body:
@@ -47299,7 +47299,7 @@ _**Agent (copilot/auto)**_
 
 ```
 name: Feature Request
-description: Suggest a feature or improvement for K-Downloader.
+description: Suggest a feature or improvement for Khinsider Downloader.
 title: "[Feature]: "
 labels: [enhancement]
 body:
@@ -47385,7 +47385,7 @@ _**Agent (copilot/auto)**_
 The app's **More > Report an Issue** command opens this fixed URL in the user's
 default browser:
 
-https://github.com/kelmankenberg/K-Downloader/issues/new/choose
+https://github.com/kelmankenberg/Khinsider-Downloader/issues/new/choose
 
 Users need a GitHub account to submit. The app does not upload logs, credentials,
 or account data automatically, and it never renders GitHub in the privileged app
@@ -47600,7 +47600,7 @@ describe("window geometry", () => {
 
 describe("desktop More menu and zoom", () => {
   it("renders and resizes the changelog, zooms, and persists window bounds", async () => {
-    const userData = await mkdtemp(resolve(tmpdir(), "k-downloader-window-test-"));
+    const userData = await mkdtemp(resolve(tmpdir(), "khinsider-downloader-window-test-"));
     const require = createRequire(import.meta.url);
     const launch = () => electron.launch({
       executablePath: require("electron"),
@@ -47613,7 +47613,7 @@ describe("desktop More menu and zoom", () => {
       page.setDefaultTimeout(5_000);
       await page.waitForFunction(() => document.documentElement.dataset.mode);
       const icon = await app.evaluate(({ nativeImage }) => {
-        const image = nativeImage.createFromPath("dist/assets/k-downloader.png");
+        const image = nativeImage.createFromPath("dist/assets/khinsider-downloader.png");
         const bitmap = image.getBitmap();
         return { empty: image.isEmpty(), size: image.getSize(), firstAlpha: bitmap[3], clippedAlpha: bitmap[bitmap.length - 1] };
       });
@@ -47621,14 +47621,14 @@ describe("desktop More menu and zoom", () => {
       expect(icon.size).toEqual({ width: 512, height: 512 });
       expect(icon.firstAlpha).toBe(255);
       expect(icon.clippedAlpha).toBe(0);
-      expect(await readFile(resolve("dist/assets/k-downloader.png"))).toEqual(await readFile(resolve("assets/k-downloader.png")));
+      expect(await readFile(resolve("dist/assets/khinsider-downloader.png"))).toEqual(await readFile(resolve("assets/khinsider-downloader.png")));
       await page.getByRole("button", { name: "More options", exact: true }).click();
       expect((await page.getByRole("menuitem").allTextContents()).map((text) => text.replace(/\s+/g, " ").trim())).toEqual([
         "Restore Size/Position", "Settings Ctrl+,", "Changelog", "Help", "Report an Issue",
       ]);
       const manifest = JSON.parse(await readFile(resolve("package.json"), "utf8"));
       expect(await page.locator("#menu-app-version").textContent()).toBe(manifest.version);
-      expect(await page.locator(".more-menu-info").innerText()).toContain("K-Downloader");
+      expect(await page.locator(".more-menu-info").innerText()).toContain("Khinsider Downloader");
       expect(await page.locator(".more-menu-separator").isVisible()).toBe(true);
       await app.evaluate(({ shell }) => {
         Reflect.set(globalThis, "supportUrls", []);
@@ -47636,7 +47636,7 @@ describe("desktop More menu and zoom", () => {
       });
       await page.getByRole("menuitem", { name: "Report an Issue", exact: true }).click();
       expect(await app.evaluate(() => Reflect.get(globalThis, "supportUrls"))).toEqual([
-        "https://github.com/kelmankenberg/K-Downloader/issues/new/choose",
+        "https://github.com/kelmankenberg/Khinsider-Downloader/issues/new/choose",
       ]);
       expect(await page.locator("#more-menu").isVisible()).toBe(false);
       expect(await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows().length)).toBe(1);
@@ -47651,7 +47651,7 @@ describe("desktop More menu and zoom", () => {
       await page.getByRole("menuitem", { name: "Report an Issue", exact: true }).click();
       const supportError = await app.evaluate(() => Reflect.get(globalThis, "supportError"));
       expect(supportError.message).toBe("Your browser could not be opened.");
-      expect(supportError.detail).toContain("https://github.com/kelmankenberg/K-Downloader/issues/new/choose");
+      expect(supportError.detail).toContain("https://github.com/kelmankenberg/Khinsider-Downloader/issues/new/choose");
       await page.getByRole("button", { name: "More options", exact: true }).click();
       await page.getByRole("menuitem", { name: "Changelog", exact: true }).click();
       await page.locator("#changelog-drawer").waitFor({ state: "visible" });
@@ -47667,7 +47667,7 @@ describe("desktop More menu and zoom", () => {
       await page.mouse.move(1, handle.y + 40);
       await page.mouse.up();
       expect(await page.locator("#changelog-drawer").evaluate((element) => element.getBoundingClientRect().width / innerWidth)).toBeCloseTo(.4, 2);
-      await page.screenshot({ path: "/tmp/k-downloader-changelog.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-changelog.png" });
       await page.keyboard.press("Escape");
       expect(await page.locator("#changelog-drawer").getAttribute("data-open")).toBe("false");
       await page.getByRole("button", { name: "More options", exact: true }).click();
@@ -47705,9 +47705,9 @@ describe("desktop More menu and zoom", () => {
       await page.mouse.up();
       expect(await page.locator("#help-drawer").evaluate((element) => element.getBoundingClientRect().width / innerWidth)).toBeCloseTo(.4, 2);
       await page.locator("#help-content summary").first().click();
-      await page.screenshot({ path: "/tmp/k-downloader-help-1120.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-help-1120.png" });
       await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].setSize(760, 620));
-      await page.screenshot({ path: "/tmp/k-downloader-help-760.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-help-760.png" });
       expect(await page.locator("#help-content").evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
       await page.keyboard.press("Escape");
       expect(await page.locator("#help-drawer").getAttribute("data-open")).toBe("false");
@@ -47771,7 +47771,7 @@ describe("desktop More menu and zoom", () => {
 
 describe("single-instance desktop", () => {
   it("rejects a second launch, restores the primary window, and shows a confirmation", async () => {
-    const userData = await mkdtemp(resolve(tmpdir(), "k-downloader-instance-test-"));
+    const userData = await mkdtemp(resolve(tmpdir(), "khinsider-downloader-instance-test-"));
     const require = createRequire(import.meta.url);
     const executablePath: string = require("electron");
     const args = [resolve("dist/electron/main.cjs"), `--user-data-dir=${userData}`];
@@ -47806,7 +47806,7 @@ describe("single-instance desktop", () => {
       }));
       expect(state.windowCount).toBe(1);
       expect(state.visible).toBe(true);
-      expect(state.notice.message).toBe("K-Downloader is already running.");
+      expect(state.notice.message).toBe("Khinsider Downloader is already running.");
       expect(state.notice.buttons).toEqual(["Show running app"]);
     } finally {
       if (secondary && secondary.exitCode === null) secondary.kill();
@@ -47885,7 +47885,7 @@ describe("appearance controls in Chromium", () => {
       await page.addInitScript(() => {
         let inspectionListener: ((state: GuiInspectionState) => void) | undefined;
         let browserVisible = false;
-        window.kDownloader = {
+        window.khinsiderDownloader = {
           reportIssue: async () => {},
           restoreWindowBounds: async () => {},
           zoom: async () => 1,
@@ -47896,7 +47896,7 @@ describe("appearance controls in Chromium", () => {
             media.addEventListener("change", handler);
             return () => media.removeEventListener("change", handler);
           },
-          defaultOutputRoot: async () => "/tmp/K-Downloader",
+          defaultOutputRoot: async () => "/tmp/Khinsider Downloader",
           chooseOutput: async () => undefined,
           inspect: async () => {
             let canceled = false;
@@ -47965,7 +47965,7 @@ describe("appearance controls in Chromium", () => {
       ]);
       for (const viewport of [{ width: 1120, height: 780 }, { width: 760, height: 620 }]) {
         await page.setViewportSize(viewport);
-        await page.screenshot({ path: `/tmp/k-downloader-shortcuts-${viewport.width}.png` });
+        await page.screenshot({ path: `/tmp/khinsider-downloader-shortcuts-${viewport.width}.png` });
         expect(await page.evaluate(() => {
           const content = document.querySelector<HTMLElement>(".settings-content")!;
           const footer = document.querySelector<HTMLElement>(".app-footer")!.getBoundingClientRect();
@@ -48011,11 +48011,11 @@ describe("appearance controls in Chromium", () => {
       await page.emulateMedia({ colorScheme: "light" });
       await page.emulateMedia({ colorScheme: "dark" });
       expect(await page.locator("html").getAttribute("data-mode")).toBe("light");
-      await page.screenshot({ path: "/tmp/k-downloader-appearance-light.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-appearance-light.png" });
       await page.setViewportSize({ width: 760, height: 620 });
       await page.getByRole("radio", { name: "Dark", exact: true }).check();
       await page.getByRole("radio", { name: "Mint", exact: true }).check();
-      await page.screenshot({ path: "/tmp/k-downloader-appearance-dark.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-appearance-dark.png" });
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
       await page.keyboard.press("Escape");
       await page.locator("#workspace").waitFor({ state: "visible" });
@@ -48036,7 +48036,7 @@ describe("appearance controls in Chromium", () => {
         const animation = element.getAnimations()[0];
         return animation?.playState === "running" && animation.effect?.getTiming().iterations === Infinity;
       })).toBe(true);
-      await page.screenshot({ path: "/tmp/k-downloader-single-inspection-indicator.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-single-inspection-indicator.png" });
       await page.locator("#inspection-indicator").click();
       expect(await page.locator("#inspection-indicator-text").textContent()).toBe("Hide browser");
       await page.locator("#inspection-indicator").click();
@@ -48071,7 +48071,7 @@ describe("appearance controls in Chromium", () => {
         expect(scrolled.listScrollTop).toBeGreaterThan(0);
         expect(scrolled.footerBottom).toBe(initial.footerBottom);
         expect(scrolled.transferBottom).toBe(initial.transferBottom);
-        await page.screenshot({ path: `/tmp/k-downloader-long-preview-${viewport.width}.png` });
+        await page.screenshot({ path: `/tmp/khinsider-downloader-long-preview-${viewport.width}.png` });
       }
       await page.getByRole("button", { name: "Inspect album", exact: true }).click();
       await page.locator("#inspection-indicator").waitFor({ state: "visible" });
@@ -48088,7 +48088,7 @@ describe("appearance controls in Chromium", () => {
 
 describe("Electron native theme updates", () => {
   it("updates System mode through preload but preserves explicit Light and Dark", async () => {
-    const userData = await mkdtemp(resolve(tmpdir(), "k-downloader-theme-test-"));
+    const userData = await mkdtemp(resolve(tmpdir(), "khinsider-downloader-theme-test-"));
     const require = createRequire(import.meta.url);
     const app = await electron.launch({
       executablePath: require("electron"),
@@ -48137,7 +48137,7 @@ _**Agent (copilot/auto)**_
 @@ lines 1-238 @@
 
 ````
-# K-Downloader Help
+# Khinsider Downloader Help
 
 ## Getting Started
 
@@ -48191,7 +48191,7 @@ between tracks in the same album.
 
 ## Destination and Disc Folders
 
-The default root is `~/Music/K-Downloader`. Type another root in **Save album
+The default root is `~/Music/Khinsider Downloader`. Type another root in **Save album
 under** or use the folder-picker button. The app creates an album-title folder
 under that root. Select the root, not a pre-created album folder, to avoid
 unintentional nesting.
@@ -48402,21 +48402,21 @@ npm test -- tests/issues.test.ts tests/window-state.test.ts tests/appearance.tes
 
 ```
 
-> k-downloader@0.1.0 pretest
+> khinsider-downloader@0.1.0 pretest
 > npm run build:gui
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run tests/issues.test.ts tests/window-state.test.ts tests/appearance.te
 st.ts
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  3 passed (3)
@@ -48425,7 +48425,7 @@ st.ts
    Duration  6.89s (tests 90%, import 8%, transform 2%)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 ```
 </details></tool-use>
@@ -48442,9 +48442,9 @@ _**Agent (copilot/auto)**_
 @@ lines 1-139 @@
 
 ````
-# K-Downloader
+# Khinsider Downloader
 
-K-Downloader is a Linux-first KHInsider album downloader. The current slice
+Khinsider Downloader is a Linux-first KHInsider album downloader. The current slice
 implements public single-album discovery, format preview and policy, sequential
 streaming, and manifest-backed reruns. Multi-album queues, artwork, the GUI,
 optional account features, and packaging are not implemented yet.
@@ -48472,7 +48472,7 @@ access methods.
 
 The CLI previews the selected formats before starting any transfer. The default
 format policy prefers lossless, falling back to MP3 when needed. The default
-destination is `~/Music/K-Downloader`.
+destination is `~/Music/Khinsider Downloader`.
 
 ```sh
 npm run download -- 'https://downloads.khinsider.com/game-soundtracks/album/unreal-ii-the-awakening-original-soundtrack'
@@ -48511,7 +48511,7 @@ Paste one album URL and choose **Inspect album**. A Chromium inspection window
 starts minimized while an in-progress indicator appears in the app; click that
 indicator to show or hide the browser. Review the per-track format preview, choose the
 destination and format policy, then select **Download**. The default destination
-is `~/Music/K-Downloader`. **Cancel active download** stops the current transfer
+is `~/Music/Khinsider Downloader`. **Cancel active download** stops the current transfer
 and prevents later tracks from starting.
 
 While inspection is running, the same button becomes **Cancel inspection**.
@@ -48676,7 +48676,7 @@ _**Agent (copilot/auto)**_
 @@ lines 1-238 @@
 
 ````
-# K-Downloader Help
+# Khinsider Downloader Help
 
 ## Getting Started
 
@@ -48730,7 +48730,7 @@ between tracks in the same album.
 
 ## Destination and Disc Folders
 
-The default root is `~/Music/K-Downloader`. Type another root in **Save album
+The default root is `~/Music/Khinsider Downloader`. Type another root in **Save album
 under** or use the folder-picker button. The app creates an album-title folder
 under that root. Select the root, not a pre-created album folder, to avoid
 unintentional nesting.
@@ -48932,12 +48932,12 @@ node --input-type=module -e 'import { readFileSync } from "node:fs"; const text 
 **Result:**
 
 ```
-kel@kel-EQ-Mint:~/dev/K-Downloader$  node --input-type=module -e 'import { readF
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  node --input-type=module -e 'import { readF
 ileSync } from "node:fs"; const text = readFileSync("README.md", "utf8"); const
 headings = [...text.matchAll(/^## (.+)$/gm)].map(match => match[1]); if (new Set
 (headings).size !== headings.length) throw new Error("Duplicate README section h
 eading"); console.log("README sections verified.");'
-file:///home/kel/dev/K-Downloader/[eval1]:1
+file:///home/kel/dev/Khinsider-Downloader/[eval1]:1
 import { readFileSync } from "node:fs"; const text = readFileSync("README.md", "
 utf8"); const headings = [...text.matchAll(/^## (.+)$/gm)].map(match => match[1]
 ); if (new Set(headings).size !== headings.length) throw new Error("Duplicate RE
@@ -48947,7 +48947,7 @@ ADME section heading"); console.log("README sections verified.");
                                                          ^
 
 Error: Duplicate README section heading
-    at file:///home/kel/dev/K-Downloader/[eval1]:1:218
+    at file:///home/kel/dev/Khinsider-Downloader/[eval1]:1:218
     at ModuleJob.run (node:internal/modules/esm/module_job:569:25)
     at async node:internal/modules/esm/loader:226:26
     at async ModuleLoader.executeModuleJob (node:internal/modules/esm/loader:223
@@ -48971,9 +48971,9 @@ _**Agent (copilot/auto)**_
 @@ lines 1-137 @@
 
 ````
-# K-Downloader
+# Khinsider Downloader
 
-K-Downloader is a Linux-first KHInsider album downloader. The current slice
+Khinsider Downloader is a Linux-first KHInsider album downloader. The current slice
 implements public single-album discovery, format preview and policy, sequential
 streaming, and manifest-backed reruns. Multi-album queues, artwork, the GUI,
 optional account features, and packaging are not implemented yet.
@@ -49001,7 +49001,7 @@ access methods.
 
 The CLI previews the selected formats before starting any transfer. The default
 format policy prefers lossless, falling back to MP3 when needed. The default
-destination is `~/Music/K-Downloader`.
+destination is `~/Music/Khinsider Downloader`.
 
 ```sh
 npm run download -- 'https://downloads.khinsider.com/game-soundtracks/album/unreal-ii-the-awakening-original-soundtrack'
@@ -49040,7 +49040,7 @@ Paste one album URL and choose **Inspect album**. A Chromium inspection window
 starts minimized while an in-progress indicator appears in the app; click that
 indicator to show or hide the browser. Review the per-track format preview, choose the
 destination and format policy, then select **Download**. The default destination
-is `~/Music/K-Downloader`. **Cancel active download** stops the current transfer
+is `~/Music/Khinsider Downloader`. **Cancel active download** stops the current transfer
 and prevents later tracks from starting.
 
 While inspection is running, the same button becomes **Cancel inspection**.
@@ -49128,7 +49128,7 @@ node --input-type=module -e 'import { readFileSync } from "node:fs"; const text 
 **Result:**
 
 ```
-kel@kel-EQ-Mint:~/dev/K-Downloader$  node --input-type=module -e 'import { readF
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  node --input-type=module -e 'import { readF
 ileSync } from "node:fs"; const text = readFileSync("README.md", "utf8"); const
 headings = [...text.matchAll(/^## (.+)$/gm)].map(match => match[1]); if (new Set
 (headings).size !== headings.length) throw new Error("Duplicate README section h
@@ -49136,20 +49136,20 @@ eading"); console.log("README sections verified.");' && npm test && npm run buil
 d && npm audit
 README sections verified.
 
-> k-downloader@0.1.0 pretest
+> khinsider-downloader@0.1.0 pretest
 > npm run build:gui
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  8 passed (8)
@@ -49158,7 +49158,7 @@ Built Electron main/preload and local renderer into dist/.
    Duration  7.08s (tests 84%, import 12%, transform 3%)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 
 found 0 vulnerabilities
@@ -49182,13 +49182,13 @@ Checked `main.ts`, `preload.ts`, `renderer.ts`, `issues.test.ts`, `window-state.
 
 ```
 [
-  "/home/kel/dev/K-Downloader/src/electron/main.ts",
-  "/home/kel/dev/K-Downloader/src/electron/preload.ts",
-  "/home/kel/dev/K-Downloader/src/renderer.ts",
-  "/home/kel/dev/K-Downloader/tests/issues.test.ts",
-  "/home/kel/dev/K-Downloader/tests/window-state.test.ts",
-  "/home/kel/dev/K-Downloader/.github/ISSUE_TEMPLATE/bug_report.yml",
-  "/home/kel/dev/K-Downloader/.github/ISSUE_TEMPLATE/feature_request.yml"
+  "/home/kel/dev/Khinsider-Downloader/src/electron/main.ts",
+  "/home/kel/dev/Khinsider-Downloader/src/electron/preload.ts",
+  "/home/kel/dev/Khinsider-Downloader/src/renderer.ts",
+  "/home/kel/dev/Khinsider-Downloader/tests/issues.test.ts",
+  "/home/kel/dev/Khinsider-Downloader/tests/window-state.test.ts",
+  "/home/kel/dev/Khinsider-Downloader/.github/ISSUE_TEMPLATE/bug_report.yml",
+  "/home/kel/dev/Khinsider-Downloader/.github/ISSUE_TEMPLATE/feature_request.yml"
 ]
 ```
 
@@ -49196,25 +49196,25 @@ Checked `main.ts`, `preload.ts`, `renderer.ts`, `issues.test.ts`, `window-state.
 **Result:**
 
 ```
-<errors path="/home/kel/dev/K-Downloader/src/electron/main.ts">
+<errors path="/home/kel/dev/Khinsider-Downloader/src/electron/main.ts">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/src/electron/preload.ts">
+<errors path="/home/kel/dev/Khinsider-Downloader/src/electron/preload.ts">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/src/renderer.ts">
+<errors path="/home/kel/dev/Khinsider-Downloader/src/renderer.ts">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/tests/issues.test.ts">
+<errors path="/home/kel/dev/Khinsider-Downloader/tests/issues.test.ts">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/tests/window-state.test.ts">
+<errors path="/home/kel/dev/Khinsider-Downloader/tests/window-state.test.ts">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/.github/ISSUE_TEMPLATE/bug_report.yml">
+<errors path="/home/kel/dev/Khinsider-Downloader/.github/ISSUE_TEMPLATE/bug_report.yml">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/.github/ISSUE_TEMPLATE/feature_request.yml">
+<errors path="/home/kel/dev/Khinsider-Downloader/.github/ISSUE_TEMPLATE/feature_request.yml">
 No errors found
 </errors>
 ```
@@ -49238,13 +49238,13 @@ npm run gui
 ```
 Command is running in terminal with ID=2bcd9090-043e-4d0d-a4c1-5b9fbc128083
  The command became idle with output:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run gui
 
-> k-downloader@0.1.0 gui
+> khinsider-downloader@0.1.0 gui
 > npm run build:gui && electron dist/electron/main.cjs
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -49282,7 +49282,7 @@ Implemented **More > Report an Issue**, opening GitHub in the default browser. A
 1. Commit and push these changes to the repository’s default branch ().
 2. In **Settings > General > Features**, enable **Issues**.
 3. Under **Issues > Labels**, ensure `bug` and `enhancement` exist.
-4. Open [the issue chooser](https://github.com/kelmankenberg/K-Downloader/issues/new/choose) and verify both forms appear.
+4. Open [the issue chooser](https://github.com/kelmankenberg/Khinsider-Downloader/issues/new/choose) and verify both forms appear.
 
 Full instructions are in `docs/GITHUB_ISSUES_SETUP.md`. The templates are local until pushed; users need a GitHub account to submit.
 
@@ -49300,13 +49300,13 @@ _**User (2026-10-12 18:57:30Z)**_
 
 [Terminal 2bcd9090-043e-4d0d-a4c1-5b9fbc128083 notification: command completed. The terminal has been cleaned up.]
 Terminal output:
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm run gui
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm run gui
 
-> k-downloader@0.1.0 gui
+> khinsider-downloader@0.1.0 gui
 > npm run build:gui && electron dist/electron/main.cjs
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -49349,7 +49349,7 @@ _**Agent (copilot/auto)**_
 
 To check:
 
-1. Open [the repository’s Labels page](https://github.com/kelmankenberg/K-Downloader/labels).
+1. Open [the repository’s Labels page](https://github.com/kelmankenberg/Khinsider-Downloader/labels).
 2. Look for labels named **bug** and **enhancement**.
 3. If both exist, you’re done.
 4. If either is missing, click **New label**, enter that exact name, choose any color, and click **Create label**.
@@ -49360,7 +49360,7 @@ They’re standard GitHub labels, so they may already be there.
 
 _**User (2026-10-12 19:00:47Z)**_
 
-labels already exist. And the link in the More menu opens to 'https://github.com/kelmankenberg/K-Downloader/issues/new'. Is it setup and ready?
+labels already exist. And the link in the More menu opens to 'https://github.com/kelmankenberg/Khinsider-Downloader/issues/new'. Is it setup and ready?
 
 ---
 
@@ -49384,7 +49384,7 @@ _**Agent (copilot/auto)**_
 
 Open this folder on GitHub:
 
-[.github/ISSUE_TEMPLATE on main](https://github.com/kelmankenberg/K-Downloader/tree/main/.github/ISSUE_TEMPLATE)
+[.github/ISSUE_TEMPLATE on main](https://github.com/kelmankenberg/Khinsider-Downloader/tree/main/.github/ISSUE_TEMPLATE)
 
 You should see:
 - `bug_report.yml`
@@ -49393,7 +49393,7 @@ You should see:
 
 If the folder is missing or returns 404, they haven’t been pushed to .
 
-Then open [the issue chooser](https://github.com/kelmankenberg/K-Downloader/issues/new/choose). Seeing **Bug Report** and **Feature Request** confirms they’re active.
+Then open [the issue chooser](https://github.com/kelmankenberg/Khinsider-Downloader/issues/new/choose). Seeing **Bug Report** and **Feature Request** confirms they’re active.
 
 ---
 
@@ -49457,14 +49457,14 @@ Read `package.json`
 **Input:**
 
 - endLine: `120`
-- filePath: `/home/kel/dev/K-Downloader/package.json`
+- filePath: `/home/kel/dev/Khinsider-Downloader/package.json`
 - startLine: `1`
 
 **Result:**
 
 ```
 {
-  "name": "k-downloader",
+  "name": "khinsider-downloader",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -49510,7 +49510,7 @@ Read `build-gui.mjs`
 **Input:**
 
 - endLine: `140`
-- filePath: `/home/kel/dev/K-Downloader/scripts/build-gui.mjs`
+- filePath: `/home/kel/dev/Khinsider-Downloader/scripts/build-gui.mjs`
 - startLine: `1`
 
 **Result:**
@@ -49566,7 +49566,7 @@ await Promise.all([
 await Promise.all([
   cp(resolve(root, "gui/index.html"), resolve(output, "gui/index.html")),
   cp(resolve(root, "gui/styles.css"), resolve(output, "gui/styles.css")),
-  cp(resolve(root, "assets/k-downloader.png"), resolve(output, "assets/k-downloader.png")),
+  cp(resolve(root, "assets/khinsider-downloader.png"), resolve(output, "assets/khinsider-downloader.png")),
 ]);
 console.log("Built 
 … (output truncated)
@@ -49583,7 +49583,7 @@ Read `khinsider.ts`, lines 150 to 190
 **Input:**
 
 - endLine: `190`
-- filePath: `/home/kel/dev/K-Downloader/src/khinsider.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/src/khinsider.ts`
 - startLine: `150`
 
 **Result:**
@@ -49643,7 +49643,7 @@ Read `main.ts`, lines 1 to 82
 **Input:**
 
 - endLine: `82`
-- filePath: `/home/kel/dev/K-Downloader/src/electron/main.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/src/electron/main.ts`
 - startLine: `1`
 
 **Result:**
@@ -49673,7 +49673,7 @@ let instanceNoticeOpen = false;
 let cinnamonDark: boolean | undefined;
 let stopThemeMonitor: (() => void) | undefined;
 
-app.setName("K-Downloader");
+app.setName("Khinsider Downloader");
 const primaryInstance = app.requestSingleInstanceLock();
 if (!primaryInstance) app.quit();
 else app.on("second-instance", () => {
@@ -49697,8 +49697,8 @@ async function notifyExistingInstance(): Promise<void> {
   try {
     await dialog.showMessageBox(window, {
       type: "info",
-      title: "K-Downloader is already running",
-      message: "K-Downloader is already running.",
+      title: "Khinsider Downloader is already running",
+      message: "Khinsider Downloader is already running.",
       detail: "Only one instance can run. Continue in the existing w
 … (output truncated)
 ```
@@ -49714,7 +49714,7 @@ Read `.gitignore`
 **Input:**
 
 - endLine: `80`
-- filePath: `/home/kel/dev/K-Downloader/.gitignore`
+- filePath: `/home/kel/dev/Khinsider-Downloader/.gitignore`
 - startLine: `1`
 
 **Result:**
@@ -49736,7 +49736,7 @@ Read `cli.ts`
 **Input:**
 
 - endLine: `180`
-- filePath: `/home/kel/dev/K-Downloader/src/cli.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/src/cli.ts`
 - startLine: `1`
 
 **Result:**
@@ -49972,7 +49972,7 @@ export async function inspectAlbum(
   const browser = await chromium.launch({
     headless: false,
     args: ["--start-minimized"],
-    ...(process.env.K_DOWNLOADER_CHROMIUM_PATH ? { executablePath: process.env.K_DOWNLOADER_CHROMIUM_PATH } : {}),
+    ...(process.env.KHINSIDER_DOWNLOADER_CHROMIUM_PATH ? { executablePath: process.env.KHINSIDER_DOWNLOADER_CHROMIUM_PATH } : {}),
   });
   let context: BrowserContext | undefined;
   const controller = new AbortController();
@@ -50075,7 +50075,7 @@ let instanceNoticeOpen = false;
 let cinnamonDark: boolean | undefined;
 let stopThemeMonitor: (() => void) | undefined;
 
-app.setName("K-Downloader");
+app.setName("Khinsider Downloader");
 const primaryInstance = app.requestSingleInstanceLock();
 if (!primaryInstance) app.quit();
 else app.on("second-instance", () => {
@@ -50099,8 +50099,8 @@ async function notifyExistingInstance(): Promise<void> {
   try {
     await dialog.showMessageBox(window, {
       type: "info",
-      title: "K-Downloader is already running",
-      message: "K-Downloader is already running.",
+      title: "Khinsider Downloader is already running",
+      message: "Khinsider Downloader is already running.",
       detail: "Only one instance can run. Continue in the existing window.",
       buttons: ["Show running app"],
       defaultId: 0,
@@ -50180,7 +50180,7 @@ function sendWindowState(window: BrowserWindow): void {
 function registerIpc(): void {
   ipcMain.handle("support:report-issue", async (event) => {
     const window = assertWindowSender(event.sender.id);
-    const url = "https://github.com/kelmankenberg/K-Downloader/issues/new/choose";
+    const url = "https://github.com/kelmankenberg/Khinsider-Downloader/issues/new/choose";
     try {
       await shell.openExternal(url);
     } catch {
@@ -50347,8 +50347,8 @@ async function createWindow(): Promise<void> {
     minWidth: 760,
     minHeight: 620,
     backgroundColor: "#101715",
-    title: "K-Downloader",
-    icon: resolve(__dirname, "../assets/k-downloader.png"),
+    title: "Khinsider Downloader",
+    icon: resolve(__dirname, "../assets/khinsider-downloader.png"),
     webPreferences: {
       preload: resolve(__dirname, "preload.cjs"),
       contextIsolation: true,
@@ -50391,7 +50391,7 @@ async function createWindow(): Promise<void> {
 
 app.whenReady().then(async () => {
   if (!primaryInstance) return;
-  if (app.isPackaged) process.env.K_DOWNLOADER_CHROMIUM_PATH = resolve(process.resourcesPath, "chromium/chrome");
+  if (app.isPackaged) process.env.KHINSIDER_DOWNLOADER_CHROMIUM_PATH = resolve(process.resourcesPath, "chromium/chrome");
   nativeTheme.themeSource = "system";
   nativeTheme.on("updated", sendSystemTheme);
   stopThemeMonitor = await monitorCinnamonTheme((dark) => {
@@ -50432,23 +50432,23 @@ npm test -- tests/khinsider.test.ts && npm run build
 **Result:**
 
 ```
-kel@kel-EQ-Mint:~/dev/K-Downloader$  npm test -- tests/khinsider.test.ts && npm
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  npm test -- tests/khinsider.test.ts && npm
 run build
 
-> k-downloader@0.1.0 pretest
+> khinsider-downloader@0.1.0 pretest
 > npm run build:gui
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run tests/khinsider.test.ts
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  1 passed (1)
@@ -50457,7 +50457,7 @@ Built Electron main/preload and local renderer into dist/.
    Duration  565ms (import 85%, transform 8%, tests 5%, worker 1%)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 ```
 </details></tool-use>
@@ -50618,7 +50618,7 @@ Read `linuxOptions.d.ts`, lines 1 to 200
 **Input:**
 
 - endLine: `200`
-- filePath: `/home/kel/dev/K-Downloader/node_modules/app-builder-lib/out/options/linuxOptions.d.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/node_modules/app-builder-lib/out/options/linuxOptions.d.ts`
 - startLine: `1`
 
 **Result:**
@@ -50789,7 +50789,7 @@ npm warn install-scripts
 npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install
 -scripts approve <pkg>` to allow.
 5.1.0
-k-downloader@0.1.0 /home/kel/dev/K-Downloader
+khinsider-downloader@0.1.0 /home/kel/dev/Khinsider-Downloader
 ├─┬ electron-builder@26.15.3
 │ └─┬ app-builder-lib@26.15.3
 │   └─┬ @electron/get@3.1.0
@@ -50835,14 +50835,14 @@ Generating patch (164 lines) in `package.json`, `.gitignore`, `build-gui.mjs`, `
 
 ```
 *** Begin Patch
-*** Update File: /home/kel/dev/K-Downloader/package.json
+*** Update File: /home/kel/dev/Khinsider-Downloader/package.json
 @@
    "private": true,
    "type": "module",
 +  "main": "dist/electron/main.cjs",
 +  "description": "Linux desktop downloader for public KHInsider album tracks",
 +  "author": "kelmankenberg",
-+  "homepage": "https://github.com/kelmankenberg/K-Downloader",
++  "homepage": "https://github.com/kelmankenberg/Khinsider-Downloader",
 +  "license": "UNLICENSED",
 @@
      "build:gui": "node scripts/build-gui.mjs",
@@ -50858,12 +50858,12 @@ Generating patch (164 lines) in `package.json`, `.gitignore`, `build-gui.mjs`, `
 +    }
 +  },
 +  "devDependencies": {
-*** Update File: /home/kel/dev/K-Downloader/.gitignore
+*** Update File: /home/kel/dev/Khinsider-Downloader/.gitignore
 @@
  dist/
 +release/
 +.packaging/
-*** Update File: /home/kel/dev/K-Downloader/scripts/build-gui.mjs
+*** Update File: /home/kel/dev/Khinsider-Downloader/scripts/build-gui.mjs
 @@
  await Promise.all([
 +  build({
@@ -50874,29 +50874,29 @@ Generating patch (164 lines) in `package.json`, `.gitignore`, `build-gui.mjs`, `
 +    format: "cjs",
 +    external: ["playwright", "parse5"],
 +  }),
-*** Add File: /home/kel/dev/K-Downloader/scripts/linux-launcher.sh
+*** Add File: /home/kel/dev/Khinsider-Downloader/scripts/linux-launcher.sh
 +#!/bin/sh
 +set -eu
 +APP_DIR=$(dirname "$(readlink -f "$0")")
-+export K_DOWNLOADER_CHROMIUM_PATH="$APP_DIR/resources/chromium/chrome"
++export KHINSIDER_DOWNLOADER_CHROMIUM_PATH="$APP_DIR/resources/chromium/chrome"
 +case "${1:-}" in
 +  inspect|download|--help|help)
 +    export ELECTRON_RUN_AS_NODE=1
-+    exec "$APP_DIR/k-downloader-bin" "$APP_DIR/resources/app.asar/dist/cli.cjs" "$@"
++    exec "$APP_DIR/khinsider-downloader-bin" "$APP_DIR/resources/app.asar/dist/cli.cjs" "$@"
 +    ;;
 +  *)
 +    unset ELECTRON_RUN_AS_NODE
-+    exec "$APP_DIR/k-downloader-bin" "$@"
++    exec "$APP_DIR/khinsider-downloader-bin" "$@"
 +    ;;
 +esac
-*** Add File: /home/kel/dev/K-Downloader/electron-builder.config.cjs
+*** Add File: /home/kel/dev/Khinsider-Downloader/electron-builder.config.cjs
 +const { chmod, copyFile, rename } = require("node:fs/promises");
 +const { resolve } = require("node:path");
 +
 +module.exports = {
-+  appId: "com.kelmankenberg.kdownloader",
-+  productName: "K-Downloader",
-+  executableName: "k-downloader",
++  appId: "com.kelmankenberg.khinsiderdownloader",
++  productName: "Khinsider Downloader",
++  executableName: "khinsider-downloader",
 +  directories: { output: "release", buildResources: "assets" },
 +  asar: true,
 +  npmRebuild: false,
@@ -50904,14 +50904,14 @@ Generating patch (164 lines) in `package.json`, `.gitignore`, `build-gui.mjs`, `
 +  extraResources: [{ from: ".packaging/chromium", to: "chromium" }],
 +  linux: {
 +    target: ["deb", "AppImage"],
-+    icon: "assets/k-downloader.png",
++    icon: "assets/khinsider-downloader.png",
 +    category: "AudioVideo",
 +    synopsis: "Download public KHInsider soundtrack tracks",
-+    desktop: { entry: { Name: "K-Downloader", StartupWMClass: "k-downloader", Terminal: "false" } },
-+    artifactName: "K-Downloader-${version}-${arch}.${ext}",
++    desktop: { entry: { Name: "Khinsider Downloader", StartupWMClass: "khinsider-downloader", Terminal: "false" } },
++    artifactName: "Khinsider Downloader-${version}-${arch}.${ext}",
 +  },
 +  deb: {
-+    packageName: "k-downloader",
++    packageName: "khinsider-downloader",
 +    compression: "gz",
 +    recommends: [],
 +    depends: [
@@ -50924,12 +50924,12 @@ Generating patch (164 lines) in `package.json`, `.gitignore`, `build-gui.mjs`, `
 +  },
 +  afterPack: async ({ appOutDir, electronPlatformName }) => {
 +    if (electronPlatformName !== "linux") return;
-+    await rename(resolve(appOutDir, "k-downloader"), resolve(appOutDir, "k-downloader-bin"));
-+    await copyFile(resolve(__dirname, "scripts/linux-launcher.sh"), resolve(appOutDir, "k-downloader"));
-+    await chmod(resolve(appOutDir, "k-downloader"), 0o755);
++    await rename(resolve(appOutDir, "khinsider-downloader"), resolve(appOutDir, "khinsider-downloader-bin"));
++    await copyFile(resolve(__dirname, "scripts/linux-launcher.sh"), resolve(appOutDir, "khinsider-downloader"));
++    await chmod(resolve(appOutDir, "khinsider-downloader"), 0o755);
 +  },
 +};
-*** Add File: /home/kel/dev/K-Downloader/scripts/package-linux.mjs
+*** Add File: /home/kel/dev/Khinsider-Downloader/scripts/package-linux.mjs
 +import { execFileSync } from "node:child_process";
 +import { createHash } from "node:crypto";
 +import { createReadStream } from "node:fs";
@@ -50952,13 +50952,13 @@ Generating patch (164 lines) in `package.json`, `.gitignore`, `build-gui.mjs`, `
 +}
 +
 +function maintainer() {
-+  if (process.env.K_DOWNLOADER_MAINTAINER) return process.env.K_DOWNLOADER_MAINTAINER;
++  if (process.env.KHINSIDER_DOWNLOADER_MAINTAINER) return process.env.KHINSIDER_DOWNLOADER_MAINTAINER;
 +  try {
 +    const name = command("git", ["config", "user.name"], { encoding: "utf8", stdio: "pipe" }).trim();
 +    const email = command("git", ["config", "user.email"], { encoding: "utf8", stdio: "pipe" }).trim();
 +    if (name && email) return `${name} <${email}>`;
 +  } catch {}
-+  throw new Error("Set K_DOWNLOADER_MAINTAINER='Name <email>' or configure Git user.name/user.email for .deb metadata.");
++  throw new Error("Set KHINSIDER_DOWNLOADER_MAINTAINER='Name <email>' or configure Git user.name/user.email for .deb metadata.");
 +}
 +
 +const packageMaintainer = selected.includes("deb") ? maintainer() : undefined;
@@ -50993,7 +50993,7 @@ Generating patch (164 lines) in `package.json`, `.gitignore`, `build-gui.mjs`, `
 +  checksums.push(`${hash.digest("hex")}  ${artifact.split("/").at(-1)}`);
 +}
 +if (checksums.length) {
-+  const filename = `K-Downloader-${manifest.version}-SHA256SUMS.txt`;
++  const filename = `Khinsider Downloader-${manifest.version}-SHA256SUMS.txt`;
 +  await writeFile(resolve(root, "release", filename), `${checksums.join("\n")}\n`);
 +}
 +console.log("Package output: release/ (nothing was published to GitHub).");
@@ -51005,12 +51005,12 @@ Generating patch (164 lines) in `package.json`, `.gitignore`, `build-gui.mjs`, `
 
 ```
 The following files were successfully edited:
-/home/kel/dev/K-Downloader/package.json
-/home/kel/dev/K-Downloader/.gitignore
-/home/kel/dev/K-Downloader/scripts/build-gui.mjs
-/home/kel/dev/K-Downloader/scripts/linux-launcher.sh
-/home/kel/dev/K-Downloader/electron-builder.config.cjs
-/home/kel/dev/K-Downloader/scripts/package-linux.mjs
+/home/kel/dev/Khinsider-Downloader/package.json
+/home/kel/dev/Khinsider-Downloader/.gitignore
+/home/kel/dev/Khinsider-Downloader/scripts/build-gui.mjs
+/home/kel/dev/Khinsider-Downloader/scripts/linux-launcher.sh
+/home/kel/dev/Khinsider-Downloader/electron-builder.config.cjs
+/home/kel/dev/Khinsider-Downloader/scripts/package-linux.mjs
 ```
 </details></tool-use>
 
@@ -51023,14 +51023,14 @@ _**Agent (copilot/auto)**_
 
 ```
 {
-  "name": "k-downloader",
+  "name": "khinsider-downloader",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "main": "dist/electron/main.cjs",
   "description": "Linux desktop downloader for public KHInsider album tracks",
   "author": "kelmankenberg",
-  "homepage": "https://github.com/kelmankenberg/K-Downloader",
+  "homepage": "https://github.com/kelmankenberg/Khinsider-Downloader",
   "license": "UNLICENSED",
   "engines": {
     "node": ">=20"
@@ -51173,7 +51173,7 @@ await Promise.all([
 await Promise.all([
   cp(resolve(root, "gui/index.html"), resolve(output, "gui/index.html")),
   cp(resolve(root, "gui/styles.css"), resolve(output, "gui/styles.css")),
-  cp(resolve(root, "assets/k-downloader.png"), resolve(output, "assets/k-downloader.png")),
+  cp(resolve(root, "assets/khinsider-downloader.png"), resolve(output, "assets/khinsider-downloader.png")),
 ]);
 console.log("Built Electron main/preload and local renderer into dist/.");
 ```
@@ -51198,15 +51198,15 @@ _**Agent (copilot/auto)**_
 #!/bin/sh
 set -eu
 APP_DIR=$(dirname "$(readlink -f "$0")")
-export K_DOWNLOADER_CHROMIUM_PATH="$APP_DIR/resources/chromium/chrome"
+export KHINSIDER_DOWNLOADER_CHROMIUM_PATH="$APP_DIR/resources/chromium/chrome"
 case "${1:-}" in
   inspect|download|--help|help)
     export ELECTRON_RUN_AS_NODE=1
-    exec "$APP_DIR/k-downloader-bin" "$APP_DIR/resources/app.asar/dist/cli.cjs" "$@"
+    exec "$APP_DIR/khinsider-downloader-bin" "$APP_DIR/resources/app.asar/dist/cli.cjs" "$@"
     ;;
   *)
     unset ELECTRON_RUN_AS_NODE
-    exec "$APP_DIR/k-downloader-bin" "$@"
+    exec "$APP_DIR/khinsider-downloader-bin" "$@"
     ;;
 esac
 ```
@@ -51232,9 +51232,9 @@ const { chmod, copyFile, rename } = require("node:fs/promises");
 const { resolve } = require("node:path");
 
 module.exports = {
-  appId: "com.kelmankenberg.kdownloader",
-  productName: "K-Downloader",
-  executableName: "k-downloader",
+  appId: "com.kelmankenberg.khinsiderdownloader",
+  productName: "Khinsider Downloader",
+  executableName: "khinsider-downloader",
   directories: { output: "release", buildResources: "assets" },
   asar: true,
   npmRebuild: false,
@@ -51242,14 +51242,14 @@ module.exports = {
   extraResources: [{ from: ".packaging/chromium", to: "chromium" }],
   linux: {
     target: ["deb", "AppImage"],
-    icon: "assets/k-downloader.png",
+    icon: "assets/khinsider-downloader.png",
     category: "AudioVideo",
     synopsis: "Download public KHInsider soundtrack tracks",
-    desktop: { entry: { Name: "K-Downloader", StartupWMClass: "k-downloader", Terminal: "false" } },
-    artifactName: "K-Downloader-${version}-${arch}.${ext}",
+    desktop: { entry: { Name: "Khinsider Downloader", StartupWMClass: "khinsider-downloader", Terminal: "false" } },
+    artifactName: "Khinsider Downloader-${version}-${arch}.${ext}",
   },
   deb: {
-    packageName: "k-downloader",
+    packageName: "khinsider-downloader",
     compression: "gz",
     recommends: [],
     depends: [
@@ -51262,9 +51262,9 @@ module.exports = {
   },
   afterPack: async ({ appOutDir, electronPlatformName }) => {
     if (electronPlatformName !== "linux") return;
-    await rename(resolve(appOutDir, "k-downloader"), resolve(appOutDir, "k-downloader-bin"));
-    await copyFile(resolve(__dirname, "scripts/linux-launcher.sh"), resolve(appOutDir, "k-downloader"));
-    await chmod(resolve(appOutDir, "k-downloader"), 0o755);
+    await rename(resolve(appOutDir, "khinsider-downloader"), resolve(appOutDir, "khinsider-downloader-bin"));
+    await copyFile(resolve(__dirname, "scripts/linux-launcher.sh"), resolve(appOutDir, "khinsider-downloader"));
+    await chmod(resolve(appOutDir, "khinsider-downloader"), 0o755);
   },
 };
 ```
@@ -51308,13 +51308,13 @@ function command(file, args, options = {}) {
 }
 
 function maintainer() {
-  if (process.env.K_DOWNLOADER_MAINTAINER) return process.env.K_DOWNLOADER_MAINTAINER;
+  if (process.env.KHINSIDER_DOWNLOADER_MAINTAINER) return process.env.KHINSIDER_DOWNLOADER_MAINTAINER;
   try {
     const name = command("git", ["config", "user.name"], { encoding: "utf8", stdio: "pipe" }).trim();
     const email = command("git", ["config", "user.email"], { encoding: "utf8", stdio: "pipe" }).trim();
     if (name && email) return `${name} <${email}>`;
   } catch {}
-  throw new Error("Set K_DOWNLOADER_MAINTAINER='Name <email>' or configure Git user.name/user.email for .deb metadata.");
+  throw new Error("Set KHINSIDER_DOWNLOADER_MAINTAINER='Name <email>' or configure Git user.name/user.email for .deb metadata.");
 }
 
 const packageMaintainer = selected.includes("deb") ? maintainer() : undefined;
@@ -51349,7 +51349,7 @@ for (const artifact of artifacts.filter((path) => path.endsWith(".deb") || path.
   checksums.push(`${hash.digest("hex")}  ${artifact.split("/").at(-1)}`);
 }
 if (checksums.length) {
-  const filename = `K-Downloader-${manifest.version}-SHA256SUMS.txt`;
+  const filename = `Khinsider Downloader-${manifest.version}-SHA256SUMS.txt`;
   await writeFile(resolve(root, "release", filename), `${checksums.join("\n")}\n`);
 }
 console.log("Package output: release/ (nothing was published to GitHub).");
@@ -51447,7 +51447,7 @@ npm ls @electron/get
 **Result:**
 
 ```
-k-downloader@0.1.0 /home/kel/dev/K-Downloader
+khinsider-downloader@0.1.0 /home/kel/dev/Khinsider-Downloader
 ├─┬ electron-builder@26.15.3
 │ └─┬ app-builder-lib@26.15.3
 │   └── @electron/get@3.1.0 invalid: "^5.1.0" from node_modules/app-builder-lib
@@ -51455,7 +51455,7 @@ k-downloader@0.1.0 /home/kel/dev/K-Downloader
   └── @electron/get@5.1.0
 
 npm error code ELSPROBLEMS
-npm error invalid: @electron/get@3.1.0 /home/kel/dev/K-Downloader/node_modules/a
+npm error invalid: @electron/get@3.1.0 /home/kel/dev/Khinsider-Downloader/node_modules/a
 pp-builder-lib/node_modules/@electron/get
 npm error A complete log of this run can be found in: /home/kel/.npm/_logs/2026-
 10-12T19_16_51_869Z-debug-0.log
@@ -51472,21 +51472,21 @@ Read `package.json`
 **Input:**
 
 - endLine: `110`
-- filePath: `/home/kel/dev/K-Downloader/package.json`
+- filePath: `/home/kel/dev/Khinsider-Downloader/package.json`
 - startLine: `1`
 
 **Result:**
 
 ```
 {
-  "name": "k-downloader",
+  "name": "khinsider-downloader",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "main": "dist/electron/main.cjs",
   "description": "Linux desktop downloader for public KHInsider album tracks",
   "author": "kelmankenberg",
-  "homepage": "https://github.com/kelmankenberg/K-Downloader",
+  "homepage": "https://github.com/kelmankenberg/Khinsider-Downloader",
   "license": "UNLICENSED",
   "engines": {
     "node": ">=20"
@@ -51619,7 +51619,7 @@ Generating patch (10 lines) in `package.json`
 
 ```
 *** Begin Patch
-*** Update File: /home/kel/dev/K-Downloader/package.json
+*** Update File: /home/kel/dev/Khinsider-Downloader/package.json
 @@
    "overrides": {
 -    "app-builder-lib": {
@@ -51635,7 +51635,7 @@ Generating patch (10 lines) in `package.json`
 
 ```
 The following files were successfully edited:
-/home/kel/dev/K-Downloader/package.json
+/home/kel/dev/Khinsider-Downloader/package.json
 ```
 </details></tool-use>
 
@@ -51648,14 +51648,14 @@ _**Agent (copilot/auto)**_
 
 ```
 {
-  "name": "k-downloader",
+  "name": "khinsider-downloader",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "main": "dist/electron/main.cjs",
   "description": "Linux desktop downloader for public KHInsider album tracks",
   "author": "kelmankenberg",
-  "homepage": "https://github.com/kelmankenberg/K-Downloader",
+  "homepage": "https://github.com/kelmankenberg/Khinsider-Downloader",
   "license": "UNLICENSED",
   "engines": {
     "node": ">=20"
@@ -51756,7 +51756,7 @@ npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install
 -scripts approve <pkg>` to allow.
 found 0 vulnerabilities
 
-> k-downloader@0.1.0 package:dir
+> khinsider-downloader@0.1.0 package:dir
 > node scripts/package-linux.mjs dir
 
 Built Electron main/preload and local renderer into dist/.
@@ -51770,7 +51770,7 @@ wnloader/node_modules/playwright/package.json
     at wrapResolveFilename (node:internal/modules/cjs/loader:1123:27)
     at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1174:12)
     at require.resolve (node:internal/modules/helpers:214:31)
-    at file:///home/kel/dev/K-Downloader/scripts/package-lin
+    at file:///home/kel/dev/Khinsider-Downloader/scripts/package-lin
 … (output truncated)
 ```
 </details></tool-use>
@@ -51809,13 +51809,13 @@ function command(file, args, options = {}) {
 }
 
 function maintainer() {
-  if (process.env.K_DOWNLOADER_MAINTAINER) return process.env.K_DOWNLOADER_MAINTAINER;
+  if (process.env.KHINSIDER_DOWNLOADER_MAINTAINER) return process.env.KHINSIDER_DOWNLOADER_MAINTAINER;
   try {
     const name = command("git", ["config", "user.name"], { encoding: "utf8", stdio: "pipe" }).trim();
     const email = command("git", ["config", "user.email"], { encoding: "utf8", stdio: "pipe" }).trim();
     if (name && email) return `${name} <${email}>`;
   } catch {}
-  throw new Error("Set K_DOWNLOADER_MAINTAINER='Name <email>' or configure Git user.name/user.email for .deb metadata.");
+  throw new Error("Set KHINSIDER_DOWNLOADER_MAINTAINER='Name <email>' or configure Git user.name/user.email for .deb metadata.");
 }
 
 const packageMaintainer = selected.includes("deb") ? maintainer() : undefined;
@@ -51851,7 +51851,7 @@ for (const artifact of artifacts.filter((path) => path.endsWith(".deb") || path.
   checksums.push(`${hash.digest("hex")}  ${artifact.split("/").at(-1)}`);
 }
 if (checksums.length) {
-  const filename = `K-Downloader-${manifest.version}-SHA256SUMS.txt`;
+  const filename = `Khinsider Downloader-${manifest.version}-SHA256SUMS.txt`;
   await writeFile(resolve(root, "release", filename), `${checksums.join("\n")}\n`);
 }
 console.log("Package output: release/ (nothing was published to GitHub).");
@@ -51875,7 +51875,7 @@ npm run package:dir
 
 ```
 
-> k-downloader@0.1.0 package:dir
+> khinsider-downloader@0.1.0 package:dir
 > node scripts/package-linux.mjs dir
 
 Built Electron main/preload and local renderer into dist/.
@@ -51885,13 +51885,13 @@ Downloading Chrome for Testing 156.0.8078.4 (playwright chromium v1248) from htt
 ps://cdn.playwright.dev/builds/cft/156.0.8078.4/linux64/chrome-linux64.zip
 191.1 MiB [====================] 100% 0.0s
 Chrome for Testing 156.0.8078.4 (playwright chromium v1248) downloaded to /home/
-kel/dev/K-Downloader/.packaging/browser-cache/chromium-1248
+kel/dev/Khinsider Downloader/.packaging/browser-cache/chromium-1248
 BEWARE: your OS is not officially supported by Playwright; downloading fallback
 build for ubuntu24.04-x64.
 Downloading FFmpeg (playwright ffmpeg v1013) from https://cdn.playwright.dev/dba
 zure/download/playwright/builds/ffmpeg/1013/ffmpeg-linux.zip
 2.2 MiB [====================] 100% 0.0s
-FFmpeg (playwright ffmpeg v1013) downloaded to /home/kel/dev/K-Downloader/.packa
+FFmpeg (playwright ffmpeg v1013) downloaded to /home/kel/dev/Khinsider-Downloader/.packa
 ging/browser-cache/ffmpeg-1013
   • electron-builder  version=26.15.3 os=7.0.0-38-generic
   • writing effective config  file=release/builder-effective-config.yaml
@@ -51900,9 +51900,9 @@ ging/browser-cache/ffmpeg-1013
 nux-unpacked
   • using custom unpacked Electron distribution  electronDist=node_modules/elect
 ron/dist
-  • copying unpacked Electron  source=/home/kel/dev/K-Downloader/node_modules/el
-ectron/dist destination=/home/kel/dev/K-Downloader/release/linux-unpacked
-  • searching for node modules  pm=npm searchDir=/home/kel/dev/K-Downloader
+  • copying unpacked Electron  source=/home/kel/dev/Khinsider-Downloader/node_modules/el
+ectron/dist destination=/home/kel/dev/Khinsider-Downloader/release/linux-unpacked
+  • searching for node modules  pm=npm searchDir=/home/kel/dev/Khinsider-Downloader
 Package output: release/ (nothing was published to GitHub).
 ```
 </details></tool-use>
@@ -51921,7 +51921,7 @@ Running ` node --input-type=module -e 'import \{ \_electron as electron \} from 
 Smoke-test the actual packaged GUI, packaged Playwright/browser resources, and embedded-Node CLI without requiring a display for help.
 
 ```bash
-node --input-type=module -e 'import { _electron as electron } from "playwright"; import { execFileSync } from "node:child_process"; import { mkdtemp, rm } from "node:fs/promises"; import { resolve } from "node:path"; import { tmpdir } from "node:os"; const profile = await mkdtemp(resolve(tmpdir(), "k-downloader-package-smoke-")); const binary = resolve("release/linux-unpacked/k-downloader-bin"); const app = await electron.launch({ executablePath: binary, args: [`--user-data-dir=${profile}`] }); try { const page = await app.firstWindow(); await page.waitForFunction(() => document.documentElement.dataset.mode); const state = await app.evaluate(async ({ app }) => { const fs = require("node:fs"); const playwright = require(app.getAppPath() + "/node_modules/playwright"); const browser = await playwright.chromium.launch({ executablePath: process.env.K_DOWNLOADER_CHROMIUM_PATH, headless: true }); try { const page = await browser.newPage(); await page.setContent("<h1>Bundled browser works</h1>"); return { packaged: app.isPackaged, appPath: app.getAppPath(), browserExists: fs.existsSync(process.env.K_DOWNLOADER_CHROMIUM_PATH), browserTitle: await page.locator("h1").textContent() }; } finally { await browser.close(); } }); console.log(JSON.stringify(state)); if (!state.packaged || !state.browserExists) throw new Error("Incomplete package runtime"); await page.screenshot({path:"/tmp/k-downloader-packaged.png"}); } finally { await app.close(); await rm(profile,{recursive:true,force:true}); } const env = {...process.env}; delete env.DISPLAY; delete env.WAYLAND_DISPLAY; try { console.log(execFileSync(resolve("release/linux-unpacked/k-downloader"),["--help"],{env,encoding:"utf8",stdio:["ignore","pipe","pipe"]})); } catch (error) { console.log(error.stdout?.toString()); console.log(error.stderr?.toString()); if (error.status !== 2 || !error.stderr?.toString().includes("Usage:")) throw error; console.log("Packaged CLI help ran without a display (existing usage exit code: 2)."); }'
+node --input-type=module -e 'import { _electron as electron } from "playwright"; import { execFileSync } from "node:child_process"; import { mkdtemp, rm } from "node:fs/promises"; import { resolve } from "node:path"; import { tmpdir } from "node:os"; const profile = await mkdtemp(resolve(tmpdir(), "khinsider-downloader-package-smoke-")); const binary = resolve("release/linux-unpacked/khinsider-downloader-bin"); const app = await electron.launch({ executablePath: binary, args: [`--user-data-dir=${profile}`] }); try { const page = await app.firstWindow(); await page.waitForFunction(() => document.documentElement.dataset.mode); const state = await app.evaluate(async ({ app }) => { const fs = require("node:fs"); const playwright = require(app.getAppPath() + "/node_modules/playwright"); const browser = await playwright.chromium.launch({ executablePath: process.env.KHINSIDER_DOWNLOADER_CHROMIUM_PATH, headless: true }); try { const page = await browser.newPage(); await page.setContent("<h1>Bundled browser works</h1>"); return { packaged: app.isPackaged, appPath: app.getAppPath(), browserExists: fs.existsSync(process.env.KHINSIDER_DOWNLOADER_CHROMIUM_PATH), browserTitle: await page.locator("h1").textContent() }; } finally { await browser.close(); } }); console.log(JSON.stringify(state)); if (!state.packaged || !state.browserExists) throw new Error("Incomplete package runtime"); await page.screenshot({path:"/tmp/khinsider-downloader-packaged.png"}); } finally { await app.close(); await rm(profile,{recursive:true,force:true}); } const env = {...process.env}; delete env.DISPLAY; delete env.WAYLAND_DISPLAY; try { console.log(execFileSync(resolve("release/linux-unpacked/khinsider-downloader"),["--help"],{env,encoding:"utf8",stdio:["ignore","pipe","pipe"]})); } catch (error) { console.log(error.stdout?.toString()); console.log(error.stderr?.toString()); if (error.status !== 2 || !error.stderr?.toString().includes("Usage:")) throw error; console.log("Packaged CLI help ran without a display (existing usage exit code: 2)."); }'
 ```
 
 **Result:**
@@ -51935,7 +51935,7 @@ electronApplication.evaluate: ReferenceError: require is not defined
     at eval (eval at evaluate (:370:30), <anonymous>:1:33)
     at UtilityScript.evaluate (<anonymous>:372:16)
     at UtilityScript.<anonymous> (<anonymous>:1:44)
-    at /home/kel/dev/K-Downloader/[eval1]:1:613 {
+    at /home/kel/dev/Khinsider-Downloader/[eval1]:1:613 {
   log: []
 }
 
@@ -51957,25 +51957,25 @@ Running ` node --input-type=module -e 'import \{ \_electron as electron \} from 
 Verify packaged GUI metadata/resources and launch bundled Chromium and CLI via embedded Node, with no network requests.
 
 ```bash
-node --input-type=module -e 'import { _electron as electron } from "playwright"; import { execFileSync } from "node:child_process"; import { existsSync } from "node:fs"; import { mkdtemp, rm } from "node:fs/promises"; import { resolve } from "node:path"; import { tmpdir } from "node:os"; const profile = await mkdtemp(resolve(tmpdir(), "k-downloader-package-smoke-")); const binary = resolve("release/linux-unpacked/k-downloader-bin"); const app = await electron.launch({ executablePath: binary, args: [`--user-data-dir=${profile}`] }); let state; try { const page = await app.firstWindow(); await page.waitForFunction(() => document.documentElement.dataset.mode); state = await app.evaluate(({ app }) => ({ packaged: app.isPackaged, appPath: app.getAppPath(), browserPath: process.env.K_DOWNLOADER_CHROMIUM_PATH })); console.log(JSON.stringify(state)); if (!state.packaged || !existsSync(state.browserPath)) throw new Error("Incomplete package runtime"); await page.screenshot({path:"/tmp/k-downloader-packaged.png"}); } finally { await app.close(); await rm(profile,{recursive:true,force:true}); } const env = {...process.env, ELECTRON_RUN_AS_NODE:"1"}; delete env.DISPLAY; delete env.WAYLAND_DISPLAY; const browserScript = `const {chromium}=require(${JSON.stringify(state.appPath + "/node_modules/playwright")}); (async()=>{const browser=await chromium.launch({executablePath:${JSON.stringify(state.browserPath)},headless:true});try{const page=await browser.newPage();await page.setContent("<h1>Bundled browser works</h1>");console.log(await page.locator("h1").textContent());}finally{await browser.close();}})().catch(error=>{console.error(error);process.exitCode=1});`; console.log(execFileSync(binary,["--eval",browserScript],{env,encoding:"utf8"})); try { console.log(execFileSync(resolve("release/linux-unpacked/k-downloader"),["--help"],{env,encoding:"utf8",stdio:["ignore","pipe","pipe"]})); } catch(error) { console.log(error.stderr?.toString()); if(error.status!==2 || !error.stderr?.toString().includes("Usage:")) throw error; console.log("Packaged CLI help ran without a display."); }'
+node --input-type=module -e 'import { _electron as electron } from "playwright"; import { execFileSync } from "node:child_process"; import { existsSync } from "node:fs"; import { mkdtemp, rm } from "node:fs/promises"; import { resolve } from "node:path"; import { tmpdir } from "node:os"; const profile = await mkdtemp(resolve(tmpdir(), "khinsider-downloader-package-smoke-")); const binary = resolve("release/linux-unpacked/khinsider-downloader-bin"); const app = await electron.launch({ executablePath: binary, args: [`--user-data-dir=${profile}`] }); let state; try { const page = await app.firstWindow(); await page.waitForFunction(() => document.documentElement.dataset.mode); state = await app.evaluate(({ app }) => ({ packaged: app.isPackaged, appPath: app.getAppPath(), browserPath: process.env.KHINSIDER_DOWNLOADER_CHROMIUM_PATH })); console.log(JSON.stringify(state)); if (!state.packaged || !existsSync(state.browserPath)) throw new Error("Incomplete package runtime"); await page.screenshot({path:"/tmp/khinsider-downloader-packaged.png"}); } finally { await app.close(); await rm(profile,{recursive:true,force:true}); } const env = {...process.env, ELECTRON_RUN_AS_NODE:"1"}; delete env.DISPLAY; delete env.WAYLAND_DISPLAY; const browserScript = `const {chromium}=require(${JSON.stringify(state.appPath + "/node_modules/playwright")}); (async()=>{const browser=await chromium.launch({executablePath:${JSON.stringify(state.browserPath)},headless:true});try{const page=await browser.newPage();await page.setContent("<h1>Bundled browser works</h1>");console.log(await page.locator("h1").textContent());}finally{await browser.close();}})().catch(error=>{console.error(error);process.exitCode=1});`; console.log(execFileSync(binary,["--eval",browserScript],{env,encoding:"utf8"})); try { console.log(execFileSync(resolve("release/linux-unpacked/khinsider-downloader"),["--help"],{env,encoding:"utf8",stdio:["ignore","pipe","pipe"]})); } catch(error) { console.log(error.stderr?.toString()); if(error.status!==2 || !error.stderr?.toString().includes("Usage:")) throw error; console.log("Packaged CLI help ran without a display."); }'
 ```
 
 **Result:**
 
 ```
-kel@kel-EQ-Mint:~/dev/K-Downloader$  node --input-type=module -e 'import { _elec
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  node --input-type=module -e 'import { _elec
 tron as electron } from "playwright"; import { execFileSync } from "node:child_p
 rocess"; import { existsSync } from "node:fs"; import { mkdtemp, rm } from "node
 :fs/promises"; import { resolve } from "node:path"; import { tmpdir } from "node
-:os"; const profile = await mkdtemp(resolve(tmpdir(), "k-downloader-package-smok
-e-")); const binary = resolve("release/linux-unpacked/k-downloader-bin"); const
+:os"; const profile = await mkdtemp(resolve(tmpdir(), "khinsider-downloader-package-smok
+e-")); const binary = resolve("release/linux-unpacked/khinsider-downloader-bin"); const
 app = await electron.launch({ executablePath: binary, args: [`--user-data-dir=${
 profile}`] }); let state; try { const page = await app.firstWindow(); await page
 .waitForFunction(() => document.documentElement.dataset.mode); state = await app
 .evaluate(({ app }) => ({ packaged: app.isPackaged, appPath: app.getAppPath(), b
-rowserPath: process.env.K_DOWNLOADER_CHROMIUM_PATH })); console.log(JSON.stringi
+rowserPath: process.env.KHINSIDER_DOWNLOADER_CHROMIUM_PATH })); console.log(JSON.stringi
 fy(state)); if (!state.packaged || !existsSync(state.browserPath)) throw new Err
-or("Incomplete package runtime"); await page.screenshot({path:"/tmp/k-downloader
+or("Incomplete package runtime"); await page.screenshot({path:"/tmp/khinsider-downloader
 -packaged.png"}); } finally { await app.close(); await rm(profile,{recursive:tru
 e,force:true}); } const env = {...process.env, ELECTRON_RUN_AS_NODE:"1"}; delete
  env.DISPLAY; delete env.WAYLAND_DISPLAY; const browserScript = `const {chromium
@@ -51986,7 +51986,7 @@ setContent("<h1>Bundled browser works</h1>");console.log(await page.locator("h1"
 ).textContent());}finally{await browser.close();}})().catch(error=>{console.erro
 r(error);process.exitCode=1});`; console.log(execFileSync(binary,["--eval",brows
 erScript],{env,encoding:"utf8"})); try { console.log(execFileSync(resolve("relea
-se/linux-unpacked/k-downloader"),["--help"],{env,encoding:"utf8",stdio:["ignore"
+se/linux-unpacked/khinsider-downloader"),["--help"],{env,encoding:"utf8",stdio:["ignore"
 ,"pipe","pipe"]})); } catch(error) { console.log(error.st
 … (output truncated)
 ```
@@ -52012,8 +52012,8 @@ import { defaultOutputRoot } from "./output.js";
 import { resolve } from "node:path";
 
 function usage(exitCode = 2): never {
-  const inspect = process.env.K_DOWNLOADER_CHROMIUM_PATH ? "k-downloader inspect" : "npm run inspect --";
-  const download = process.env.K_DOWNLOADER_CHROMIUM_PATH ? "k-downloader download" : "npm run download --";
+  const inspect = process.env.KHINSIDER_DOWNLOADER_CHROMIUM_PATH ? "khinsider-downloader inspect" : "npm run inspect --";
+  const download = process.env.KHINSIDER_DOWNLOADER_CHROMIUM_PATH ? "khinsider-downloader download" : "npm run download --";
   console.error(`Usage:\n  ${inspect} <album-url>\n  ${download} <album-url> [--format prefer-lossless|lossless-only|FORMAT] [--skip-unavailable] [--disc-label CD|Disc] [--output DIR]`);
   process.exit(exitCode);
 }
@@ -52098,7 +52098,7 @@ async function main(): Promise<void> {
 }
 
 main().catch((error: unknown) => {
-  console.error(`K-Downloader failed: ${error instanceof Error ? error.message : String(error)}`);
+  console.error(`Khinsider Downloader failed: ${error instanceof Error ? error.message : String(error)}`);
   process.exitCode = 1;
 });
 ```
@@ -52142,13 +52142,13 @@ function command(file, args, options = {}) {
 }
 
 function maintainer() {
-  if (process.env.K_DOWNLOADER_MAINTAINER) return process.env.K_DOWNLOADER_MAINTAINER;
+  if (process.env.KHINSIDER_DOWNLOADER_MAINTAINER) return process.env.KHINSIDER_DOWNLOADER_MAINTAINER;
   try {
     const name = command("git", ["config", "user.name"], { encoding: "utf8", stdio: "pipe" }).trim();
     const email = command("git", ["config", "user.email"], { encoding: "utf8", stdio: "pipe" }).trim();
     if (name && email) return `${name} <${email}>`;
   } catch {}
-  throw new Error("Set K_DOWNLOADER_MAINTAINER='Name <email>' or configure Git user.name/user.email for .deb metadata.");
+  throw new Error("Set KHINSIDER_DOWNLOADER_MAINTAINER='Name <email>' or configure Git user.name/user.email for .deb metadata.");
 }
 
 const packageMaintainer = selected.includes("deb") ? maintainer() : undefined;
@@ -52185,7 +52185,7 @@ for (const artifact of artifacts.filter((path) => path.endsWith(".deb") || path.
   checksums.push(`${hash.digest("hex")}  ${artifact.split("/").at(-1)}`);
 }
 if (checksums.length) {
-  const filename = `K-Downloader-${manifest.version}-SHA256SUMS.txt`;
+  const filename = `Khinsider Downloader-${manifest.version}-SHA256SUMS.txt`;
   await writeFile(resolve(root, "release", filename), `${checksums.join("\n")}\n`);
 }
 console.log("Package output: release/ (nothing was published to GitHub).");
@@ -52209,7 +52209,7 @@ npm run package:linux
 
 ```
 
-> k-downloader@0.1.0 package:linux
+> khinsider-downloader@0.1.0 package:linux
 > node scripts/package-linux.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -52224,18 +52224,18 @@ build for ubuntu24.04-x64.
 nux-unpacked
   • using custom unpacked Electron distribution  electronDist=node_modules/elect
 ron/dist
-  • copying unpacked Electron  source=/home/kel/dev/K-Downloader/node_modules/el
-ectron/dist destination=/home/kel/dev/K-Downloader/release/linux-unpacked
-  • searching for node modules  pm=npm searchDir=/home/kel/dev/K-Downloader
-  • building        target=AppImage arch=x64 file=release/K-Downloader-0.1.0-x86
+  • copying unpacked Electron  source=/home/kel/dev/Khinsider-Downloader/node_modules/el
+ectron/dist destination=/home/kel/dev/Khinsider-Downloader/release/linux-unpacked
+  • searching for node modules  pm=npm searchDir=/home/kel/dev/Khinsider-Downloader
+  • building        target=AppImage arch=x64 file=release/Khinsider Downloader-0.1.0-x86
 _64.AppImage
   • electron uses desktopName as app_id / WM_CLASS for window association. Witho
 ut it desktop environments may not link running windows to this .desktop entry.
 Set desktopName in package.json and linux.syncDesktopName: true to fix.  reason=
 desktopName is not set in package.json docs=https://www.electron.build/linux#win
 dow-association-desktopname--syncdesktopname
-  • building embedded block map  file=release/K-Downloader-0.1.0-x86_64.AppImage
-  • building        target=deb arch=x64 file=release/K-Downloader-0.1.0-amd64.de
+  • building embedded block map  file=release/Khinsider Downloader-0.1.0-x86_64.AppImage
+  • building        target=deb arch=x64 file=release/Khinsider Downloader-0.1.0-amd64.de
 b
   • adding autoupdate files for: deb  resourceDir=release/linux-unpacked/resourc
 es
@@ -52266,22 +52266,22 @@ Generating patch (80 lines) in `package.json`, `electron-builder.config.cjs`, `m
 
 ```
 *** Begin Patch
-*** Update File: /home/kel/dev/K-Downloader/package.json
+*** Update File: /home/kel/dev/Khinsider-Downloader/package.json
 @@
    "main": "dist/electron/main.cjs",
-+  "desktopName": "k-downloader.desktop",
++  "desktopName": "khinsider-downloader.desktop",
 @@
      "package:dir": "node scripts/package-linux.mjs dir",
 +    "test:packages": "node scripts/test-packages.mjs",
-*** Update File: /home/kel/dev/K-Downloader/electron-builder.config.cjs
+*** Update File: /home/kel/dev/Khinsider-Downloader/electron-builder.config.cjs
 @@
    linux: {
 +    syncDesktopName: true,
-*** Update File: /home/kel/dev/K-Downloader/src/electron/main.ts
+*** Update File: /home/kel/dev/Khinsider-Downloader/src/electron/main.ts
 @@
- app.setName("K-Downloader");
-+if (process.platform === "linux") app.setDesktopName("k-downloader.desktop");
-*** Add File: /home/kel/dev/K-Downloader/scripts/test-packages.mjs
+ app.setName("Khinsider Downloader");
++if (process.platform === "linux") app.setDesktopName("khinsider-downloader.desktop");
+*** Add File: /home/kel/dev/Khinsider-Downloader/scripts/test-packages.mjs
 +import { execFileSync } from "node:child_process";
 +import { mkdtemp, readFile, readdir, rm } from "node:fs/promises";
 +import { dirname, resolve } from "node:path";
@@ -52291,7 +52291,7 @@ Generating patch (80 lines) in `package.json`, `electron-builder.config.cjs`, `m
 +
 +const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 +const { version } = JSON.parse(await readFile(resolve(root, "package.json"), "utf8"));
-+const temporary = await mkdtemp(resolve(tmpdir(), "k-downloader-artifacts-"));
++const temporary = await mkdtemp(resolve(tmpdir(), "khinsider-downloader-artifacts-"));
 +const env = { ...process.env, XDG_CURRENT_DESKTOP: "Test" };
 +const headlessEnv = { ...env };
 +delete headlessEnv.DISPLAY;
@@ -52300,7 +52300,7 @@ Generating patch (80 lines) in `package.json`, `electron-builder.config.cjs`, `m
 +async function findBinary(directory) {
 +  for (const entry of await readdir(directory, { withFileTypes: true })) {
 +    const path = resolve(directory, entry.name);
-+    if (entry.isFile() && entry.name === "k-downloader-bin") return path;
++    if (entry.isFile() && entry.name === "khinsider-downloader-bin") return path;
 +    if (entry.isDirectory()) {
 +      const found = await findBinary(path);
 +      if (found) return found;
@@ -52310,8 +52310,8 @@ Generating patch (80 lines) in `package.json`, `electron-builder.config.cjs`, `m
 +
 +try {
 +  const cases = [
-+    { extension: "deb", artifact: `K-Downloader-${version}-amd64.deb` },
-+    { extension: "AppImage", artifact: `K-Downloader-${version}-x86_64.AppImage` },
++    { extension: "deb", artifact: `Khinsider Downloader-${version}-amd64.deb` },
++    { extension: "AppImage", artifact: `Khinsider Downloader-${version}-x86_64.AppImage` },
 +  ];
 +  for (const [index, item] of cases.entries()) {
 +    const artifact = resolve(root, "release", item.artifact);
@@ -52321,13 +52321,13 @@ Generating patch (80 lines) in `package.json`, `electron-builder.config.cjs`, `m
 +    const binary = await findBinary(directory);
 +    if (!binary) throw new Error(`Missing application executable in ${item.artifact}`);
 +    const appDir = dirname(binary);
-+    const cli = execFileSync(resolve(appDir, "k-downloader"), ["--help"], { env: headlessEnv, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
++    const cli = execFileSync(resolve(appDir, "khinsider-downloader"), ["--help"], { env: headlessEnv, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
 +    const app = await electron.launch({ executablePath: binary, args: [`--user-data-dir=${resolve(temporary, `profile-${index}`)}`], env });
 +    let state;
 +    try {
 +      const page = await app.firstWindow();
 +      await page.waitForFunction(() => document.documentElement.dataset.mode);
-+      state = await app.evaluate(({ app }) => ({ packaged: app.isPackaged, appPath: app.getAppPath(), browserPath: process.env.K_DOWNLOADER_CHROMIUM_PATH }));
++      state = await app.evaluate(({ app }) => ({ packaged: app.isPackaged, appPath: app.getAppPath(), browserPath: process.env.KHINSIDER_DOWNLOADER_CHROMIUM_PATH }));
 +      if (!state.packaged) throw new Error("Artifact did not start in packaged mode");
 +      await page.getByRole("button", { name: "More options", exact: true }).click();
 +      await page.getByRole("menuitem", { name: "Help", exact: true }).click();
@@ -52352,10 +52352,10 @@ Generating patch (80 lines) in `package.json`, `electron-builder.config.cjs`, `m
 
 ```
 The following files were successfully edited:
-/home/kel/dev/K-Downloader/package.json
-/home/kel/dev/K-Downloader/electron-builder.config.cjs
-/home/kel/dev/K-Downloader/src/electron/main.ts
-/home/kel/dev/K-Downloader/scripts/test-packages.mjs
+/home/kel/dev/Khinsider-Downloader/package.json
+/home/kel/dev/Khinsider-Downloader/electron-builder.config.cjs
+/home/kel/dev/Khinsider-Downloader/src/electron/main.ts
+/home/kel/dev/Khinsider-Downloader/scripts/test-packages.mjs
 ```
 </details></tool-use>
 
@@ -52368,15 +52368,15 @@ _**Agent (copilot/auto)**_
 
 ```
 {
-  "name": "k-downloader",
+  "name": "khinsider-downloader",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "main": "dist/electron/main.cjs",
-  "desktopName": "k-downloader.desktop",
+  "desktopName": "khinsider-downloader.desktop",
   "description": "Linux desktop downloader for public KHInsider album tracks",
   "author": "kelmankenberg",
-  "homepage": "https://github.com/kelmankenberg/K-Downloader",
+  "homepage": "https://github.com/kelmankenberg/Khinsider-Downloader",
   "license": "UNLICENSED",
   "engines": {
     "node": ">=20"
@@ -52440,9 +52440,9 @@ const { chmod, copyFile, rename } = require("node:fs/promises");
 const { resolve } = require("node:path");
 
 module.exports = {
-  appId: "com.kelmankenberg.kdownloader",
-  productName: "K-Downloader",
-  executableName: "k-downloader",
+  appId: "com.kelmankenberg.khinsiderdownloader",
+  productName: "Khinsider Downloader",
+  executableName: "khinsider-downloader",
   directories: { output: "release", buildResources: "assets" },
   asar: true,
   npmRebuild: false,
@@ -52451,14 +52451,14 @@ module.exports = {
   linux: {
     syncDesktopName: true,
     target: ["deb", "AppImage"],
-    icon: "assets/k-downloader.png",
+    icon: "assets/khinsider-downloader.png",
     category: "AudioVideo",
     synopsis: "Download public KHInsider soundtrack tracks",
-    desktop: { entry: { Name: "K-Downloader", StartupWMClass: "k-downloader", Terminal: "false" } },
-    artifactName: "K-Downloader-${version}-${arch}.${ext}",
+    desktop: { entry: { Name: "Khinsider Downloader", StartupWMClass: "khinsider-downloader", Terminal: "false" } },
+    artifactName: "Khinsider Downloader-${version}-${arch}.${ext}",
   },
   deb: {
-    packageName: "k-downloader",
+    packageName: "khinsider-downloader",
     compression: "gz",
     recommends: [],
     depends: [
@@ -52471,9 +52471,9 @@ module.exports = {
   },
   afterPack: async ({ appOutDir, electronPlatformName }) => {
     if (electronPlatformName !== "linux") return;
-    await rename(resolve(appOutDir, "k-downloader"), resolve(appOutDir, "k-downloader-bin"));
-    await copyFile(resolve(__dirname, "scripts/linux-launcher.sh"), resolve(appOutDir, "k-downloader"));
-    await chmod(resolve(appOutDir, "k-downloader"), 0o755);
+    await rename(resolve(appOutDir, "khinsider-downloader"), resolve(appOutDir, "khinsider-downloader-bin"));
+    await copyFile(resolve(__dirname, "scripts/linux-launcher.sh"), resolve(appOutDir, "khinsider-downloader"));
+    await chmod(resolve(appOutDir, "khinsider-downloader"), 0o755);
   },
 };
 ```
@@ -52519,8 +52519,8 @@ let instanceNoticeOpen = false;
 let cinnamonDark: boolean | undefined;
 let stopThemeMonitor: (() => void) | undefined;
 
-app.setName("K-Downloader");
-if (process.platform === "linux") app.setDesktopName("k-downloader.desktop");
+app.setName("Khinsider Downloader");
+if (process.platform === "linux") app.setDesktopName("khinsider-downloader.desktop");
 const primaryInstance = app.requestSingleInstanceLock();
 if (!primaryInstance) app.quit();
 else app.on("second-instance", () => {
@@ -52544,8 +52544,8 @@ async function notifyExistingInstance(): Promise<void> {
   try {
     await dialog.showMessageBox(window, {
       type: "info",
-      title: "K-Downloader is already running",
-      message: "K-Downloader is already running.",
+      title: "Khinsider Downloader is already running",
+      message: "Khinsider Downloader is already running.",
       detail: "Only one instance can run. Continue in the existing window.",
       buttons: ["Show running app"],
       defaultId: 0,
@@ -52625,7 +52625,7 @@ function sendWindowState(window: BrowserWindow): void {
 function registerIpc(): void {
   ipcMain.handle("support:report-issue", async (event) => {
     const window = assertWindowSender(event.sender.id);
-    const url = "https://github.com/kelmankenberg/K-Downloader/issues/new/choose";
+    const url = "https://github.com/kelmankenberg/Khinsider-Downloader/issues/new/choose";
     try {
       await shell.openExternal(url);
     } catch {
@@ -52792,8 +52792,8 @@ async function createWindow(): Promise<void> {
     minWidth: 760,
     minHeight: 620,
     backgroundColor: "#101715",
-    title: "K-Downloader",
-    icon: resolve(__dirname, "../assets/k-downloader.png"),
+    title: "Khinsider Downloader",
+    icon: resolve(__dirname, "../assets/khinsider-downloader.png"),
     webPreferences: {
       preload: resolve(__dirname, "preload.cjs"),
       contextIsolation: true,
@@ -52836,7 +52836,7 @@ async function createWindow(): Promise<void> {
 
 app.whenReady().then(async () => {
   if (!primaryInstance) return;
-  if (app.isPackaged) process.env.K_DOWNLOADER_CHROMIUM_PATH = resolve(process.resourcesPath, "chromium/chrome");
+  if (app.isPackaged) process.env.KHINSIDER_DOWNLOADER_CHROMIUM_PATH = resolve(process.resourcesPath, "chromium/chrome");
   nativeTheme.themeSource = "system";
   nativeTheme.on("updated", sendSystemTheme);
   stopThemeMonitor = await monitorCinnamonTheme((dark) => {
@@ -52886,7 +52886,7 @@ import { _electron as electron } from "playwright";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const { version } = JSON.parse(await readFile(resolve(root, "package.json"), "utf8"));
-const temporary = await mkdtemp(resolve(tmpdir(), "k-downloader-artifacts-"));
+const temporary = await mkdtemp(resolve(tmpdir(), "khinsider-downloader-artifacts-"));
 const env = { ...process.env, XDG_CURRENT_DESKTOP: "Test" };
 const headlessEnv = { ...env };
 delete headlessEnv.DISPLAY;
@@ -52895,7 +52895,7 @@ delete headlessEnv.WAYLAND_DISPLAY;
 async function findBinary(directory) {
   for (const entry of await readdir(directory, { withFileTypes: true })) {
     const path = resolve(directory, entry.name);
-    if (entry.isFile() && entry.name === "k-downloader-bin") return path;
+    if (entry.isFile() && entry.name === "khinsider-downloader-bin") return path;
     if (entry.isDirectory()) {
       const found = await findBinary(path);
       if (found) return found;
@@ -52905,8 +52905,8 @@ async function findBinary(directory) {
 
 try {
   const cases = [
-    { extension: "deb", artifact: `K-Downloader-${version}-amd64.deb` },
-    { extension: "AppImage", artifact: `K-Downloader-${version}-x86_64.AppImage` },
+    { extension: "deb", artifact: `Khinsider Downloader-${version}-amd64.deb` },
+    { extension: "AppImage", artifact: `Khinsider Downloader-${version}-x86_64.AppImage` },
   ];
   for (const [index, item] of cases.entries()) {
     const artifact = resolve(root, "release", item.artifact);
@@ -52916,13 +52916,13 @@ try {
     const binary = await findBinary(directory);
     if (!binary) throw new Error(`Missing application executable in ${item.artifact}`);
     const appDir = dirname(binary);
-    const cli = execFileSync(resolve(appDir, "k-downloader"), ["--help"], { env: headlessEnv, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+    const cli = execFileSync(resolve(appDir, "khinsider-downloader"), ["--help"], { env: headlessEnv, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
     const app = await electron.launch({ executablePath: binary, args: [`--user-data-dir=${resolve(temporary, `profile-${index}`)}`], env });
     let state;
     try {
       const page = await app.firstWindow();
       await page.waitForFunction(() => document.documentElement.dataset.mode);
-      state = await app.evaluate(({ app }) => ({ packaged: app.isPackaged, appPath: app.getAppPath(), browserPath: process.env.K_DOWNLOADER_CHROMIUM_PATH }));
+      state = await app.evaluate(({ app }) => ({ packaged: app.isPackaged, appPath: app.getAppPath(), browserPath: process.env.KHINSIDER_DOWNLOADER_CHROMIUM_PATH }));
       if (!state.packaged) throw new Error("Artifact did not start in packaged mode");
       await page.getByRole("button", { name: "More options", exact: true }).click();
       await page.getByRole("menuitem", { name: "Help", exact: true }).click();
@@ -52959,7 +52959,7 @@ npm run package:linux && npm run test:packages
 
 ```
 
-> k-downloader@0.1.0 package:linux
+> khinsider-downloader@0.1.0 package:linux
 > node scripts/package-linux.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -52974,24 +52974,24 @@ build for ubuntu24.04-x64.
 nux-unpacked
   • using custom unpacked Electron distribution  electronDist=node_modules/elect
 ron/dist
-  • copying unpacked Electron  source=/home/kel/dev/K-Downloader/node_modules/el
-ectron/dist destination=/home/kel/dev/K-Downloader/release/linux-unpacked
-  • searching for node modules  pm=npm searchDir=/home/kel/dev/K-Downloader
-  • building        target=AppImage arch=x64 file=release/K-Downloader-0.1.0-x86
+  • copying unpacked Electron  source=/home/kel/dev/Khinsider-Downloader/node_modules/el
+ectron/dist destination=/home/kel/dev/Khinsider-Downloader/release/linux-unpacked
+  • searching for node modules  pm=npm searchDir=/home/kel/dev/Khinsider-Downloader
+  • building        target=AppImage arch=x64 file=release/Khinsider Downloader-0.1.0-x86
 _64.AppImage
-  • building embedded block map  file=release/K-Downloader-0.1.0-x86_64.AppImage
-  • building        target=deb arch=x64 file=release/K-Downloader-0.1.0-amd64.de
+  • building embedded block map  file=release/Khinsider Downloader-0.1.0-x86_64.AppImage
+  • building        target=deb arch=x64 file=release/Khinsider Downloader-0.1.0-amd64.de
 b
   • adding autoupdate files for: deb  resourceDir=release/linux-unpacked/resourc
 es
 Package output: release/ (nothing was published to GitHub).
 
-> k-downloader@0.1.0 test:packages
+> khinsider-downloader@0.1.0 test:packages
 > node scripts/test-packages.mjs
 
-K-Downloader-0.1.0-amd64.deb: packaged GUI, Help, bundled Chromium, and CLI help
+Khinsider Downloader-0.1.0-amd64.deb: packaged GUI, Help, bundled Chromium, and CLI help
  passed without system installation.
-K-Downloader-0.1.0-x86_64.AppImage: packaged GUI, Help, bundled Chromium, and CL
+Khinsider Downloader-0.1.0-x86_64.AppImage: packaged GUI, Help, bundled Chromium, and CL
 I help passed without system installation.
 ```
 </details></tool-use>
@@ -53005,12 +53005,12 @@ _**Agent (copilot/auto)**_
 <tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
 <summary>Tool use: **run_in_terminal**</summary>
 
-Running ` ./release/K-Downloader-0.1.0-x86\_64.AppImage --appimage-extract-and-run --he...`
+Running ` ./release/Khinsider Downloader-0.1.0-x86\_64.AppImage --appimage-extract-and-run --he...`
 
 Test the AppImage's actual launcher without FUSE, inspect Debian metadata/dependencies, and verify generated SHA-256 checksums.
 
 ```bash
-./release/K-Downloader-0.1.0-x86_64.AppImage --appimage-extract-and-run --help && dpkg-deb --field release/K-Downloader-0.1.0-amd64.deb Package Version Architecture Depends && cd release && sha256sum -c K-Downloader-0.1.0-SHA256SUMS.txt
+./release/Khinsider Downloader-0.1.0-x86_64.AppImage --appimage-extract-and-run --help && dpkg-deb --field release/Khinsider Downloader-0.1.0-amd64.deb Package Version Architecture Depends && cd release && sha256sum -c Khinsider Downloader-0.1.0-SHA256SUMS.txt
 ```
 
 **Result:**
@@ -53019,10 +53019,10 @@ Test the AppImage's actual launcher without FUSE, inspect Debian metadata/depend
 [Output too large (39KB). Full output saved to: /home/kel/.config/Code/copilot-terminal-output/copilot-terminal-output-0a25d3da-ff7a-4960-a617-9c0eca4467bf.txt]
 [Use readFile or grep to examine the full output.]
 
-kel@kel-EQ-Mint:~/dev/K-Downloader$  ./release/K-Downloader-0.1.0-x86_64.AppImag
-e --appimage-extract-and-run --help && dpkg-deb --field release/K-Downloader-0.1
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  ./release/Khinsider Downloader-0.1.0-x86_64.AppImag
+e --appimage-extract-and-run --help && dpkg-deb --field release/Khinsider Downloader-0.1
 .0-amd64.deb Package Version Architecture Depends && cd release && sha256sum -c
-K-Downloader-0.1.0-SHA256SUMS.txt
+Khinsider Downloader-0.1.0-SHA256SUMS.txt
 /tmp/appimage_extracted_963cd481f26b99240eaad06507c04010/.DirIcon
 /tmp/appimage_extracted_963cd481f26b99240eaad06507c04010/AppRun
 /tmp/appimage_extracted_963cd481f26b99240eaad06507c04010/LICENSE.electron.txt
@@ -53070,7 +53070,7 @@ Read `BUILD_AND_RELEASE.md`
 **Input:**
 
 - endLine: `240`
-- filePath: `/home/kel/dev/K-Downloader/docs/BUILD_AND_RELEASE.md`
+- filePath: `/home/kel/dev/Khinsider-Downloader/docs/BUILD_AND_RELEASE.md`
 - startLine: `1`
 
 **Result:**
@@ -53144,7 +53144,7 @@ Read `test-packages.mjs`, lines 26 to 62
 **Input:**
 
 - endLine: `90`
-- filePath: `/home/kel/dev/K-Downloader/scripts/test-packages.mjs`
+- filePath: `/home/kel/dev/Khinsider-Downloader/scripts/test-packages.mjs`
 - startLine: `26`
 
 **Result:**
@@ -53153,8 +53153,8 @@ Read `test-packages.mjs`, lines 26 to 62
 
 try {
   const cases = [
-    { extension: "deb", artifact: `K-Downloader-${version}-amd64.deb` },
-    { extension: "AppImage", artifact: `K-Downloader-${version}-x86_64.AppImage` },
+    { extension: "deb", artifact: `Khinsider Downloader-${version}-amd64.deb` },
+    { extension: "AppImage", artifact: `Khinsider Downloader-${version}-x86_64.AppImage` },
   ];
   for (const [index, item] of cases.entries()) {
     const artifact = resolve(root, "release", item.artifact);
@@ -53164,13 +53164,13 @@ try {
     const binary = await findBinary(directory);
     if (!binary) throw new Error(`Missing application executable in ${item.artifact}`);
     const appDir = dirname(binary);
-    const cli = execFileSync(resolve(appDir, "k-downloader"), ["--help"], { env: headlessEnv, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+    const cli = execFileSync(resolve(appDir, "khinsider-downloader"), ["--help"], { env: headlessEnv, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
     const app = await electron.launch({ executablePath: binary, args: [`--user-data-dir=${resolve(temporary, `profile-${index}`)}`], env });
     let state;
     try {
       const page = await app.firstWindow();
       await page.waitForFunction(() => document.documentElement.dataset.mode);
-      state = await app.evaluate(({ app }) => ({ packaged: app.isPackaged, appPath: app.getAppPath(), browserPath: process.env.K_DOWNLOADER_CHROMIUM_PATH }));
+      state = await app.evaluate(({ app }) => ({ packaged: app.isPackaged, appPath: app.getAppPath(), browserPath: process.env.KHINSIDER_DOWNLOADER_CHROMIUM_PATH }));
       if (!state.packaged) throw new Error("Artifact did not start in packaged mode");
       await page.getByRole("button", { name: "More options", exact: true }).click();
       await page.getByRole("menuitem", { name: "Help", exact: true }).click();
@@ -53194,15 +53194,15 @@ Read `README.md`, lines 1 to 18
 **Input:**
 
 - endLine: `18`
-- filePath: `/home/kel/dev/K-Downloader/README.md`
+- filePath: `/home/kel/dev/Khinsider-Downloader/README.md`
 - startLine: `1`
 
 **Result:**
 
 ````
-# K-Downloader
+# Khinsider Downloader
 
-K-Downloader is a Linux-first KHInsider album downloader. The current slice
+Khinsider Downloader is a Linux-first KHInsider album downloader. The current slice
 implements public single-album discovery, format preview and policy, sequential
 streaming, and manifest-backed reruns. Multi-album queues, artwork, the GUI,
 optional account features, and packaging are not implemented yet.
@@ -53240,10 +53240,10 @@ Read `content.txt`, lines 1 to 70
 [Output too large (39KB). Full output saved to: /home/kel/.config/Code/copilot-terminal-output/copilot-terminal-output-0a25d3da-ff7a-4960-a617-9c0eca4467bf.txt]
 [Use readFile or grep to examine the full output.]
 
-kel@kel-EQ-Mint:~/dev/K-Downloader$  ./release/K-Downloader-0.1.0-x86_64.AppImag
-e --appimage-extract-and-run --help && dpkg-deb --field release/K-Downloader-0.1
+kel@kel-EQ-Mint:~/dev/Khinsider Downloader$  ./release/Khinsider Downloader-0.1.0-x86_64.AppImag
+e --appimage-extract-and-run --help && dpkg-deb --field release/Khinsider Downloader-0.1
 .0-amd64.deb Package Version Architecture Depends && cd release && sha256sum -c
-K-Downloader-0.1.0-SHA256SUMS.txt
+Khinsider Downloader-0.1.0-SHA256SUMS.txt
 /tmp/appimage_extracted_963cd481f26b99240eaad06507c04010/.DirIcon
 /tmp/appimage_extracted_963cd481f26b99240eaad06507c04010/AppRun
 /tmp/appimage_extracted_963cd481f26b99240eaad06507c04010/LICENSE.electron.txt
@@ -53300,10 +53300,10 @@ tail -n 16 /home/kel/.config/Code/copilot-terminal-output/copilot-terminal-outpu
 /tmp/appimage_extracted_963cd481f26b99240eaad06507c04010/version
 /tmp/appimage_extracted_963cd481f26b99240eaad06507c04010/vk_swiftshader_icd.json
 Usage:
-  k-downloader inspect <album-url>
-  k-downloader download <album-url> [--format prefer-lossless|lossless-only|FORM
+  khinsider-downloader inspect <album-url>
+  khinsider-downloader download <album-url> [--format prefer-lossless|lossless-only|FORM
 AT] [--skip-unavailable] [--disc-label CD|Disc] [--output DIR]
-Package: k-downloader
+Package: khinsider-downloader
 Version: 0.1.0
 Architecture: amd64
 Depends: libc6 (>= 2.35), libgtk-3-0 | libgtk-3-0t64, libnotify4, libnss3, libns
@@ -53311,8 +53311,8 @@ pr4, libxss1, libxtst6, xdg-utils, libatspi2.0-0 | libatspi2.0-0t64, libuuid1, l
 ibsecret-1-0, libasound2 | libasound2t64, libgbm1, libxkbcommon0, libdrm2, libxc
 omposite1, libxdamage1, libxrandr2, libxfixes3, libx11-6, libxcb1, libxext6, lib
 xrender1, libcups2 | libcups2t64, libpango-1.0-0, libcairo2
-K-Downloader-0.1.0-x86_64.AppImage: OK
-K-Downloader-0.1.0-amd64.deb: OKkel@kel-EQ-Mint:~/dev/K-Downloader/release$
+Khinsider Downloader-0.1.0-x86_64.AppImage: OK
+Khinsider Downloader-0.1.0-amd64.deb: OKkel@kel-EQ-Mint:~/dev/Khinsider Downloader/release$
 ```
 </details></tool-use>
 
@@ -53337,7 +53337,7 @@ import { _electron as electron } from "playwright";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const { version } = JSON.parse(await readFile(resolve(root, "package.json"), "utf8"));
-const temporary = await mkdtemp(resolve(tmpdir(), "k-downloader-artifacts-"));
+const temporary = await mkdtemp(resolve(tmpdir(), "khinsider-downloader-artifacts-"));
 const env = { ...process.env, XDG_CURRENT_DESKTOP: "Test" };
 const headlessEnv = { ...env };
 delete headlessEnv.DISPLAY;
@@ -53346,7 +53346,7 @@ delete headlessEnv.WAYLAND_DISPLAY;
 async function findBinary(directory) {
   for (const entry of await readdir(directory, { withFileTypes: true })) {
     const path = resolve(directory, entry.name);
-    if (entry.isFile() && entry.name === "k-downloader-bin") return path;
+    if (entry.isFile() && entry.name === "khinsider-downloader-bin") return path;
     if (entry.isDirectory()) {
       const found = await findBinary(path);
       if (found) return found;
@@ -53356,8 +53356,8 @@ async function findBinary(directory) {
 
 try {
   const cases = [
-    { extension: "deb", artifact: `K-Downloader-${version}-amd64.deb` },
-    { extension: "AppImage", artifact: `K-Downloader-${version}-x86_64.AppImage` },
+    { extension: "deb", artifact: `Khinsider Downloader-${version}-amd64.deb` },
+    { extension: "AppImage", artifact: `Khinsider Downloader-${version}-x86_64.AppImage` },
   ];
   for (const [index, item] of cases.entries()) {
     const artifact = resolve(root, "release", item.artifact);
@@ -53367,8 +53367,8 @@ try {
     const binary = await findBinary(directory);
     if (!binary) throw new Error(`Missing application executable in ${item.artifact}`);
     const appDir = dirname(binary);
-    const cli = spawnSync(resolve(appDir, "k-downloader"), ["--help"], { env: headlessEnv, encoding: "utf8" });
-    if (cli.error || cli.status !== 0 || !cli.stderr.includes("k-downloader inspect")) {
+    const cli = spawnSync(resolve(appDir, "khinsider-downloader"), ["--help"], { env: headlessEnv, encoding: "utf8" });
+    if (cli.error || cli.status !== 0 || !cli.stderr.includes("khinsider-downloader inspect")) {
       throw new Error(`Packaged CLI help failed: ${cli.error?.message ?? cli.stderr}`);
     }
     const app = await electron.launch({ executablePath: binary, args: [`--user-data-dir=${resolve(temporary, `profile-${index}`)}`], env });
@@ -53376,7 +53376,7 @@ try {
     try {
       const page = await app.firstWindow();
       await page.waitForFunction(() => document.documentElement.dataset.mode);
-      state = await app.evaluate(({ app }) => ({ packaged: app.isPackaged, appPath: app.getAppPath(), browserPath: process.env.K_DOWNLOADER_CHROMIUM_PATH }));
+      state = await app.evaluate(({ app }) => ({ packaged: app.isPackaged, appPath: app.getAppPath(), browserPath: process.env.KHINSIDER_DOWNLOADER_CHROMIUM_PATH }));
       if (!state.packaged) throw new Error("Artifact did not start in packaged mode");
       await page.getByRole("button", { name: "More options", exact: true }).click();
       await page.getByRole("menuitem", { name: "Help", exact: true }).click();
@@ -53490,7 +53490,7 @@ npm audit
   from [package.json](../package.json). Rebuild after changing either file.
 - Help content is embedded from [HELP.md](HELP.md). Its level-two headings
   become expandable sections in the Help drawer. Rebuild after editing it.
-- The build copies [assets/k-downloader.png](../assets/k-downloader.png) into
+- The build copies [assets/khinsider-downloader.png](../assets/khinsider-downloader.png) into
   `dist/assets/`; Electron uses it as the window/taskbar icon. Regenerate the
   source icon with `node scripts/generate-icon.mjs` if the brand mark changes.
 - `npm audit` reports dependency advisories. Review and resolve release-blocking
@@ -53530,9 +53530,9 @@ electron-builder. Browser and builder tools may be downloaded on the first run.
 For version 0.1.0, outputs are:
 
 ```text
-release/K-Downloader-0.1.0-amd64.deb
-release/K-Downloader-0.1.0-x86_64.AppImage
-release/K-Downloader-0.1.0-SHA256SUMS.txt
+release/Khinsider Downloader-0.1.0-amd64.deb
+release/Khinsider Downloader-0.1.0-x86_64.AppImage
+release/Khinsider Downloader-0.1.0-SHA256SUMS.txt
 release/linux-unpacked/
 ```
 
@@ -53545,7 +53545,7 @@ and user.email by default. These become public package metadata; review them
 before distributing. Override them explicitly with a real maintainer identity:
 
 ```sh
-K_DOWNLOADER_MAINTAINER='Your Name <your-real-email@example.org>' npm run package:linux
+KHINSIDER_DOWNLOADER_MAINTAINER='Your Name <your-real-email@example.org>' npm run package:linux
 ```
 
 Replace the example with your chosen identity. The manifest currently declares
@@ -53558,7 +53558,7 @@ or change existing copyright ownership for you.
 ```sh
 npm run test:packages
 cd release
-sha256sum -c K-Downloader-0.1.0-SHA256SUMS.txt
+sha256sum -c Khinsider Downloader-0.1.0-SHA256SUMS.txt
 ```
 
 Adjust the checksum filename for the release version. Run from the repository
@@ -53576,23 +53576,23 @@ of these automated smoke tests.
 For AppImage, mark it executable and launch it:
 
 ```sh
-chmod +x release/K-Downloader-0.1.0-x86_64.AppImage
-./release/K-Downloader-0.1.0-x86_64.AppImage
+chmod +x release/Khinsider Downloader-0.1.0-x86_64.AppImage
+./release/Khinsider Downloader-0.1.0-x86_64.AppImage
 ```
 
 If the host cannot mount AppImages via FUSE, extraction mode is available:
 
 ```sh
-./release/K-Downloader-0.1.0-x86_64.AppImage --appimage-extract-and-run
+./release/Khinsider Downloader-0.1.0-x86_64.AppImage --appimage-extract-and-run
 ```
 
-The installed Debian launcher is `k-downloader`. The packaged CLI uses Electron's
+The installed Debian launcher is `khinsider-downloader`. The packaged CLI uses Electron's
 embedded Node runtime without opening the GUI:
 
 ```sh
-k-downloader --help
-k-downloader inspect 'https://downloads.khinsider.com/game-soundtracks/album/ALBUM'
-k-downloader download 'https://downloads.khinsider.com/game-soundtracks/album/ALBUM'
+khinsider-downloader --help
+khinsider-downloader inspect 'https://downloads.khinsider.com/game-soundtracks/album/ALBUM'
+khinsider-downloader download 'https://downloads.khinsider.com/game-soundtracks/album/ALBUM'
 ```
 
 An AppImage accepts the same CLI arguments. Help needs no display; inspection
@@ -53651,7 +53651,7 @@ exists (`git tag --list "$TAG"`); inspect it rather than moving or overwriting i
 Create and push the annotated tag:
 
 ```sh
-git tag -a "$TAG" -m "K-Downloader $VERSION"
+git tag -a "$TAG" -m "Khinsider Downloader $VERSION"
 git push origin "$TAG"
 ```
 
@@ -53660,10 +53660,10 @@ notes source:
 
 ```sh
 gh release create "$TAG" \
-  --repo kelmankenberg/K-Downloader \
+  --repo kelmankenberg/Khinsider Downloader \
   --verify-tag \
   --draft \
-  --title "K-Downloader $VERSION" \
+  --title "Khinsider Downloader $VERSION" \
   --notes-file changelog.md
 ```
 
@@ -53674,10 +53674,10 @@ the validated artifacts and checksum file to the draft before publication:
 
 ```sh
 gh release upload "$TAG" \
-  "release/K-Downloader-$VERSION-amd64.deb" \
-  "release/K-Downloader-$VERSION-x86_64.AppImage" \
-  "release/K-Downloader-$VERSION-SHA256SUMS.txt" \
-  --repo kelmankenberg/K-Downloader
+  "release/Khinsider Downloader-$VERSION-amd64.deb" \
+  "release/Khinsider Downloader-$VERSION-x86_64.AppImage" \
+  "release/Khinsider Downloader-$VERSION-SHA256SUMS.txt" \
+  --repo kelmankenberg/Khinsider Downloader
 ```
 
 ## Publish and Verify
@@ -53685,9 +53685,9 @@ gh release upload "$TAG" \
 Open the draft, review its tag, notes, and release type, then publish:
 
 ```sh
-gh release view "$TAG" --repo kelmankenberg/K-Downloader --web
-gh release edit "$TAG" --repo kelmankenberg/K-Downloader --draft=false
-gh release view "$TAG" --repo kelmankenberg/K-Downloader
+gh release view "$TAG" --repo kelmankenberg/Khinsider Downloader --web
+gh release edit "$TAG" --repo kelmankenberg/Khinsider Downloader --draft=false
+gh release view "$TAG" --repo kelmankenberg/Khinsider Downloader
 ```
 
 On the GitHub website, the equivalent is **Releases > Draft a new release**:
@@ -53723,9 +53723,9 @@ _**Agent (copilot/auto)**_
 @@ lines 1-157 @@
 
 ````
-# K-Downloader
+# Khinsider Downloader
 
-K-Downloader is a Linux-first KHInsider album downloader. The current slice
+Khinsider Downloader is a Linux-first KHInsider album downloader. The current slice
 implements public single-album discovery, format preview and policy, sequential
 streaming, manifest-backed reruns, an Electron GUI, and Linux x64 AppImage/.deb
 packaging. Multi-album queues, artwork, and optional account features are not
@@ -53754,7 +53754,7 @@ access methods.
 
 The CLI previews the selected formats before starting any transfer. The default
 format policy prefers lossless, falling back to MP3 when needed. The default
-destination is `~/Music/K-Downloader`.
+destination is `~/Music/Khinsider Downloader`.
 
 ```sh
 npm run download -- 'https://downloads.khinsider.com/game-soundtracks/album/unreal-ii-the-awakening-original-soundtrack'
@@ -53793,7 +53793,7 @@ Paste one album URL and choose **Inspect album**. A Chromium inspection window
 starts minimized while an in-progress indicator appears in the app; click that
 indicator to show or hide the browser. Review the per-track format preview, choose the
 destination and format policy, then select **Download**. The default destination
-is `~/Music/K-Downloader`. **Cancel active download** stops the current transfer
+is `~/Music/Khinsider Downloader`. **Cancel active download** stops the current transfer
 and prevents later tracks from starting.
 
 While inspection is running, the same button becomes **Cancel inspection**.
@@ -53849,7 +53849,7 @@ The first command creates `.deb`, AppImage, and SHA-256 checksum files under
 `release/`, with Electron and Chromium included. To build separately, use
 `npm run package:deb` or `npm run package:appimage`; `npm run package:dir` creates
 an unpacked application. Recipients do not need npm or a separate Node runtime.
-The packaged `k-downloader` launcher supports `inspect`, `download`, and `--help`.
+The packaged `khinsider-downloader` launcher supports `inspect`, `download`, and `--help`.
 
 See [docs/BUILD_AND_RELEASE.md](docs/BUILD_AND_RELEASE.md) for maintainer metadata,
 build prerequisites, installation/testing caveats, and GitHub release commands.
@@ -53898,7 +53898,7 @@ _**Agent (copilot/auto)**_
 @@ lines 1-241 @@
 
 ````
-# K-Downloader Help
+# Khinsider Downloader Help
 
 ## Getting Started
 
@@ -53952,7 +53952,7 @@ between tracks in the same album.
 
 ## Destination and Disc Folders
 
-The default root is `~/Music/K-Downloader`. Type another root in **Save album
+The default root is `~/Music/Khinsider Downloader`. Type another root in **Save album
 under** or use the folder-picker button. The app creates an album-title folder
 under that root. Select the root, not a pre-created album folder, to avoid
 unintentional nesting.
@@ -54133,7 +54133,7 @@ app shows the GitHub URL so you can visit it manually.
 
 The current implementation is Linux-first and single-album. Linux x64 AppImage
 and .deb builds include Electron and Chromium. The installed launcher supports
-`k-downloader inspect`, `k-downloader download`, and `k-downloader --help`.
+`khinsider-downloader inspect`, `khinsider-downloader download`, and `khinsider-downloader --help`.
 Distribution compatibility still requires target-machine testing.
 Multi-album queues, cover artwork, login/bulk downloads, .rpm/ARM packaging,
 automatic updates, tagging, transcoding, and player integration are not
@@ -54226,43 +54226,43 @@ _**Agent (copilot/auto)**_
 <tool-use data-tool-type="generic" data-tool-name="run_in_terminal"><details>
 <summary>Tool use: **run_in_terminal**</summary>
 
-Running ` cd /home/kel/dev/K-Downloader && npm run test:packages && npm test && npm ru...`
+Running ` cd /home/kel/dev/Khinsider-Downloader && npm run test:packages && npm test && npm ru...`
 
 Verify stricter CLI artifact checks, all application regressions, strict compilation, and the audited packaging dependency tree.
 
 ```bash
-cd /home/kel/dev/K-Downloader && npm run test:packages && npm test && npm run build && npm audit
+cd /home/kel/dev/Khinsider-Downloader && npm run test:packages && npm test && npm run build && npm audit
 ```
 
 **Result:**
 
 ```
-K-Downloader-0.1.0-amd64.deb: OKkel@kel-EQ-Mint:~/dev/K-Downloader/release$  cd
-/home/kel/dev/K-Downloader && npm run test:packages && npm test && npm run build
+Khinsider Downloader-0.1.0-amd64.deb: OKkel@kel-EQ-Mint:~/dev/Khinsider Downloader/release$  cd
+/home/kel/dev/Khinsider-Downloader && npm run test:packages && npm test && npm run build
  && npm audit
 
-> k-downloader@0.1.0 test:packages
+> khinsider-downloader@0.1.0 test:packages
 > node scripts/test-packages.mjs
 
-K-Downloader-0.1.0-amd64.deb: packaged GUI, Help, bundled Chromium, and CLI help
+Khinsider Downloader-0.1.0-amd64.deb: packaged GUI, Help, bundled Chromium, and CLI help
  passed without system installation.
-K-Downloader-0.1.0-x86_64.AppImage: packaged GUI, Help, bundled Chromium, and CL
+Khinsider Downloader-0.1.0-x86_64.AppImage: packaged GUI, Help, bundled Chromium, and CL
 I help passed without system installation.
 
-> k-downloader@0.1.0 pretest
+> khinsider-downloader@0.1.0 pretest
 > npm run build:gui
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  8 passed (8)
@@ -54271,7 +54271,7 @@ Built Electron main/preload and local renderer into dist/.
    Duration  7.96s (tests 81%, import 12%, transform 6%, worker 1%)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 
 found 0 vulnerabilities
@@ -54304,9 +54304,9 @@ describe("Linux packaging configuration", () => {
     expect(config.asar).toBe(true);
     expect(config.extraResources).toContainEqual({ from: ".packaging/chromium", to: "chromium" });
     expect(config.linux.target).toEqual(["deb", "AppImage"]);
-    expect(config.linux.icon).toBe("assets/k-downloader.png");
-    expect(config.linux.desktop.entry.StartupWMClass).toBe("k-downloader");
-    expect(manifest.desktopName).toBe("k-downloader.desktop");
+    expect(config.linux.icon).toBe("assets/khinsider-downloader.png");
+    expect(config.linux.desktop.entry.StartupWMClass).toBe("khinsider-downloader");
+    expect(manifest.desktopName).toBe("khinsider-downloader.desktop");
   });
 
   it("provides both package targets and smoke testing commands", () => {
@@ -54420,7 +54420,7 @@ describe("inspection cancellation", () => {
   });
 
   it("closes Chromium to interrupt active navigation and never starts track requests", async () => {
-    vi.stubEnv("K_DOWNLOADER_CHROMIUM_PATH", "/test/resources/chromium/chrome");
+    vi.stubEnv("KHINSIDER_DOWNLOADER_CHROMIUM_PATH", "/test/resources/chromium/chrome");
     const controller = new AbortController();
     let rejectNavigation!: (error: Error) => void;
     let navigationStarted!: () => void;
@@ -54482,20 +54482,20 @@ npm test -- tests/packaging.test.ts tests/khinsider.test.ts && npm run build
 
 ```
 
-> k-downloader@0.1.0 pretest
+> khinsider-downloader@0.1.0 pretest
 > npm run build:gui
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run tests/packaging.test.ts tests/khinsider.test.ts
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  2 passed (2)
@@ -54504,7 +54504,7 @@ Built Electron main/preload and local renderer into dist/.
    Duration  607ms (import 79%, transform 13%, tests 5%, worker 2%)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 ```
 </details></tool-use>
@@ -54530,7 +54530,7 @@ npm run package:linux && npm run test:packages && npm test && npm run build && n
 
 ```
 
-> k-downloader@0.1.0 package:linux
+> khinsider-downloader@0.1.0 package:linux
 > node scripts/package-linux.mjs
 
 Built Electron main/preload and local renderer into dist/.
@@ -54545,40 +54545,40 @@ build for ubuntu24.04-x64.
 nux-unpacked
   • using custom unpacked Electron distribution  electronDist=node_modules/elect
 ron/dist
-  • copying unpacked Electron  source=/home/kel/dev/K-Downloader/node_modules/el
-ectron/dist destination=/home/kel/dev/K-Downloader/release/linux-unpacked
-  • searching for node modules  pm=npm searchDir=/home/kel/dev/K-Downloader
-  • building        target=AppImage arch=x64 file=release/K-Downloader-0.1.0-x86
+  • copying unpacked Electron  source=/home/kel/dev/Khinsider-Downloader/node_modules/el
+ectron/dist destination=/home/kel/dev/Khinsider-Downloader/release/linux-unpacked
+  • searching for node modules  pm=npm searchDir=/home/kel/dev/Khinsider-Downloader
+  • building        target=AppImage arch=x64 file=release/Khinsider Downloader-0.1.0-x86
 _64.AppImage
-  • building embedded block map  file=release/K-Downloader-0.1.0-x86_64.AppImage
-  • building        target=deb arch=x64 file=release/K-Downloader-0.1.0-amd64.de
+  • building embedded block map  file=release/Khinsider Downloader-0.1.0-x86_64.AppImage
+  • building        target=deb arch=x64 file=release/Khinsider Downloader-0.1.0-amd64.de
 b
   • adding autoupdate files for: deb  resourceDir=release/linux-unpacked/resourc
 es
 Package output: release/ (nothing was published to GitHub).
 
-> k-downloader@0.1.0 test:packages
+> khinsider-downloader@0.1.0 test:packages
 > node scripts/test-packages.mjs
 
-K-Downloader-0.1.0-amd64.deb: packaged GUI, Help, bundled Chromium, and CLI help
+Khinsider Downloader-0.1.0-amd64.deb: packaged GUI, Help, bundled Chromium, and CLI help
  passed without system installation.
-K-Downloader-0.1.0-x86_64.AppImage: packaged GUI, Help, bundled Chromium, and CL
+Khinsider Downloader-0.1.0-x86_64.AppImage: packaged GUI, Help, bundled Chromium, and CL
 I help passed without system installation.
 
-> k-downloader@0.1.0 pretest
+> khinsider-downloader@0.1.0 pretest
 > npm run build:gui
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  9 passed (9)
@@ -54601,13 +54601,13 @@ Checked `electron-builder.config.cjs`, `package-linux.mjs`, `test-packages.mjs`,
 
 ```
 [
-  "/home/kel/dev/K-Downloader/electron-builder.config.cjs",
-  "/home/kel/dev/K-Downloader/scripts/package-linux.mjs",
-  "/home/kel/dev/K-Downloader/scripts/test-packages.mjs",
-  "/home/kel/dev/K-Downloader/src/khinsider.ts",
-  "/home/kel/dev/K-Downloader/src/electron/main.ts",
-  "/home/kel/dev/K-Downloader/src/cli.ts",
-  "/home/kel/dev/K-Downloader/tests/packaging.test.ts"
+  "/home/kel/dev/Khinsider-Downloader/electron-builder.config.cjs",
+  "/home/kel/dev/Khinsider-Downloader/scripts/package-linux.mjs",
+  "/home/kel/dev/Khinsider-Downloader/scripts/test-packages.mjs",
+  "/home/kel/dev/Khinsider-Downloader/src/khinsider.ts",
+  "/home/kel/dev/Khinsider-Downloader/src/electron/main.ts",
+  "/home/kel/dev/Khinsider-Downloader/src/cli.ts",
+  "/home/kel/dev/Khinsider-Downloader/tests/packaging.test.ts"
 ]
 ```
 
@@ -54615,25 +54615,25 @@ Checked `electron-builder.config.cjs`, `package-linux.mjs`, `test-packages.mjs`,
 **Result:**
 
 ```
-<errors path="/home/kel/dev/K-Downloader/electron-builder.config.cjs">
+<errors path="/home/kel/dev/Khinsider-Downloader/electron-builder.config.cjs">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/scripts/package-linux.mjs">
+<errors path="/home/kel/dev/Khinsider-Downloader/scripts/package-linux.mjs">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/scripts/test-packages.mjs">
+<errors path="/home/kel/dev/Khinsider-Downloader/scripts/test-packages.mjs">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/src/khinsider.ts">
+<errors path="/home/kel/dev/Khinsider-Downloader/src/khinsider.ts">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/src/electron/main.ts">
+<errors path="/home/kel/dev/Khinsider-Downloader/src/electron/main.ts">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/src/cli.ts">
+<errors path="/home/kel/dev/Khinsider-Downloader/src/cli.ts">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/tests/packaging.test.ts">
+<errors path="/home/kel/dev/Khinsider-Downloader/tests/packaging.test.ts">
 No errors found
 </errors>
 ```
@@ -54650,8 +54650,8 @@ npm run package:appimage  # AppImage only
 ```
 
 Artifacts:
-- `release/K-Downloader-0.1.0-amd64.deb`
-- `release/K-Downloader-0.1.0-x86_64.AppImage`
+- `release/Khinsider Downloader-0.1.0-amd64.deb`
+- `release/Khinsider Downloader-0.1.0-x86_64.AppImage`
 
 Both include Electron and Chromium and passed extracted-artifact smoke tests. All 40 tests pass; audit is clean. System installation and broader distribution compatibility remain unverified.
 
@@ -54719,7 +54719,7 @@ src/renderer.ts
 17:const albumInput = document.querySelector<HTMLTextAreaElement>("#album-url")!;
 50:const reportIssueMenuItem = document.querySelector<HTMLButtonElement>("#report-issue-menu-item")!;
 238:reportIssueMenuItem.addEventListener("click", () => {
-240:  void window.kDownloader.reportIssue();
+240:  void window.khinsiderDownloader.reportIssue();
 ```
 </details></tool-use>
 
@@ -54733,7 +54733,7 @@ Read `main.ts`, lines 124 to 163
 **Input:**
 
 - endLine: `163`
-- filePath: `/home/kel/dev/K-Downloader/src/electron/main.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/src/electron/main.ts`
 - startLine: `124`
 
 **Result:**
@@ -54746,7 +54746,7 @@ Read `main.ts`, lines 124 to 163
 function registerIpc(): void {
   ipcMain.handle("support:report-issue", async (event) => {
     const window = assertWindowSender(event.sender.id);
-    const url = "https://github.com/kelmankenberg/K-Downloader/issues/new/choose";
+    const url = "https://github.com/kelmankenberg/Khinsider-Downloader/issues/new/choose";
     try {
       await shell.openExternal(url);
     } catch {
@@ -54792,7 +54792,7 @@ Read `window-state.test.ts`, lines 48 to 105
 **Input:**
 
 - endLine: `105`
-- filePath: `/home/kel/dev/K-Downloader/tests/window-state.test.ts`
+- filePath: `/home/kel/dev/Khinsider-Downloader/tests/window-state.test.ts`
 - startLine: `48`
 
 **Result:**
@@ -54801,14 +54801,14 @@ Read `window-state.test.ts`, lines 48 to 105
       expect(icon.size).toEqual({ width: 512, height: 512 });
       expect(icon.firstAlpha).toBe(255);
       expect(icon.clippedAlpha).toBe(0);
-      expect(await readFile(resolve("dist/assets/k-downloader.png"))).toEqual(await readFile(resolve("assets/k-downloader.png")));
+      expect(await readFile(resolve("dist/assets/khinsider-downloader.png"))).toEqual(await readFile(resolve("assets/khinsider-downloader.png")));
       await page.getByRole("button", { name: "More options", exact: true }).click();
       expect((await page.getByRole("menuitem").allTextContents()).map((text) => text.replace(/\s+/g, " ").trim())).toEqual([
         "Restore Size/Position", "Settings Ctrl+,", "Changelog", "Help", "Report an Issue",
       ]);
       const manifest = JSON.parse(await readFile(resolve("package.json"), "utf8"));
       expect(await page.locator("#menu-app-version").textContent()).toBe(manifest.version);
-      expect(await page.locator(".more-menu-info").innerText()).toContain("K-Downloader");
+      expect(await page.locator(".more-menu-info").innerText()).toContain("Khinsider Downloader");
       expect(await page.locator(".more-menu-separator").isVisible()).toBe(true);
       await app.evaluate(({ shell }) => {
         Reflect.set(globalThis, "supportUrls", []);
@@ -54816,7 +54816,7 @@ Read `window-state.test.ts`, lines 48 to 105
       });
       await page.getByRole("menuitem", { name: "Report an Issue", exact: true }).click();
       expect(await app.evaluate(() => Reflect.get(globalThis, "supportUrls"))).toEqual([
-        "https://github.com/kelmankenberg/K-Downloader/issues/new/choose",
+        "https://github.com/kelmankenberg/Khinsider-Downloader/issues/new/choose",
       ]);
       expect(await page.locator("#more-menu").isVisible()).toBe(false);
       expect(await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows().length)).toBe(1);
@@ -54850,7 +54850,7 @@ _**Agent (copilot/auto)**_
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'" />
-    <title>K-Downloader</title>
+    <title>Khinsider Downloader</title>
     <link rel="stylesheet" href="./styles.css" />
     <script defer src="./renderer.js"></script>
   </head>
@@ -54859,7 +54859,7 @@ _**Agent (copilot/auto)**_
       <header class="topbar">
         <div class="brand-lockup">
           <div class="app-icon" aria-hidden="true">K</div>
-          <div class="brand-name">K-Downloader</div>
+          <div class="brand-name">Khinsider Downloader</div>
         </div>
         <div class="titlebar-actions">
           <div id="more-menu-wrap" class="more-menu-wrap">
@@ -54889,7 +54889,7 @@ _**Agent (copilot/auto)**_
                 <span>Report an Issue</span>
               </button>
               <div class="more-menu-separator" role="separator"></div>
-              <div class="more-menu-info"><span>K-Downloader</span><span id="menu-app-version"></span></div>
+              <div class="more-menu-info"><span>Khinsider Downloader</span><span id="menu-app-version"></span></div>
             </div>
           </div>
           <nav class="window-controls" aria-label="Window controls">
@@ -55482,7 +55482,7 @@ export type GuiDownloadRequest = {
   discLabel: "CD" | "Disc";
 };
 
-export type KDownloaderApi = {
+export type KhinsiderDownloaderApi = {
   openKhinsider: () => Promise<void>;
   reportIssue: () => Promise<void>;
   restoreWindowBounds: () => Promise<void>;
@@ -55505,7 +55505,7 @@ export type KDownloaderApi = {
 
 declare global {
   interface Window {
-    kDownloader: KDownloaderApi;
+    khinsiderDownloader: KhinsiderDownloaderApi;
   }
 }
 ```
@@ -55528,9 +55528,9 @@ _**Agent (copilot/auto)**_
 
 ```
 import { contextBridge, ipcRenderer } from "electron";
-import type { GuiDownloadRequest, GuiInspectionState, GuiProgress, GuiWindowState, KDownloaderApi } from "../gui-types.js";
+import type { GuiDownloadRequest, GuiInspectionState, GuiProgress, GuiWindowState, KhinsiderDownloaderApi } from "../gui-types.js";
 
-const api: KDownloaderApi = {
+const api: KhinsiderDownloaderApi = {
   openKhinsider: () => ipcRenderer.invoke("source:open-khinsider"),
   reportIssue: () => ipcRenderer.invoke("support:report-issue"),
   restoreWindowBounds: () => ipcRenderer.invoke("window:restore-bounds"),
@@ -55567,7 +55567,7 @@ const api: KDownloaderApi = {
   },
 };
 
-contextBridge.exposeInMainWorld("kDownloader", api);
+contextBridge.exposeInMainWorld("khinsiderDownloader", api);
 ```
 </details></tool-use>
 
@@ -55611,8 +55611,8 @@ let instanceNoticeOpen = false;
 let cinnamonDark: boolean | undefined;
 let stopThemeMonitor: (() => void) | undefined;
 
-app.setName("K-Downloader");
-if (process.platform === "linux") app.setDesktopName("k-downloader.desktop");
+app.setName("Khinsider Downloader");
+if (process.platform === "linux") app.setDesktopName("khinsider-downloader.desktop");
 const primaryInstance = app.requestSingleInstanceLock();
 if (!primaryInstance) app.quit();
 else app.on("second-instance", () => {
@@ -55636,8 +55636,8 @@ async function notifyExistingInstance(): Promise<void> {
   try {
     await dialog.showMessageBox(window, {
       type: "info",
-      title: "K-Downloader is already running",
-      message: "K-Downloader is already running.",
+      title: "Khinsider Downloader is already running",
+      message: "Khinsider Downloader is already running.",
       detail: "Only one instance can run. Continue in the existing window.",
       buttons: ["Show running app"],
       defaultId: 0,
@@ -55732,7 +55732,7 @@ function registerIpc(): void {
   });
   ipcMain.handle("support:report-issue", async (event) => {
     const window = assertWindowSender(event.sender.id);
-    const url = "https://github.com/kelmankenberg/K-Downloader/issues/new/choose";
+    const url = "https://github.com/kelmankenberg/Khinsider-Downloader/issues/new/choose";
     try {
       await shell.openExternal(url);
     } catch {
@@ -55899,8 +55899,8 @@ async function createWindow(): Promise<void> {
     minWidth: 760,
     minHeight: 620,
     backgroundColor: "#101715",
-    title: "K-Downloader",
-    icon: resolve(__dirname, "../assets/k-downloader.png"),
+    title: "Khinsider Downloader",
+    icon: resolve(__dirname, "../assets/khinsider-downloader.png"),
     webPreferences: {
       preload: resolve(__dirname, "preload.cjs"),
       contextIsolation: true,
@@ -55943,7 +55943,7 @@ async function createWindow(): Promise<void> {
 
 app.whenReady().then(async () => {
   if (!primaryInstance) return;
-  if (app.isPackaged) process.env.K_DOWNLOADER_CHROMIUM_PATH = resolve(process.resourcesPath, "chromium/chrome");
+  if (app.isPackaged) process.env.KHINSIDER_DOWNLOADER_CHROMIUM_PATH = resolve(process.resourcesPath, "chromium/chrome");
   nativeTheme.themeSource = "system";
   nativeTheme.on("updated", sendSystemTheme);
   stopThemeMonitor = await monitorCinnamonTheme((dark) => {
@@ -56003,7 +56003,7 @@ const help = initializeHelp();
 const albumInput = document.querySelector<HTMLTextAreaElement>("#album-url")!;
 document.querySelector("#khinsider-link")!.addEventListener("click", (event) => {
   event.preventDefault();
-  void window.kDownloader.openKhinsider();
+  void window.khinsiderDownloader.openKhinsider();
 });
 const outputInput = document.querySelector<HTMLInputElement>("#output-root")!;
 const formatSelect = document.querySelector<HTMLSelectElement>("#format-policy")!;
@@ -56196,13 +56196,13 @@ function setBusy(value: boolean): void {
   if (inspection) renderTracks();
 }
 
-minimizeWindowButton.addEventListener("click", () => { void window.kDownloader.minimizeWindow(); });
+minimizeWindowButton.addEventListener("click", () => { void window.khinsiderDownloader.minimizeWindow(); });
 maximizeWindowButton.addEventListener("click", async () => {
-  const maximized = await window.kDownloader.toggleMaximizeWindow();
+  const maximized = await window.khinsiderDownloader.toggleMaximizeWindow();
   updateMaximizeButton(maximized);
 });
-closeWindowButton.addEventListener("click", () => { void window.kDownloader.closeWindow(); });
-window.kDownloader.onWindowState(({ maximized }) => updateMaximizeButton(maximized));
+closeWindowButton.addEventListener("click", () => { void window.khinsiderDownloader.closeWindow(); });
+window.khinsiderDownloader.onWindowState(({ maximized }) => updateMaximizeButton(maximized));
 
 moreButton.addEventListener("click", () => {
   moreMenu.hidden = !moreMenu.hidden;
@@ -56213,7 +56213,7 @@ appearanceNav.addEventListener("click", () => selectSettingsPage("appearance"));
 shortcutsNav.addEventListener("click", () => selectSettingsPage("shortcuts"));
 restoreBoundsMenuItem.addEventListener("click", () => {
   closeMoreMenu();
-  void window.kDownloader.restoreWindowBounds();
+  void window.khinsiderDownloader.restoreWindowBounds();
 });
 changelogMenuItem.addEventListener("click", () => {
   closeMoreMenu();
@@ -56227,7 +56227,7 @@ helpMenuItem.addEventListener("click", () => {
 });
 reportIssueMenuItem.addEventListener("click", () => {
   closeMoreMenu();
-  void window.kDownloader.reportIssue();
+  void window.khinsiderDownloader.reportIssue();
 });
 closeSettingsButton.addEventListener("click", () => setSettingsOpen(false));
 document.addEventListener("click", (event) => {
@@ -56237,7 +56237,7 @@ document.addEventListener("keydown", (event) => {
   if (event.ctrlKey && ["0", "-", "_", "=", "+"].includes(event.key)) {
     event.preventDefault();
     const direction = event.key === "0" ? "reset" : ["-", "_"].includes(event.key) ? "out" : "in";
-    void window.kDownloader.zoom(direction);
+    void window.khinsiderDownloader.zoom(direction);
   } else if ((event.ctrlKey || event.metaKey) && event.key === ",") {
     event.preventDefault();
     setSettingsOpen(!settingsOpen);
@@ -56253,7 +56253,7 @@ document.addEventListener("keydown", (event) => {
 document.addEventListener("wheel", (event) => {
   if (!event.ctrlKey || event.deltaY === 0) return;
   event.preventDefault();
-  void window.kDownloader.zoom(event.deltaY < 0 ? "in" : "out");
+  void window.khinsiderDownloader.zoom(event.deltaY < 0 ? "in" : "out");
 }, { passive: false });
 
 inspectButton.addEventListener("click", async () => {
@@ -56275,7 +56275,7 @@ inspectButton.addEventListener("click", async () => {
   setBusy(true);
   updateInspectionIndicator({ active: true, browserReady: false, browserVisible: false });
   try {
-    inspection = await window.kDownloader.inspect(albumUrl);
+    inspection = await window.khinsiderDownloader.inspect(albumUrl);
     if (!inspection) {
       setStatus("Inspection canceled");
       return;
@@ -56301,7 +56301,7 @@ inspectButton.addEventListener("click", async () => {
 inspectionIndicator.addEventListener("click", async () => {
   if (inspectionIndicator.disabled) return;
   try {
-    inspectionBrowserVisible = await window.kDownloader.toggleInspectionBrowser();
+    inspectionBrowserVisible = await window.khinsiderDownloader.toggleInspectionBrowser();
     inspectionIndicator.setAttribute("aria-pressed", String(inspectionBrowserVisible));
     inspectionIndicatorText.textContent = inspectionBrowserVisible ? "Hide browser" : "Show browser";
   } catch (error) {
@@ -56309,10 +56309,10 @@ inspectionIndicator.addEventListener("click", async () => {
   }
 });
 
-window.kDownloader.onInspectionState(updateInspectionIndicator);
+window.khinsiderDownloader.onInspectionState(updateInspectionIndicator);
 
 browseButton.addEventListener("click", async () => {
-  const selected = await window.kDownloader.chooseOutput();
+  const selected = await window.khinsiderDownloader.chooseOutput();
   if (selected) outputInput.value = selected;
 });
 
@@ -56331,7 +56331,7 @@ downloadButton.addEventListener("click", async () => {
   setBusy(true);
   setStatus("Downloading", "working");
   try {
-    const result = await window.kDownloader.download({
+    const result = await window.khinsiderDownloader.download({
       policy: currentPolicy(),
       outputRoot: outputInput.value,
       discLabel: discLabelSelect.value === "Disc" ? "Disc" : "CD",
@@ -56357,7 +56357,7 @@ cancelButton.addEventListener("click", async () => {
     inspectionIndicatorText.textContent = "Canceling…";
   } else setStatus("Canceling active track…", "working");
   try {
-    await window.kDownloader.cancel();
+    await window.khinsiderDownloader.cancel();
   } catch (error) {
     errorText.textContent = error instanceof Error ? error.message : String(error);
     inspectionCancelRequested = false;
@@ -56365,7 +56365,7 @@ cancelButton.addEventListener("click", async () => {
   }
 });
 
-window.kDownloader.onProgress((event: GuiProgress) => {
+window.khinsiderDownloader.onProgress((event: GuiProgress) => {
   progress.max = event.totalTracks;
   progress.value = event.completedTracks;
   progressText.textContent = event.stage === "track-start"
@@ -56377,7 +56377,7 @@ window.kDownloader.onProgress((event: GuiProgress) => {
         : "Canceled";
 });
 
-void window.kDownloader.defaultOutputRoot().then((value) => { outputInput.value = value; });
+void window.khinsiderDownloader.defaultOutputRoot().then((value) => { outputInput.value = value; });
 ```
 </details></tool-use>
 
@@ -56398,24 +56398,24 @@ npm run build && npm test -- tests/window-state.test.ts
 
 ```
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 
 
-> k-downloader@0.1.0 pretest
+> khinsider-downloader@0.1.0 pretest
 > npm run build:gui
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run tests/window-state.test.ts
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  1 passed (1)
@@ -56466,7 +56466,7 @@ describe("window geometry", () => {
 
 describe("desktop More menu and zoom", () => {
   it("renders and resizes the changelog, zooms, and persists window bounds", async () => {
-    const userData = await mkdtemp(resolve(tmpdir(), "k-downloader-window-test-"));
+    const userData = await mkdtemp(resolve(tmpdir(), "khinsider-downloader-window-test-"));
     const require = createRequire(import.meta.url);
     const launch = () => electron.launch({
       executablePath: require("electron"),
@@ -56479,7 +56479,7 @@ describe("desktop More menu and zoom", () => {
       page.setDefaultTimeout(5_000);
       await page.waitForFunction(() => document.documentElement.dataset.mode);
       const icon = await app.evaluate(({ nativeImage }) => {
-        const image = nativeImage.createFromPath("dist/assets/k-downloader.png");
+        const image = nativeImage.createFromPath("dist/assets/khinsider-downloader.png");
         const bitmap = image.getBitmap();
         return { empty: image.isEmpty(), size: image.getSize(), firstAlpha: bitmap[3], clippedAlpha: bitmap[bitmap.length - 1] };
       });
@@ -56487,14 +56487,14 @@ describe("desktop More menu and zoom", () => {
       expect(icon.size).toEqual({ width: 512, height: 512 });
       expect(icon.firstAlpha).toBe(255);
       expect(icon.clippedAlpha).toBe(0);
-      expect(await readFile(resolve("dist/assets/k-downloader.png"))).toEqual(await readFile(resolve("assets/k-downloader.png")));
+      expect(await readFile(resolve("dist/assets/khinsider-downloader.png"))).toEqual(await readFile(resolve("assets/khinsider-downloader.png")));
       await page.getByRole("button", { name: "More options", exact: true }).click();
       expect((await page.getByRole("menuitem").allTextContents()).map((text) => text.replace(/\s+/g, " ").trim())).toEqual([
         "Restore Size/Position", "Settings Ctrl+,", "Changelog", "Help", "Report an Issue",
       ]);
       const manifest = JSON.parse(await readFile(resolve("package.json"), "utf8"));
       expect(await page.locator("#menu-app-version").textContent()).toBe(manifest.version);
-      expect(await page.locator(".more-menu-info").innerText()).toContain("K-Downloader");
+      expect(await page.locator(".more-menu-info").innerText()).toContain("Khinsider Downloader");
       expect(await page.locator(".more-menu-separator").isVisible()).toBe(true);
       await app.evaluate(({ shell }) => {
         Reflect.set(globalThis, "supportUrls", []);
@@ -56513,13 +56513,13 @@ describe("desktop More menu and zoom", () => {
         if (!labelBounds || !linkBounds) throw new Error("Missing label/link layout");
         expect(linkBounds.x).toBeGreaterThanOrEqual(labelBounds.x + labelBounds.width);
         expect(Math.abs(linkBounds.y - labelBounds.y)).toBeLessThan(5);
-        await page.screenshot({ path: `/tmp/k-downloader-site-link-${width}.png` });
+        await page.screenshot({ path: `/tmp/khinsider-downloader-site-link-${width}.png` });
       }
       await page.getByRole("button", { name: "More options", exact: true }).click();
       await page.getByRole("menuitem", { name: "Report an Issue", exact: true }).click();
       expect(await app.evaluate(() => Reflect.get(globalThis, "supportUrls"))).toEqual([
         "https://downloads.khinsider.com/",
-        "https://github.com/kelmankenberg/K-Downloader/issues/new/choose",
+        "https://github.com/kelmankenberg/Khinsider-Downloader/issues/new/choose",
       ]);
       expect(await page.locator("#more-menu").isVisible()).toBe(false);
       expect(await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows().length)).toBe(1);
@@ -56538,7 +56538,7 @@ describe("desktop More menu and zoom", () => {
       await page.getByRole("menuitem", { name: "Report an Issue", exact: true }).click();
       const supportError = await app.evaluate(() => Reflect.get(globalThis, "supportError"));
       expect(supportError.message).toBe("Your browser could not be opened.");
-      expect(supportError.detail).toContain("https://github.com/kelmankenberg/K-Downloader/issues/new/choose");
+      expect(supportError.detail).toContain("https://github.com/kelmankenberg/Khinsider-Downloader/issues/new/choose");
       await page.getByRole("button", { name: "More options", exact: true }).click();
       await page.getByRole("menuitem", { name: "Changelog", exact: true }).click();
       await page.locator("#changelog-drawer").waitFor({ state: "visible" });
@@ -56554,7 +56554,7 @@ describe("desktop More menu and zoom", () => {
       await page.mouse.move(1, handle.y + 40);
       await page.mouse.up();
       expect(await page.locator("#changelog-drawer").evaluate((element) => element.getBoundingClientRect().width / innerWidth)).toBeCloseTo(.4, 2);
-      await page.screenshot({ path: "/tmp/k-downloader-changelog.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-changelog.png" });
       await page.keyboard.press("Escape");
       expect(await page.locator("#changelog-drawer").getAttribute("data-open")).toBe("false");
       await page.getByRole("button", { name: "More options", exact: true }).click();
@@ -56592,9 +56592,9 @@ describe("desktop More menu and zoom", () => {
       await page.mouse.up();
       expect(await page.locator("#help-drawer").evaluate((element) => element.getBoundingClientRect().width / innerWidth)).toBeCloseTo(.4, 2);
       await page.locator("#help-content summary").first().click();
-      await page.screenshot({ path: "/tmp/k-downloader-help-1120.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-help-1120.png" });
       await app.evaluate(({ BrowserWindow }) => BrowserWindow.getAllWindows()[0].setSize(760, 620));
-      await page.screenshot({ path: "/tmp/k-downloader-help-760.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-help-760.png" });
       expect(await page.locator("#help-content").evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
       await page.keyboard.press("Escape");
       expect(await page.locator("#help-drawer").getAttribute("data-open")).toBe("false");
@@ -56658,7 +56658,7 @@ describe("desktop More menu and zoom", () => {
 
 describe("single-instance desktop", () => {
   it("rejects a second launch, restores the primary window, and shows a confirmation", async () => {
-    const userData = await mkdtemp(resolve(tmpdir(), "k-downloader-instance-test-"));
+    const userData = await mkdtemp(resolve(tmpdir(), "khinsider-downloader-instance-test-"));
     const require = createRequire(import.meta.url);
     const executablePath: string = require("electron");
     const args = [resolve("dist/electron/main.cjs"), `--user-data-dir=${userData}`];
@@ -56693,7 +56693,7 @@ describe("single-instance desktop", () => {
       }));
       expect(state.windowCount).toBe(1);
       expect(state.visible).toBe(true);
-      expect(state.notice.message).toBe("K-Downloader is already running.");
+      expect(state.notice.message).toBe("Khinsider Downloader is already running.");
       expect(state.notice.buttons).toEqual(["Show running app"]);
     } finally {
       if (secondary && secondary.exitCode === null) secondary.kill();
@@ -56772,7 +56772,7 @@ describe("appearance controls in Chromium", () => {
       await page.addInitScript(() => {
         let inspectionListener: ((state: GuiInspectionState) => void) | undefined;
         let browserVisible = false;
-        window.kDownloader = {
+        window.khinsiderDownloader = {
           openKhinsider: async () => {},
           reportIssue: async () => {},
           restoreWindowBounds: async () => {},
@@ -56784,7 +56784,7 @@ describe("appearance controls in Chromium", () => {
             media.addEventListener("change", handler);
             return () => media.removeEventListener("change", handler);
           },
-          defaultOutputRoot: async () => "/tmp/K-Downloader",
+          defaultOutputRoot: async () => "/tmp/Khinsider Downloader",
           chooseOutput: async () => undefined,
           inspect: async () => {
             let canceled = false;
@@ -56853,7 +56853,7 @@ describe("appearance controls in Chromium", () => {
       ]);
       for (const viewport of [{ width: 1120, height: 780 }, { width: 760, height: 620 }]) {
         await page.setViewportSize(viewport);
-        await page.screenshot({ path: `/tmp/k-downloader-shortcuts-${viewport.width}.png` });
+        await page.screenshot({ path: `/tmp/khinsider-downloader-shortcuts-${viewport.width}.png` });
         expect(await page.evaluate(() => {
           const content = document.querySelector<HTMLElement>(".settings-content")!;
           const footer = document.querySelector<HTMLElement>(".app-footer")!.getBoundingClientRect();
@@ -56899,11 +56899,11 @@ describe("appearance controls in Chromium", () => {
       await page.emulateMedia({ colorScheme: "light" });
       await page.emulateMedia({ colorScheme: "dark" });
       expect(await page.locator("html").getAttribute("data-mode")).toBe("light");
-      await page.screenshot({ path: "/tmp/k-downloader-appearance-light.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-appearance-light.png" });
       await page.setViewportSize({ width: 760, height: 620 });
       await page.getByRole("radio", { name: "Dark", exact: true }).check();
       await page.getByRole("radio", { name: "Mint", exact: true }).check();
-      await page.screenshot({ path: "/tmp/k-downloader-appearance-dark.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-appearance-dark.png" });
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
       await page.keyboard.press("Escape");
       await page.locator("#workspace").waitFor({ state: "visible" });
@@ -56924,7 +56924,7 @@ describe("appearance controls in Chromium", () => {
         const animation = element.getAnimations()[0];
         return animation?.playState === "running" && animation.effect?.getTiming().iterations === Infinity;
       })).toBe(true);
-      await page.screenshot({ path: "/tmp/k-downloader-single-inspection-indicator.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-single-inspection-indicator.png" });
       await page.locator("#inspection-indicator").click();
       expect(await page.locator("#inspection-indicator-text").textContent()).toBe("Hide browser");
       await page.locator("#inspection-indicator").click();
@@ -56959,7 +56959,7 @@ describe("appearance controls in Chromium", () => {
         expect(scrolled.listScrollTop).toBeGreaterThan(0);
         expect(scrolled.footerBottom).toBe(initial.footerBottom);
         expect(scrolled.transferBottom).toBe(initial.transferBottom);
-        await page.screenshot({ path: `/tmp/k-downloader-long-preview-${viewport.width}.png` });
+        await page.screenshot({ path: `/tmp/khinsider-downloader-long-preview-${viewport.width}.png` });
       }
       await page.getByRole("button", { name: "Inspect album", exact: true }).click();
       await page.locator("#inspection-indicator").waitFor({ state: "visible" });
@@ -56976,7 +56976,7 @@ describe("appearance controls in Chromium", () => {
 
 describe("Electron native theme updates", () => {
   it("updates System mode through preload but preserves explicit Light and Dark", async () => {
-    const userData = await mkdtemp(resolve(tmpdir(), "k-downloader-theme-test-"));
+    const userData = await mkdtemp(resolve(tmpdir(), "khinsider-downloader-theme-test-"));
     const require = createRequire(import.meta.url);
     const app = await electron.launch({
       executablePath: require("electron"),
@@ -57025,7 +57025,7 @@ _**Agent (copilot/auto)**_
 @@ lines 1-244 @@
 
 ````
-# K-Downloader Help
+# Khinsider Downloader Help
 
 ## Getting Started
 
@@ -57082,7 +57082,7 @@ between tracks in the same album.
 
 ## Destination and Disc Folders
 
-The default root is `~/Music/K-Downloader`. Type another root in **Save album
+The default root is `~/Music/Khinsider Downloader`. Type another root in **Save album
 under** or use the folder-picker button. The app creates an album-title folder
 under that root. Select the root, not a pre-created album folder, to avoid
 unintentional nesting.
@@ -57263,7 +57263,7 @@ app shows the GitHub URL so you can visit it manually.
 
 The current implementation is Linux-first and single-album. Linux x64 AppImage
 and .deb builds include Electron and Chromium. The installed launcher supports
-`k-downloader inspect`, `k-downloader download`, and `k-downloader --help`.
+`khinsider-downloader inspect`, `khinsider-downloader download`, and `khinsider-downloader --help`.
 Distribution compatibility still requires target-machine testing.
 Multi-album queues, cover artwork, login/bulk downloads, .rpm/ARM packaging,
 automatic updates, tagging, transcoding, and player integration are not
@@ -57369,20 +57369,20 @@ npm test -- tests/window-state.test.ts tests/appearance.test.ts && npm run build
 
 ```
 
-> k-downloader@0.1.0 pretest
+> khinsider-downloader@0.1.0 pretest
 > npm run build:gui
 
 
-> k-downloader@0.1.0 build:gui
+> khinsider-downloader@0.1.0 build:gui
 > node scripts/build-gui.mjs
 
 Built Electron main/preload and local renderer into dist/.
 
-> k-downloader@0.1.0 test
+> khinsider-downloader@0.1.0 test
 > vitest run tests/window-state.test.ts tests/appearance.test.ts
 
 
- RUN  v5.0.4 /home/kel/dev/K-Downloader
+ RUN  v5.0.4 /home/kel/dev/Khinsider-Downloader
 
 
  Test Files  2 passed (2)
@@ -57391,7 +57391,7 @@ Built Electron main/preload and local renderer into dist/.
    Duration  6.67s (tests 92%, import 7%, transform 1%)
 
 
-> k-downloader@0.1.0 build
+> khinsider-downloader@0.1.0 build
 > tsc --noEmit
 ```
 </details></tool-use>
@@ -57413,11 +57413,11 @@ Checked `main.ts`, `preload.ts`, `renderer.ts`, `styles.css`, `window-state.test
 
 ```
 [
-  "/home/kel/dev/K-Downloader/src/electron/main.ts",
-  "/home/kel/dev/K-Downloader/src/electron/preload.ts",
-  "/home/kel/dev/K-Downloader/src/renderer.ts",
-  "/home/kel/dev/K-Downloader/gui/styles.css",
-  "/home/kel/dev/K-Downloader/tests/window-state.test.ts"
+  "/home/kel/dev/Khinsider-Downloader/src/electron/main.ts",
+  "/home/kel/dev/Khinsider-Downloader/src/electron/preload.ts",
+  "/home/kel/dev/Khinsider-Downloader/src/renderer.ts",
+  "/home/kel/dev/Khinsider-Downloader/gui/styles.css",
+  "/home/kel/dev/Khinsider-Downloader/tests/window-state.test.ts"
 ]
 ```
 
@@ -57425,19 +57425,19 @@ Checked `main.ts`, `preload.ts`, `renderer.ts`, `styles.css`, `window-state.test
 **Result:**
 
 ```
-<errors path="/home/kel/dev/K-Downloader/src/electron/main.ts">
+<errors path="/home/kel/dev/Khinsider-Downloader/src/electron/main.ts">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/src/electron/preload.ts">
+<errors path="/home/kel/dev/Khinsider-Downloader/src/electron/preload.ts">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/src/renderer.ts">
+<errors path="/home/kel/dev/Khinsider-Downloader/src/renderer.ts">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/gui/styles.css">
+<errors path="/home/kel/dev/Khinsider-Downloader/gui/styles.css">
 No errors found
 </errors>
-<errors path="/home/kel/dev/K-Downloader/tests/window-state.test.ts">
+<errors path="/home/kel/dev/Khinsider-Downloader/tests/window-state.test.ts">
 No errors found
 </errors>
 ```
@@ -57448,11 +57448,11 @@ _**Agent (copilot/auto)**_
 <tool-use data-tool-type="generic" data-tool-name="view_image"><details>
 <summary>Tool use: **view_image**</summary>
 
-Viewed image `k-downloader-site-link-760.png`
+Viewed image `khinsider-downloader-site-link-760.png`
 
 **Input:**
 
-- filePath: `/tmp/k-downloader-site-link-760.png`
+- filePath: `/tmp/khinsider-downloader-site-link-760.png`
 </details></tool-use>
 
 _**Agent (copilot/auto)**_
@@ -57460,11 +57460,11 @@ _**Agent (copilot/auto)**_
 <tool-use data-tool-type="generic" data-tool-name="view_image"><details>
 <summary>Tool use: **view_image**</summary>
 
-Viewed image `k-downloader-site-link-1120.png`
+Viewed image `khinsider-downloader-site-link-1120.png`
 
 **Input:**
 
-- filePath: `/tmp/k-downloader-site-link-1120.png`
+- filePath: `/tmp/khinsider-downloader-site-link-1120.png`
 </details></tool-use>
 
 _**Agent (copilot/auto)**_

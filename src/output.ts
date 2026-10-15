@@ -26,7 +26,7 @@ export type AlbumManifest = {
 };
 
 export function defaultOutputRoot(): string {
-  return join(homedir(), "Music", "K-Downloader");
+  return join(homedir(), "Music", "Khinsider Downloader");
 }
 
 export function safeFileComponent(value: string): string {

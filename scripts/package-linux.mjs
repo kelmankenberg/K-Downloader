@@ -28,13 +28,13 @@ if (selected.includes("pacman")) {
 }
 
 function maintainer() {
-  if (process.env.K_DOWNLOADER_MAINTAINER) return process.env.K_DOWNLOADER_MAINTAINER;
+  if (process.env.KHINSIDER_DOWNLOADER_MAINTAINER) return process.env.KHINSIDER_DOWNLOADER_MAINTAINER;
   try {
     const name = command("git", ["config", "user.name"], { encoding: "utf8", stdio: "pipe" }).trim();
     const email = command("git", ["config", "user.email"], { encoding: "utf8", stdio: "pipe" }).trim();
     if (name && email) return `${name} <${email}>`;
   } catch {}
-  throw new Error("Set K_DOWNLOADER_MAINTAINER='Name <email>' or configure Git user.name/user.email for native package metadata.");
+  throw new Error("Set KHINSIDER_DOWNLOADER_MAINTAINER='Name <email>' or configure Git user.name/user.email for native package metadata.");
 }
 
 const packageMaintainer = selected.some((target) => ["deb", "pacman"].includes(target)) ? maintainer() : undefined;
@@ -72,7 +72,7 @@ for (const artifact of artifacts.filter((path) => path.endsWith(".deb") || path.
   checksums.push(`${hash.digest("hex")}  ${artifact.split("/").at(-1)}`);
 }
 if (checksums.length) {
-  const filename = `K-Downloader-${manifest.version}-SHA256SUMS.txt`;
+  const filename = `Khinsider-Downloader-${manifest.version}-SHA256SUMS.txt`;
   await writeFile(resolve(root, "release", filename), `${checksums.join("\n")}\n`);
 }
 console.log("Package output: release/ (nothing was published to GitHub).");

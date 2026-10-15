@@ -7,7 +7,7 @@ import { prepareAlbumDirectory, trackFilename, trackRelativePath, writeManifest 
 const temporaryDirectories: string[] = [];
 
 async function temporaryDirectory(): Promise<string> {
-  const directory = await mkdtemp(join(tmpdir(), "k-downloader-output-test-"));
+  const directory = await mkdtemp(join(tmpdir(), "khinsider-downloader-output-test-"));
   temporaryDirectories.push(directory);
   return directory;
 }

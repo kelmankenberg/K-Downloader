@@ -14,12 +14,17 @@ const manifest = JSON.parse(readFileSync(new URL("../package.json", import.meta.
 describe("Linux packaging configuration", () => {
   it("includes application entry, icon, and browser resources", () => {
     expect(manifest.main).toBe("dist/electron/main.cjs");
+    expect(manifest.name).toBe("khinsider-downloader");
+    expect(manifest.desktopName).toBe("khinsider-downloader.desktop");
+    expect(config.appId).toBe("com.kelmankenberg.khinsiderdownloader");
+    expect(config.productName).toBe("Khinsider Downloader");
+    expect(config.executableName).toBe("khinsider-downloader");
     expect(config.asar).toBe(true);
     expect(config.extraResources).toContainEqual({ from: ".packaging/chromium", to: "chromium" });
     expect(config.linux.target).toEqual(["deb", "AppImage", "pacman"]);
-    expect(config.linux.icon).toBe("assets/k-downloader.png");
-    expect(config.linux.desktop.entry.StartupWMClass).toBe("k-downloader");
-    expect(manifest.desktopName).toBe("k-downloader.desktop");
+    expect(config.linux.icon).toBe("assets/khinsider-downloader.png");
+    expect(config.linux.desktop.entry.StartupWMClass).toBe("khinsider-downloader");
+    expect(manifest.desktopName).toBe("khinsider-downloader.desktop");
   });
 
   it("provides package targets and smoke testing commands", () => {
@@ -28,10 +33,14 @@ describe("Linux packaging configuration", () => {
     }
   });
 
+  it("builds the Arch archive successfully before generating the AUR recipe", () => {
+    expect(manifest.scripts["package:aur"]).toBe("npm run package:arch && node scripts/generate-aur.mjs");
+  });
+
   it("uses explicit Arch dependencies and a pacman archive filename", () => {
-    expect(config.pacman.packageName).toBe("k-downloader");
+    expect(config.pacman.packageName).toBe("khinsider-downloader");
     expect(config.pacman.compression).toBe("xz");
-    expect(config.pacman.artifactName).toBe("K-Downloader-${version}-x86_64.pkg.tar.xz");
+    expect(config.pacman.artifactName).toBe("Khinsider-Downloader-${version}-x86_64.pkg.tar.xz");
     expect(config.pacman.depends).toEqual(expect.arrayContaining(["glibc", "gtk3", "nss", "alsa-lib", "mesa"]));
     expect(config.pacman.depends).not.toContain("libgtk-3-0");
   });
@@ -58,7 +67,7 @@ describe("AUR binary recipe", () => {
     const { renderAurFiles } = await import("../scripts/generate-aur.mjs");
     const checksum = "a".repeat(64);
     const { pkgbuild, srcinfo } = renderAurFiles("0.1.0", checksum);
-    expect(pkgbuild).toContain("releases/download/v0.1.0/K-Downloader-0.1.0-x86_64.pkg.tar.xz");
+    expect(pkgbuild).toContain("releases/download/v0.1.0/Khinsider-Downloader-0.1.0-x86_64.pkg.tar.xz");
     expect(pkgbuild).toContain(`sha256sums_x86_64=('${checksum}')`);
     expect(srcinfo).toContain(`sha256sums_x86_64 = ${checksum}`);
     for (const dependency of config.pacman.depends) {
@@ -66,9 +75,10 @@ describe("AUR binary recipe", () => {
       expect(srcinfo).toContain(`depends = ${dependency}\n`);
     }
     expect(pkgbuild).toContain("--exclude='.INSTALL'");
-    expect(pkgbuild).toContain("/usr/bin/k-downloader");
-    expect(pkgbuild).toContain('chmod 4755 "$pkgdir/opt/K-Downloader/chrome-sandbox"');
+    expect(pkgbuild).toContain("/usr/bin/khinsider-downloader");
+    expect(pkgbuild).toContain('chmod 4755 "$pkgdir/opt/Khinsider Downloader/chrome-sandbox"');
     expect(pkgbuild).not.toContain("--no-sandbox");
+    expect(srcinfo.indexOf("\tnoextract = ")).toBeLessThan(srcinfo.indexOf("\toptions = !strip"));
     execFileSync("bash", ["-n"], { input: pkgbuild });
   });
 
@@ -80,7 +90,7 @@ describe("AUR binary recipe", () => {
 
   it("hashes the artifact and writes both AUR metadata files", async () => {
     const { generateAur } = await import("../scripts/generate-aur.mjs");
-    const directory = await mkdtemp(resolve(tmpdir(), "k-downloader-aur-"));
+    const directory = await mkdtemp(resolve(tmpdir(), "khinsider-downloader-aur-"));
     try {
       const artifact = resolve(directory, "archive.pkg.tar.xz");
       await writeFile(artifact, "offline test artifact");

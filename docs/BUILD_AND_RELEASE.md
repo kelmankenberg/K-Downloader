@@ -82,7 +82,7 @@ npm audit
   from [package.json](../package.json). Rebuild after changing either file.
 - Help content is embedded from [HELP.md](HELP.md). Its level-two headings
   become expandable sections in the Help drawer. Rebuild after editing it.
-- The build copies [assets/k-downloader.png](../assets/k-downloader.png) into
+- The build copies [assets/khinsider-downloader.png](../assets/khinsider-downloader.png) into
   `dist/assets/`; Electron uses it as the window/taskbar icon. Regenerate the
   source icon with `node scripts/generate-icon.mjs` if the brand mark changes.
 - `npm audit` reports dependency advisories. Review and resolve release-blocking
@@ -123,10 +123,10 @@ electron-builder. Browser and builder tools may be downloaded on the first run.
 For version 0.1.0, outputs are:
 
 ```text
-release/K-Downloader-0.1.0-amd64.deb
-release/K-Downloader-0.1.0-x86_64.AppImage
-release/K-Downloader-0.1.0-x86_64.pkg.tar.xz
-release/K-Downloader-0.1.0-SHA256SUMS.txt
+release/Khinsider-Downloader-0.1.0-amd64.deb
+release/Khinsider-Downloader-0.1.0-x86_64.AppImage
+release/Khinsider-Downloader-0.1.0-x86_64.pkg.tar.xz
+release/Khinsider-Downloader-0.1.0-SHA256SUMS.txt
 release/linux-unpacked/
 ```
 
@@ -141,7 +141,7 @@ and user.email by default. These become public package metadata; review them
 before distributing. Override them explicitly with a real maintainer identity:
 
 ```sh
-K_DOWNLOADER_MAINTAINER='Your Name <your-real-email@example.org>' npm run package:linux
+KHINSIDER_DOWNLOADER_MAINTAINER='Your Name <your-real-email@example.org>' npm run package:linux
 ```
 
 Replace the example with your chosen identity. The manifest currently declares
@@ -154,7 +154,7 @@ or change existing copyright ownership for you.
 ```sh
 npm run test:packages
 cd release
-sha256sum -c K-Downloader-0.1.0-SHA256SUMS.txt
+sha256sum -c Khinsider-Downloader-0.1.0-SHA256SUMS.txt
 ```
 
 Adjust the checksum filename for the release version. Run from the repository
@@ -183,10 +183,10 @@ desktop. These commands require system privileges; automated smoke tests only
 extract the archive and never run them:
 
 ```sh
-sudo pacman -U release/K-Downloader-0.1.0-x86_64.pkg.tar.xz
-k-downloader --help
-k-downloader
-sudo pacman -Rns k-downloader
+sudo pacman -U release/Khinsider-Downloader-0.1.0-x86_64.pkg.tar.xz
+khinsider-downloader --help
+khinsider-downloader
+sudo pacman -Rns khinsider-downloader
 ```
 
 Verify upgrades, dependency resolution, desktop entry/icon, CLI help without a
@@ -200,20 +200,31 @@ desktop behavior.
 
 ### AUR Binary Recipe
 
-Build and test the native Arch artifact before generating the recipe:
+Build the native Arch artifact and generate its recipe with one command, then
+smoke-test the resulting artifact:
 
 ```sh
-npm run package:arch
-npm run test:packages -- pacman
 npm run package:aur
+npm run test:packages -- pacman
 ```
 
-The last command writes `PKGBUILD` and `.SRCINFO` into
-`release/aur/k-downloader-bin/`. It hashes the local archive and pins the matching
+`package:aur` runs `package:arch` first and only generates the recipe if the build
+succeeds. It requires the same build prerequisites and maintainer metadata as
+`package:arch`; an existing archive is not required. Each invocation rebuilds the
+archive and replaces the version's checksum file with the Arch artifact checksum.
+If you already built and tested the exact release archive (for example, with
+`package:linux`), generate only the recipe without rebuilding or replacing checksums:
+
+```sh
+node scripts/generate-aur.mjs
+```
+
+The generator writes `PKGBUILD` and `.SRCINFO` into
+`release/aur/khinsider-downloader-bin/`. It hashes the local archive and pins the matching
 versioned GitHub release URL; it never uses `SKIP`. Stable numeric versions are
 required. Both recipes share the explicit Arch dependency list from
 [electron-builder.config.cjs](../electron-builder.config.cjs). The AUR package
-provides `k-downloader` and conflicts with the direct native package. It repackages
+provides `khinsider-downloader` and conflicts with the direct native package. It repackages
 the payload, excludes native package metadata/install hooks, owns its CLI symlink,
 and sets Electron's sandbox-helper permissions. Arch's desktop/icon cache hooks
 handle the installed desktop assets. No npm or browser download runs at install time.
@@ -235,12 +246,12 @@ makepkg
 makepkg --printsrcinfo > .SRCINFO
 ```
 
-Install/test/remove the resulting `k-downloader-bin` package on a disposable
-target; do not use `k-downloader` as its removal package name. Review `namcap`
+Install/test/remove the resulting `khinsider-downloader-bin` package on a disposable
+target; do not use `khinsider-downloader` as its removal package name. Review `namcap`
 results for package metadata and runtime dependencies. Compare the generated
 `.SRCINFO` with `makepkg --printsrcinfo`, and use the latter for submission.
 
-AUR submission is a separate manual step: check whether `k-downloader-bin` is
+AUR submission is a separate manual step: check whether `khinsider-downloader-bin` is
 available, follow AUR submission rules, and copy the reviewed `PKGBUILD` and
 `.SRCINFO` into its separate AUR Git repository. Do not commit installer archives
 to AUR. For later releases, update the version/source/hash together; increment
@@ -251,23 +262,23 @@ scripts, and no package availability is claimed until submission succeeds.
 For AppImage, mark it executable and launch it:
 
 ```sh
-chmod +x release/K-Downloader-0.1.0-x86_64.AppImage
-./release/K-Downloader-0.1.0-x86_64.AppImage
+chmod +x release/Khinsider-Downloader-0.1.0-x86_64.AppImage
+./release/Khinsider-Downloader-0.1.0-x86_64.AppImage
 ```
 
 If the host cannot mount AppImages via FUSE, extraction mode is available:
 
 ```sh
-./release/K-Downloader-0.1.0-x86_64.AppImage --appimage-extract-and-run
+./release/Khinsider-Downloader-0.1.0-x86_64.AppImage --appimage-extract-and-run
 ```
 
-The installed Debian and Arch launcher is `k-downloader`. The packaged CLI uses Electron's
+The installed Debian and Arch launcher is `khinsider-downloader`. The packaged CLI uses Electron's
 embedded Node runtime without opening the GUI:
 
 ```sh
-k-downloader --help
-k-downloader inspect 'https://downloads.khinsider.com/game-soundtracks/album/ALBUM'
-k-downloader download 'https://downloads.khinsider.com/game-soundtracks/album/ALBUM'
+khinsider-downloader --help
+khinsider-downloader inspect 'https://downloads.khinsider.com/game-soundtracks/album/ALBUM'
+khinsider-downloader download 'https://downloads.khinsider.com/game-soundtracks/album/ALBUM'
 ```
 
 An AppImage accepts the same CLI arguments. Help needs no display; inspection
@@ -326,7 +337,7 @@ exists (`git tag --list "$TAG"`); inspect it rather than moving or overwriting i
 Create and push the annotated tag:
 
 ```sh
-git tag -a "$TAG" -m "K-Downloader $VERSION"
+git tag -a "$TAG" -m "Khinsider Downloader $VERSION"
 git push origin "$TAG"
 ```
 
@@ -335,10 +346,10 @@ notes source:
 
 ```sh
 gh release create "$TAG" \
-  --repo kelmankenberg/K-Downloader \
+  --repo kelmankenberg/Khinsider-Downloader \
   --verify-tag \
   --draft \
-  --title "K-Downloader $VERSION" \
+  --title "Khinsider Downloader $VERSION" \
   --notes-file changelog.md
 ```
 
@@ -349,11 +360,11 @@ the validated artifacts and checksum file to the draft before publication:
 
 ```sh
 gh release upload "$TAG" \
-  "release/K-Downloader-$VERSION-amd64.deb" \
-  "release/K-Downloader-$VERSION-x86_64.AppImage" \
-  "release/K-Downloader-$VERSION-x86_64.pkg.tar.xz" \
-  "release/K-Downloader-$VERSION-SHA256SUMS.txt" \
-  --repo kelmankenberg/K-Downloader
+  "release/Khinsider-Downloader-$VERSION-amd64.deb" \
+  "release/Khinsider-Downloader-$VERSION-x86_64.AppImage" \
+  "release/Khinsider-Downloader-$VERSION-x86_64.pkg.tar.xz" \
+  "release/Khinsider-Downloader-$VERSION-SHA256SUMS.txt" \
+  --repo kelmankenberg/Khinsider-Downloader
 ```
 
 ## Publish and Verify
@@ -361,9 +372,9 @@ gh release upload "$TAG" \
 Open the draft, review its tag, notes, and release type, then publish:
 
 ```sh
-gh release view "$TAG" --repo kelmankenberg/K-Downloader --web
-gh release edit "$TAG" --repo kelmankenberg/K-Downloader --draft=false
-gh release view "$TAG" --repo kelmankenberg/K-Downloader
+gh release view "$TAG" --repo kelmankenberg/Khinsider-Downloader --web
+gh release edit "$TAG" --repo kelmankenberg/Khinsider-Downloader --draft=false
+gh release view "$TAG" --repo kelmankenberg/Khinsider-Downloader
 ```
 
 On the GitHub website, the equivalent is **Releases > Draft a new release**:

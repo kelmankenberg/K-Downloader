@@ -56,6 +56,6 @@ await Promise.all([
 await Promise.all([
   cp(resolve(root, "gui/index.html"), resolve(output, "gui/index.html")),
   cp(resolve(root, "gui/styles.css"), resolve(output, "gui/styles.css")),
-  cp(resolve(root, "assets/k-downloader.png"), resolve(output, "assets/k-downloader.png")),
+  cp(resolve(root, "assets/khinsider-downloader.png"), resolve(output, "assets/khinsider-downloader.png")),
 ]);
 console.log("Built Electron main/preload and local renderer into dist/.");

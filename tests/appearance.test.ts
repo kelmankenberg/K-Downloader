@@ -49,7 +49,7 @@ describe("appearance controls in Chromium", () => {
       await page.addInitScript(() => {
         let inspectionListener: ((state: GuiInspectionState) => void) | undefined;
         let browserVisible = false;
-        window.kDownloader = {
+        window.khinsiderDownloader = {
           openKhinsider: async () => {},
           reportIssue: async () => {},
           restoreWindowBounds: async () => {},
@@ -61,7 +61,7 @@ describe("appearance controls in Chromium", () => {
             media.addEventListener("change", handler);
             return () => media.removeEventListener("change", handler);
           },
-          defaultOutputRoot: async () => "/tmp/K-Downloader",
+          defaultOutputRoot: async () => "/tmp/Khinsider Downloader",
           chooseOutput: async () => undefined,
           inspect: async () => {
             let canceled = false;
@@ -130,7 +130,7 @@ describe("appearance controls in Chromium", () => {
       ]);
       for (const viewport of [{ width: 1120, height: 780 }, { width: 760, height: 620 }]) {
         await page.setViewportSize(viewport);
-        await page.screenshot({ path: `/tmp/k-downloader-shortcuts-${viewport.width}.png` });
+        await page.screenshot({ path: `/tmp/khinsider-downloader-shortcuts-${viewport.width}.png` });
         expect(await page.evaluate(() => {
           const content = document.querySelector<HTMLElement>(".settings-content")!;
           const footer = document.querySelector<HTMLElement>(".app-footer")!.getBoundingClientRect();
@@ -176,11 +176,11 @@ describe("appearance controls in Chromium", () => {
       await page.emulateMedia({ colorScheme: "light" });
       await page.emulateMedia({ colorScheme: "dark" });
       expect(await page.locator("html").getAttribute("data-mode")).toBe("light");
-      await page.screenshot({ path: "/tmp/k-downloader-appearance-light.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-appearance-light.png" });
       await page.setViewportSize({ width: 760, height: 620 });
       await page.getByRole("radio", { name: "Dark", exact: true }).check();
       await page.getByRole("radio", { name: "Mint", exact: true }).check();
-      await page.screenshot({ path: "/tmp/k-downloader-appearance-dark.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-appearance-dark.png" });
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
       await page.keyboard.press("Escape");
       await page.locator("#workspace").waitFor({ state: "visible" });
@@ -201,7 +201,7 @@ describe("appearance controls in Chromium", () => {
         const animation = element.getAnimations()[0];
         return animation?.playState === "running" && animation.effect?.getTiming().iterations === Infinity;
       })).toBe(true);
-      await page.screenshot({ path: "/tmp/k-downloader-single-inspection-indicator.png" });
+      await page.screenshot({ path: "/tmp/khinsider-downloader-single-inspection-indicator.png" });
       await page.locator("#inspection-indicator").click();
       expect(await page.locator("#inspection-indicator-text").textContent()).toBe("Hide browser");
       await page.locator("#inspection-indicator").click();
@@ -236,7 +236,7 @@ describe("appearance controls in Chromium", () => {
         expect(scrolled.listScrollTop).toBeGreaterThan(0);
         expect(scrolled.footerBottom).toBe(initial.footerBottom);
         expect(scrolled.transferBottom).toBe(initial.transferBottom);
-        await page.screenshot({ path: `/tmp/k-downloader-long-preview-${viewport.width}.png` });
+        await page.screenshot({ path: `/tmp/khinsider-downloader-long-preview-${viewport.width}.png` });
       }
       await page.getByRole("button", { name: "Inspect album", exact: true }).click();
       await page.locator("#inspection-indicator").waitFor({ state: "visible" });
@@ -253,7 +253,7 @@ describe("appearance controls in Chromium", () => {
 
 describe("Electron native theme updates", () => {
   it("updates System mode through preload but preserves explicit Light and Dark", async () => {
-    const userData = await mkdtemp(resolve(tmpdir(), "k-downloader-theme-test-"));
+    const userData = await mkdtemp(resolve(tmpdir(), "khinsider-downloader-theme-test-"));
     const require = createRequire(import.meta.url);
     const app = await electron.launch({
       executablePath: require("electron"),
