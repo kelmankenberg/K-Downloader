@@ -65,12 +65,12 @@
           <div class="section-heading"><span class="section-index">01</span><h1>Album source</h1></div>
           <div class="album-url-label-row">
             <label for="album-url">KHInsider album URL</label>
-            <a id="khinsider-link" href="https://downloads.khinsider.com/" title="Open KHInsider in your browser" aria-label="Open KHInsider website">
+            <a id="khinsider-link" href="https://downloads.khinsider.com/" title="Open KHInsider in your default system browser" aria-label="Open KHInsider website">
               <span>KHInsider</span><i data-lucide="external-link" aria-hidden="true"></i>
             </a>
           </div>
           <textarea id="album-url" rows="3" spellcheck="false" placeholder="https://downloads.khinsider.com/game-soundtracks/album/…"></textarea>
-          <div class="microcopy">Inspection opens a separate visible Chromium window. No login is used.</div>
+          <div class="microcopy">Inspection runs in a hidden browser. Select Show browser during inspection to view it. No login is used.</div>
 
           <div class="section-heading destination-heading"><span class="section-index">02</span><h2>Destination</h2></div>
           <label for="output-root">Save album under</label>
@@ -148,6 +148,28 @@
           </footer>
         </section>
       </section>
+      <section id="website-view" class="website-view" aria-label="KHInsider website" hidden>
+        <header class="website-toolbar">
+          <button id="website-close" class="settings-close-button" type="button">
+            <i data-lucide="arrow-left" aria-hidden="true"></i><span>Back to downloader</span>
+          </button>
+          <div class="website-navigation" role="group" aria-label="Website navigation">
+            <button id="website-back" class="icon-button" type="button" aria-label="Go back" title="Go back" disabled><i data-lucide="arrow-left" aria-hidden="true"></i></button>
+            <button id="website-forward" class="icon-button" type="button" aria-label="Go forward" title="Go forward" disabled><i data-lucide="arrow-right" aria-hidden="true"></i></button>
+            <button id="website-reload" class="icon-button" type="button" aria-label="Reload website" title="Reload"><i data-lucide="rotate-cw" aria-hidden="true"></i></button>
+            <button id="website-home" class="icon-button" type="button" aria-label="KHInsider home" title="KHInsider home"><i data-lucide="house" aria-hidden="true"></i></button>
+          </div>
+          <button id="website-use-album" class="primary-button" type="button" disabled>Use this album</button>
+        </header>
+        <div class="website-address-row">
+          <span id="website-status" role="status">KHInsider</span>
+          <input id="website-address" type="text" readonly aria-label="Current website address" />
+        </div>
+        <p id="website-error" class="error-text" role="alert"></p>
+        <div id="website-host" class="website-host">
+          <p>The website appears here. Close any open menu, Help, or Changelog panel to resume browsing.</p>
+        </div>
+      </section>
       <section id="settings-view" class="settings-view" aria-labelledby="settings-heading" hidden>
         <header class="settings-header">
           <h1 id="settings-heading">Settings</h1>
@@ -163,6 +185,9 @@
             </button>
             <button id="shortcuts-nav" class="settings-nav-item" type="button" aria-controls="shortcuts-page">
               <i data-lucide="keyboard" aria-hidden="true"></i><span>Shortcuts</span>
+            </button>
+            <button id="browsing-nav" class="settings-nav-item" type="button" aria-controls="browsing-page">
+              <i data-lucide="globe" aria-hidden="true"></i><span>Browsing</span>
             </button>
           </nav>
           <div class="settings-content">
@@ -187,6 +212,17 @@
             </div>
           </fieldset>
           <p id="appearance-storage-status" class="error-text" role="status"></p>
+        </section>
+        <section id="browsing-page" class="appearance-section" aria-labelledby="browsing-heading" hidden>
+          <h2 id="browsing-heading">Browsing</h2>
+          <label for="website-target">Open the KHInsider website</label>
+          <select id="website-target">
+            <option value="external">Default system browser</option>
+            <option value="internal">Inside the app</option>
+          </select>
+          <p class="microcopy">Applies to the KHInsider link beside the album URL. Internal browsing stays in this window. Select Use this album on an album page to send its URL to the downloader.</p>
+          <p class="microcopy">Album inspection uses a separate hidden browser, visible only when you select Show browser. The internal website session is separate from inspection and is cleared when you quit the app.</p>
+          <p id="website-storage-status" class="error-text" role="status"></p>
         </section>
         <section id="shortcuts-page" class="shortcuts-section" aria-labelledby="shortcuts-heading" hidden>
           <h2 id="shortcuts-heading">Shortcuts</h2>

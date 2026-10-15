@@ -7,6 +7,12 @@
 - Linux x64 Arch pacman packaging, target-selectable artifact smoke tests, and
 	checksum-pinned AUR binary-recipe generation for manual submission.
 - KHInsider website link beside the album URL label, opening in the default browser.
+- Browsing settings with a saved choice between the default system browser and
+  opening KHInsider inside the existing app window.
+- Dedicated internal KHInsider page with Back, Forward, Reload, Home, and
+  Back to downloader controls; Use this album fills the downloader's album URL.
+- Isolated temporary internal website session with blocked off-site navigation,
+  pop-up windows, permissions, and direct website downloads, plus visible load errors.
 - Linux x64 AppImage and .deb packaging scripts with bundled Electron/Chromium,
   desktop integration, embedded-Node CLI launchers, checksums, and artifact smoke tests.
 - Separate package:linux, package:deb, package:appimage, and package:dir commands.
@@ -47,6 +53,12 @@
 
 ### Changed
 
+- Desktop album inspection uses an isolated, non-headless Electron browser that
+  starts hidden. Show browser displays it, and Hide browser hides it again
+  without interrupting scanning; completion or cancellation closes it.
+- Internal website browsing preserves the download setup, preview, and active
+  transfer, resumes the current page when reopened, and remains separate from
+  album inspection. CLI inspection behavior is unchanged.
 - Appearance controls retain their layout and selections when switching Settings pages.
 - Settings content scrolls independently of its navigation rail, header, and statusbar.
 - More menu order: Restore Size/Position, Settings, Changelog, Help, Report an Issue,
@@ -56,6 +68,8 @@
 
 ### Fixed
 
+- Inspection browser appearing on the desktop before Show browser is selected
+  on window managers that do not reliably honor Chromium's minimized state.
 - Duplicate inspection status rows.
 - Empty preview space after discovery.
 - Statusbar visibility for long track lists.

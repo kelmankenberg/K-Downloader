@@ -2,7 +2,20 @@ import { contextBridge, ipcRenderer } from "electron";
 import type { GuiDownloadRequest, GuiInspectionState, GuiProgress, GuiWindowState, KhinsiderDownloaderApi } from "../gui-types.js";
 
 const api: KhinsiderDownloaderApi = {
-  openKhinsider: () => ipcRenderer.invoke("source:open-khinsider"),
+  openKhinsider: (target) => ipcRenderer.invoke("source:open-khinsider", target),
+  websiteCommand: (command) => ipcRenderer.invoke("website:command", command),
+  setWebsiteBounds: (bounds) => ipcRenderer.invoke("website:bounds", bounds),
+  useWebsiteAlbum: () => ipcRenderer.invoke("website:use-album"),
+  onWebsiteState: (listener) => {
+    const handler = (_event: Electron.IpcRendererEvent, state: Parameters<typeof listener>[0]) => listener(state);
+    ipcRenderer.on("website:state", handler);
+    return () => ipcRenderer.removeListener("website:state", handler);
+  },
+  onWebsiteShortcut: (listener) => {
+    const handler = (_event: Electron.IpcRendererEvent, action: Parameters<typeof listener>[0]) => listener(action);
+    ipcRenderer.on("website:shortcut", handler);
+    return () => ipcRenderer.removeListener("website:shortcut", handler);
+  },
   reportIssue: () => ipcRenderer.invoke("support:report-issue"),
   restoreWindowBounds: () => ipcRenderer.invoke("window:restore-bounds"),
   zoom: (direction) => ipcRenderer.invoke("window:zoom", direction),

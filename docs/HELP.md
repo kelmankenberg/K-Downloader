@@ -15,7 +15,25 @@ need no site login. Use only audio you are authorized to download and respect
 the site's access policy. The current release accepts one album per run.
 
 The **KHInsider** link to the right of the album URL label opens the website
-in your default browser, where you can find and copy an album-page URL.
+in your default system browser unless you choose **Inside the app** under
+**Settings > Browsing**. This choice is saved across restarts.
+
+Internal browsing opens a dedicated page within the existing app window, not
+a new browser window. Use Back, Forward, Reload, and Home to navigate. On an
+album page, select **Use this album** to fill the downloader's album URL, or
+**Back to downloader** to return without changing it. Browsing preserves your
+download setup, preview, and active transfer. Reopening the link resumes the
+internal page; Settings returns to it with **Back to browser**.
+
+Internal browsing is limited to `https://downloads.khinsider.com`. Other
+destinations and direct website downloads are blocked with an explanation.
+Use the system browser for other websites, and the downloader for audio.
+Website permissions are disabled, and the website has no access to app APIs.
+Its temporary session is separate from inspection and cleared on app exit.
+The website is temporarily hidden while an app menu, Help, or Changelog is open.
+If loading fails, use Reload or switch to the system browser; access challenges
+are not bypassed. Album inspection uses its own hidden browser, separate from
+the internal website page.
 
 ## Album Inspection
 
@@ -28,8 +46,9 @@ The preview includes disc number, track number, title, available formats,
 selected format, and availability status.
 
 An animated **Inspection in progress** row appears during scanning. The
-Chromium inspection browser starts minimized, not headless. Select **Show
-browser** or **Hide browser** on that row to toggle its window. Closing the
+Chromium-based inspection browser starts hidden, not minimized or headless.
+It does not appear on the desktop until you select **Show browser**.
+Select **Hide browser** to hide its window again while scanning continues. Closing the
 browser manually interrupts inspection; use **Cancel inspection** instead.
 
 Discovery can take time because pages are visited sequentially with pacing.
@@ -112,8 +131,8 @@ manifest with the audio files for reruns.
 
 ## Settings and Appearance
 
-Open **More > Settings** or press **Ctrl+,**. Its left rail offers **Appearance**
-and **Shortcuts**. Switching pages preserves the Appearance controls and choices.
+Open **More > Settings** or press **Ctrl+,**. Its left rail offers **Appearance**,
+**Shortcuts**, and **Browsing**. Switching pages preserves the controls and choices.
 Use **Back to downloader** or **Esc** to return.
 
 - **Light** uses light surfaces; **Dark** uses dark surfaces.

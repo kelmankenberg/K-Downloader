@@ -2,6 +2,9 @@ import { app, BrowserWindow, dialog, ipcMain, Menu, nativeTheme, screen, shell }
 import { readFileSync, writeFileSync, renameSync } from "node:fs";
 import { centeredBounds, parseWindowState, startupBounds } from "./window-state.js";
 import { monitorCinnamonTheme } from "./system-theme.js";
+import { WebsiteBrowser } from "./website-browser.js";
+import { khinsiderHome } from "../website.js";
+import { createInspectionBrowser } from "./inspection-browser.js";
 import { resolve } from "node:path";
 import { downloadAlbum, type DownloadProgress } from "../downloader.js";
 import { planFormats } from "../formats.js";
@@ -16,6 +19,7 @@ type CachedInspection = {
 };
 
 let mainWindow: BrowserWindow | undefined;
+let websiteBrowser: WebsiteBrowser | undefined;
 let mainWindowReady = false;
 let duplicateLaunchPending = false;
 let instanceNoticeOpen = false;
@@ -126,9 +130,15 @@ function sendWindowState(window: BrowserWindow): void {
 }
 
 function registerIpc(): void {
-  ipcMain.handle("source:open-khinsider", async (event) => {
+  ipcMain.handle("source:open-khinsider", async (event, target: unknown) => {
     const window = assertWindowSender(event.sender.id);
-    const url = "https://downloads.khinsider.com/";
+    if (target !== "external" && target !== "internal") throw new Error("Invalid website target");
+    if (target === "internal") {
+      websiteBrowser ??= new WebsiteBrowser(window);
+      websiteBrowser.open();
+      return;
+    }
+    const url = khinsiderHome;
     try {
       await shell.openExternal(url);
     } catch {
@@ -140,6 +150,20 @@ function registerIpc(): void {
         buttons: ["OK"],
       });
     }
+  });
+  ipcMain.handle("website:bounds", (event, bounds: unknown) => {
+    assertWindowSender(event.sender.id);
+    websiteBrowser?.setBounds(bounds);
+  });
+  ipcMain.handle("website:command", (event, command: unknown) => {
+    assertWindowSender(event.sender.id);
+    if (!websiteBrowser) throw new Error("KHInsider browser is not open");
+    return websiteBrowser.command(command);
+  });
+  ipcMain.handle("website:use-album", (event) => {
+    assertWindowSender(event.sender.id);
+    if (!websiteBrowser) throw new Error("KHInsider browser is not open");
+    return websiteBrowser.useAlbum();
   });
   ipcMain.handle("support:report-issue", async (event) => {
     const window = assertWindowSender(event.sender.id);
@@ -228,6 +252,7 @@ function registerIpc(): void {
     sendInspectionState(event.sender, { active: true, browserReady: false, browserVisible: false });
     try {
       const result = await inspectAlbum(sourceAlbum, {
+        createBrowser: createInspectionBrowser,
         signal: active.controller.signal,
         onBrowserReady: (setBrowserVisible) => {
           active.setBrowserVisible = setBrowserVisible;
@@ -329,6 +354,8 @@ async function createWindow(): Promise<void> {
   window.on("unmaximize", () => sendWindowState(window));
   window.webContents.on("did-finish-load", () => sendWindowState(window));
   window.on("close", () => {
+    websiteBrowser?.destroy();
+    websiteBrowser = undefined;
     try {
       writeFileSync(`${statePath}.tmp`, JSON.stringify({ bounds: window.getNormalBounds(), maximized: window.isMaximized() }), { mode: 0o600 });
       renameSync(`${statePath}.tmp`, statePath);

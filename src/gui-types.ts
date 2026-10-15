@@ -26,6 +26,16 @@ export type GuiWindowState = {
   maximized: boolean;
 };
 
+export type WebsiteTarget = "external" | "internal";
+export type GuiWebsiteState = {
+  url: string;
+  loading: boolean;
+  canGoBack: boolean;
+  canGoForward: boolean;
+  error: string;
+};
+export type GuiWebsiteBounds = { x: number; y: number; width: number; height: number };
+
 export type GuiProgress = {
   stage: "track-start" | "track-complete" | "track-failed" | "canceled";
   number: number;
@@ -42,7 +52,12 @@ export type GuiDownloadRequest = {
 };
 
 export type KhinsiderDownloaderApi = {
-  openKhinsider: () => Promise<void>;
+  openKhinsider: (target: WebsiteTarget) => Promise<void>;
+  websiteCommand: (command: "back" | "forward" | "reload" | "home") => Promise<void>;
+  setWebsiteBounds: (bounds: GuiWebsiteBounds | null) => Promise<void>;
+  useWebsiteAlbum: () => Promise<string>;
+  onWebsiteState: (listener: (state: GuiWebsiteState) => void) => () => void;
+  onWebsiteShortcut: (listener: (action: "settings" | "in" | "out" | "reset") => void) => () => void;
   reportIssue: () => Promise<void>;
   restoreWindowBounds: () => Promise<void>;
   zoom: (direction: "in" | "out" | "reset") => Promise<number>;

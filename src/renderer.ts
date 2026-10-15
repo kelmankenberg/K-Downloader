@@ -1,24 +1,21 @@
 import type { GuiFormatPolicy, GuiInspection, GuiInspectionState, GuiProgress, GuiTrack } from "./gui-types.js";
-import { ArrowLeft, Bug, CircleHelp, Copy, createIcons, EllipsisVertical, ExternalLink, Keyboard, LoaderCircle, Minus, Palette, Scan, ScrollText, Settings, Square, X } from "lucide";
+import { ArrowLeft, ArrowRight, Bug, CircleHelp, Copy, createIcons, EllipsisVertical, ExternalLink, Globe, House, Keyboard, LoaderCircle, Minus, Palette, RotateCw, Scan, ScrollText, Settings, Square, X } from "lucide";
 import { initializeAppearance } from "./appearance.js";
 import { initializeChangelog } from "./changelog.js";
 import { initializeHelp } from "./help.js";
+import { initializeWebsiteControls } from "./website-controls.js";
 
 declare const __APP_VERSION__: string;
 document.querySelector<HTMLElement>("#menu-app-version")!.textContent = __APP_VERSION__;
 
 initializeAppearance();
 
-const windowIcons = { ArrowLeft, Bug, CircleHelp, Copy, EllipsisVertical, ExternalLink, Keyboard, LoaderCircle, Minus, Palette, Scan, ScrollText, Settings, Square, X };
+const windowIcons = { ArrowLeft, ArrowRight, Bug, CircleHelp, Copy, EllipsisVertical, ExternalLink, Globe, House, Keyboard, LoaderCircle, Minus, Palette, RotateCw, Scan, ScrollText, Settings, Square, X };
 createIcons({ icons: windowIcons });
 const changelog = initializeChangelog();
 const help = initializeHelp();
 
 const albumInput = document.querySelector<HTMLTextAreaElement>("#album-url")!;
-document.querySelector("#khinsider-link")!.addEventListener("click", (event) => {
-  event.preventDefault();
-  void window.khinsiderDownloader.openKhinsider();
-});
 const outputInput = document.querySelector<HTMLInputElement>("#output-root")!;
 const formatSelect = document.querySelector<HTMLSelectElement>("#format-policy")!;
 const discLabelSelect = document.querySelector<HTMLSelectElement>("#disc-label")!;
@@ -59,6 +56,9 @@ const appearanceNav = document.querySelector<HTMLButtonElement>("#appearance-nav
 const shortcutsNav = document.querySelector<HTMLButtonElement>("#shortcuts-nav")!;
 const appearancePage = document.querySelector<HTMLElement>("#appearance-page")!;
 const shortcutsPage = document.querySelector<HTMLElement>("#shortcuts-page")!;
+const browsingNav = document.querySelector<HTMLButtonElement>("#browsing-nav")!;
+const browsingPage = document.querySelector<HTMLElement>("#browsing-page")!;
+const websiteView = document.querySelector<HTMLElement>("#website-view")!;
 
 let inspection: GuiInspection | undefined;
 let busy = false;
@@ -66,6 +66,28 @@ let inspecting = false;
 let inspectionCancelRequested = false;
 let inspectionBrowserVisible = false;
 let settingsOpen = false;
+
+const website = initializeWebsiteControls({
+  showBrowser: () => {
+    help.close();
+    changelog.close();
+    closeMoreMenu();
+    workspaceView.hidden = true;
+    websiteView.hidden = false;
+  },
+  showDownloader: (albumUrl) => {
+    websiteView.hidden = true;
+    workspaceView.hidden = false;
+    if (albumUrl) albumInput.value = albumUrl;
+    albumInput.focus();
+  },
+});
+window.khinsiderDownloader.onWebsiteShortcut((action) => {
+  if (action === "settings") setSettingsOpen(true);
+  else void window.khinsiderDownloader.zoom(action).then(website.syncBounds).catch((error: unknown) => {
+    document.querySelector<HTMLElement>("#website-error")!.textContent = error instanceof Error ? error.message : String(error);
+  });
+});
 
 function updateInspectionIndicator(state: GuiInspectionState): void {
   inspectionBrowserVisible = state.browserVisible;
@@ -85,22 +107,25 @@ function closeMoreMenu(): void {
 
 function setSettingsOpen(open: boolean): void {
   settingsOpen = open;
-  workspaceView.hidden = open;
+  workspaceView.hidden = open || website.isOpen();
+  websiteView.hidden = open || !website.isOpen();
   settingsView.hidden = !open;
+  closeSettingsButton.querySelector("span")!.textContent = website.isOpen() ? "Back to browser" : "Back to downloader";
   closeMoreMenu();
   if (open) closeSettingsButton.focus();
+  else if (website.isOpen()) document.querySelector<HTMLButtonElement>("#website-close")!.focus();
   else albumInput.focus();
 }
 
-function selectSettingsPage(page: "appearance" | "shortcuts"): void {
-  appearancePage.hidden = page !== "appearance";
-  shortcutsPage.hidden = page !== "shortcuts";
-  if (page === "appearance") {
-    appearanceNav.setAttribute("aria-current", "page");
-    shortcutsNav.removeAttribute("aria-current");
-  } else {
-    shortcutsNav.setAttribute("aria-current", "page");
-    appearanceNav.removeAttribute("aria-current");
+function selectSettingsPage(page: "appearance" | "shortcuts" | "browsing"): void {
+  for (const [name, content, nav] of [
+    ["appearance", appearancePage, appearanceNav],
+    ["shortcuts", shortcutsPage, shortcutsNav],
+    ["browsing", browsingPage, browsingNav],
+  ] as const) {
+    content.hidden = page !== name;
+    if (page === name) nav.setAttribute("aria-current", "page");
+    else nav.removeAttribute("aria-current");
   }
   document.querySelector<HTMLElement>(".settings-content")!.scrollTop = 0;
 }
@@ -225,6 +250,7 @@ moreButton.addEventListener("click", () => {
 settingsMenuItem.addEventListener("click", () => setSettingsOpen(true));
 appearanceNav.addEventListener("click", () => selectSettingsPage("appearance"));
 shortcutsNav.addEventListener("click", () => selectSettingsPage("shortcuts"));
+browsingNav.addEventListener("click", () => selectSettingsPage("browsing"));
 restoreBoundsMenuItem.addEventListener("click", () => {
   closeMoreMenu();
   void window.khinsiderDownloader.restoreWindowBounds();

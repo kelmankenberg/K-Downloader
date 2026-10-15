@@ -51,6 +51,11 @@ describe("appearance controls in Chromium", () => {
         let browserVisible = false;
         window.khinsiderDownloader = {
           openKhinsider: async () => {},
+          websiteCommand: async () => {},
+          setWebsiteBounds: async () => {},
+          useWebsiteAlbum: async () => "",
+          onWebsiteState: () => () => {},
+          onWebsiteShortcut: () => () => {},
           reportIssue: async () => {},
           restoreWindowBounds: async () => {},
           zoom: async () => 1,

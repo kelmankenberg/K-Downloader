@@ -64,9 +64,11 @@ Only one desktop instance runs per application profile. A second launch exits,
 restores the existing window if minimized, and shows an already-running
 confirmation with **Show running app** to focus that window.
 
-Paste one album URL and choose **Inspect album**. A Chromium inspection window
-starts minimized while an in-progress indicator appears in the app; click that
-indicator to show or hide the browser. Review the per-track format preview, choose the
+Paste one album URL and choose **Inspect album**. A Chromium-based inspection
+browser starts hidden while an in-progress indicator appears in the app.
+Select **Show browser** to display its window, or **Hide browser** to hide it
+again while scanning continues. It is not headless and never needs to appear
+before Show browser is selected. Review the per-track format preview, choose the
 destination and format policy, then select **Download**. The default destination
 is `~/Music/Khinsider Downloader`. **Cancel active download** stops the current transfer
 and prevents later tracks from starting.
@@ -74,6 +76,16 @@ and prevents later tracks from starting.
 While inspection is running, the same button becomes **Cancel inspection**.
 It closes the inspection browser and stops scanning track pages, including
 during browser startup. A canceled inspection can be started again.
+
+The **KHInsider** link beside the album URL opens the default system browser.
+Under **Settings > Browsing**, choose **Inside the app** to browse in a dedicated
+page within the existing app window instead. Back/Forward, Reload, and Home
+controls are provided; **Use this album** fills the downloader's URL from the
+current album page. **Back to downloader** preserves the current setup and
+preview. The browser choice persists across restarts. Internal browsing uses
+an isolated temporary website session and never creates a separate window.
+Off-site links and direct website downloads are blocked with an explanation.
+This setting does not change the separate hidden album-inspection browser.
 
 Open **More > Settings** in the titlebar or press `Ctrl+,`. Under **Appearance**,
 select Light, Dark, or System mode and a Mint, Ocean, Amber, Rose, or Monochrome

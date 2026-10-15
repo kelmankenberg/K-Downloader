@@ -30,6 +30,15 @@ export type DiscoveredTrack = TrackLink & {
 export type InspectionOptions = {
   signal?: AbortSignal;
   onBrowserReady?: (setVisible: (visible: boolean) => Promise<void>) => void;
+  createBrowser?: () => Promise<InspectionBrowser>;
+};
+
+export type InspectionBrowser = {
+  readPage: (url: string) => Promise<{ status: number; html: string }>;
+  setVisible: (visible: boolean) => Promise<void>;
+  isClosed: () => boolean;
+  onClose: (listener: () => void) => void;
+  close: () => Promise<void>;
 };
 
 function* walk(node: any): Generator<any> {
@@ -158,30 +167,26 @@ export function parseTrackPage(html: string, trackUrl: URL): AudioLink[] {
   return links;
 }
 
-export async function inspectAlbum(
-  input: string,
-  options: InspectionOptions = {},
-): Promise<{ album: AlbumPage; tracks: DiscoveredTrack[] }> {
-  const albumUrl = validateAlbumUrl(input);
-  options.signal?.throwIfAborted();
+async function createChromiumInspectionBrowser(signal?: AbortSignal): Promise<InspectionBrowser> {
   const browser = await chromium.launch({
     headless: false,
     args: ["--start-minimized"],
     ...(process.env.KHINSIDER_DOWNLOADER_CHROMIUM_PATH ? { executablePath: process.env.KHINSIDER_DOWNLOADER_CHROMIUM_PATH } : {}),
   });
   let context: BrowserContext | undefined;
-  const controller = new AbortController();
   const abort = () => {
-    controller.abort();
     void browser.close().catch(() => undefined);
   };
-  options.signal?.addEventListener("abort", abort, { once: true });
-
+  signal?.addEventListener("abort", abort, { once: true });
+  const close = async (): Promise<void> => {
+    signal?.removeEventListener("abort", abort);
+    await context?.close().catch(() => undefined);
+    await browser.close().catch(() => undefined);
+  };
   try {
-    options.signal?.throwIfAborted();
+    signal?.throwIfAborted();
     context = await browser.newContext({ serviceWorkers: "block" });
     const page = await context.newPage();
-    page.on("close", () => controller.abort());
     const cdp = await context.newCDPSession(page);
     const { windowId } = await cdp.send("Browser.getWindowForTarget");
     let browserVisible: boolean | undefined;
@@ -195,14 +200,45 @@ export async function inspectAlbum(
       browserVisible = visible;
     };
     await setBrowserVisible(false);
-    options.onBrowserReady?.(setBrowserVisible);
+    return {
+      readPage: async (url) => {
+        const response = await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30_000 });
+        return { status: response?.status() ?? 0, html: response?.ok() ? await response.text() : "" };
+      },
+      setVisible: setBrowserVisible,
+      isClosed: () => page.isClosed(),
+      onClose: (listener) => { page.on("close", listener); },
+      close,
+    };
+  } catch (error) {
+    await close();
+    throw error;
+  }
+}
 
-    const albumResponse = await page.goto(albumUrl.href, { waitUntil: "domcontentloaded", timeout: 30_000 });
-    if (!albumResponse || !albumResponse.ok()) {
-      throw new Error(`Album page request failed with HTTP ${albumResponse?.status() ?? "no response"}`);
+export async function inspectAlbum(
+  input: string,
+  options: InspectionOptions = {},
+): Promise<{ album: AlbumPage; tracks: DiscoveredTrack[] }> {
+  const albumUrl = validateAlbumUrl(input);
+  options.signal?.throwIfAborted();
+  const browser = await (options.createBrowser?.() ?? createChromiumInspectionBrowser(options.signal));
+  const controller = new AbortController();
+  const abort = () => {
+    controller.abort();
+    void browser.close().catch((error: unknown) => console.warn("Could not close inspection browser:", error));
+  };
+  options.signal?.addEventListener("abort", abort, { once: true });
+  browser.onClose(() => controller.abort());
+  try {
+    options.signal?.throwIfAborted();
+    options.onBrowserReady?.(browser.setVisible);
+    const albumResponse = await browser.readPage(albumUrl.href);
+    if (albumResponse.status < 200 || albumResponse.status >= 300) {
+      throw new Error(`Album page request failed with HTTP ${albumResponse.status || "no response"}`);
     }
 
-    const album = parseAlbumPage(await albumResponse.text(), albumUrl);
+    const album = parseAlbumPage(albumResponse.html, albumUrl);
     if (album.advertisedTrackCount !== undefined && album.tracks.length !== album.advertisedTrackCount) {
       throw new Error(`Album advertises ${album.advertisedTrackCount} tracks but ${album.tracks.length} track links were found`);
     }
@@ -210,20 +246,19 @@ export async function inspectAlbum(
 
     const tracks: DiscoveredTrack[] = [];
     for (const [index, track] of album.tracks.entries()) {
-      if (controller.signal.aborted || page.isClosed()) throw new Error("Inspection browser was closed before inspection completed");
+      if (controller.signal.aborted || browser.isClosed()) throw new Error("Inspection browser was closed before inspection completed");
       if (index > 0) await delay(1_000, undefined, { signal: controller.signal });
-      const trackResponse = await page.goto(track.pageUrl.href, { waitUntil: "domcontentloaded", timeout: 30_000 });
-      if (!trackResponse || !trackResponse.ok()) {
-        throw new Error(`Track ${track.number} page request failed with HTTP ${trackResponse?.status() ?? "no response"}`);
+      const trackResponse = await browser.readPage(track.pageUrl.href);
+      if (trackResponse.status < 200 || trackResponse.status >= 300) {
+        throw new Error(`Track ${track.number} page request failed with HTTP ${trackResponse.status || "no response"}`);
       }
-      tracks.push({ ...track, audioLinks: parseTrackPage(await trackResponse.text(), track.pageUrl) });
+      tracks.push({ ...track, audioLinks: parseTrackPage(trackResponse.html, track.pageUrl) });
     }
 
     options.signal?.throwIfAborted();
     return { album, tracks };
   } finally {
     options.signal?.removeEventListener("abort", abort);
-    await context?.close().catch(() => undefined);
-    await browser.close().catch(() => undefined);
+    await browser.close();
   }
 }
